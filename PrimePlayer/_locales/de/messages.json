@@ -1,0 +1,182 @@
+{
+  "extDesc": {
+    "message": "Bietet zus\u00E4tzliche Funktionen f\u00FCr Google Play Music: last.fm Integration, Toast Benachrichtigungen, einen Miniplayer und vieles mehr."
+  },
+  "extTitle": {
+    "message": "Prime Player"
+  },
+  "options": {
+    "message": "Optionen"
+  },
+  "nothingPlaying": {
+    "message": "Keine Wiedergabe"
+  },
+  "gotoGmusic": {
+    "message": "\u00D6ffne Google Play Music"
+  },
+  "playlists": {
+    "message": "Playlisten"
+  },
+  "setting_scrobble": {
+    "message": "Scrobbeln aktivieren"
+  },
+  "setting_toast": {
+    "message": "Toast-Benachrichtigungen aktivieren"
+  },
+  "setting_toastHint": {
+    "message": "Toast-Benachrichtigungen werden nicht angezeigt, solange der Miniplayer aktiv ist."
+  },
+  "openMiniplayer": {
+    "message": "Miniplayer \u00F6ffnen"
+  },
+  "lastfmUser": {
+    "message": "last.fm Nutzer: "
+  },
+  "logout": {
+    "message": "Abmelden"
+  },
+  "connect": {
+    "message": "Verbinden"
+  },
+  "disconnected": {
+    "message": "Nicht verbunden"
+  },
+  "showPlaylists": {
+    "message": "Playlisten anzeigen"
+  },
+  "repeat": {
+    "message": "Wiederholen"
+  },
+  "shuffle": {
+    "message": "Zufallsmix"
+  },
+  "prevSong": {
+    "message": "Vorheriger Titel"
+  },
+  "nextSong": {
+    "message": "N\u00E4chster Titel"
+  },
+  "pauseSong": {
+    "message": "Pause"
+  },
+  "resumeSong": {
+    "message": "Wiedergabe fortsetzen"
+  },
+  "lastfmUnlove": {
+    "message": "Nicht mehr lieben"
+  },
+  "lastfmLove": {
+    "message": "Diesen Titel lieben"
+  },
+  "setting_toastDuration": {
+    "message": "Toast Dauer (Sekunden)"
+  },
+  "setting_scrobblePercent": {
+    "message": "Prozentsatz zum Scrobbeln"
+  },
+  "setting_scrobbleTime": {
+    "message": "Maximale Zeit (Sekunden), nach der gescrobbelt wird (0=deaktiviert)"
+  },
+  "setting_scrobbleMaxDuration": {
+    "message": "Maximale L\u00E4nge (Minuten), bis zu der ein Titel gescrobbelt wird (0=deaktiviert)"
+  },
+  "setting_miniplayerType": {
+    "message": "Typ f\u00FCr den Miniplayer"
+  },
+  "setting_miniplayerTypeHint": {
+    "message": "Panels und Popups sind (anders als Benachrichtigungen) frei verschiebbar. Hinweis: Unter chrome://flags die Option 'Steuerfelder aktivieren' einschalten, damit 'echte' Panels erzeugt werden, die im Vordergrund bleiben k\u00F6nnen."
+  },
+  "setting_miniplayerType_notification": {
+    "message": "Benachrichtigung"
+  },
+  "setting_miniplayerType_normal": {
+    "message": "Fenster"
+  },
+  "setting_miniplayerType_popup": {
+    "message": "Popup-Fenster"
+  },
+  "setting_miniplayerType_panel": {
+    "message": "Panel"
+  },
+  "setting_miniplayerType_detached_panel": {
+    "message": "Freies Panel"
+  },
+  "setting_layout": {
+    "message": "Aussehen des Miniplayers"
+  },
+  "setting_layoutHint": {
+    "message": "Einige Layouts sehen f\u00FCr Benachrichtigungen nicht gut aus. Das liegt an Gr\u00F6\u00DFen-Beschr\u00E4nkungen der Benachrichtigungen in Chrome. Die Kombination von Panels mit 'Horizontale Leiste' funktioniert leider auch nicht sehr gut."
+  },
+  "setting_layout_normal": {
+    "message": "Normal"
+  },
+  "setting_layout_compact1": {
+    "message": "Kompakt (niedrig)"
+  },
+  "setting_layout_compact2": {
+    "message": "Kompakt (schmal)"
+  },
+  "setting_layout_hbar": {
+    "message": "Horizontale Leiste"
+  },
+  "setting_iconClickMiniplayer": {
+    "message": "Beim Klick auf das Symbol Miniplayer direkt \u00F6ffnen"
+  },
+  "setting_iconClickConnect": {
+    "message": "Beim Klick auf das Symbol immer erst Google Music \u00F6ffnen, wenn nicht bereits ge\u00F6ffnet"
+  },
+  "connected": {
+    "message": "Dieser Tab ist mit Prime Player verbunden."
+  },
+  "lastfmSettings": {
+    "message": "last.fm Einstellungen"
+  },
+  "toastingSettings": {
+    "message": "Toasting Einstellungen"
+  },
+  "lfSettings": {
+    "message": "Aussehen und Verhalten"
+  },
+  "setting_gaEnabled": {
+    "message": "Google Analytics aktivieren"
+  },
+  "setting_gaEnabledHint": {
+    "message": "Es werden keine pers\u00F6nlichen Daten (z.B. gespielte Songs) gesammelt. Die Daten dienen nur zur Analyse h\u00E4ufig genutzer Funktionen und Einstellungen."
+  },
+  "scrobblePosition": {
+    "message": "Hier wird gescrobbelt"
+  },
+  "setting_color": {
+    "message": "Farbschema"
+  },
+  "setting_color_turq": {
+    "message": "T\u00FCrkis"
+  },
+  "setting_color_green": {
+    "message": "Gr\u00FCn"
+  },
+  "setting_color_red": {
+    "message": "Rot"
+  },
+  "setting_color_blue": {
+    "message": "Blau"
+  },
+  "setting_color_black": {
+    "message": "Schwarz"
+  },
+  "lastfmConnectSuccess": {
+    "message": "Verbindung erfolgreich"
+  },
+  "lastfmConnectError": {
+    "message": "Fehler beim Verbinden"
+  },
+  "lastfmSessionTimeout": {
+    "message": "Last.fm getrennt"
+  },
+  "lastfmRelogin": {
+    "message": "Zum Wiederverbinden hier klicken."
+  },
+  "bugfeatureinfo": {
+    "message": "Wenn du Fehler findest oder neue Funktionen sehen m\u00F6chtest, lege bitte einen Issue auf GitHub an oder - noch besser - sende mir einen Pull-Request."
+  }
+}

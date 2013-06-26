@@ -1,0 +1,182 @@
+{
+  "extDesc": {
+    "message": "Provides additional features for Google Play Music: last.fm integration, toast notifications, a powerful miniplayer and much more."
+  },
+  "extTitle": {
+    "message": "Prime Player"
+  },
+  "options": {
+    "message": "Options"
+  },
+  "nothingPlaying": {
+    "message": "Nothing is playing"
+  },
+  "gotoGmusic": {
+    "message": "Open Google Play Music"
+  },
+  "playlists": {
+    "message": "Playlists"
+  },
+  "setting_scrobble": {
+    "message": "Enable scrobbling"
+  },
+  "setting_toast": {
+    "message": "Enable toast notifications"
+  },
+  "setting_toastHint": {
+    "message": "Toast notifications will not show up as long as the miniplayer is active."
+  },
+  "openMiniplayer": {
+    "message": "Open miniplayer"
+  },
+  "lastfmUser": {
+    "message": "last.fm User: "
+  },
+  "logout": {
+    "message": "Logout"
+  },
+  "connect": {
+    "message": "Connect"
+  },
+  "disconnected": {
+    "message": "Not connected"
+  },
+  "showPlaylists": {
+    "message": "Show playlists"
+  },
+  "repeat": {
+    "message": "Repeat songs"
+  },
+  "shuffle": {
+    "message": "Shuffle songs"
+  },
+  "prevSong": {
+    "message": "Previous song"
+  },
+  "nextSong": {
+    "message": "Next song"
+  },
+  "pauseSong": {
+    "message": "Pause song"
+  },
+  "resumeSong": {
+    "message": "Resume song"
+  },
+  "lastfmUnlove": {
+    "message": "Unlove"
+  },
+  "lastfmLove": {
+    "message": "Love this song"
+  },
+  "setting_toastDuration": {
+    "message": "Toast duration (seconds)"
+  },
+  "setting_scrobblePercent": {
+    "message": "Percentage for scrobbling"
+  },
+  "setting_scrobbleTime": {
+    "message": "Maximum time (seconds) after that will be scrobbled (0=inactive)"
+  },
+  "setting_scrobbleMaxDuration": {
+    "message": "Maximum duration (minutes) of a title to be scrobbled (0=inactive)"
+  },
+  "setting_miniplayerType": {
+    "message": "Type for the miniplayer"
+  },
+  "setting_miniplayerTypeHint": {
+    "message": "Panels and popups can be freely moved on the screen (other than notifications). Hint: Go to chrome://flags and activate 'Panels' to enable 'real' panels that can stay always on top."
+  },
+  "setting_miniplayerType_notification": {
+    "message": "Notification"
+  },
+  "setting_miniplayerType_normal": {
+    "message": "Window"
+  },
+  "setting_miniplayerType_popup": {
+    "message": "Popup window"
+  },
+  "setting_miniplayerType_panel": {
+    "message": "Panel"
+  },
+  "setting_miniplayerType_detached_panel": {
+    "message": "Detached panel"
+  },
+  "setting_layout": {
+    "message": "Layout for the miniplayer"
+  },
+  "setting_layoutHint": {
+    "message": "Some layouts do not look good for notifications. This is caused by sizing restrictions of the notifications in Chrome. Unfortunately, the combination of panels with 'horizontal bar' also does not work very well."
+  },
+  "setting_layout_normal": {
+    "message": "Normal"
+  },
+  "setting_layout_compact1": {
+    "message": "Compact (low)"
+  },
+  "setting_layout_compact2": {
+    "message": "Compact (slim)"
+  },
+  "setting_layout_hbar": {
+    "message": "Horizontal bar"
+  },
+  "setting_iconClickMiniplayer": {
+    "message": "Open miniplayer directly on icon click"
+  },
+  "setting_iconClickConnect": {
+    "message": "Always open Google Music first on icon click, if not opened yet"
+  },
+  "connected": {
+    "message": "This tab is connected to Prime Player."
+  },
+  "lastfmSettings": {
+    "message": "last.fm Settings"
+  },
+  "toastingSettings": {
+    "message": "Toasting Settings"
+  },
+  "lfSettings": {
+    "message": "Look and Feel"
+  },
+  "setting_gaEnabled": {
+    "message": "Enable Google Analytics"
+  },
+  "setting_gaEnabledHint": {
+    "message": "No personal data (e.g. played songs) will be collected. This is only to analyse commonly used features and settings."
+  },
+  "scrobblePosition": {
+    "message": "Here will be scrobbled"
+  },
+  "setting_color": {
+    "message": "Color scheme"
+  },
+  "setting_color_turq": {
+    "message": "Turquois"
+  },
+  "setting_color_green": {
+    "message": "Green"
+  },
+  "setting_color_red": {
+    "message": "Red"
+  },
+  "setting_color_blue": {
+    "message": "Blue"
+  },
+  "setting_color_black": {
+    "message": "Black"
+  },
+  "lastfmConnectSuccess": {
+    "message": "Successfully connected"
+  },
+  "lastfmConnectError": {
+    "message": "Error connecting"
+  },
+  "lastfmSessionTimeout": {
+    "message": "Last.fm disconnect"
+  },
+  "lastfmRelogin": {
+    "message": "Click here to reconnect."
+  },
+  "bugfeatureinfo": {
+    "message": "If you find any bugs or would like to see new features, please file an issue on GitHub or - even better - send a pull request."
+  }
+}

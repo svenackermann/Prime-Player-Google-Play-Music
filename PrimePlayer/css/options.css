@@ -1,0 +1,66 @@
+/*
+ * CSS for the options page
+ * @author Sven Recknagel (svenrecknagel@googlemail.com)
+ * Licensed under the BSD license
+ */
+body {
+  background: #F9F9F9;
+  font-size: 12px;
+  font-family: arial;
+}
+
+h1 {
+  color: black;
+  font-size: 20px;
+}
+
+.settings {
+  float: left;
+}
+
+.info {
+  padding-left: 15px;
+  overflow-x: hidden;
+  min-width: 250px;
+  max-width: 450px;
+}
+
+fieldset {
+  margin-bottom: 1ex;
+}
+
+input[type='number'] {
+  width: 7ex;
+  margin: 2px 3px;
+  text-align: right;
+  padding-right: 0.5ex;
+}
+
+img.hint {
+  margin-left: 0.5ex;
+  vertical-align: text-bottom;
+}
+
+#lastfmStatus {
+  height: 16px;
+}
+
+#lastfmStatus a {
+  margin-left: 1ex;
+}
+
+#lastfmStatus a.disconnected {
+  text-decoration: none;
+  color: black;
+  cursor: text;
+}
+
+#lastfmStatus img {
+  display: none;
+  margin-left: 0.5ex;
+  vertical-align: top;
+}
+
+div {
+  margin-bottom: 0.5ex;
+}
