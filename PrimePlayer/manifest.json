@@ -5,9 +5,9 @@
   "version": "1.0.1",
   "default_locale": "en",
   "icons": {
-    "16": "img/icon-16x16.png",
+    "128": "img/icon-128x128.png",
     "48": "img/icon-48x48.png",
-    "128": "img/icon-128x128.png"
+    "16": "img/icon-16x16.png"
   },
   "permissions": [
     "*://play.google.com/music/listen*",

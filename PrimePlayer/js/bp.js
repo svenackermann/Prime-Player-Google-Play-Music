@@ -468,5 +468,5 @@ song.addListener("info", function(val) {
 });
 
 chrome.extension.onConnect.addListener(onConnectListener);
-chrome.runtime.onInstalled.addListener(findAndConnectGoogleMusicTab);
+chrome.runtime.onInstalled.addListener(onInstalledListener);
 chrome.runtime.onUpdateAvailable.addListener(chrome.runtime.reload);
