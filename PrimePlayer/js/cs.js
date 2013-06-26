@@ -82,7 +82,7 @@ $(function() {
     }
     
     function ratingGetter(el) {
-      return parseInt(el.getAttribute("data-rating")) || 0;
+      return parseInt($(el.parentElement).find("li.selected").data("rating")) || 0;
     }
     
     function watchEvent(event, selector, listener) {
@@ -92,18 +92,22 @@ $(function() {
     }
     
     function watchAttr(attr, selector, type, getValue) {
-      if (getValue == undefined) {
-        getValue = function(el) {return el.getAttribute(attr)};
-      }
-      var observer = new WebKitMutationObserver(function (mutations) {
-        mutations.forEach(function(mutation) {
-          post(type, getValue(mutation.target));
-        });
-      });
-      observers.push(observer);
       var element = $(selector).get()[0];
-      observer.observe(element, { attributes: true, attributeFilter: [attr] });
-      post(type, getValue(element));//trigger once to initialize the info
+      if (element) {
+        if (getValue == undefined) {
+          getValue = function(el) {return el.getAttribute(attr)};
+        }
+        var observer = new WebKitMutationObserver(function (mutations) {
+          mutations.forEach(function(mutation) {
+            post(type, getValue(mutation.target));
+          });
+        });
+        observers.push(observer);
+        observer.observe(element, { attributes: true, attributeFilter: [attr] });
+        post(type, getValue(element));//trigger once to initialize the info
+      } else {
+        console.warn("element does not exist: " + selector);
+      }
     }
     
     watchEvent("DOMSubtreeModified", "#playlists", playlistListener);
@@ -112,7 +116,7 @@ $(function() {
     watchAttr("class", "#player > div.player-middle > button[data-id='play-pause']", "player-playing", playingGetter);
     watchAttr("value", "#player > div.player-middle > button[data-id='repeat']", "player-repeat");
     watchAttr("value", "#player > div.player-middle > button[data-id='shuffle']", "player-shuffle");
-    watchAttr("data-rating", "#player-right-wrapper > .player-rating-container ul.rating-container div.background", "song-rating", ratingGetter);
+    watchAttr("class", "#player-right-wrapper > .player-rating-container ul.rating-container li", "song-rating", ratingGetter);
     
     var injected = document.createElement('script'); injected.type = 'text/javascript';
     injected.src = chrome.extension.getURL('js/injected.js');
