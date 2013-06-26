@@ -387,15 +387,30 @@ function openGoogleMusicTab() {
   }
 }
 
-function findAndConnectGoogleMusicTab(details) {
-  if (details.reason == "chrome_update") return;
+function onInstalledListener(details) {
+  //first cleanup
+  for (var parkedPort in parkedPorts) {
+    try {
+      parkedPort.disconnect();
+    } catch (e) {
+      //seems to be disconnected already
+    }
+  }
+  parkedPorts = [];
+  if (googlemusicport) {
+    try {
+      googlemusicport.disconnect();
+    } catch (e) {
+      //seems to be disconnected already
+    }
+    onDisconnectListener();//not automatically triggered when we disconnect
+  }
+  //now connect with new scripts
   chrome.tabs.query({url:"*://play.google.com/music/listen*"}, function(tabs) {
     for (var i in tabs) {
       var tabId = tabs[i].id;
-      if (tabId != googlemusictabId) {
-        chrome.tabs.executeScript(tabId, {file: "js/jquery-2.0.2.min.js"});
-        chrome.tabs.executeScript(tabId, {file: "js/cs.js"});
-      }
+      chrome.tabs.executeScript(tabId, {file: "js/jquery-2.0.2.min.js"});
+      chrome.tabs.executeScript(tabId, {file: "js/cs.js"});
     }
   });
 }
