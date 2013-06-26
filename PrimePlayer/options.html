@@ -1,0 +1,124 @@
+<html>
+<head>
+<title></title>
+<link rel="stylesheet" type="text/css" href="css/options.css" />
+<script type="text/javascript" src="js/jquery-2.0.2.min.js"></script>
+<script type="text/javascript" src="js/ga.js"></script>
+<script type="text/javascript" src="js/options.js"></script>
+</head>
+<body>
+  <h1></h1>
+  <div class="settings">
+    <fieldset>
+      <legend id="legendLastfm"></legend>
+      <div id="lastfmStatus">
+        <span></span>
+        <a target="_blank" href="javascript:return false;" class="disconnected"></a>
+        <a href="#"></a>
+        <img class="loader" src="img/ajax-loader.gif">
+        <img class="success" src="img/check.png">
+        <img class="failure" src="img/cross.png">
+      </div>
+      <div>
+        <input id="scrobble" type="checkbox"/>
+        <label for="scrobble"></label>
+      </div>
+      <div>
+        <input id="scrobblePercent" type="range" min="1" max="100" step="1"/>
+        <label for="scrobblePercent"></label>
+        (<span></span>%)
+      </div>
+      <div>
+        <input id="scrobbleTime" type="number" min="0"/>
+        <label for="scrobbleTime"></label>
+      </div>
+      <div>
+        <input id="scrobbleMaxDuration" type="number" min="0"/>
+        <label for="scrobbleMaxDuration"></label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend id="legendToasting"></legend>
+      <div>
+        <input id="toast" type="checkbox"/>
+        <label for="toast"></label>
+        <img src="img/hint.png" class="hint"></img>
+      </div>
+      <div>
+        <input id="toastDuration" type="number" min="1"/>
+        <label for="toastDuration"></label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend id="legendLf"></legend>
+      <div>
+        <select id="miniplayerType">
+          <option value="notification"></option>
+          <option value="normal"></option>
+          <option value="popup"></option>
+          <option value="panel"></option>
+          <option value="detached_panel"></option>
+        </select>
+        <label for="miniplayerType"></label>
+        <img src="img/hint.png" class="hint"></img>
+      </div>
+      <div>
+        <select id="layout">
+          <option value="normal"></option>
+          <option value="compact1"></option>
+          <option value="compact2"></option>
+          <option value="hbar"></option>
+        </select>
+        <label for="layout"></label>
+        <img src="img/hint.png" class="hint"></img>
+      </div>
+      <div>
+        <select id="color">
+          <option value="turq"></option>
+          <option value="green"></option>
+          <option value="red"></option>
+          <option value="blue"></option>
+          <option value="black"></option>
+        </select>
+        <label for="color"></label>
+      </div>
+      <div>
+        <input id="iconClickMiniplayer" type="checkbox"/>
+        <label for="iconClickMiniplayer"></label>
+      </div>
+      <div>
+        <input id="iconClickConnect" type="checkbox"/>
+        <label for="iconClickConnect"></label>
+      </div>
+      <div>
+        <input id="gaEnabled" type="checkbox"/>
+        <label for="gaEnabled"></label>
+        <img src="img/hint.png" class="hint"></img>
+      </div>
+    </fieldset>
+  </div>
+  <div class="info">
+    <div id="credits">
+      <h2>Credits</h2>
+      Copyright (c) 2013, Sven Recknagel
+      <br/>
+      Licensed under the BSD license
+      <br/><br/>
+      <span id="bugfeatureinfo"></span>
+    </div>
+    <div id="changelog">
+      <h2>Changelog</h2>
+      <h3>Version 1.0</h3>
+      Initial Release including:
+      <ul>
+        <li>last.fm integration (now playing, scrobbling, like/unlike)</li>
+        <li>a powerful miniplayer with different layouts and color schemes</li>
+        <li>toast notifications</li>
+        <li>support for thumbs and 5-star ratings</li>
+        <li>playlist selection</li>
+        <li>and more</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

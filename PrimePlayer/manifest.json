@@ -1,0 +1,33 @@
+{
+  "manifest_version": 2,
+  "name": "__MSG_extTitle__",
+  "description": "__MSG_extDesc__",
+  "version": "1.0",
+  "default_locale": "en",
+  "icons": {
+    "16": "img/icon-16x16.png",
+    "48": "img/icon-48x48.png",
+    "128": "img/icon-128x128.png"
+  },
+  "permissions": [
+    "*://play.google.com/music/listen*",
+    "notifications"
+  ],
+  "browser_action": {
+    "default_icon": "img/icon-notconnected.png",
+    "default_title": "__MSG_extTitle__",
+    "default_popup": "player.html"
+  },
+  "background": {
+    "scripts": ["js/jquery-2.0.2.min.js", "js/ga.js", "js/md5-min.js", "js/lastfm.api.js", "js/beans.js", "js/bp.js"]
+  },
+  "options_page": "options.html",
+  "content_scripts": [ 
+    {
+      "js": ["js/jquery-2.0.2.min.js", "js/cs.js"],
+      "matches": ["*://play.google.com/music/listen*"]
+    }
+  ],
+  "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
+  "web_accessible_resources": ["js/injected.js", "img/icon-tabconnected.png", "img/icon-48x48.png", "css/player.scss", "css/layouts.scss", "css/player.css.map"]
+}
