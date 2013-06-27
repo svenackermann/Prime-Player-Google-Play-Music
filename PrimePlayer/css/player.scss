@@ -249,10 +249,10 @@ a {
   display: none;
   float: right;
   margin-left: 10px;
-  &.loved img, &.notloved img, div {
+  &.loved img, &.notloved img, &.error img, div {
     display: none;
   }
-  &.loved div, &.notloved div {
+  &.loved div, &.notloved div, &.error div {
     display: block;
     cursor: pointer;
     background-size: 16px;
@@ -264,6 +264,9 @@ a {
   }
   &.notloved div {
     @include hoversprite(2, 0, 2, 1, 16);
+  }
+  &.error div {
+    @include hoversprite(2, 3, 2, 1, 16);
   }
 }
 

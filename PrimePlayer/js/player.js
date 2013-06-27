@@ -248,8 +248,12 @@ function setupGoogleRating() {
   });
 }
 
-function setLoveButtonStatus(loved) {
-  if (loved) {
+function setLoveButtonStatus(loved, error) {
+  if (error) {
+    $("#lastfmRating").addClass("error")
+      .find("div").attr('title', chrome.i18n.getMessage('lastfmError') + error)
+      .unbind().click(getLovedInfo);
+  } else if (loved) {
     $("#lastfmRating").addClass("loved")
       .find("div").attr('title', chrome.i18n.getMessage('lastfmUnlove'))
       .unbind().click(unloveTrack);
@@ -261,7 +265,7 @@ function setLoveButtonStatus(loved) {
 }
 
 function getLovedInfo() {
-  $("#lastfmRating").removeClass('loved notloved');
+  $("#lastfmRating").removeClass('loved notloved error');
   if (bp.settings.lastfmSessionName && bp.song.info) {
     bp.lastfm.track.getInfo({
         track: bp.song.info.title,
@@ -270,34 +274,43 @@ function getLovedInfo() {
       },
       {
         success: function(response) { setLoveButtonStatus(response.track && response.track.userloved == 1); },
-        error: function(code) { /*TODO consider showing errors*/setLoveButtonStatus(false); }
+        error: function(code, msg) {
+          setLoveButtonStatus(false, msg);
+          if (code != 9) bp.gaEvent('LastFM', 'getInfoError-' + code);
+        }
       }
     );
   }
 }
 
 function loveTrack() {
-  $("#lastfmRating").removeClass('loved notloved');
+  $("#lastfmRating").removeClass('loved notloved error');
   bp.lastfm.track.love({
       track: bp.song.info.title,
       artist: bp.song.info.artist
     },
     {
       success: function(response) { setLoveButtonStatus(true); },
-      error: function(code) { /*TODO consider showing errors*/setLoveButtonStatus(false); }
+      error: function(code, msg) {
+        setLoveButtonStatus(false, msg);
+        if (code != 9) bp.gaEvent('LastFM', 'loveError-' + code);
+      }
     }
   );
 }
 
 function unloveTrack() {
-  $("#lastfmRating").removeClass('loved notloved');
+  $("#lastfmRating").removeClass('loved notloved error');
   bp.lastfm.track.unlove({
       track: bp.song.info.title,
       artist: bp.song.info.artist
     },
     {
       success: function(response) { setLoveButtonStatus(false); },
-      error: function(code) { /*TODO consider showing errors*/setLoveButtonStatus(false); }
+      error: function(code, msg) {
+        setLoveButtonStatus(false, msg);
+        if (code != 9) bp.gaEvent('LastFM', 'unloveError-' + code);
+      }
     }
   );
 }

@@ -68,6 +68,9 @@
   "lastfmLove": {
     "message": "Diesen Titel lieben"
   },
+  "lastfmError": {
+    "message": "Fehler bei der Kommunkation mit last.fm, klicken zum neu laden: "
+  },
   "setting_toastDuration": {
     "message": "Toast Dauer (Sekunden)"
   },

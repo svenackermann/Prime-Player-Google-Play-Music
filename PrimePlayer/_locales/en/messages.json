@@ -68,6 +68,9 @@
   "lastfmLove": {
     "message": "Love this song"
   },
+  "lastfmError": {
+    "message": "Error on last.fm communication, click to reload: "
+  },
   "setting_toastDuration": {
     "message": "Toast duration (seconds)"
   },

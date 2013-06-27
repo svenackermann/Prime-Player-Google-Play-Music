@@ -193,9 +193,7 @@
   #lastfmRating {
     position: absolute;
     bottom: 0;
-    &.loved div, &.notloved div {
-      display: block;
-      cursor: pointer;
+    &.loved div, &.notloved div, &.error div {
       background-size: $rate-size-px;
       width: $rate-size-px;
       height: $rate-size-px;
@@ -205,6 +203,9 @@
     }
     &.notloved div {
       @include hoversprite(2, 0, 2, 1, $rate-size);
+    }
+    &.error div {
+      @include hoversprite(2, 3, 2, 1, $rate-size);
     }
     img {
       width: $rate-size-px;
