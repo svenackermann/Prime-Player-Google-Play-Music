@@ -276,32 +276,30 @@ a {
       display: none;
     }
   }
+  .user-rating {
+    display: none;
+  }
   &.thumbs-rating {
     display: block;
-    #thumbs-up-button, #thumbs-down-button {
+    .rating-1, .rating-5 {
       display: block;
       width: 16px;
       height: 16px;
       margin-right: 10px;
       float: left;
     }
-    #thumbs-up-button {
-      @include hoversprite(0, 0, 0, 1, 16);
-    }
-    #thumbs-down-button {
+    .rating-1 {
       @include hoversprite(1, 0, 1, 1, 16);
     }
-    &.rating-5 #thumbs-up-button {
-      @include hoversprite(0, 2, 0, 3, 16);
+    .rating-5 {
+      @include hoversprite(0, 0, 0, 1, 16);
     }
-    &.rating-1 #thumbs-down-button {
+    &.rating-1 .rating-1 {
       @include hoversprite(1, 2, 1, 3, 16);
     }
-  }
-  .user-rating {
-    background: repeat-x url(../img/star-active.png);
-    height: inherit;
-    display: none;
+    &.rating-5 .rating-5 {
+      @include hoversprite(0, 2, 0, 3, 16);
+    }
   }
   &.star-rating {
     width: 80px;
@@ -309,6 +307,8 @@ a {
     background: repeat-x url(../img/star-background.png);
     display: block;
     .user-rating {
+      background: repeat-x url(../img/star-active.png);
+      height: inherit;
       display: block;
     }
     @for $i from 0 through 5 {
@@ -319,7 +319,7 @@ a {
       top: -16px;
       width: 80px;
       height: inherit;
-      .star-selector {
+      > div {
         display: block;
         position: absolute;
         height: inherit;

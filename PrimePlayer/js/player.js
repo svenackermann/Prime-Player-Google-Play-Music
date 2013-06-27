@@ -321,14 +321,6 @@ function toggleShuffle() {
   bp.executeInGoogleMusic("toggleShuffle");
 }
 
-function thumbsUp() {
-  bp.executeInGoogleMusic("thumbsUp");
-}
-
-function thumbsDown() {
-  bp.executeInGoogleMusic("thumbsDown");
-}
-
 function rate(rating) {
   bp.executeInGoogleMusic("rate", {rating: rating});
 }

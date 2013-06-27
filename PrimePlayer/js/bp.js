@@ -386,7 +386,7 @@ function openGoogleMusicTab() {
   }
 }
 
-function onInstalledListener() {
+function connectGoogleMusicTabs() {
   chrome.tabs.query({url:"*://play.google.com/music/listen*"}, function(tabs) {
     for (var i in tabs) {
       var tabId = tabs[i].id;
@@ -449,5 +449,5 @@ song.addListener("info", function(val) {
 });
 
 chrome.extension.onConnect.addListener(onConnectListener);
-chrome.runtime.onInstalled.addListener(onInstalledListener);
+connectGoogleMusicTabs();
 chrome.runtime.onUpdateAvailable.addListener(function(){chrome.runtime.reload();});
