@@ -18,6 +18,7 @@ var SETTINGS_DEFAULTS = {
   color: "turq",
   iconClickMiniplayer: false,
   iconClickConnect: false,
+  openGoogleMusicPinned: false,
   gaEnabled: true,
   miniplayerSizing: {
     normal:   { width: 271, height: 116, left: 0, top: 0 },
@@ -370,7 +371,8 @@ function gaEnabledChanged(val) {
       "layout",
       "color",
       "iconClickMiniplayer",
-      "iconClickConnect"
+      "iconClickConnect",
+      "openGoogleMusicPinned"
     ];
     for (var i in settingsToRecord) {
       recordSetting(settingsToRecord[i]);
@@ -380,9 +382,9 @@ function gaEnabledChanged(val) {
 
 function openGoogleMusicTab() {
   if (googlemusictabId) {
-    chrome.tabs.update(googlemusictabId, {selected: true});
+    chrome.tabs.update(googlemusictabId, {active: true});
   } else {
-    chrome.tabs.create({url: 'http://play.google.com/music/listen', selected: true});
+    chrome.tabs.create({url: 'http://play.google.com/music/listen', pinned: settings.openGoogleMusicPinned});
   }
 }
 

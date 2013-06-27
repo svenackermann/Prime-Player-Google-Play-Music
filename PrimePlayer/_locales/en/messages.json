@@ -178,5 +178,8 @@
   },
   "bugfeatureinfo": {
     "message": "If you find any bugs or would like to see new features, please file an issue on GitHub or - even better - send a pull request."
+  },
+  "setting_openGoogleMusicPinned": {
+    "message": "Open Google Music in a pinned tab"
   }
 }

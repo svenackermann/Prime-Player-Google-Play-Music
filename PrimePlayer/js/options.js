@@ -153,6 +153,7 @@ $(function() {
   initSelect("color");
   initCheckbox("iconClickMiniplayer");
   initCheckbox("iconClickConnect");
+  initCheckbox("openGoogleMusicPinned");
   initCheckbox("gaEnabled");
   initHint("gaEnabled");
   
