@@ -19,6 +19,7 @@ var SETTINGS_DEFAULTS = {
   iconClickMiniplayer: false,
   iconClickConnect: false,
   openGoogleMusicPinned: false,
+  updateNotifier: true,
   gaEnabled: true,
   miniplayerSizing: {
     normal:   { width: 271, height: 116, left: 0, top: 0 },
@@ -36,6 +37,8 @@ var googlemusictabId;
 var optionsTabId;
 var justOpenedClass;
 var parkedPorts = [];
+var viewUpdateNotifier = false;
+var previousVersion;
 
 var SONG_DEFAULTS = {
   position: "0:00",
@@ -68,7 +71,9 @@ var currentVersion = chrome.runtime.getManifest().version;
 
 function updateBrowserActionIcon() {
   var path = "img/icon-";
-  if (googlemusicport == null) {
+  if (viewUpdateNotifier) {
+    path += "updated";
+  } else if (googlemusicport == null) {
     path += "notconnected";
   } else if (song.info) {
     path += player.playing ? "play" : "pause";
@@ -211,9 +216,9 @@ function lastfmLogin() {
   var callbackUrl = chrome.extension.getURL("options.html");
   var url = "http://www.last.fm/api/auth?api_key=" + LASTFM_APIKEY + "&cb=" + callbackUrl;
   if (optionsTabId) {
-    chrome.tabs.update(optionsTabId, { url: url, selected: true });
+    chrome.tabs.update(optionsTabId, { url: url, active: true });
   } else {
-    chrome.tabs.create({ url: url, selected: true });
+    chrome.tabs.create({ url: url });
   }
   gaEvent('LastFM', 'AuthorizeStarted');
 }
@@ -316,13 +321,30 @@ function iconClickSettingsChanged() {
   chrome.browserAction.onClicked.removeListener(openGoogleMusicTab);
   chrome.browserAction.onClicked.removeListener(openMiniplayer);
   chrome.browserAction.setPopup({popup: ""});
-  if (settings.iconClickConnect && !googlemusicport) {
+  if (viewUpdateNotifier) {
+    chrome.browserAction.setPopup({popup: "updateNotifier.html"});
+  } else if (settings.iconClickConnect && !googlemusicport) {
     chrome.browserAction.onClicked.addListener(openGoogleMusicTab);
   } else if (settings.iconClickMiniplayer) {
     chrome.browserAction.onClicked.addListener(openMiniplayer);
   } else {
     chrome.browserAction.setPopup({popup: "player.html"});
   }
+}
+
+function updatedListener(details) {
+  if (details.reason == "update" && settings.updateNotifier) {
+    viewUpdateNotifier = true;
+    iconClickSettingsChanged();
+    updateBrowserActionIcon();
+    previousVersion = details.previousVersion;
+  }
+}
+
+function updateNotifierDone() {
+  viewUpdateNotifier = false;
+  iconClickSettingsChanged();
+  updateBrowserActionIcon();
 }
 
 function executeInGoogleMusic(command, options) {
@@ -372,11 +394,20 @@ function gaEnabledChanged(val) {
       "color",
       "iconClickMiniplayer",
       "iconClickConnect",
-      "openGoogleMusicPinned"
+      "openGoogleMusicPinned",
+      "updateNotifier"
     ];
     for (var i in settingsToRecord) {
       recordSetting(settingsToRecord[i]);
     }
+  }
+}
+
+function openOptions() {
+  if (optionsTabId) {
+    chrome.tabs.update(optionsTabId, {active: true});
+  } else {
+    chrome.tabs.create({url: chrome.extension.getURL("options.html")});
   }
 }
 
@@ -453,3 +484,4 @@ song.addListener("info", function(val) {
 chrome.extension.onConnect.addListener(onConnectListener);
 connectGoogleMusicTabs();
 chrome.runtime.onUpdateAvailable.addListener(function(){chrome.runtime.reload();});
+chrome.runtime.onInstalled.addListener(updatedListener);

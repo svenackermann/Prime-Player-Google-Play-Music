@@ -181,5 +181,14 @@
   },
   "setting_openGoogleMusicPinned": {
     "message": "Open Google Music in a pinned tab"
+  },
+  "setting_updateNotifier": {
+    "message": "Notify on updates (icon becomes orange)"
+  },
+  "updateNotifierTitle": {
+    "message": "Prime Player Updated"
+  },
+  "updateNotifierText": {
+    "message": "The extension just updated. Go to the options page to see what's new."
   }
 }

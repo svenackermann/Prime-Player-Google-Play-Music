@@ -64,3 +64,8 @@ img.hint {
 div {
   margin-bottom: 0.5ex;
 }
+
+div.newFeature {
+  color: #FF8F00;
+  font-weight: bold;
+}
