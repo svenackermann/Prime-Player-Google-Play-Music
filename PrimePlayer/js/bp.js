@@ -314,11 +314,10 @@ function openMiniplayer() {
 function iconClickSettingsChanged() {
   chrome.browserAction.onClicked.removeListener(openGoogleMusicTab);
   chrome.browserAction.onClicked.removeListener(openMiniplayer);
+  chrome.browserAction.setPopup({popup: ""});
   if (settings.iconClickConnect && !googlemusicport) {
-    chrome.browserAction.setPopup({popup: ""});
     chrome.browserAction.onClicked.addListener(openGoogleMusicTab);
   } else if (settings.iconClickMiniplayer) {
-    chrome.browserAction.setPopup({popup: ""});
     chrome.browserAction.onClicked.addListener(openMiniplayer);
   } else {
     chrome.browserAction.setPopup({popup: "player.html"});
@@ -387,25 +386,7 @@ function openGoogleMusicTab() {
   }
 }
 
-function onInstalledListener(details) {
-  //first cleanup
-  for (var parkedPort in parkedPorts) {
-    try {
-      parkedPort.disconnect();
-    } catch (e) {
-      //seems to be disconnected already
-    }
-  }
-  parkedPorts = [];
-  if (googlemusicport) {
-    try {
-      googlemusicport.disconnect();
-    } catch (e) {
-      //seems to be disconnected already
-    }
-    onDisconnectListener();//not automatically triggered when we disconnect
-  }
-  //now connect with new scripts
+function onInstalledListener() {
   chrome.tabs.query({url:"*://play.google.com/music/listen*"}, function(tabs) {
     for (var i in tabs) {
       var tabId = tabs[i].id;
@@ -469,4 +450,4 @@ song.addListener("info", function(val) {
 
 chrome.extension.onConnect.addListener(onConnectListener);
 chrome.runtime.onInstalled.addListener(onInstalledListener);
-chrome.runtime.onUpdateAvailable.addListener(chrome.runtime.reload);
+chrome.runtime.onUpdateAvailable.addListener(function(){chrome.runtime.reload();});

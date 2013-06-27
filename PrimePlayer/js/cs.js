@@ -106,7 +106,7 @@ $(function() {
         observer.observe(element, { attributes: true, attributeFilter: [attr] });
         post(type, getValue(element));//trigger once to initialize the info
       } else {
-        console.warn("element does not exist: " + selector);
+        console.error("element does not exist (did Google change their site?): " + selector);
       }
     }
     
