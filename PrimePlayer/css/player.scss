@@ -193,7 +193,7 @@ a {
   @include hoversprite(10, 0, 10, 1, 16);
 }
 
-.toast {
+.toast.hidePlaycontrols {
   height: 90px;
   body {
     height: 90px;

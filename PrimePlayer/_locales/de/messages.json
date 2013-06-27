@@ -182,6 +182,9 @@
   "setting_openGoogleMusicPinned": {
     "message": "Google Music in einem angehefteten Tab \u00F6ffnen"
   },
+  "setting_hideToastPlaycontrols": {
+    "message": "Verstecke Wiedergabe-Kontrollen in Toasts"
+  },
   "setting_updateNotifier": {
     "message": "Bei Aktualisierungen benachrichtigen (Symbol wird orange)"
   },

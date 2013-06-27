@@ -165,6 +165,7 @@ $(function() {
   initCheckbox("toast").click(toastChanged);
   initHint("toast");
   initNumberInput("toastDuration");
+  initCheckbox("hideToastPlaycontrols");
   initSelect("miniplayerType");
   initHint("miniplayerType");
   initSelect("layout");

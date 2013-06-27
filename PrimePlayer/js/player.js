@@ -69,6 +69,7 @@ $(function() {
   });
   
   if (typeClass == "toast") {
+    if (bp.settings.hideToastPlaycontrols) $("html").addClass("hidePlaycontrols");
     setToastAutocloseTimer();
   }
   
@@ -190,12 +191,12 @@ function setupResizeMoveListeners() {
 
 function setToastAutocloseTimer() {
   var windowTimer = setTimeout(window.close, bp.settings.toastDuration * 1000);
-  window.onmouseout = function(e){
-    windowTimer = setTimeout(window.close, 2000);
-  }
-  window.onmouseover = function(e){
+  $(window).mouseout(function(e){
+    windowTimer = setTimeout(window.close, 3000);
+  });
+  $(window).mouseover(function(e){
     clearTimeout(windowTimer);
-  }
+  });
 }
 
 function lastfmUserWatcher(user) {

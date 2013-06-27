@@ -182,6 +182,9 @@
   "setting_openGoogleMusicPinned": {
     "message": "Open Google Music in a pinned tab"
   },
+  "setting_hideToastPlaycontrols": {
+    "message": "Hide playing controls in toasts"
+  },
   "setting_updateNotifier": {
     "message": "Notify on updates (icon becomes orange)"
   },
