@@ -119,6 +119,25 @@ function initSelect(prop) {
   return input;
 }
 
+function isNewerVersion(version) {
+  var prev = bp.previousVersion.split(".");
+  version = version.split(".");
+  for (var i in prev) {
+    if (version.length <= i) return false;//version is shorter (e.g. 1.0 < 1.0.1)
+    var p = parseInt(prev[i]);
+    var v = parseInt(version[i]);
+    if (p != v) return v > p;
+  }
+  return false;//same version
+}
+
+function extractVersionFromClass(el) {
+  var cl = $(el).attr("class");
+  var start = cl.indexOf("v-") + 2;
+  var end = cl.indexOf(" ", start);
+  return cl.substring(start, end < 0 ? cl.length : end);
+}
+
 $(function() {
   var optionsText = chrome.i18n.getMessage('options') + ' - ' + chrome.i18n.getMessage('extTitle');
   $("head > title").first().text(optionsText);
@@ -146,6 +165,7 @@ $(function() {
   initCheckbox("toast").click(toastChanged);
   initHint("toast");
   initNumberInput("toastDuration");
+  initCheckbox("hideToastPlaycontrols");
   initSelect("miniplayerType");
   initHint("miniplayerType");
   initSelect("layout");
@@ -153,6 +173,8 @@ $(function() {
   initSelect("color");
   initCheckbox("iconClickMiniplayer");
   initCheckbox("iconClickConnect");
+  initCheckbox("openGoogleMusicPinned");
+  initCheckbox("updateNotifier");
   initCheckbox("gaEnabled");
   initHint("gaEnabled");
   
@@ -170,6 +192,20 @@ $(function() {
   if (bp.settings.lastfmSessionName == null && (token = extractToken())) {
     getLastfmSession(token);
   }
+  
+  if (bp.previousVersion) {//mark new features
+    $("div[class*='v-']").each(function() {
+      var version = extractVersionFromClass(this);
+      if (isNewerVersion(version)) $(this).addClass("newFeature");
+    });
+    bp.previousVersion = null;
+    bp.updateNotifierDone();
+  }
+  
+  $("#changelog > div[class*='v-']").each(function() {
+    var version = extractVersionFromClass(this);
+    $(this).prepend("<h3>Version " + version + "</h3>");
+  });
 });
 
 $(window).unload(function() {

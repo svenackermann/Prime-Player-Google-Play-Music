@@ -68,6 +68,9 @@
   "lastfmLove": {
     "message": "Love this song"
   },
+  "lastfmError": {
+    "message": "Error on last.fm communication, click to reload: "
+  },
   "setting_toastDuration": {
     "message": "Toast duration (seconds)"
   },
@@ -178,5 +181,20 @@
   },
   "bugfeatureinfo": {
     "message": "If you find any bugs or would like to see new features, please file an issue on GitHub or - even better - send a pull request."
+  },
+  "setting_openGoogleMusicPinned": {
+    "message": "Open Google Music in a pinned tab"
+  },
+  "setting_hideToastPlaycontrols": {
+    "message": "Hide playing controls in toasts"
+  },
+  "setting_updateNotifier": {
+    "message": "Notify on updates (icon becomes orange)"
+  },
+  "updateNotifierTitle": {
+    "message": "Prime Player Updated"
+  },
+  "updateNotifierText": {
+    "message": "The extension just updated. Go to the options page to see what's new."
   }
 }

@@ -68,6 +68,9 @@
   "lastfmLove": {
     "message": "Diesen Titel lieben"
   },
+  "lastfmError": {
+    "message": "Fehler bei der Kommunkation mit last.fm, klicken zum neu laden: "
+  },
   "setting_toastDuration": {
     "message": "Toast Dauer (Sekunden)"
   },
@@ -177,6 +180,21 @@
     "message": "Zum Wiederverbinden hier klicken."
   },
   "bugfeatureinfo": {
-    "message": "Wenn du Fehler findest oder neue Funktionen sehen m\u00F6chtest, lege bitte einen Issue auf GitHub an oder - noch besser - sende mir einen Pull-Request."
+    "message": "Wenn du Fehler findest oder Idden f\u00FCr neue Funktionen hast, lege bitte einen Issue auf GitHub an oder - noch besser - sende mir einen Pull-Request."
+  },
+  "setting_openGoogleMusicPinned": {
+    "message": "Google Music in einem angehefteten Tab \u00F6ffnen"
+  },
+  "setting_hideToastPlaycontrols": {
+    "message": "Verstecke Wiedergabe-Kontrollen in Toasts"
+  },
+  "setting_updateNotifier": {
+    "message": "Bei Aktualisierungen benachrichtigen (Symbol wird orange)"
+  },
+  "updateNotifierTitle": {
+    "message": "Prime Player wurde aktualisiert"
+  },
+  "updateNotifierText": {
+    "message": "Die Erweiterung wurde gerade aktualisiert. \u00D6ffne die Optionen um zu sehen, was es Neues gibt."
   }
 }

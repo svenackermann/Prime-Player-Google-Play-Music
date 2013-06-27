@@ -86,9 +86,14 @@ $(function() {
     }
     
     function watchEvent(event, selector, listener) {
-      registeredListeners.push({ event: event, selector: selector, listener: listener});
-      $(selector).on(event, {selector: selector}, listener)
-        .triggerHandler(event);//trigger once to initialize the info
+      var el = $(selector);
+      if (el.length == 0) {
+        console.error("element does not exist (did Google change their site?): " + selector);
+      } else {
+        registeredListeners.push({ event: event, selector: selector, listener: listener});
+        el.on(event, {selector: selector}, listener)
+          .triggerHandler(event);//trigger once to initialize the info
+      }
     }
     
     function watchAttr(attr, selector, type, getValue) {
@@ -106,7 +111,7 @@ $(function() {
         observer.observe(element, { attributes: true, attributeFilter: [attr] });
         post(type, getValue(element));//trigger once to initialize the info
       } else {
-        console.warn("element does not exist: " + selector);
+        console.error("element does not exist (did Google change their site?): " + selector);
       }
     }
     
