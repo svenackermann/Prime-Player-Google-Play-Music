@@ -462,7 +462,7 @@ song.addListener("position", function(val) {
     if (!song.nowPlayingSent && song.positionSec >= 3) {
       song.nowPlayingSent = true;
       sendNowPlaying();
-    } else if (!song.scrobbled && song.scrobbleTime >= 0 && val >= song.scrobbleTime) {
+    } else if (!song.scrobbled && song.scrobbleTime >= 0 && song.positionSec >= song.scrobbleTime) {
       song.scrobbled = true;
       scrobble();
     }
