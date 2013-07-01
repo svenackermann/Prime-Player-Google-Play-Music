@@ -11,6 +11,7 @@ var SETTINGS_DEFAULTS = {
   scrobblePercent: 50,
   scrobbleTime: 240,
   scrobbleMaxDuration: 30,
+  disableScrobbleOnFf: false,
   toast: true,
   toastDuration: 5,
   hideToastPlaycontrols: true,
@@ -50,7 +51,8 @@ var SONG_DEFAULTS = {
   scrobbled: false,
   toasted: false,
   scrobbleTime: -1,
-  timestamp: 0
+  timestamp: 0,
+  ff: false
 };
 var PLAYER_DEFAULTS = {
   ratingMode: null,
@@ -144,6 +146,7 @@ function calcScrobbleTime() {
   if (song.info
   && song.info.durationSec > 0
   && isScrobblingEnabled()
+  && !(song.ff && settings.disableScrobbleOnFf)
   && !(settings.scrobbleMaxDuration > 0 && song.info.durationSec > (settings.scrobbleMaxDuration * 60))) {
     var scrobbleTime = song.info.durationSec * (settings.scrobblePercent / 100);
     if (settings.scrobbleTime > 0 && scrobbleTime > settings.scrobbleTime) {
@@ -333,12 +336,29 @@ function iconClickSettingsChanged() {
   }
 }
 
+function isNewerVersion(version) {
+  if (previousVersion == null) return false;
+  var prev = previousVersion.split(".");
+  version = version.split(".");
+  for (var i in prev) {
+    if (version.length <= i) return false;//version is shorter (e.g. 1.0 < 1.0.1)
+    var p = parseInt(prev[i]);
+    var v = parseInt(version[i]);
+    if (p != v) return v > p;
+  }
+  return version.length > prev.length;//version is longer (e.g. 1.0.1 > 1.0), else same version
+}
+
 function updatedListener(details) {
-  if (details.reason == "update" && settings.updateNotifier) {
-    viewUpdateNotifier = true;
-    iconClickSettingsChanged();
-    updateBrowserActionIcon();
+  if (details.reason == "update") {
     previousVersion = details.previousVersion;
+    if (isNewerVersion(currentVersion)) {
+      viewUpdateNotifier = true;
+      iconClickSettingsChanged();
+      updateBrowserActionIcon();
+    } else {
+      previousVersion = null;
+    }
   }
 }
 
@@ -388,6 +408,7 @@ function gaEnabledChanged(val) {
       "scrobblePercent",
       "scrobbleTime",
       "scrobbleMaxDuration",
+      "disableScrobbleOnFf",
       "toast",
       "toastDuration",
       "hideToastPlaycontrols",
@@ -431,6 +452,10 @@ function connectGoogleMusicTabs() {
   });
 }
 
+settings.watch("updateNotifier", function(val) {
+  if (val) chrome.runtime.onInstalled.addListener(updatedListener)
+  else chrome.runtime.onInstalled.removeListener(updatedListener);
+});
 settings.watch("gaEnabled", gaEnabledChanged);
 settings.watch("iconClickMiniplayer", iconClickSettingsChanged);
 settings.addListener("iconClickConnect", iconClickSettingsChanged);
@@ -452,11 +477,13 @@ settings.addListener("scrobble", calcScrobbleTime);
 settings.addListener("scrobbleMaxDuration", calcScrobbleTime);
 settings.addListener("scrobblePercent", calcScrobbleTime);
 settings.addListener("scrobbleTime", calcScrobbleTime);
+settings.addListener("disableScrobbleOnFf", calcScrobbleTime);
 player.addListener("playing", function(val) {
   updateBrowserActionIcon();
 });
 song.addListener("scrobbled", updateBrowserActionIcon);
 song.addListener("position", function(val) {
+  var oldPos = song.positionSec;
   song.positionSec = parseSeconds(val);
   if (player.playing && song.info && isScrobblingEnabled()) {
     if (!song.nowPlayingSent && song.positionSec >= 3) {
@@ -467,12 +494,17 @@ song.addListener("position", function(val) {
       scrobble();
     }
   }
+  if (!song.ff && oldPos + 5 <= song.positionSec) {
+    song.ff = true;
+    calcScrobbleTime();
+  }
 });
 song.addListener("info", function(val) {
   updateBrowserActionIcon();
   song.toasted = false;
   song.nowPlayingSent = false;
   song.scrobbled = false;
+  song.ff = false;
   if (val) {
     song.info.durationSec = parseSeconds(val.duration);
     song.timestamp = Math.round(new Date().getTime() / 1000);
@@ -486,4 +518,3 @@ song.addListener("info", function(val) {
 chrome.extension.onConnect.addListener(onConnectListener);
 connectGoogleMusicTabs();
 chrome.runtime.onUpdateAvailable.addListener(function(){chrome.runtime.reload();});
-chrome.runtime.onInstalled.addListener(updatedListener);

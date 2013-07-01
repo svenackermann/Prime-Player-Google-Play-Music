@@ -41,10 +41,12 @@ function scrobbleChanged() {
   $("#scrobblePercent").prop('disabled', disabled);
   $("#scrobbleTime").prop('disabled', disabled);
   $("#scrobbleMaxDuration").prop('disabled', disabled);
+  $("#disableScrobbleOnFf").prop('disabled', disabled);
 }
 
 function toastChanged() {
   $("#toastDuration").prop('disabled', !bp.settings.toast);
+  $("#hideToastPlaycontrols").prop('disabled', !bp.settings.toast);
 }
 
 function lastfmUserChanged(user) {
@@ -119,18 +121,6 @@ function initSelect(prop) {
   return input;
 }
 
-function isNewerVersion(version) {
-  var prev = bp.previousVersion.split(".");
-  version = version.split(".");
-  for (var i in prev) {
-    if (version.length <= i) return false;//version is shorter (e.g. 1.0 < 1.0.1)
-    var p = parseInt(prev[i]);
-    var v = parseInt(version[i]);
-    if (p != v) return v > p;
-  }
-  return false;//same version
-}
-
 function extractVersionFromClass(el) {
   var cl = $(el).attr("class");
   var start = cl.indexOf("v-") + 2;
@@ -162,6 +152,8 @@ $(function() {
 
   initNumberInput("scrobbleTime");
   initNumberInput("scrobbleMaxDuration");
+  initCheckbox("disableScrobbleOnFf");
+  initHint("disableScrobbleOnFf");
   initCheckbox("toast").click(toastChanged);
   initHint("toast");
   initNumberInput("toastDuration");
@@ -196,7 +188,7 @@ $(function() {
   if (bp.previousVersion) {//mark new features
     $("div[class*='v-']").each(function() {
       var version = extractVersionFromClass(this);
-      if (isNewerVersion(version)) $(this).addClass("newFeature");
+      if (bp.isNewerVersion(version)) $(this).addClass("newFeature");
     });
     bp.previousVersion = null;
     bp.updateNotifierDone();

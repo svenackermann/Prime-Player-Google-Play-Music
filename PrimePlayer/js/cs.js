@@ -6,6 +6,7 @@
  * Licensed under the BSD license
  */
 $(function() {
+  var port;
   var registeredListeners = [];
   var observers = [];
   var initialized = false;
@@ -147,7 +148,7 @@ $(function() {
     port = null;
   }
 
-  var port = chrome.extension.connect({name: "googlemusic"});
+  port = chrome.extension.connect({name: "googlemusic"});
   port.onMessage.addListener(function(msg) {
     if (msg.type == "connected") {
       port.onDisconnect.addListener(cleanup);

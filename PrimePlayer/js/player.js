@@ -163,21 +163,21 @@ function colorWatcher(val, old) {
 }
 
 function setupResizeMoveListeners() {
-  var timerId;
   function doneResizing() {
     var sizing = bp.settings.miniplayerSizing;
     sizing[bp.settings.layout].width = window.innerWidth;
     sizing[bp.settings.layout].height = window.innerHeight;
     bp.settings.miniplayerSizing = sizing;
   }
+  var timerId;
   $(window).resize(function() {
-      clearTimeout(timerId);
-      timerId = setTimeout(doneResizing, 1000);
+    clearTimeout(timerId);
+    timerId = setTimeout(doneResizing, 1000);
   });
   
   var oldX = window.screenX;
   var oldY = window.screenY;
-  var interval = setInterval(function() {
+  setInterval(function() {
     if (oldX != window.screenX || oldY != window.screenY) {
       oldX = window.screenX;
       oldY = window.screenY;
