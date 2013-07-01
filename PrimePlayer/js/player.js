@@ -236,9 +236,9 @@ function hidePlaylists() {
   $('#player').show();
 }
 
-function renderPlayControls(){
+function renderPlayControls() {
   $('.playPause').click(playPause).each(function() {
-    $(this).attr('title', chrome.i18n.getMessage($(this).id + 'Song'));
+    $(this).attr('title', chrome.i18n.getMessage(this.id + 'Song'));
   });
   $('#prev').click(prevSong).attr('title', chrome.i18n.getMessage('prevSong'));
   $('#next').click(nextSong).attr('title', chrome.i18n.getMessage('nextSong'));
@@ -322,15 +322,15 @@ function unloveTrack() {
   );
 }
 
-function playPause(){
+function playPause() {
   bp.executeInGoogleMusic("playPause");
 }
 
-function prevSong(){
+function prevSong() {
   bp.executeInGoogleMusic("prevSong");
 }
 
-function nextSong(){
+function nextSong() {
   bp.executeInGoogleMusic("nextSong");
 }
 
