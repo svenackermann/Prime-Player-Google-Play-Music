@@ -197,11 +197,11 @@ function setupResizeMoveListeners() {
 }
 
 function setToastAutocloseTimer() {
-  var windowTimer = setTimeout(window.close, bp.settings.toastDuration * 1000);
-  $(window).mouseout(function(e){
-    windowTimer = setTimeout(window.close, 3000);
+  var windowTimer = setTimeout(function() { window.close(); }, bp.settings.toastDuration * 1000);
+  $(window).mouseout(function() {
+    windowTimer = setTimeout(function() { window.close(); }, 3000);
   });
-  $(window).mouseover(function(e){
+  $(window).mouseover(function() {
     clearTimeout(windowTimer);
   });
 }
