@@ -40,7 +40,7 @@
 @mixin playcontrols($size) {
   #playControls {
     height: #{$size}px;
-    > div {
+    > a {
       width: #{$size}px;
       height: #{$size}px;
     }
@@ -85,7 +85,7 @@
     }
   }
 
-  div#playlistButton {
+  #playlistButton {
     @include hoversprite(3, 0, 3, 1, $size);
   }
   
@@ -121,7 +121,7 @@
     width: $height;
     height: $height;
   }
-  #song > div {
+  #song > * {
     font-size: 10px;
     height: 13px;
   }
@@ -138,7 +138,7 @@
     height: $height + 4px;
     padding: 0;
   }
-  #lastfmRating, #googleRating .rating-container > div {
+  #lastfmRating, #googleRating .rating-container > a {
     clear: both;
     margin: 0;
   }
@@ -184,7 +184,7 @@
           bottom: 0;
         }
       }
-      .rating-container > div:hover {
+      .rating-container > a:hover {
         background-repeat: repeat-y;
         background-size: $rate-size-px;
       }
@@ -193,18 +193,18 @@
   #lastfmRating {
     position: absolute;
     bottom: 0;
-    &.loved div, &.notloved div, &.error div {
+    &.loved a, &.notloved a, &.error a {
       background-size: $rate-size-px;
       width: $rate-size-px;
       height: $rate-size-px;
     }
-    &.loved div {
+    &.loved a {
       @include hoversprite(2, 2, 2, 1, $rate-size);
     }
-    &.notloved div {
+    &.notloved a {
       @include hoversprite(2, 0, 2, 1, $rate-size);
     }
-    &.error div {
+    &.error a {
       @include hoversprite(2, 3, 2, 1, $rate-size);
     }
     img {
@@ -231,7 +231,7 @@
     #repeat {
       clear:left;
     }
-    > div {
+    > a {
       margin: 0 3px;
     }
   }
@@ -248,7 +248,7 @@
     margin-right: -66px;
     overflow: visible;
   }
-  #song > div {
+  #song > * {
     font-size: 10px;
     height: 13px;
     overflow: hidden;
@@ -274,11 +274,11 @@
     width: $height - 4px;
     height: $height - 4px;
   }
-  #song > div {
-    font-size: $height / 3 - 1;
+  #song > * {
+    font-size: $height / 3 - 2;
     height: $height / 3;
   }
-  #nosong div {
+  #nosong a {
     margin-top: 2px;
   }
   #song, #nosong {
@@ -315,9 +315,6 @@
       height: 14px;
       width: 14px;
     }
-  }
-  .popup #miniplayerlink {
-    @include hoversprite(10, 0, 10, 1, 14);
   }
   #lastfmUser {
     @include hoversprite(11, 2, 11, 1, 14);

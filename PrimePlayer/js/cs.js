@@ -56,7 +56,9 @@ $(function() {
             duration: $.trim($("#time_container_duration").text()),
             title: $("#playerSongTitle").text(),
             artist: $("#player-artist").text(),
+            artistId: $("#player-artist").data("id"),
             album: $("#playerSongInfo").find(".player-album").text(),
+            albumId: $("#playerSongInfo").find(".player-album").data("id"),
             cover: cover
           };
         }

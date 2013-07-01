@@ -52,6 +52,12 @@ primePlayerExt = {
       case "startPlaylist":
         primePlayerExt.startPlaylist(event.data.options.plsId);
         break;
+      case "selectArtist":
+        location.hash = '#/ar/' + event.data.options.artistId;
+        break;
+      case "selectAlbum":
+        location.hash = '#/al/' + event.data.options.albumId;
+        break;
     }
   }
 };

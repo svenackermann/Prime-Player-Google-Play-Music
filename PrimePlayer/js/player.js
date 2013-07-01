@@ -29,9 +29,16 @@ $(function() {
     .attr('title', chrome.i18n.getMessage('openMiniplayer'));
     
   $('#nosong').find('span').text(chrome.i18n.getMessage('nothingPlaying'))
-    .parent().find('div')
+    .parent().find('a')
       .click(bp.openGoogleMusicTab)
       .text(chrome.i18n.getMessage('gotoGmusic'));
+      
+  $("#artist").click(function() {
+    selectArtist(bp.song.info.artistId);
+  });
+  $("#album").click(function() {
+    selectAlbum(bp.song.info.albumId);
+  });
   
   $("#scrobblePosition").attr('title', chrome.i18n.getMessage('scrobblePosition'));
   
@@ -109,8 +116,8 @@ function playingWatcher(val) {
 function songInfoWatcher(val) {
   if (val) {
     $("#songTime").text(val.duration);
-    $("#artist").text(val.artist);
     $("#track").text(val.title);
+    $("#artist").text(val.artist);
     $("#album").text(val.album);
     $("#cover").attr('src', val.cover || "img/cover.png");
     getLovedInfo();
@@ -241,7 +248,7 @@ function renderPlayControls(){
 }
 
 function setupGoogleRating() {
-  $('#googleRating').find('div.rating-container').find('div').click(function() {
+  $('#googleRating').find('div.rating-container').find('a').click(function() {
     var cl = $(this).attr('class');
     var rating = cl.substr(cl.indexOf("rating-") + 7, 1);
     rate(rating);
@@ -251,15 +258,15 @@ function setupGoogleRating() {
 function setLoveButtonStatus(loved, error) {
   if (error) {
     $("#lastfmRating").addClass("error")
-      .find("div").attr('title', chrome.i18n.getMessage('lastfmError') + error)
+      .find("a").attr('title', chrome.i18n.getMessage('lastfmError') + error)
       .unbind().click(getLovedInfo);
   } else if (loved) {
     $("#lastfmRating").addClass("loved")
-      .find("div").attr('title', chrome.i18n.getMessage('lastfmUnlove'))
+      .find("a").attr('title', chrome.i18n.getMessage('lastfmUnlove'))
       .unbind().click(unloveTrack);
   } else {
     $("#lastfmRating").addClass("notloved")
-      .find("div").attr('title', chrome.i18n.getMessage('lastfmLove'))
+      .find("a").attr('title', chrome.i18n.getMessage('lastfmLove'))
       .unbind().click(loveTrack);
   }
 }
@@ -341,4 +348,14 @@ function rate(rating) {
 
 function playlistStart(plsId) {
   bp.executeInGoogleMusic("startPlaylist", {plsId: plsId});
+}
+
+function selectArtist(artistId) {
+  bp.executeInGoogleMusic("selectArtist", {artistId: artistId});
+  bp.openGoogleMusicTab();
+}
+
+function selectAlbum(albumId) {
+  bp.executeInGoogleMusic("selectAlbum", {albumId: albumId});
+  bp.openGoogleMusicTab();
 }
