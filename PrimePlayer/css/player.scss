@@ -108,6 +108,12 @@ a {
     white-space: nowrap;
     display: block;
   }
+  > a {
+    text-decoration: none;
+  }
+  > a:hover {
+    text-decoration: underline;
+  }
 }
 
 #track {
