@@ -42,17 +42,16 @@ $(function() {
     }
     
     var songTimer;
-    var info = null;
     function songListener(event) {
       clearTimeout(songTimer);
       songTimer = setTimeout(function() {
         songTimer = null;
         var hasSong = $("#playerSongInfo").find("div").length > 0;
-        var newInfo = null;
+        var info = null;
         if (hasSong) {
           var cover = $("#playingAlbumArt").attr("src");
           if (cover) cover = "http:" + cover;
-          newInfo = {
+          info = {
             duration: $.trim($("#time_container_duration").text()),
             title: $("#playerSongTitle").text(),
             artist: $("#player-artist").text(),
@@ -62,16 +61,6 @@ $(function() {
             cover: cover
           };
         }
-        if (info == newInfo) return;//both null
-        if (info != null && newInfo != null
-            && info.duration == newInfo.duration
-            && info.title == newInfo.title
-            && info.artist == newInfo.artist
-            && info.album == newInfo.album
-            && info.cover == newInfo.cover) {
-          return;
-        }
-        info = newInfo;
         post("song-info", info);
       }, 1000);//wait for all the song info to be loaded and send once
     }

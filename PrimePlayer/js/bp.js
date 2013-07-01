@@ -138,6 +138,32 @@ function onDisconnectListener() {
   }
 }
 
+function onMessageListener(message) {
+  var val = message.value;
+  var type = message.type;
+  
+  if (type == "song-info") {
+    if (!equalsCurrentSong(val)) song.info = val;
+  } else if (type.indexOf("song-") == 0) {
+    if (type == "song-position" && val == "") val = SONG_DEFAULTS.position;
+    song[type.substring(5)] = val;
+  } else if (type.indexOf("player-") == 0) {
+    player[type.substring(7)] = val;
+  }
+}
+
+function equalsCurrentSong(info) {
+  if (song.info == info) return true;//both null
+  if (song.info != null && info != null
+      && song.info.duration == info.duration
+      && song.info.title == info.title
+      && song.info.artist == info.artist
+      && song.info.album == info.album) {
+    return true;
+  }
+  return false;
+}
+
 function isScrobblingEnabled() {
   return settings.scrobble && settings.lastfmSessionName != null;
 }
@@ -167,18 +193,6 @@ function parseSeconds(time) {
     factor *= 60;
   }
   return sec || 0;
-}
-
-function onMessageListener(message) {
-  var val = message.value;
-  var type = message.type;
-  
-  if (type.indexOf("player-") == 0) {
-    player[type.substring(7)] = val;
-  } else if (type.indexOf("song-") == 0) {
-    if (type == "song-position" && val == "") val = SONG_DEFAULTS.position;
-    song[type.substring(5)] = val;
-  }
 }
 
 function scrobble() {
@@ -485,6 +499,13 @@ song.addListener("scrobbled", updateBrowserActionIcon);
 song.addListener("position", function(val) {
   var oldPos = song.positionSec;
   song.positionSec = parseSeconds(val);
+  if (!song.ff && song.positionSec > oldPos + 5) {
+    song.ff = true;
+    song.scrobbleTime = -1;
+  } else if (song.ff && song.positionSec <= 5) {//prev pressed or gone back
+    song.ff = false;
+    calcScrobbleTime();
+  }
   if (player.playing && song.info && isScrobblingEnabled()) {
     if (!song.nowPlayingSent && song.positionSec >= 3) {
       song.nowPlayingSent = true;
@@ -494,16 +515,11 @@ song.addListener("position", function(val) {
       scrobble();
     }
   }
-  if (!song.ff && oldPos + 5 <= song.positionSec) {
-    song.ff = true;
-    calcScrobbleTime();
-  }
 });
 song.addListener("info", function(val) {
-  updateBrowserActionIcon();
-  song.toasted = false;
   song.nowPlayingSent = false;
   song.scrobbled = false;
+  song.toasted = false;
   song.ff = false;
   if (val) {
     song.info.durationSec = parseSeconds(val.duration);
@@ -515,6 +531,32 @@ song.addListener("info", function(val) {
   calcScrobbleTime();
 });
 
+chrome.runtime.onUpdateAvailable.addListener(function() {
+  var backup = {};
+  backup.miniplayerOpen = miniplayer != null;
+  backup.nowPlayingSent = song.nowPlayingSent;
+  backup.scrobbled = song.scrobbled;
+  backup.toasted = song.toasted;
+  backup.songTimestamp = song.timestamp;
+  backup.songFf = song.ff;
+  backup.songPosition = song.position;
+  backup.songInfo = song.info;
+  localStorage["updateBackup"] = JSON.stringify(backup);
+  chrome.runtime.reload();
+});
+if (localStorage["updateBackup"] != null) {
+  var updateBackup = JSON.parse(localStorage["updateBackup"]);
+  localStorage.removeItem("updateBackup");
+  song.position = updateBackup.songPosition;
+  song.ff = updateBackup.songFf;
+  song.info = updateBackup.songInfo;
+  song.nowPlayingSent = updateBackup.nowPlayingSent;
+  song.scrobbled = updateBackup.scrobbled;
+  song.toasted = updateBackup.toasted;
+  song.timestamp = updateBackup.songTimestamp;
+  if (updateBackup.miniplayerOpen) openMiniplayer();
+  updateBackup = null;
+}
+
 chrome.extension.onConnect.addListener(onConnectListener);
 connectGoogleMusicTabs();
-chrome.runtime.onUpdateAvailable.addListener(function(){chrome.runtime.reload();});
