@@ -91,21 +91,28 @@ a {
 }
 
 #nosong {
-  div {
-    margin-top: 8px;
-    text-decoration: underline;
-    cursor: pointer;
-  }
   span {
     font-style: italic;
+    display: block;
+  }
+  a {
+    margin-top: 8px;
+    display: block;
   }
 }
 
 #song {
   display: none;
-  > div {
+  > * {
     height: 15px;
     white-space: nowrap;
+    display: block;
+  }
+  > a {
+    text-decoration: none;
+  }
+  > a:hover {
+    text-decoration: underline;
   }
 }
 
@@ -249,23 +256,23 @@ a {
   display: none;
   float: right;
   margin-left: 10px;
-  &.loved img, &.notloved img, &.error img, div {
+  &.loved img, &.notloved img, &.error img, a {
     display: none;
   }
-  &.loved div, &.notloved div, &.error div {
+  &.loved a, &.notloved a, &.error a {
     display: block;
     cursor: pointer;
     background-size: 16px;
     width: 16px;
     height: 16px;
   }
-  &.loved div {
+  &.loved a {
     @include hoversprite(2, 2, 2, 1, 16);
   }
-  &.notloved div {
+  &.notloved a {
     @include hoversprite(2, 0, 2, 1, 16);
   }
-  &.error div {
+  &.error a {
     @include hoversprite(2, 3, 2, 1, 16);
   }
 }
@@ -275,7 +282,7 @@ a {
   float: left;
   .rating-container {
     cursor: pointer;
-    > div {
+    > a {
       display: none;
     }
   }
@@ -322,7 +329,7 @@ a {
       top: -16px;
       width: 80px;
       height: inherit;
-      > div {
+      > a {
         display: block;
         position: absolute;
         height: inherit;
@@ -341,7 +348,7 @@ a {
 
 #playControls {
   height: 30px;
-  > div {
+  > a {
     width: 30px;
     height: 30px;
     float: left;
@@ -394,7 +401,7 @@ a {
   }
 }
 
-div#playlistButton {
+a#playlistButton {
   display: none;
   cursor: pointer;
   float: right;

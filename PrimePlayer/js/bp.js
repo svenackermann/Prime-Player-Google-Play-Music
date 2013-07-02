@@ -11,6 +11,8 @@ var SETTINGS_DEFAULTS = {
   scrobblePercent: 50,
   scrobbleTime: 240,
   scrobbleMaxDuration: 30,
+  disableScrobbleOnFf: false,
+  linkRatings: false,
   toast: true,
   toastDuration: 5,
   hideToastPlaycontrols: true,
@@ -50,7 +52,8 @@ var SONG_DEFAULTS = {
   scrobbled: false,
   toasted: false,
   scrobbleTime: -1,
-  timestamp: 0
+  timestamp: 0,
+  ff: false
 };
 var PLAYER_DEFAULTS = {
   ratingMode: null,
@@ -136,6 +139,32 @@ function onDisconnectListener() {
   }
 }
 
+function onMessageListener(message) {
+  var val = message.value;
+  var type = message.type;
+  
+  if (type == "song-info") {
+    if (!equalsCurrentSong(val)) song.info = val;
+  } else if (type.indexOf("song-") == 0) {
+    if (type == "song-position" && val == "") val = SONG_DEFAULTS.position;
+    song[type.substring(5)] = val;
+  } else if (type.indexOf("player-") == 0) {
+    player[type.substring(7)] = val;
+  }
+}
+
+function equalsCurrentSong(info) {
+  if (song.info == info) return true;//both null
+  if (song.info != null && info != null
+      && song.info.duration == info.duration
+      && song.info.title == info.title
+      && song.info.artist == info.artist
+      && song.info.album == info.album) {
+    return true;
+  }
+  return false;
+}
+
 function isScrobblingEnabled() {
   return settings.scrobble && settings.lastfmSessionName != null;
 }
@@ -144,6 +173,7 @@ function calcScrobbleTime() {
   if (song.info
   && song.info.durationSec > 0
   && isScrobblingEnabled()
+  && !(song.ff && settings.disableScrobbleOnFf)
   && !(settings.scrobbleMaxDuration > 0 && song.info.durationSec > (settings.scrobbleMaxDuration * 60))) {
     var scrobbleTime = song.info.durationSec * (settings.scrobblePercent / 100);
     if (settings.scrobbleTime > 0 && scrobbleTime > settings.scrobbleTime) {
@@ -164,18 +194,6 @@ function parseSeconds(time) {
     factor *= 60;
   }
   return sec || 0;
-}
-
-function onMessageListener(message) {
-  var val = message.value;
-  var type = message.type;
-  
-  if (type.indexOf("player-") == 0) {
-    player[type.substring(7)] = val;
-  } else if (type.indexOf("song-") == 0) {
-    if (type == "song-position" && val == "") val = SONG_DEFAULTS.position;
-    song[type.substring(5)] = val;
-  }
 }
 
 function scrobble() {
@@ -285,6 +303,7 @@ function getMiniplayerSizing() {
 }
 
 function openMiniplayer() {
+  if (toast) toast.cancel();
   if (miniplayer) {//close first
     miniplayerReopen = true;
     if (miniplayer instanceof Notification) {
@@ -333,12 +352,29 @@ function iconClickSettingsChanged() {
   }
 }
 
+function isNewerVersion(version) {
+  if (previousVersion == null) return false;
+  var prev = previousVersion.split(".");
+  version = version.split(".");
+  for (var i in prev) {
+    if (version.length <= i) return false;//version is shorter (e.g. 1.0 < 1.0.1)
+    var p = parseInt(prev[i]);
+    var v = parseInt(version[i]);
+    if (p != v) return v > p;
+  }
+  return version.length > prev.length;//version is longer (e.g. 1.0.1 > 1.0), else same version
+}
+
 function updatedListener(details) {
-  if (details.reason == "update" && settings.updateNotifier) {
-    viewUpdateNotifier = true;
-    iconClickSettingsChanged();
-    updateBrowserActionIcon();
+  if (details.reason == "update") {
     previousVersion = details.previousVersion;
+    if (isNewerVersion(currentVersion)) {
+      viewUpdateNotifier = true;
+      iconClickSettingsChanged();
+      updateBrowserActionIcon();
+    } else {
+      previousVersion = null;
+    }
   }
 }
 
@@ -388,6 +424,8 @@ function gaEnabledChanged(val) {
       "scrobblePercent",
       "scrobbleTime",
       "scrobbleMaxDuration",
+      "disableScrobbleOnFf",
+      "linkRatings",
       "toast",
       "toastDuration",
       "hideToastPlaycontrols",
@@ -431,6 +469,10 @@ function connectGoogleMusicTabs() {
   });
 }
 
+settings.watch("updateNotifier", function(val) {
+  if (val) chrome.runtime.onInstalled.addListener(updatedListener)
+  else chrome.runtime.onInstalled.removeListener(updatedListener);
+});
 settings.watch("gaEnabled", gaEnabledChanged);
 settings.watch("iconClickMiniplayer", iconClickSettingsChanged);
 settings.addListener("iconClickConnect", iconClickSettingsChanged);
@@ -452,12 +494,21 @@ settings.addListener("scrobble", calcScrobbleTime);
 settings.addListener("scrobbleMaxDuration", calcScrobbleTime);
 settings.addListener("scrobblePercent", calcScrobbleTime);
 settings.addListener("scrobbleTime", calcScrobbleTime);
+settings.addListener("disableScrobbleOnFf", calcScrobbleTime);
 player.addListener("playing", function(val) {
   updateBrowserActionIcon();
 });
 song.addListener("scrobbled", updateBrowserActionIcon);
 song.addListener("position", function(val) {
+  var oldPos = song.positionSec;
   song.positionSec = parseSeconds(val);
+  if (!song.ff && song.positionSec > oldPos + 5) {
+    song.ff = true;
+    song.scrobbleTime = -1;
+  } else if (song.ff && song.positionSec <= 5) {//prev pressed or gone back
+    song.ff = false;
+    calcScrobbleTime();
+  }
   if (player.playing && song.info && isScrobblingEnabled()) {
     if (!song.nowPlayingSent && song.positionSec >= 3) {
       song.nowPlayingSent = true;
@@ -469,10 +520,10 @@ song.addListener("position", function(val) {
   }
 });
 song.addListener("info", function(val) {
-  updateBrowserActionIcon();
-  song.toasted = false;
   song.nowPlayingSent = false;
   song.scrobbled = false;
+  song.toasted = false;
+  song.ff = false;
   if (val) {
     song.info.durationSec = parseSeconds(val.duration);
     song.timestamp = Math.round(new Date().getTime() / 1000);
@@ -483,7 +534,41 @@ song.addListener("info", function(val) {
   calcScrobbleTime();
 });
 
+chrome.runtime.onUpdateAvailable.addListener(function() {
+  var backup = {};
+  backup.miniplayerOpen = miniplayer != null;
+  backup.nowPlayingSent = song.nowPlayingSent;
+  backup.scrobbled = song.scrobbled;
+  backup.toasted = song.toasted;
+  backup.songTimestamp = song.timestamp;
+  backup.songFf = song.ff;
+  backup.songPosition = song.position;
+  backup.songInfo = song.info;
+  localStorage["updateBackup"] = JSON.stringify(backup);
+  //sometimes the onDisconnect listener in the content script is not triggered on reload(), so explicitely disconnect here
+  if (googlemusicport) {
+    googlemusicport.onDisconnect.removeListener(onDisconnectListener);
+    googlemusicport.disconnect();
+  }
+  for (var i in parkedPorts) {
+    parkedPorts[i].onDisconnect.removeListener(removeParkedPort);
+    parkedPorts[i].disconnect();
+  }
+  chrome.runtime.reload();
+});
+if (localStorage["updateBackup"] != null) {
+  var updateBackup = JSON.parse(localStorage["updateBackup"]);
+  localStorage.removeItem("updateBackup");
+  song.position = updateBackup.songPosition;
+  song.ff = updateBackup.songFf;
+  song.info = updateBackup.songInfo;
+  song.nowPlayingSent = updateBackup.nowPlayingSent;
+  song.scrobbled = updateBackup.scrobbled;
+  song.toasted = updateBackup.toasted;
+  song.timestamp = updateBackup.songTimestamp;
+  if (updateBackup.miniplayerOpen) openMiniplayer();
+  updateBackup = null;
+}
+
 chrome.extension.onConnect.addListener(onConnectListener);
 connectGoogleMusicTabs();
-chrome.runtime.onUpdateAvailable.addListener(function(){chrome.runtime.reload();});
-chrome.runtime.onInstalled.addListener(updatedListener);

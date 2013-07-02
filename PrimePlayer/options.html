@@ -36,6 +36,16 @@
         <input id="scrobbleMaxDuration" type="number" min="0"/>
         <label for="scrobbleMaxDuration"></label>
       </div>
+      <div class="v-1.2">
+        <input id="disableScrobbleOnFf" type="checkbox"/>
+        <label for="disableScrobbleOnFf"></label>
+        <img src="img/hint.png" class="hint"></img>
+      </div>
+      <div class="v-1.2">
+        <input id="linkRatings" type="checkbox"/>
+        <label for="linkRatings"></label>
+        <img src="img/hint.png" class="hint"></img>
+      </div>
     </fieldset>
     <fieldset>
       <legend id="legendToasting"></legend>
@@ -112,7 +122,7 @@
   <div class="info">
     <div id="credits">
       <h2>Credits</h2>
-      Copyright (c) 2013, Sven Recknagel
+      Copyright (c) 2013, <a target="_blank" href="http://www.last.fm/user/djdixit">Sven Recknagel</a>
       <br/>
       Licensed under the BSD license
       <br/><br/>
@@ -120,9 +130,18 @@
     </div>
     <div id="changelog">
       <h2>Changelog</h2>
+      <div class="v-1.2">
+        <ul>
+          <li>Option to disable scrobbling after fast forward</li>
+          <li>Option to link ratings between last.fm and Google</li>
+          <li>Linked artist/album</li>
+          <li>Accessibility improvements</li>
+          <li>Improved auto-update behavior</li>
+        </ul>
+      </div>
       <div class="v-1.1.1">
         <ul>
-          <li>Fixed minor bug with scrobbling</li>
+          <li>Fixed scrobbling</li>
         </ul>
       </div>
       <div class="v-1.1">

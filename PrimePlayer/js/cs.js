@@ -6,6 +6,7 @@
  * Licensed under the BSD license
  */
 $(function() {
+  var port;
   var registeredListeners = [];
   var observers = [];
   var initialized = false;
@@ -41,34 +42,25 @@ $(function() {
     }
     
     var songTimer;
-    var info = null;
     function songListener(event) {
       clearTimeout(songTimer);
       songTimer = setTimeout(function() {
         songTimer = null;
         var hasSong = $("#playerSongInfo").find("div").length > 0;
-        var newInfo = null;
+        var info = null;
         if (hasSong) {
           var cover = $("#playingAlbumArt").attr("src");
           if (cover) cover = "http:" + cover;
-          newInfo = {
+          info = {
             duration: $.trim($("#time_container_duration").text()),
             title: $("#playerSongTitle").text(),
             artist: $("#player-artist").text(),
+            artistId: $("#player-artist").data("id"),
             album: $("#playerSongInfo").find(".player-album").text(),
+            albumId: $("#playerSongInfo").find(".player-album").data("id"),
             cover: cover
           };
         }
-        if (info == newInfo) return;//both null
-        if (info != null && newInfo != null
-            && info.duration == newInfo.duration
-            && info.title == newInfo.title
-            && info.artist == newInfo.artist
-            && info.album == newInfo.album
-            && info.cover == newInfo.cover) {
-          return;
-        }
-        info = newInfo;
         post("song-info", info);
       }, 1000);//wait for all the song info to be loaded and send once
     }
@@ -147,7 +139,7 @@ $(function() {
     port = null;
   }
 
-  var port = chrome.extension.connect({name: "googlemusic"});
+  port = chrome.extension.connect({name: "googlemusic"});
   port.onMessage.addListener(function(msg) {
     if (msg.type == "connected") {
       port.onDisconnect.addListener(cleanup);

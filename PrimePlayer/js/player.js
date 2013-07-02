@@ -29,9 +29,16 @@ $(function() {
     .attr('title', chrome.i18n.getMessage('openMiniplayer'));
     
   $('#nosong').find('span').text(chrome.i18n.getMessage('nothingPlaying'))
-    .parent().find('div')
+    .parent().find('a')
       .click(bp.openGoogleMusicTab)
       .text(chrome.i18n.getMessage('gotoGmusic'));
+      
+  $("#artist").click(function() {
+    selectArtist(bp.song.info.artistId);
+  });
+  $("#album").click(function() {
+    selectAlbum(bp.song.info.albumId);
+  });
   
   $("#scrobblePosition").attr('title', chrome.i18n.getMessage('scrobblePosition'));
   
@@ -109,8 +116,8 @@ function playingWatcher(val) {
 function songInfoWatcher(val) {
   if (val) {
     $("#songTime").text(val.duration);
-    $("#artist").text(val.artist);
     $("#track").text(val.title);
+    $("#artist").text(val.artist);
     $("#album").text(val.album);
     $("#cover").attr('src', val.cover || "img/cover.png");
     getLovedInfo();
@@ -163,21 +170,21 @@ function colorWatcher(val, old) {
 }
 
 function setupResizeMoveListeners() {
-  var timerId;
   function doneResizing() {
     var sizing = bp.settings.miniplayerSizing;
     sizing[bp.settings.layout].width = window.innerWidth;
     sizing[bp.settings.layout].height = window.innerHeight;
     bp.settings.miniplayerSizing = sizing;
   }
+  var timerId;
   $(window).resize(function() {
-      clearTimeout(timerId);
-      timerId = setTimeout(doneResizing, 1000);
+    clearTimeout(timerId);
+    timerId = setTimeout(doneResizing, 1000);
   });
   
   var oldX = window.screenX;
   var oldY = window.screenY;
-  var interval = setInterval(function() {
+  setInterval(function() {
     if (oldX != window.screenX || oldY != window.screenY) {
       oldX = window.screenX;
       oldY = window.screenY;
@@ -190,11 +197,11 @@ function setupResizeMoveListeners() {
 }
 
 function setToastAutocloseTimer() {
-  var windowTimer = setTimeout(window.close, bp.settings.toastDuration * 1000);
-  $(window).mouseout(function(e){
-    windowTimer = setTimeout(window.close, 3000);
+  var windowTimer = setTimeout(function() { window.close(); }, bp.settings.toastDuration * 1000);
+  $(window).mouseout(function() {
+    windowTimer = setTimeout(function() { window.close(); }, 3000);
   });
-  $(window).mouseover(function(e){
+  $(window).mouseover(function() {
     clearTimeout(windowTimer);
   });
 }
@@ -229,9 +236,9 @@ function hidePlaylists() {
   $('#player').show();
 }
 
-function renderPlayControls(){
+function renderPlayControls() {
   $('.playPause').click(playPause).each(function() {
-    $(this).attr('title', chrome.i18n.getMessage($(this).id + 'Song'));
+    $(this).attr('title', chrome.i18n.getMessage(this.id + 'Song'));
   });
   $('#prev').click(prevSong).attr('title', chrome.i18n.getMessage('prevSong'));
   $('#next').click(nextSong).attr('title', chrome.i18n.getMessage('nextSong'));
@@ -241,7 +248,7 @@ function renderPlayControls(){
 }
 
 function setupGoogleRating() {
-  $('#googleRating').find('div.rating-container').find('div').click(function() {
+  $('#googleRating').find('div.rating-container').find('a').click(function() {
     var cl = $(this).attr('class');
     var rating = cl.substr(cl.indexOf("rating-") + 7, 1);
     rate(rating);
@@ -251,15 +258,15 @@ function setupGoogleRating() {
 function setLoveButtonStatus(loved, error) {
   if (error) {
     $("#lastfmRating").addClass("error")
-      .find("div").attr('title', chrome.i18n.getMessage('lastfmError') + error)
+      .find("a").attr('title', chrome.i18n.getMessage('lastfmError') + error)
       .unbind().click(getLovedInfo);
   } else if (loved) {
     $("#lastfmRating").addClass("loved")
-      .find("div").attr('title', chrome.i18n.getMessage('lastfmUnlove'))
+      .find("a").attr('title', chrome.i18n.getMessage('lastfmUnlove'))
       .unbind().click(unloveTrack);
   } else {
     $("#lastfmRating").addClass("notloved")
-      .find("div").attr('title', chrome.i18n.getMessage('lastfmLove'))
+      .find("a").attr('title', chrome.i18n.getMessage('lastfmLove'))
       .unbind().click(loveTrack);
   }
 }
@@ -283,7 +290,7 @@ function getLovedInfo() {
   }
 }
 
-function loveTrack() {
+function loveTrack(event) {
   $("#lastfmRating").removeClass('loved notloved error');
   bp.lastfm.track.love({
       track: bp.song.info.title,
@@ -297,6 +304,7 @@ function loveTrack() {
       }
     }
   );
+  if (event != null && bp.settings.linkRatings && bp.settings.lastfmSessionKey != null && bp.song.rating == 0) rate(5, true);
 }
 
 function unloveTrack() {
@@ -315,15 +323,15 @@ function unloveTrack() {
   );
 }
 
-function playPause(){
+function playPause() {
   bp.executeInGoogleMusic("playPause");
 }
 
-function prevSong(){
+function prevSong() {
   bp.executeInGoogleMusic("prevSong");
 }
 
-function nextSong(){
+function nextSong() {
   bp.executeInGoogleMusic("nextSong");
 }
 
@@ -335,10 +343,22 @@ function toggleShuffle() {
   bp.executeInGoogleMusic("toggleShuffle");
 }
 
-function rate(rating) {
+function rate(rating, noLink) {
+  var reset = bp.song.rating == rating;
+  if (!noLink && bp.settings.linkRatings && rating == 5 && !reset && !$("#lastfmRating").hasClass("loved")) loveTrack();
   bp.executeInGoogleMusic("rate", {rating: rating});
 }
 
 function playlistStart(plsId) {
   bp.executeInGoogleMusic("startPlaylist", {plsId: plsId});
+}
+
+function selectArtist(artistId) {
+  bp.executeInGoogleMusic("selectArtist", {artistId: artistId});
+  bp.openGoogleMusicTab();
+}
+
+function selectAlbum(albumId) {
+  bp.executeInGoogleMusic("selectAlbum", {albumId: albumId});
+  bp.openGoogleMusicTab();
 }
