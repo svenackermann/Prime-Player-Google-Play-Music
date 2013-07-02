@@ -42,6 +42,7 @@ function scrobbleChanged() {
   $("#scrobbleTime").prop('disabled', disabled);
   $("#scrobbleMaxDuration").prop('disabled', disabled);
   $("#disableScrobbleOnFf").prop('disabled', disabled);
+  $("#linkRatings").prop('disabled', disabled);
 }
 
 function toastChanged() {
@@ -154,6 +155,8 @@ $(function() {
   initNumberInput("scrobbleMaxDuration");
   initCheckbox("disableScrobbleOnFf");
   initHint("disableScrobbleOnFf");
+  initCheckbox("linkRatings");
+  initHint("linkRatings");
   initCheckbox("toast").click(toastChanged);
   initHint("toast");
   initNumberInput("toastDuration");

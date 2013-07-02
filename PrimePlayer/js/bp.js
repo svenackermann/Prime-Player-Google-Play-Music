@@ -12,6 +12,7 @@ var SETTINGS_DEFAULTS = {
   scrobbleTime: 240,
   scrobbleMaxDuration: 30,
   disableScrobbleOnFf: false,
+  linkRatings: false,
   toast: true,
   toastDuration: 5,
   hideToastPlaycontrols: true,
@@ -302,6 +303,7 @@ function getMiniplayerSizing() {
 }
 
 function openMiniplayer() {
+  if (toast) toast.cancel();
   if (miniplayer) {//close first
     miniplayerReopen = true;
     if (miniplayer instanceof Notification) {
@@ -423,6 +425,7 @@ function gaEnabledChanged(val) {
       "scrobbleTime",
       "scrobbleMaxDuration",
       "disableScrobbleOnFf",
+      "linkRatings",
       "toast",
       "toastDuration",
       "hideToastPlaycontrols",

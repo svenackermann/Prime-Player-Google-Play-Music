@@ -290,7 +290,7 @@ function getLovedInfo() {
   }
 }
 
-function loveTrack() {
+function loveTrack(event) {
   $("#lastfmRating").removeClass('loved notloved error');
   bp.lastfm.track.love({
       track: bp.song.info.title,
@@ -304,6 +304,7 @@ function loveTrack() {
       }
     }
   );
+  if (event != null && bp.settings.linkRatings && bp.settings.lastfmSessionKey != null && bp.song.rating == 0) rate(5, true);
 }
 
 function unloveTrack() {
@@ -342,7 +343,9 @@ function toggleShuffle() {
   bp.executeInGoogleMusic("toggleShuffle");
 }
 
-function rate(rating) {
+function rate(rating, noLink) {
+  var reset = bp.song.rating == rating;
+  if (!noLink && bp.settings.linkRatings && rating == 5 && !reset && !$("#lastfmRating").hasClass("loved")) loveTrack();
   bp.executeInGoogleMusic("rate", {rating: rating});
 }
 

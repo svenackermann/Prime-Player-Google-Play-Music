@@ -89,6 +89,12 @@
   "setting_disableScrobbleOnFfHint": {
     "message": "Scrobbelt den aktuellen Titel nicht mehr, nachdem er (mind. f\u00FCnf Sekunden) vorgespult wurde. N\u00FCtzlich, wenn man nur eine bestimmte Stelle in einem Titel sucht. Ansonsten wird der Titel gescrobbelt, sobald er die rote Scrobbel-Marke \u00FCberschreitet."
   },
+  "setting_linkRatings": {
+    "message": "Bewertungen verkn\u00FCpfen"
+  },
+  "setting_linkRatingsHint": {
+    "message": "Titel in last.fm lieben, wenn du Daumen hoch/f\u00FCnf Sterne in Google Music gibst und umgekehrt. Bestehende Wertungen werden nicht \u00FCberschrieben."
+  },
   "setting_miniplayerType": {
     "message": "Typ f\u00FCr den Miniplayer"
   },
