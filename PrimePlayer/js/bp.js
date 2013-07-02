@@ -542,6 +542,15 @@ chrome.runtime.onUpdateAvailable.addListener(function() {
   backup.songPosition = song.position;
   backup.songInfo = song.info;
   localStorage["updateBackup"] = JSON.stringify(backup);
+  //sometimes the onDisconnect listener in the content script is not triggered on reload(), so explicitely disconnect here
+  if (googlemusicport) {
+    googlemusicport.onDisconnect.removeListener(onDisconnectListener);
+    googlemusicport.disconnect();
+  }
+  for (var i in parkedPorts) {
+    parkedPorts[i].onDisconnect.removeListener(removeParkedPort);
+    parkedPorts[i].disconnect();
+  }
   chrome.runtime.reload();
 });
 if (localStorage["updateBackup"] != null) {

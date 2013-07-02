@@ -4,40 +4,46 @@
  * @author Sven Recknagel (svenrecknagel@googlemail.com)
  * Licensed under the BSD license
  */
-primePlayerExt = {
-  dispatchMouseEvent : function(element, eventname) {
+var initPrimePlayerExt = function() {
+  function dispatchMouseEvent(element, eventname) {
     var event = document.createEvent('MouseEvents');
     event.initMouseEvent(eventname, true, true, document.defaultView, 1, 0, 0, 0, 0, false, false, false, false, 0, element);
     element.dispatchEvent(event);
-  },
-  simClick: function(element) {
-    primePlayerExt.dispatchMouseEvent(element, 'click');
-  },
-  startPlaylist: function(plsId) {
+  }
+  
+  function simClick(element) {
+    dispatchMouseEvent(element, 'click');
+  }
+  
+  function startPlaylist(plsId) {
     location.hash = '#/pl/' + encodeURIComponent(plsId);
     setTimeout(function() {
-      primePlayerExt.simClick(document.getElementsByClassName('overlay-icon')[0]);
+      simClick(document.getElementsByClassName('overlay-icon')[0]);
     }, 1000);
-  },
-  rate: function(n) {
+  }
+  
+  function rate(n) {
     var lis = document.getElementById('player-right-wrapper').getElementsByClassName('rating-container')[0].getElementsByTagName('li');
     for (var i in lis) {
       if (lis[i].dataset.rating == n) {
-        primePlayerExt.simClick(lis[i]);
+        simClick(lis[i]);
         break;
       }
     }
-  },
-  cleanup: function() {
-    window.removeEventListener("message", primePlayerExt.onMessage);
-    delete primePlayerExt;
-  },
-  onMessage: function(event) {
+  }
+  
+  function cleanup() {
+    console.debug("Cleanup injected script for Prime Player...");
+    window.removeEventListener("message", onMessage);
+    primePlayerExt = null;
+  }
+  
+  function onMessage(event) {
     // We only accept messages from ourselves
     if (event.source != window || event.data.type != "FROM_PRIMEPLAYER") return;
     switch (event.data.command) {
       case "cleanup":
-        primePlayerExt.cleanup();
+        cleanup();
         break;
       case "playPause":
       case "prevSong":
@@ -47,10 +53,10 @@ primePlayerExt = {
         SJBpost(event.data.command);
         break;
       case "rate":
-        primePlayerExt.rate(event.data.options.rating);
+        rate(event.data.options.rating);
         break;
       case "startPlaylist":
-        primePlayerExt.startPlaylist(event.data.options.plsId);
+        startPlaylist(event.data.options.plsId);
         break;
       case "selectArtist":
         location.hash = '#/ar/' + event.data.options.artistId;
@@ -60,6 +66,9 @@ primePlayerExt = {
         break;
     }
   }
-};
-
-window.addEventListener("message", primePlayerExt.onMessage);
+  
+  window.addEventListener("message", onMessage);
+  console.debug("Prime Player extension connected.");
+  initPrimePlayerExt = null;
+}
+initPrimePlayerExt();
