@@ -53,7 +53,7 @@ function toastChanged() {
 function lastfmUserChanged(user) {
   var action;
   var actionText;
-  $('#scrobbling').prop('disabled', user == null);
+  $('#scrobble').prop('disabled', user == null);
   scrobbleChanged();
   var links = $('#lastfmStatus').find("a");
   var userLink = links.first();
