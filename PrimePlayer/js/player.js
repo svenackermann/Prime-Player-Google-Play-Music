@@ -206,16 +206,16 @@ function setToastAutocloseTimer() {
   });
 }
 
-function lastfmUserWatcher(user) {
+function lastfmUserWatcher(user, old) {
   if (user) {
     $("#lastfmUser")
       .attr('title', chrome.i18n.getMessage('lastfmUser') + user)
       .attr('href', "http://last.fm/user/" + user);
     $('body').addClass('lastfm');
+    if (user != old) getLovedInfo();//not on initialize to prevent requesting it twice (songInfoWatcher does it)
   } else {
     $('body').removeClass('lastfm');
   }
-  getLovedInfo();
 }
 
 function showPlaylists() {
