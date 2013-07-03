@@ -294,6 +294,10 @@ function selectAlbum(albumId) {
   bp.openGoogleMusicTab();
 }
 
+function setSongPosition(event) {
+  bp.executeInGoogleMusic("setPosition", {percent: event.offsetX / $(this).width()});
+}
+
 $(function() {
   $('html').addClass(typeClass);
   $('head > title').first().text(chrome.i18n.getMessage('extTitle'));
@@ -319,6 +323,8 @@ $(function() {
   });
   
   $("#scrobblePosition").attr('title', chrome.i18n.getMessage('scrobblePosition'));
+  
+  $("#timeBarHolder").click(setSongPosition);
   
   bp.settings.watch("lastfmSessionName", lastfmUserWatcher);
   bp.settings.watch("scrobble", scrobbleWatcher);
