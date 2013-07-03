@@ -4,7 +4,7 @@
  * @author Sven Recknagel (svenrecknagel@googlemail.com)
  * Licensed under the BSD license
  */
-var initPrimePlayerExt = function() {
+(function() {
   function dispatchMouseEvent(element, eventname) {
     var event = document.createEvent('MouseEvents');
     event.initMouseEvent(eventname, true, true, document.defaultView, 1, 0, 0, 0, 0, false, false, false, false, 0, element);
@@ -70,5 +70,4 @@ var initPrimePlayerExt = function() {
   window.addEventListener("message", onMessage);
   console.debug("Prime Player extension connected.");
   initPrimePlayerExt = null;
-}
-initPrimePlayerExt();
+})();
