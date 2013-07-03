@@ -569,5 +569,18 @@ if (localStorage["updateBackup"] != null) {
   updateBackup = null;
 }
 
+chrome.commands.onCommand.addListener(function(command) {
+  switch (command) {
+    case "playPause":
+    case "prevSong":
+    case "nextSong":
+      executeInGoogleMusic(command);
+      break;
+    case "openMiniplayer":
+      openMiniplayer();
+      break;
+  }
+});
+
 chrome.extension.onConnect.addListener(onConnectListener);
 connectGoogleMusicTabs();
