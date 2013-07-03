@@ -279,7 +279,7 @@ function toastPopup() {
 var miniplayerReopen = false;
 function miniplayerClosed(winId) {
   if (miniplayer) {
-    if (miniplayer.id && miniplayer.id != winId) {
+    if (typeof(winId) == "number" && winId != miniplayer.id) {
       return;//some other window closed
     }
     miniplayer = null;
@@ -495,9 +495,7 @@ settings.addListener("scrobbleMaxDuration", calcScrobbleTime);
 settings.addListener("scrobblePercent", calcScrobbleTime);
 settings.addListener("scrobbleTime", calcScrobbleTime);
 settings.addListener("disableScrobbleOnFf", calcScrobbleTime);
-player.addListener("playing", function(val) {
-  updateBrowserActionIcon();
-});
+player.addListener("playing", updateBrowserActionIcon);
 song.addListener("scrobbled", updateBrowserActionIcon);
 song.addListener("position", function(val) {
   var oldPos = song.positionSec;
@@ -532,6 +530,7 @@ song.addListener("info", function(val) {
     song.timestamp = 0;
   }
   calcScrobbleTime();
+  updateBrowserActionIcon();
 });
 
 chrome.runtime.onUpdateAvailable.addListener(function() {
@@ -569,6 +568,19 @@ if (localStorage["updateBackup"] != null) {
   if (updateBackup.miniplayerOpen) openMiniplayer();
   updateBackup = null;
 }
+
+chrome.commands.onCommand.addListener(function(command) {
+  switch (command) {
+    case "playPause":
+    case "prevSong":
+    case "nextSong":
+      executeInGoogleMusic(command);
+      break;
+    case "openMiniplayer":
+      openMiniplayer();
+      break;
+  }
+});
 
 chrome.extension.onConnect.addListener(onConnectListener);
 connectGoogleMusicTabs();

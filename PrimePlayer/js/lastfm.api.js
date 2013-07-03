@@ -34,6 +34,10 @@ function LastFM(options){
       } else {
         callbacks.success(response);
       }
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+      if (typeof(callbacks.error) == "function") {
+        callbacks.error(textStatus, errorThrown || textStatus);
+      }
     });
   };
 

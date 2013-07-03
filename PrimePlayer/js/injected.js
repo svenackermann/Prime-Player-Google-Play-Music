@@ -4,10 +4,10 @@
  * @author Sven Recknagel (svenrecknagel@googlemail.com)
  * Licensed under the BSD license
  */
-var initPrimePlayerExt = function() {
-  function dispatchMouseEvent(element, eventname) {
+(function() {
+  function dispatchMouseEvent(element, eventname, clientX, clientY) {
     var event = document.createEvent('MouseEvents');
-    event.initMouseEvent(eventname, true, true, document.defaultView, 1, 0, 0, 0, 0, false, false, false, false, 0, element);
+    event.initMouseEvent(eventname, true, true, window, 1, 0, 0, clientX || 0, clientY || 0, false, false, false, false, 0, element);
     element.dispatchEvent(event);
   }
   
@@ -30,6 +30,12 @@ var initPrimePlayerExt = function() {
         break;
       }
     }
+  }
+  
+  function setPosition(percent) {
+    var slider = document.getElementById('slider');
+    var rect = slider.getBoundingClientRect();
+    dispatchMouseEvent(slider, "mousedown", rect.left + (percent * rect.width), rect.top + 1);
   }
   
   function cleanup() {
@@ -64,11 +70,13 @@ var initPrimePlayerExt = function() {
       case "selectAlbum":
         location.hash = '#/al/' + event.data.options.albumId;
         break;
+      case "setPosition":
+        setPosition(event.data.options.percent);
+        break;
     }
   }
   
   window.addEventListener("message", onMessage);
   console.debug("Prime Player extension connected.");
   initPrimePlayerExt = null;
-}
-initPrimePlayerExt();
+})();

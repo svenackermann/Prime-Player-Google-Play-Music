@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_extTitle__",
   "description": "__MSG_extDesc__",
-  "version": "1.2",
+  "version": "1.3",
   "default_locale": "en",
   "icons": {
     "128": "img/icon-128x128.png",
@@ -29,5 +29,23 @@
     }
   ],
   "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
-  "web_accessible_resources": ["js/injected.js", "img/icon-tabconnected.png", "img/icon-48x48.png", "css/player.scss", "css/layouts.scss", "css/player.css.map"]
+  "web_accessible_resources": ["js/injected.js", "img/icon-tabconnected.png", "img/icon-48x48.png", "css/player.scss", "css/layouts.scss", "css/player.css.map"],
+  "commands": {
+    "playPause": {
+      "suggested_key": { "default": "Alt+S" },
+      "description": "Play/Pause"
+    },
+    "prevSong": {
+      "suggested_key": { "default": "Alt+A" },
+      "description": "Previous song"
+    },
+    "nextSong": {
+      "suggested_key": { "default": "Alt+D" },
+      "description": "Next Song"
+    },
+    "openMiniplayer": {
+      "suggested_key": { "default": "Alt+W" },
+      "description": "Open Miniplayer"
+    }
+  }
 }

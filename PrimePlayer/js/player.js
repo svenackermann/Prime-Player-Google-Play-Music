@@ -16,75 +16,6 @@ if (typeClass == "miniplayer") {
   $('html').addClass("layout-normal");
 }
 
-$(function() {
-  $('html').addClass(typeClass);
-  $('head > title').first().text(chrome.i18n.getMessage('extTitle'));
-  
-  setupGoogleRating();
-  
-  renderPlayControls();
-  
-  $("#miniplayerlink")
-    .click(bp.openMiniplayer)
-    .attr('title', chrome.i18n.getMessage('openMiniplayer'));
-    
-  $('#nosong').find('span').text(chrome.i18n.getMessage('nothingPlaying'))
-    .parent().find('a')
-      .click(bp.openGoogleMusicTab)
-      .text(chrome.i18n.getMessage('gotoGmusic'));
-      
-  $("#artist").click(function() {
-    selectArtist(bp.song.info.artistId);
-  });
-  $("#album").click(function() {
-    selectAlbum(bp.song.info.albumId);
-  });
-  
-  $("#scrobblePosition").attr('title', chrome.i18n.getMessage('scrobblePosition'));
-  
-  bp.settings.watch("lastfmSessionName", lastfmUserWatcher);
-  bp.settings.watch("scrobble", scrobbleWatcher);
-  bp.settings.watch("color", colorWatcher);
-  
-  bp.player.watch("repeat", repeatWatcher);
-  bp.player.watch("shuffle", shuffleWatcher);
-  bp.player.watch("playlists", playlistsWatcher);
-  bp.player.watch("ratingMode", ratingModeWatcher);
-  bp.player.watch("playing", playingWatcher);
-  
-  bp.song.watch("info", songInfoWatcher);
-  bp.song.watch("positionSec", positionWatcher);
-  bp.song.watch("rating", ratingWatcher);
-  bp.song.watch("scrobbleTime", updateScrobblePosition);
-  
-  $(window).unload(function() {
-    bp.settings.removeListener("layout", layoutWatcher);
-    bp.settings.removeListener("lastfmSessionName", lastfmUserWatcher);
-    bp.settings.removeListener("scrobble", scrobbleWatcher);
-    bp.settings.removeListener("color", colorWatcher);
-    
-    bp.player.removeListener("repeat", repeatWatcher);
-    bp.player.removeListener("shuffle", shuffleWatcher);
-    bp.player.removeListener("playlists", playlistsWatcher);
-    bp.player.removeListener("ratingMode", ratingModeWatcher);
-    bp.player.removeListener("playing", playingWatcher);
-    
-    bp.song.removeListener("info", songInfoWatcher);
-    bp.song.removeListener("positionSec", positionWatcher);
-    bp.song.removeListener("rating", ratingWatcher);
-    bp.song.removeListener("scrobbleTime", updateScrobblePosition);
-  });
-  
-  if (typeClass == "toast") {
-    if (bp.settings.hideToastPlaycontrols) $("html").addClass("hidePlaycontrols");
-    setToastAutocloseTimer();
-  }
-  
-  if (typeClass == "miniplayer" && bp.settings.miniplayerType != "notification") {
-    setupResizeMoveListeners();
-  }
-});
-
 function repeatWatcher(val) {
   $('#repeat').attr('class', val);
 }
@@ -206,16 +137,16 @@ function setToastAutocloseTimer() {
   });
 }
 
-function lastfmUserWatcher(user) {
+function lastfmUserWatcher(user, old) {
   if (user) {
     $("#lastfmUser")
       .attr('title', chrome.i18n.getMessage('lastfmUser') + user)
       .attr('href', "http://last.fm/user/" + user);
     $('body').addClass('lastfm');
+    if (user != old) getLovedInfo();//not on initialize to prevent requesting it twice (songInfoWatcher does it)
   } else {
     $('body').removeClass('lastfm');
   }
-  getLovedInfo();
 }
 
 function showPlaylists() {
@@ -362,3 +293,78 @@ function selectAlbum(albumId) {
   bp.executeInGoogleMusic("selectAlbum", {albumId: albumId});
   bp.openGoogleMusicTab();
 }
+
+function setSongPosition(event) {
+  bp.executeInGoogleMusic("setPosition", {percent: event.offsetX / $(this).width()});
+}
+
+$(function() {
+  $('html').addClass(typeClass);
+  $('head > title').first().text(chrome.i18n.getMessage('extTitle'));
+  
+  setupGoogleRating();
+  
+  renderPlayControls();
+  
+  $("#miniplayerlink")
+    .click(bp.openMiniplayer)
+    .attr('title', chrome.i18n.getMessage('openMiniplayer'));
+    
+  $('#nosong').find('span').text(chrome.i18n.getMessage('nothingPlaying'))
+    .parent().find('a')
+      .click(bp.openGoogleMusicTab)
+      .text(chrome.i18n.getMessage('gotoGmusic'));
+      
+  $("#artist").click(function() {
+    selectArtist(bp.song.info.artistId);
+  });
+  $("#album").click(function() {
+    selectAlbum(bp.song.info.albumId);
+  });
+  
+  $("#scrobblePosition").attr('title', chrome.i18n.getMessage('scrobblePosition'));
+  
+  $("#timeBarHolder").click(setSongPosition);
+  
+  bp.settings.watch("lastfmSessionName", lastfmUserWatcher);
+  bp.settings.watch("scrobble", scrobbleWatcher);
+  bp.settings.watch("color", colorWatcher);
+  
+  bp.player.watch("repeat", repeatWatcher);
+  bp.player.watch("shuffle", shuffleWatcher);
+  bp.player.watch("playlists", playlistsWatcher);
+  bp.player.watch("ratingMode", ratingModeWatcher);
+  bp.player.watch("playing", playingWatcher);
+  
+  bp.song.watch("info", songInfoWatcher);
+  bp.song.watch("positionSec", positionWatcher);
+  bp.song.watch("rating", ratingWatcher);
+  bp.song.watch("scrobbleTime", updateScrobblePosition);
+  
+  $(window).unload(function() {
+    bp.settings.removeListener("layout", layoutWatcher);
+    bp.settings.removeListener("lastfmSessionName", lastfmUserWatcher);
+    bp.settings.removeListener("scrobble", scrobbleWatcher);
+    bp.settings.removeListener("color", colorWatcher);
+    
+    bp.player.removeListener("repeat", repeatWatcher);
+    bp.player.removeListener("shuffle", shuffleWatcher);
+    bp.player.removeListener("playlists", playlistsWatcher);
+    bp.player.removeListener("ratingMode", ratingModeWatcher);
+    bp.player.removeListener("playing", playingWatcher);
+    
+    bp.song.removeListener("info", songInfoWatcher);
+    bp.song.removeListener("positionSec", positionWatcher);
+    bp.song.removeListener("rating", ratingWatcher);
+    bp.song.removeListener("scrobbleTime", updateScrobblePosition);
+  });
+  
+  if (typeClass == "toast") {
+    if (bp.settings.hideToastPlaycontrols) $("html").addClass("hidePlaycontrols");
+    setToastAutocloseTimer();
+  }
+  
+  if (typeClass == "miniplayer" && bp.settings.miniplayerType != "notification") {
+    setupResizeMoveListeners();
+  }
+});
