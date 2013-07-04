@@ -107,13 +107,25 @@ function connectPort(port) {
   updateBrowserActionIcon();
 }
 
+function isConnectedTab(port) {
+  if (googlemusicport && port.sender.tab.id == googlemusicport.sender.tab.id) return true;
+  for (var i in parkedPorts) {
+    if (port.sender.tab.id == parkedPorts[i].sender.tab.id) return true;
+  }
+  return false;
+}
+
 function onConnectListener(port) {
   console.assert(port.name == "googlemusic");
-  if (googlemusicport) {
-    parkedPorts.push(port);
-    port.onDisconnect.addListener(removeParkedPort);
+  if (isConnectedTab(port)) {
+    port.postMessage({type: "alreadyConnected"});
   } else {
-    connectPort(port);
+    if (googlemusicport) {
+      parkedPorts.push(port);
+      port.onDisconnect.addListener(removeParkedPort);
+    } else {
+      connectPort(port);
+    }
   }
 }
 

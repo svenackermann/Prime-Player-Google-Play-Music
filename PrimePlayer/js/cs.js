@@ -141,11 +141,20 @@ $(function() {
 
   port = chrome.extension.connect({name: "googlemusic"});
   port.onMessage.addListener(function(msg) {
-    if (msg.type == "connected") {
-      port.onDisconnect.addListener(cleanup);
-      init();
-    } else if (msg.type == "execute" && initialized) {
-      window.postMessage({ type: "FROM_PRIMEPLAYER", command: msg.command, options: msg.options }, location.href);
+    switch (msg.type) {
+      case "execute":
+        if (initialized) {
+          window.postMessage({ type: "FROM_PRIMEPLAYER", command: msg.command, options: msg.options }, location.href);
+        }
+        break;
+      case "connected":
+        port.onDisconnect.addListener(cleanup);
+        init();
+        break;
+      case "alreadyConnected":
+        port.disconnect();
+        port = null;
+        break;
     }
   });
 });
