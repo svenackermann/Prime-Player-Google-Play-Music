@@ -19,7 +19,8 @@
     "default_popup": "player.html"
   },
   "background": {
-    "scripts": ["js/jquery-2.0.2.min.js", "js/ga.js", "js/md5-min.js", "js/lastfm.api.js", "js/beans.js", "js/bp.js"]
+    "scripts": ["js/jquery-2.0.2.min.js", "js/ga.js", "js/md5-min.js", "js/lastfm.api.js", "js/beans.js", "js/bp.js"],
+    "persistent": false
   },
   "options_page": "options.html",
   "content_scripts": [ 

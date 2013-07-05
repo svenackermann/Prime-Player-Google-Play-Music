@@ -3,7 +3,8 @@
  * @author Sven Recknagel (svenrecknagel@googlemail.com)
  * Licensed under the BSD license
  */
-var bp = chrome.extension.getBackgroundPage();
+chrome.runtime.getBackgroundPage(function(bp) {
+
 var thisTab;
 
 function extractToken() {
@@ -193,8 +194,7 @@ $(function() {
       var version = extractVersionFromClass(this);
       if (bp.isNewerVersion(version)) $(this).addClass("newFeature");
     });
-    bp.previousVersion = null;
-    bp.updateNotifierDone();
+    bp.updateInfosViewed();
   }
   
   $("#changelog > div[class*='v-']").each(function() {
@@ -209,3 +209,5 @@ $(window).unload(function() {
 });
 
 if (bp.settings.gaEnabled) initGA(bp.currentVersion);
+
+});

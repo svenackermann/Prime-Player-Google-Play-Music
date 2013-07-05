@@ -8,6 +8,7 @@ function Bean(defaults, syncLocalStorage) {
   this.cache = {};
   this.listeners = {};
   this.syncLocalStorage = syncLocalStorage || false;
+  this.equalsFn = {};
   var that = this;
   
   function notify(prop, old, val) {
@@ -41,6 +42,10 @@ function Bean(defaults, syncLocalStorage) {
     that.addListener(prop, listener);
   }
   
+  this.setEqualsFn = function(prop, equalsFn) {
+    that.equalsFn[prop] = equalsFn;
+  }
+  
   /**
    * Adds all properties from defaultValue to value that do not yet exist there.
    */
@@ -69,6 +74,10 @@ function Bean(defaults, syncLocalStorage) {
     }
   }
   
+  function defaultEquals(val, old) {
+    return typeof(val) != "object" && val === old;
+  }
+  
   function setting(name, defaultValue) {
     that.cache[name] = parse(name, defaultValue);
     that.listeners[name] = [];
@@ -79,7 +88,9 @@ function Bean(defaults, syncLocalStorage) {
     
     that.__defineSetter__(name, function(val) {
       var old = that.cache[name];
-      if (typeof(val) != "object" && val === old) {
+      var equals = that.equalsFn[name];
+      if (equals == null) equals = defaultEquals;
+      if (equals(val, old)) {
         return;
       }
       if (that.syncLocalStorage) {

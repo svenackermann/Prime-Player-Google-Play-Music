@@ -3,7 +3,8 @@
  * @author Sven Recknagel (svenrecknagel@googlemail.com)
  * Licensed under the BSD license
  */
-var bp = chrome.extension.getBackgroundPage();
+chrome.runtime.getBackgroundPage(function(bp) {
+
 var typeClass = bp.justOpenedClass || "popup";
 bp.justOpenedClass = null;
 
@@ -367,4 +368,6 @@ $(function() {
   if (typeClass == "miniplayer" && bp.settings.miniplayerType != "notification") {
     setupResizeMoveListeners();
   }
+});
+
 });

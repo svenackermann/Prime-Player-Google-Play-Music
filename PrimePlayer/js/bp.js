@@ -40,8 +40,8 @@ var googlemusictabId;
 var optionsTabId;
 var justOpenedClass;
 var parkedPorts = [];
-var viewUpdateNotifier = false;
-var previousVersion;
+var viewUpdateNotifier = localStorage["viewUpdateNotifier"] || false;
+var previousVersion = localStorage["previousVersion"];
 
 var SONG_DEFAULTS = {
   position: "0:00",
@@ -72,6 +72,19 @@ lastfm.session.key = settings.lastfmSessionKey;
 lastfm.session.name = settings.lastfmSessionName;
 
 var currentVersion = chrome.runtime.getManifest().version;
+
+function equalsCurrentSong(info, old) {
+  if (old == info) return true;//both null
+  if (old != null && info != null
+      && old.duration == info.duration
+      && old.title == info.title
+      && old.artist == info.artist
+      && old.album == info.album) {
+    return true;
+  }
+  return false;
+}
+song.setEqualsFn("info", equalsCurrentSong);
 
 function updateBrowserActionIcon() {
   var path = "img/icon-";
@@ -137,44 +150,31 @@ function onDisconnectListener() {
   resetToDefaults(player, PLAYER_DEFAULTS);
   resetToDefaults(song, SONG_DEFAULTS);
   
-  updateBrowserActionIcon();
-  
   //try to connect another tab
   while (parkedPorts.length > 0) {
     var parkedPort = parkedPorts.shift();
     try {
       parkedPort.onDisconnect.removeListener(removeParkedPort);
       connectPort(parkedPort);
+      break;
     } catch (e) {
       //seems to be disconnected, try next
     }
   }
+  
+  if (googlemusicport == null) updateBrowserActionIcon();//disconnected
 }
 
 function onMessageListener(message) {
   var val = message.value;
   var type = message.type;
   
-  if (type == "song-info") {
-    if (!equalsCurrentSong(val)) song.info = val;
-  } else if (type.indexOf("song-") == 0) {
+  if (type.indexOf("song-") == 0) {
     if (type == "song-position" && val == "") val = SONG_DEFAULTS.position;
     song[type.substring(5)] = val;
   } else if (type.indexOf("player-") == 0) {
     player[type.substring(7)] = val;
   }
-}
-
-function equalsCurrentSong(info) {
-  if (song.info == info) return true;//both null
-  if (song.info != null && info != null
-      && song.info.duration == info.duration
-      && song.info.title == info.title
-      && song.info.artist == info.artist
-      && song.info.album == info.album) {
-    return true;
-  }
-  return false;
 }
 
 function isScrobblingEnabled() {
@@ -291,15 +291,15 @@ function toastPopup() {
 var miniplayerReopen = false;
 function miniplayerClosed(winId) {
   if (miniplayer) {
-    if (typeof(winId) == "number" && winId != miniplayer.id) {
-      return;//some other window closed
+    if (typeof(winId) == "number") {
+      if (winId == miniplayer.id) chrome.windows.onRemoved.removeListener(miniplayerClosed);
+      else return;//some other window closed
     }
     miniplayer = null;
     if (miniplayerReopen) openMiniplayer();
     miniplayerReopen = false;
   }
 }
-chrome.windows.onRemoved.addListener(miniplayerClosed);
 
 function getMiniplayerSizing() {
   var addToHeight = {normal: 113, popup: 38, panel: 37, detached_panel: 37};
@@ -343,6 +343,7 @@ function openMiniplayer() {
         type: settings.miniplayerType
       }, function(win) {
         miniplayer = win;
+        chrome.windows.onRemoved.addListener(miniplayerClosed);
       }
     );
   }
@@ -381,7 +382,9 @@ function updatedListener(details) {
   if (details.reason == "update") {
     previousVersion = details.previousVersion;
     if (isNewerVersion(currentVersion)) {
+      localStorage["previousVersion"] = previousVersion;
       viewUpdateNotifier = true;
+      localStorage["viewUpdateNotifier"] = viewUpdateNotifier;
       iconClickSettingsChanged();
       updateBrowserActionIcon();
     } else {
@@ -390,8 +393,15 @@ function updatedListener(details) {
   }
 }
 
+function updateInfosViewed() {
+  previousVersion = null;
+  localStorage.removeItem("previousVersion");
+  updateNotifierDone();
+}
+
 function updateNotifierDone() {
   viewUpdateNotifier = false;
+  localStorage.removeItem("viewUpdateNotifier");
   iconClickSettingsChanged();
   updateBrowserActionIcon();
 }
@@ -545,7 +555,7 @@ song.addListener("info", function(val) {
   updateBrowserActionIcon();
 });
 
-chrome.runtime.onUpdateAvailable.addListener(function() {
+function reloadForUpdate() {
   var backup = {};
   backup.miniplayerOpen = miniplayer != null;
   backup.nowPlayingSent = song.nowPlayingSent;
@@ -566,7 +576,8 @@ chrome.runtime.onUpdateAvailable.addListener(function() {
     parkedPorts[i].disconnect();
   }
   chrome.runtime.reload();
-});
+}
+
 if (localStorage["updateBackup"] != null) {
   var updateBackup = JSON.parse(localStorage["updateBackup"]);
   localStorage.removeItem("updateBackup");
@@ -595,4 +606,9 @@ chrome.commands.onCommand.addListener(function(command) {
 });
 
 chrome.extension.onConnect.addListener(onConnectListener);
+chrome.runtime.onUpdateAvailable.addListener(reloadForUpdate);
+chrome.runtime.onSuspend.addListener(function() {
+  chrome.runtime.onUpdateAvailable.removeListener(reloadForUpdate);
+});
+
 connectGoogleMusicTabs();
