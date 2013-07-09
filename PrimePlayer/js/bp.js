@@ -4,9 +4,19 @@
  * @author Sven Recknagel (svenrecknagel@googlemail.com)
  * Licensed under the BSD license
  */
-var SETTINGS_DEFAULTS = {
+var LOCAL_SETTINGS_DEFAULTS = {
   lastfmSessionKey: null,
   lastfmSessionName: null,
+  syncSettings: false,
+  miniplayerSizing: {
+    normal:   { width: 271, height: 116, left: 0, top: 0 },
+    compact1: { width: 271, height: 84, left: 0, top: 0 },
+    compact2: { width: 180, height: 133, left: 0, top: 0 },
+    hbar:     { width: 476, height: 31,  left: 0, top: 0 }
+  }
+}
+var localSettings = new Bean(LOCAL_SETTINGS_DEFAULTS, true);
+var SETTINGS_DEFAULTS = {
   scrobble: true,
   scrobblePercent: 50,
   scrobbleTime: 240,
@@ -23,13 +33,7 @@ var SETTINGS_DEFAULTS = {
   iconClickConnect: false,
   openGoogleMusicPinned: false,
   updateNotifier: true,
-  gaEnabled: true,
-  miniplayerSizing: {
-    normal:   { width: 271, height: 116, left: 0, top: 0 },
-    compact1: { width: 271, height: 84, left: 0, top: 0 },
-    compact2: { width: 180, height: 133, left: 0, top: 0 },
-    hbar:     { width: 476, height: 31,  left: 0, top: 0 }
-  }
+  gaEnabled: true
 };
 var settings = new Bean(SETTINGS_DEFAULTS, true);
 
@@ -40,8 +44,8 @@ var googlemusictabId;
 var optionsTabId;
 var justOpenedClass;
 var parkedPorts = [];
-var viewUpdateNotifier = false;
-var previousVersion;
+var viewUpdateNotifier = localStorage["viewUpdateNotifier"] || false;
+var previousVersion = localStorage["previousVersion"];
 
 var SONG_DEFAULTS = {
   position: "0:00",
@@ -68,10 +72,23 @@ var song = new Bean(SONG_DEFAULTS);
 var LASTFM_APIKEY = "1ecc0b24153df7dc6ac0229d6fcb8dda";
 var LASTFM_APISECRET = "fb4b74854f7a7b099c30bfe71236dfd5";
 var lastfm = new LastFM({apiKey: LASTFM_APIKEY, apiSecret: LASTFM_APISECRET});
-lastfm.session.key = settings.lastfmSessionKey;
-lastfm.session.name = settings.lastfmSessionName;
+lastfm.session.key = localSettings.lastfmSessionKey;
+lastfm.session.name = localSettings.lastfmSessionName;
 
 var currentVersion = chrome.runtime.getManifest().version;
+
+function equalsCurrentSong(info, old) {
+  if (old == info) return true;//both null
+  if (old != null && info != null
+      && old.duration == info.duration
+      && old.title == info.title
+      && old.artist == info.artist
+      && old.album == info.album) {
+    return true;
+  }
+  return false;
+}
+song.setEqualsFn("info", equalsCurrentSong);
 
 function updateBrowserActionIcon() {
   var path = "img/icon-";
@@ -107,13 +124,25 @@ function connectPort(port) {
   updateBrowserActionIcon();
 }
 
+function isConnectedTab(port) {
+  if (googlemusicport && port.sender.tab.id == googlemusicport.sender.tab.id) return true;
+  for (var i in parkedPorts) {
+    if (port.sender.tab.id == parkedPorts[i].sender.tab.id) return true;
+  }
+  return false;
+}
+
 function onConnectListener(port) {
   console.assert(port.name == "googlemusic");
-  if (googlemusicport) {
-    parkedPorts.push(port);
-    port.onDisconnect.addListener(removeParkedPort);
+  if (isConnectedTab(port)) {
+    port.postMessage({type: "alreadyConnected"});
   } else {
-    connectPort(port);
+    if (googlemusicport) {
+      parkedPorts.push(port);
+      port.onDisconnect.addListener(removeParkedPort);
+    } else {
+      connectPort(port);
+    }
   }
 }
 
@@ -125,27 +154,26 @@ function onDisconnectListener() {
   resetToDefaults(player, PLAYER_DEFAULTS);
   resetToDefaults(song, SONG_DEFAULTS);
   
-  updateBrowserActionIcon();
-  
   //try to connect another tab
   while (parkedPorts.length > 0) {
     var parkedPort = parkedPorts.shift();
     try {
       parkedPort.onDisconnect.removeListener(removeParkedPort);
       connectPort(parkedPort);
+      break;
     } catch (e) {
       //seems to be disconnected, try next
     }
   }
+  
+  if (googlemusicport == null) updateBrowserActionIcon();//disconnected
 }
 
 function onMessageListener(message) {
   var val = message.value;
   var type = message.type;
   
-  if (type == "song-info") {
-    if (!equalsCurrentSong(val)) song.info = val;
-  } else if (type.indexOf("song-") == 0) {
+  if (type.indexOf("song-") == 0) {
     if (type == "song-position" && val == "") val = SONG_DEFAULTS.position;
     song[type.substring(5)] = val;
   } else if (type.indexOf("player-") == 0) {
@@ -153,20 +181,8 @@ function onMessageListener(message) {
   }
 }
 
-function equalsCurrentSong(info) {
-  if (song.info == info) return true;//both null
-  if (song.info != null && info != null
-      && song.info.duration == info.duration
-      && song.info.title == info.title
-      && song.info.artist == info.artist
-      && song.info.album == info.album) {
-    return true;
-  }
-  return false;
-}
-
 function isScrobblingEnabled() {
-  return settings.scrobble && settings.lastfmSessionName != null;
+  return settings.scrobble && localSettings.lastfmSessionName != null;
 }
 
 function calcScrobbleTime() {
@@ -244,8 +260,8 @@ function lastfmLogin() {
 
 function lastfmLogout() {
   lastfm.session = {};
-  settings.lastfmSessionKey = null;
-  settings.lastfmSessionName = null;
+  localSettings.lastfmSessionKey = null;
+  localSettings.lastfmSessionName = null;
 }
 
 function relogin() {
@@ -279,20 +295,20 @@ function toastPopup() {
 var miniplayerReopen = false;
 function miniplayerClosed(winId) {
   if (miniplayer) {
-    if (typeof(winId) == "number" && winId != miniplayer.id) {
-      return;//some other window closed
+    if (typeof(winId) == "number") {
+      if (winId == miniplayer.id) chrome.windows.onRemoved.removeListener(miniplayerClosed);
+      else return;//some other window closed
     }
     miniplayer = null;
     if (miniplayerReopen) openMiniplayer();
     miniplayerReopen = false;
   }
 }
-chrome.windows.onRemoved.addListener(miniplayerClosed);
 
 function getMiniplayerSizing() {
   var addToHeight = {normal: 113, popup: 38, panel: 37, detached_panel: 37};
   var addToWidth = {normal: 16, popup: 16, panel: -1, detached_panel: -1};
-  var sizing = settings.miniplayerSizing[settings.layout];
+  var sizing = localSettings.miniplayerSizing[settings.layout];
   var result = {
     height: sizing.height + addToHeight[settings.miniplayerType],
     width: sizing.width + addToWidth[settings.miniplayerType],
@@ -331,6 +347,7 @@ function openMiniplayer() {
         type: settings.miniplayerType
       }, function(win) {
         miniplayer = win;
+        chrome.windows.onRemoved.addListener(miniplayerClosed);
       }
     );
   }
@@ -369,7 +386,9 @@ function updatedListener(details) {
   if (details.reason == "update") {
     previousVersion = details.previousVersion;
     if (isNewerVersion(currentVersion)) {
+      localStorage["previousVersion"] = previousVersion;
       viewUpdateNotifier = true;
+      localStorage["viewUpdateNotifier"] = viewUpdateNotifier;
       iconClickSettingsChanged();
       updateBrowserActionIcon();
     } else {
@@ -378,8 +397,15 @@ function updatedListener(details) {
   }
 }
 
+function updateInfosViewed() {
+  previousVersion = null;
+  localStorage.removeItem("previousVersion");
+  updateNotifierDone();
+}
+
 function updateNotifierDone() {
   viewUpdateNotifier = false;
+  localStorage.removeItem("viewUpdateNotifier");
   iconClickSettingsChanged();
   updateBrowserActionIcon();
 }
@@ -468,7 +494,6 @@ function connectGoogleMusicTabs() {
     }
   });
 }
-
 settings.watch("updateNotifier", function(val) {
   if (val) chrome.runtime.onInstalled.addListener(updatedListener)
   else chrome.runtime.onInstalled.removeListener(updatedListener);
@@ -489,12 +514,19 @@ settings.addListener("layout", function(val) {
     );
   }
 });
-settings.addListener("lastfmSessionName", calcScrobbleTime);
 settings.addListener("scrobble", calcScrobbleTime);
 settings.addListener("scrobbleMaxDuration", calcScrobbleTime);
 settings.addListener("scrobblePercent", calcScrobbleTime);
 settings.addListener("scrobbleTime", calcScrobbleTime);
 settings.addListener("disableScrobbleOnFf", calcScrobbleTime);
+
+localSettings.watch("syncSettings", function(val) {
+  settings.setSyncStorage(val, function() {
+    if (optionsTabId) chrome.tabs.reload(optionsTabId);
+  });
+});
+localSettings.addListener("lastfmSessionName", calcScrobbleTime);
+
 player.addListener("playing", updateBrowserActionIcon);
 song.addListener("scrobbled", updateBrowserActionIcon);
 song.addListener("position", function(val) {
@@ -533,7 +565,7 @@ song.addListener("info", function(val) {
   updateBrowserActionIcon();
 });
 
-chrome.runtime.onUpdateAvailable.addListener(function() {
+function reloadForUpdate() {
   var backup = {};
   backup.miniplayerOpen = miniplayer != null;
   backup.nowPlayingSent = song.nowPlayingSent;
@@ -554,7 +586,8 @@ chrome.runtime.onUpdateAvailable.addListener(function() {
     parkedPorts[i].disconnect();
   }
   chrome.runtime.reload();
-});
+}
+
 if (localStorage["updateBackup"] != null) {
   var updateBackup = JSON.parse(localStorage["updateBackup"]);
   localStorage.removeItem("updateBackup");
@@ -583,4 +616,9 @@ chrome.commands.onCommand.addListener(function(command) {
 });
 
 chrome.extension.onConnect.addListener(onConnectListener);
+chrome.runtime.onUpdateAvailable.addListener(reloadForUpdate);
+chrome.runtime.onSuspend.addListener(function() {
+  chrome.runtime.onUpdateAvailable.removeListener(reloadForUpdate);
+});
+
 connectGoogleMusicTabs();

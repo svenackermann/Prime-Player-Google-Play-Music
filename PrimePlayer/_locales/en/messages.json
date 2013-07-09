@@ -200,6 +200,9 @@
   "setting_hideToastPlaycontrols": {
     "message": "Hide playing controls in toasts"
   },
+  "setting_syncSettings": {
+    "message": "Sync settings with Chrome sync"
+  },
   "setting_updateNotifier": {
     "message": "Notify on updates (icon becomes orange)"
   },

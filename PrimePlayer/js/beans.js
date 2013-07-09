@@ -8,6 +8,9 @@ function Bean(defaults, syncLocalStorage) {
   this.cache = {};
   this.listeners = {};
   this.syncLocalStorage = syncLocalStorage || false;
+  this.equalsFn = {};
+  var useSyncStorage = false;
+  var saveSyncStorageTimer;
   var that = this;
   
   function notify(prop, old, val) {
@@ -41,6 +44,47 @@ function Bean(defaults, syncLocalStorage) {
     that.addListener(prop, listener);
   }
   
+  this.setEqualsFn = function(prop, equalsFn) {
+    that.equalsFn[prop] = equalsFn;
+  }
+  
+  function loadSyncStorage(doneCallback) {
+    chrome.storage.sync.get(null, function(items) {
+      var error = chrome.runtime.lastError;
+      if (error) {
+        console.warn("Could not load settings: " + error.message);
+        setTimeout(that.loadSyncStorage, 30000);//try again in 30s
+      } else {
+        for (var prop in items) {
+          that[prop] = items[prop];
+        }
+        if (typeof(doneCallback) == "function") doneCallback();
+      }
+    });
+  }
+  
+  function saveSyncStorage() {
+    clearTimeout(saveSyncStorageTimer);
+    saveSyncStorageTimer = setTimeout(function() {
+      chrome.storage.sync.set(that.cache, function() {
+        var error = chrome.runtime.lastError;
+        if (error) {
+          console.warn("Could not store settings: " + error.message);
+          saveSyncStorage();//try again in 10s
+        } else console.debug("Storage successfully synced.");
+      });
+    }, 10000);
+  }
+  
+  this.setSyncStorage = function(syncStorage, syncedCallback) {
+    if (syncStorage) {
+      loadSyncStorage(syncedCallback);
+    } else {
+      clearTimeout(saveSyncStorageTimer);
+    }
+    useSyncStorage = syncStorage;
+  }
+  
   /**
    * Adds all properties from defaultValue to value that do not yet exist there.
    */
@@ -69,6 +113,10 @@ function Bean(defaults, syncLocalStorage) {
     }
   }
   
+  function defaultEquals(val, old) {
+    return typeof(val) != "object" && val === old;
+  }
+  
   function setting(name, defaultValue) {
     that.cache[name] = parse(name, defaultValue);
     that.listeners[name] = [];
@@ -79,7 +127,9 @@ function Bean(defaults, syncLocalStorage) {
     
     that.__defineSetter__(name, function(val) {
       var old = that.cache[name];
-      if (typeof(val) != "object" && val === old) {
+      var equals = that.equalsFn[name];
+      if (equals == null) equals = defaultEquals;
+      if (equals(val, old)) {
         return;
       }
       if (that.syncLocalStorage) {
@@ -92,6 +142,7 @@ function Bean(defaults, syncLocalStorage) {
         }
       }
       that.cache[name] = val;
+      if (useSyncStorage) saveSyncStorage();
       notify(name, old, val);
     });
   }

@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_extTitle__",
   "description": "__MSG_extDesc__",
-  "version": "1.3",
+  "version": "1.4",
   "default_locale": "en",
   "icons": {
     "128": "img/icon-128x128.png",
@@ -11,7 +11,8 @@
   },
   "permissions": [
     "*://play.google.com/music/listen*",
-    "notifications"
+    "notifications",
+    "storage"
   ],
   "browser_action": {
     "default_icon": "img/icon-notconnected.png",
@@ -19,7 +20,8 @@
     "default_popup": "player.html"
   },
   "background": {
-    "scripts": ["js/jquery-2.0.2.min.js", "js/ga.js", "js/md5-min.js", "js/lastfm.api.js", "js/beans.js", "js/bp.js"]
+    "scripts": ["js/jquery-2.0.2.min.js", "js/ga.js", "js/md5-min.js", "js/lastfm.api.js", "js/beans.js", "js/bp.js"],
+    "persistent": false
   },
   "options_page": "options.html",
   "content_scripts": [ 
