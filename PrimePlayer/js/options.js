@@ -20,8 +20,8 @@ function getLastfmSession(token) {
     {
       success: function(response) {
         status.find(".loader").hide();
-        bp.settings.lastfmSessionKey = response.session.key;
-        bp.settings.lastfmSessionName = response.session.name;
+        bp.localSettings.lastfmSessionKey = response.session.key;
+        bp.localSettings.lastfmSessionName = response.session.name;
         bp.lastfm.session = response.session;
         status.find(".success").attr('title', chrome.i18n.getMessage('lastfmConnectSuccess')).show();
         bp.gaEvent('LastFM', 'AuthorizeOK');
@@ -123,6 +123,14 @@ function initSelect(prop) {
   return input;
 }
 
+function initSyncSettings() {
+  var input = $("#syncSettings");
+  input
+    .prop('checked', bp.localSettings.syncSettings)
+    .click(function() { bp.localSettings.syncSettings = !bp.localSettings.syncSettings })
+    .parent().find("label").text(chrome.i18n.getMessage("setting_syncSettings"));
+}
+
 function extractVersionFromClass(el) {
   var cl = $(el).attr("class");
   var start = cl.indexOf("v-") + 2;
@@ -171,10 +179,11 @@ $(function() {
   initCheckbox("iconClickConnect");
   initCheckbox("openGoogleMusicPinned");
   initCheckbox("updateNotifier");
+  initSyncSettings();
   initCheckbox("gaEnabled");
   initHint("gaEnabled");
   
-  bp.settings.watch("lastfmSessionName", lastfmUserChanged);
+  bp.localSettings.watch("lastfmSessionName", lastfmUserChanged);
   scrobbleChanged();
   toastChanged();
   
@@ -185,7 +194,7 @@ $(function() {
     });
   }
   var token;
-  if (bp.settings.lastfmSessionName == null && (token = extractToken())) {
+  if (bp.localSettings.lastfmSessionName == null && (token = extractToken())) {
     getLastfmSession(token);
   }
   
@@ -204,7 +213,7 @@ $(function() {
 });
 
 $(window).unload(function() {
-  bp.settings.removeListener("lastfmSessionName", lastfmUserChanged);
+  bp.localSettings.removeListener("lastfmSessionName", lastfmUserChanged);
   if (bp.optionsTabId == thisTabId) bp.optionsTabId = null;
 });
 

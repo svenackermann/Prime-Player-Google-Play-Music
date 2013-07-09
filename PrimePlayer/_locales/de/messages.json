@@ -200,6 +200,9 @@
   "setting_hideToastPlaycontrols": {
     "message": "Verstecke Wiedergabe-Kontrollen in Toasts"
   },
+  "setting_syncSettings": {
+    "message": "Einstellungen mit Chrome sync synchronisieren"
+  },
   "setting_updateNotifier": {
     "message": "Bei Aktualisierungen benachrichtigen (Symbol wird orange)"
   },

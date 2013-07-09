@@ -103,10 +103,10 @@ function colorWatcher(val, old) {
 
 function setupResizeMoveListeners() {
   function doneResizing() {
-    var sizing = bp.settings.miniplayerSizing;
+    var sizing = bp.localSettings.miniplayerSizing;
     sizing[bp.settings.layout].width = window.innerWidth;
     sizing[bp.settings.layout].height = window.innerHeight;
-    bp.settings.miniplayerSizing = sizing;
+    bp.localSettings.miniplayerSizing = sizing;
   }
   var timerId;
   $(window).resize(function() {
@@ -120,10 +120,10 @@ function setupResizeMoveListeners() {
     if (oldX != window.screenX || oldY != window.screenY) {
       oldX = window.screenX;
       oldY = window.screenY;
-      var sizing = bp.settings.miniplayerSizing;
+      var sizing = bp.localSettings.miniplayerSizing;
       sizing[bp.settings.layout].left = oldX;
       sizing[bp.settings.layout].top = oldY;
-      bp.settings.miniplayerSizing = sizing;
+      bp.localSettings.miniplayerSizing = sizing;
     }
   }, 1000);
 }
@@ -205,11 +205,11 @@ function setLoveButtonStatus(loved, error) {
 
 function getLovedInfo() {
   $("#lastfmRating").removeClass('loved notloved error');
-  if (bp.settings.lastfmSessionName && bp.song.info) {
+  if (bp.localSettings.lastfmSessionName && bp.song.info) {
     bp.lastfm.track.getInfo({
         track: bp.song.info.title,
         artist: bp.song.info.artist,
-        username: bp.settings.lastfmSessionName
+        username: bp.localSettings.lastfmSessionName
       },
       {
         success: function(response) { setLoveButtonStatus(response.track && response.track.userloved == 1); },
@@ -236,7 +236,7 @@ function loveTrack(event) {
       }
     }
   );
-  if (event != null && bp.settings.linkRatings && bp.settings.lastfmSessionKey != null && bp.song.rating == 0) rate(5, true);
+  if (event != null && bp.settings.linkRatings && bp.localSettings.lastfmSessionKey != null && bp.song.rating == 0) rate(5, true);
 }
 
 function unloveTrack() {
@@ -327,7 +327,7 @@ $(function() {
   
   $("#timeBarHolder").click(setSongPosition);
   
-  bp.settings.watch("lastfmSessionName", lastfmUserWatcher);
+  bp.localSettings.watch("lastfmSessionName", lastfmUserWatcher);
   bp.settings.watch("scrobble", scrobbleWatcher);
   bp.settings.watch("color", colorWatcher);
   
@@ -344,7 +344,7 @@ $(function() {
   
   $(window).unload(function() {
     bp.settings.removeListener("layout", layoutWatcher);
-    bp.settings.removeListener("lastfmSessionName", lastfmUserWatcher);
+    bp.localSettings.removeListener("lastfmSessionName", lastfmUserWatcher);
     bp.settings.removeListener("scrobble", scrobbleWatcher);
     bp.settings.removeListener("color", colorWatcher);
     

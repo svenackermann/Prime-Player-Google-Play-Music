@@ -9,6 +9,8 @@ function Bean(defaults, syncLocalStorage) {
   this.listeners = {};
   this.syncLocalStorage = syncLocalStorage || false;
   this.equalsFn = {};
+  var useSyncStorage = false;
+  var saveSyncStorageTimer;
   var that = this;
   
   function notify(prop, old, val) {
@@ -44,6 +46,43 @@ function Bean(defaults, syncLocalStorage) {
   
   this.setEqualsFn = function(prop, equalsFn) {
     that.equalsFn[prop] = equalsFn;
+  }
+  
+  function loadSyncStorage(doneCallback) {
+    chrome.storage.sync.get(null, function(items) {
+      var error = chrome.runtime.lastError;
+      if (error) {
+        console.warn("Could not load settings: " + error.message);
+        setTimeout(that.loadSyncStorage, 30000);//try again in 30s
+      } else {
+        for (var prop in items) {
+          that[prop] = items[prop];
+        }
+        if (typeof(doneCallback) == "function") doneCallback();
+      }
+    });
+  }
+  
+  function saveSyncStorage() {
+    clearTimeout(saveSyncStorageTimer);
+    saveSyncStorageTimer = setTimeout(function() {
+      chrome.storage.sync.set(that.cache, function() {
+        var error = chrome.runtime.lastError;
+        if (error) {
+          console.warn("Could not store settings: " + error.message);
+          saveSyncStorage();//try again in 10s
+        } else console.debug("Storage successfully synced.");
+      });
+    }, 10000);
+  }
+  
+  this.setSyncStorage = function(syncStorage, syncedCallback) {
+    if (syncStorage) {
+      loadSyncStorage(syncedCallback);
+    } else {
+      clearTimeout(saveSyncStorageTimer);
+    }
+    useSyncStorage = syncStorage;
   }
   
   /**
@@ -103,6 +142,7 @@ function Bean(defaults, syncLocalStorage) {
         }
       }
       that.cache[name] = val;
+      if (useSyncStorage) saveSyncStorage();
       notify(name, old, val);
     });
   }

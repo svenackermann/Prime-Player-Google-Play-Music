@@ -4,9 +4,19 @@
  * @author Sven Recknagel (svenrecknagel@googlemail.com)
  * Licensed under the BSD license
  */
-var SETTINGS_DEFAULTS = {
+var LOCAL_SETTINGS_DEFAULTS = {
   lastfmSessionKey: null,
   lastfmSessionName: null,
+  syncSettings: false,
+  miniplayerSizing: {
+    normal:   { width: 271, height: 116, left: 0, top: 0 },
+    compact1: { width: 271, height: 84, left: 0, top: 0 },
+    compact2: { width: 180, height: 133, left: 0, top: 0 },
+    hbar:     { width: 476, height: 31,  left: 0, top: 0 }
+  }
+}
+var localSettings = new Bean(LOCAL_SETTINGS_DEFAULTS, true);
+var SETTINGS_DEFAULTS = {
   scrobble: true,
   scrobblePercent: 50,
   scrobbleTime: 240,
@@ -23,13 +33,7 @@ var SETTINGS_DEFAULTS = {
   iconClickConnect: false,
   openGoogleMusicPinned: false,
   updateNotifier: true,
-  gaEnabled: true,
-  miniplayerSizing: {
-    normal:   { width: 271, height: 116, left: 0, top: 0 },
-    compact1: { width: 271, height: 84, left: 0, top: 0 },
-    compact2: { width: 180, height: 133, left: 0, top: 0 },
-    hbar:     { width: 476, height: 31,  left: 0, top: 0 }
-  }
+  gaEnabled: true
 };
 var settings = new Bean(SETTINGS_DEFAULTS, true);
 
@@ -68,8 +72,8 @@ var song = new Bean(SONG_DEFAULTS);
 var LASTFM_APIKEY = "1ecc0b24153df7dc6ac0229d6fcb8dda";
 var LASTFM_APISECRET = "fb4b74854f7a7b099c30bfe71236dfd5";
 var lastfm = new LastFM({apiKey: LASTFM_APIKEY, apiSecret: LASTFM_APISECRET});
-lastfm.session.key = settings.lastfmSessionKey;
-lastfm.session.name = settings.lastfmSessionName;
+lastfm.session.key = localSettings.lastfmSessionKey;
+lastfm.session.name = localSettings.lastfmSessionName;
 
 var currentVersion = chrome.runtime.getManifest().version;
 
@@ -178,7 +182,7 @@ function onMessageListener(message) {
 }
 
 function isScrobblingEnabled() {
-  return settings.scrobble && settings.lastfmSessionName != null;
+  return settings.scrobble && localSettings.lastfmSessionName != null;
 }
 
 function calcScrobbleTime() {
@@ -256,8 +260,8 @@ function lastfmLogin() {
 
 function lastfmLogout() {
   lastfm.session = {};
-  settings.lastfmSessionKey = null;
-  settings.lastfmSessionName = null;
+  localSettings.lastfmSessionKey = null;
+  localSettings.lastfmSessionName = null;
 }
 
 function relogin() {
@@ -304,7 +308,7 @@ function miniplayerClosed(winId) {
 function getMiniplayerSizing() {
   var addToHeight = {normal: 113, popup: 38, panel: 37, detached_panel: 37};
   var addToWidth = {normal: 16, popup: 16, panel: -1, detached_panel: -1};
-  var sizing = settings.miniplayerSizing[settings.layout];
+  var sizing = localSettings.miniplayerSizing[settings.layout];
   var result = {
     height: sizing.height + addToHeight[settings.miniplayerType],
     width: sizing.width + addToWidth[settings.miniplayerType],
@@ -490,7 +494,6 @@ function connectGoogleMusicTabs() {
     }
   });
 }
-
 settings.watch("updateNotifier", function(val) {
   if (val) chrome.runtime.onInstalled.addListener(updatedListener)
   else chrome.runtime.onInstalled.removeListener(updatedListener);
@@ -511,12 +514,19 @@ settings.addListener("layout", function(val) {
     );
   }
 });
-settings.addListener("lastfmSessionName", calcScrobbleTime);
 settings.addListener("scrobble", calcScrobbleTime);
 settings.addListener("scrobbleMaxDuration", calcScrobbleTime);
 settings.addListener("scrobblePercent", calcScrobbleTime);
 settings.addListener("scrobbleTime", calcScrobbleTime);
 settings.addListener("disableScrobbleOnFf", calcScrobbleTime);
+
+localSettings.watch("syncSettings", function(val) {
+  settings.setSyncStorage(val, function() {
+    if (optionsTabId) chrome.tabs.reload(optionsTabId);
+  });
+});
+localSettings.addListener("lastfmSessionName", calcScrobbleTime);
+
 player.addListener("playing", updateBrowserActionIcon);
 song.addListener("scrobbled", updateBrowserActionIcon);
 song.addListener("position", function(val) {
