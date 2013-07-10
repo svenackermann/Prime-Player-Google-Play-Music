@@ -62,6 +62,9 @@
   "resumeSong": {
     "message": "Resume song"
   },
+  "volumeControl": {
+    "message": "Control volume"
+  },
   "playPause": {
     "message": "Pause/Resume song"
   },
@@ -117,7 +120,7 @@
     "message": "Layout for the miniplayer"
   },
   "setting_layoutHint": {
-    "message": "Some layouts do not look good for notifications. This is caused by sizing restrictions of the notifications in Chrome. Unfortunately, the combination of panels with 'horizontal bar' also does not work very well."
+    "message": "Panels have an initial maximum width ad therefor do not work well with layout 'horizontal bar'."
   },
   "setting_layout_normal": {
     "message": "Normal"

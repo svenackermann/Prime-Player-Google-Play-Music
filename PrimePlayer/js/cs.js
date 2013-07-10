@@ -90,7 +90,7 @@ $(function() {
       }
     }
     
-    /** 
+    /**
      * Watch changes of an attribute on DOM elements specified by the selector.
      * @param attr the name of the attribute
      * @param selector the jQuery selector
@@ -123,6 +123,7 @@ $(function() {
     watchAttr("value", "#player > div.player-middle > button[data-id='repeat']", "player-repeat");
     watchAttr("value", "#player > div.player-middle > button[data-id='shuffle']", "player-shuffle");
     watchAttr("class", "#player-right-wrapper > .player-rating-container ul.rating-container li", "song-rating", ratingGetter);
+    watchAttr("aria-valuenow", "#vslider", "player-volume");
     
     //we must add this script to the DOM for the code to be executed in the correct context
     var injected = document.createElement('script'); injected.type = 'text/javascript';

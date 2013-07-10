@@ -13,8 +13,8 @@ var LOCAL_SETTINGS_DEFAULTS = {
   miniplayerSizing: {
     normal:   { width: 271, height: 116, left: 0, top: 0 },
     compact1: { width: 271, height: 84, left: 0, top: 0 },
-    compact2: { width: 180, height: 133, left: 0, top: 0 },
-    hbar:     { width: 476, height: 31,  left: 0, top: 0 }
+    compact2: { width: 205, height: 133, left: 0, top: 0 },
+    hbar:     { width: 502, height: 31,  left: 0, top: 0 }
   }
 }
 var localSettings = new Bean(LOCAL_SETTINGS_DEFAULTS, true);
@@ -77,7 +77,8 @@ var PLAYER_DEFAULTS = {
   shuffle: "",
   repeat: "",
   playlists: [],
-  playing: false
+  playing: false,
+  volume: null
 };
 var player = new Bean(PLAYER_DEFAULTS);
 
