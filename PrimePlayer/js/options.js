@@ -48,11 +48,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#linkRatings").prop('disabled', disabled);
   }
 
-  function toastChanged() {
-    $("#toastDuration").prop('disabled', !bp.settings.toast);
-    $("#hideToastPlaycontrols").prop('disabled', !bp.settings.toast);
-  }
-
   function lastfmUserChanged(user) {
     var action;
     var actionText;
@@ -150,7 +145,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("head > title").first().text(optionsText);
     $("h1").first().text(optionsText);
     $("#legendLastfm").text(chrome.i18n.getMessage('lastfmSettings'));
-    $("#legendToasting").text(chrome.i18n.getMessage('toastingSettings'));
     $("#legendLf").text(chrome.i18n.getMessage('lfSettings'));
     $("#lastfmStatus").find("span").text(chrome.i18n.getMessage('lastfmUser'));
     var bugfeatureinfo = chrome.i18n.getMessage('bugfeatureinfo');
@@ -173,10 +167,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initHint("disableScrobbleOnFf");
     initCheckbox("linkRatings");
     initHint("linkRatings");
-    initCheckbox("toast").click(toastChanged);
+    initCheckbox("toast");
     initHint("toast");
-    initNumberInput("toastDuration");
-    initCheckbox("hideToastPlaycontrols");
     initSelect("miniplayerType");
     initHint("miniplayerType");
     initSelect("layout");
@@ -192,8 +184,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     
     //we must watch this as the session could be expired
     bp.localSettings.watch("lastfmSessionName", lastfmUserChanged);
-    //disable inputs if neccessary
-    toastChanged();
     
     //tell the background page that we're open
     if (bp.optionsTabId == null) {

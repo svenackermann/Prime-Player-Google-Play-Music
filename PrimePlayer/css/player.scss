@@ -201,16 +201,6 @@ a {
   @include hoversprite(10, 0, 10, 1, 16);
 }
 
-.toast.hidePlaycontrols {
-  height: 90px;
-  body {
-    height: 90px;
-  }
-  #playControls {
-    display: none;
-  }
-}
-
 #lastfmUser {
   display: none;
   @include hoversprite(11, 2, 11, 1, 16);

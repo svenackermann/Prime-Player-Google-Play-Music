@@ -1,5 +1,5 @@
 /**
- * This script does all the magic for the miniplayer, popup and toasts.
+ * This script does all the magic for the miniplayer and popup.
  * @author Sven Recknagel (svenrecknagel@googlemail.com)
  * Licensed under the BSD license
  */
@@ -120,14 +120,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
         bp.localSettings.miniplayerSizing = sizing;//trigger listener notification
       }
     }, 1000);
-  }
-
-  function setToastAutocloseTimer() {
-    var windowTimer = setTimeout(function() { window.close(); }, bp.settings.toastDuration * 1000);
-    //do not close as long as the mouse is over
-    $(window).mouseover(function() { clearTimeout(windowTimer); });
-    //after the mouse is out, close in 3 seconds
-    $(window).mouseout(function() { windowTimer = setTimeout(function() { window.close(); }, 3000); });
   }
 
   function lastfmUserWatcher(user, old) {
@@ -335,11 +327,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
       bp.song.removeListener("rating", ratingWatcher);
       bp.song.removeListener("scrobbleTime", updateScrobblePosition);
     });
-    
-    if (typeClass == "toast") {
-      if (bp.settings.hideToastPlaycontrols) $("html").addClass("hidePlaycontrols");
-      setToastAutocloseTimer();
-    }
     
     if (typeClass == "miniplayer" && bp.settings.miniplayerType != "notification") {
       setupResizeMoveListeners();

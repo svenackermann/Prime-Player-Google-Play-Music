@@ -28,8 +28,6 @@ var SETTINGS_DEFAULTS = {
   disableScrobbleOnFf: false,
   linkRatings: false,
   toast: true,
-  toastDuration: 5,
-  hideToastPlaycontrols: true,
   miniplayerType: "popup",
   layout: "normal",
   color: "turq",
@@ -43,8 +41,8 @@ var settings = new Bean(SETTINGS_DEFAULTS, true);
 
 /** the miniplayer instance, if opened (might be a Notification or Tab) */
 var miniplayer;
-/** the toast notification instance, if opened */
-var toast;
+/** the toast notification id, if opened */
+var toastId = null;
 /** the currently connected port with its tab */
 var googlemusicport;
 var googlemusictabId;
@@ -310,17 +308,51 @@ function relogin() {
 }
 lastfm.sessionTimeoutCallback = relogin;
 
+function toastClosed(notificationId) {
+  if (notificationId == toastId) {
+    toastId = null;
+    chrome.notifications.onClosed.removeListener(toastClosed);
+    chrome.notifications.onButtonClicked.removeListener(toastButtonClicked);
+  }
+}
+
+function toastButtonClicked(notificationId, buttonIndex) {
+  if (notificationId == toastId) {
+    switch (buttonIndex) {
+      case 0:
+        executeInGoogleMusic("nextSong");
+        break;
+      case 1:
+        executeInGoogleMusic("playPause");
+        break;
+    }
+  }
+}
+
+function openToast() {
+  chrome.notifications.create("", {
+    type: "basic",
+    title: song.info.title,
+    message: song.info.artist + "\n" + song.info.album,
+    iconUrl: song.info.cover || chrome.extension.getURL("img/cover.png"),
+    buttons: [{title: chrome.i18n.getMessage("nextSong"), iconUrl: chrome.extension.getURL("img/toast-nextSong.png") },
+              {title: chrome.i18n.getMessage("playPause"), iconUrl: chrome.extension.getURL("img/toast-playPause.png") }]
+  }, function(notificationId) {
+    toastId = notificationId;
+    chrome.notifications.onClosed.addListener(toastClosed);
+    chrome.notifications.onButtonClicked.addListener(toastButtonClicked);
+  });
+}
+
 /** open toast notification */
 function toastPopup() {
   if (!song.toasted && settings.toast && !miniplayer) {
     song.toasted = true;
-    justOpenedClass = "toast";
-    if (toast) toast.cancel();
-    toast = webkitNotifications.createHTMLNotification('player.html');
-    toast.show();
-    toast.onclose = function() {
-      toast = null;
-    };
+    if (toastId) {
+      chrome.notifications.clear(toastId, openToast);
+    } else {
+      openToast();
+    }
   }
 }
 
@@ -328,10 +360,8 @@ var miniplayerReopen = false;
 /** reset state when miniplayer is closed, reopen if neccessary */
 function miniplayerClosed(winId) {
   if (miniplayer) {
-    if (typeof(winId) == "number") {
-      if (winId == miniplayer.id) chrome.windows.onRemoved.removeListener(miniplayerClosed);
-      else return;//some other window closed
-    }
+    if (winId != miniplayer.id) return;//some other window closed
+    chrome.windows.onRemoved.removeListener(miniplayerClosed);
     miniplayer = null;
     if (miniplayerReopen) openMiniplayer();
     miniplayerReopen = false;
@@ -352,38 +382,28 @@ function getMiniplayerSizing() {
 }
 
 function openMiniplayer() {
-  if (toast) toast.cancel();
+  if (toastId) chrome.notifications.clear(toastId, function(wasCleared) {/* not interesting, but required */});
   if (miniplayer) {//close first
     miniplayerReopen = true;
-    if (miniplayer instanceof Notification) {
-      miniplayer.cancel();
-    } else {
-      chrome.windows.remove(miniplayer.id);
-    }
+    chrome.windows.remove(miniplayer.id);
     //miniplayerClosed callback will open it again
     return;
   }
   
+  var sizing = getMiniplayerSizing();
   justOpenedClass = "miniplayer";
-  if (settings.miniplayerType == "notification") {
-    miniplayer = webkitNotifications.createHTMLNotification('player.html');
-    miniplayer.show();
-    miniplayer.onclose = miniplayerClosed;
-  } else {
-    var sizing = getMiniplayerSizing();
-    chrome.windows.create({
-        url: chrome.extension.getURL("player.html"),
-        height: sizing.height,
-        width: sizing.width,
-        top: sizing.top,
-        left: sizing.left,
-        type: settings.miniplayerType
-      }, function(win) {
-        miniplayer = win;
-        chrome.windows.onRemoved.addListener(miniplayerClosed);
-      }
-    );
-  }
+  chrome.windows.create({
+      url: chrome.extension.getURL("player.html"),
+      height: sizing.height,
+      width: sizing.width,
+      top: sizing.top,
+      left: sizing.left,
+      type: settings.miniplayerType
+    }, function(win) {
+      miniplayer = win;
+      chrome.windows.onRemoved.addListener(miniplayerClosed);
+    }
+  );
   gaEvent('Internal', miniplayerReopen ? 'MiniplayerReopened' : 'MiniplayerOpened');
 }
 
@@ -491,8 +511,6 @@ function gaEnabledChanged(val) {
       "disableScrobbleOnFf",
       "linkRatings",
       "toast",
-      "toastDuration",
-      "hideToastPlaycontrols",
       "miniplayerType",
       "layout",
       "color",
@@ -539,8 +557,10 @@ settings.watch("updateNotifier", function(val) {
 settings.watch("gaEnabled", gaEnabledChanged);
 settings.watch("iconClickMiniplayer", iconClickSettingsChanged);
 settings.addListener("iconClickConnect", iconClickSettingsChanged);
-settings.addListener("miniplayerType", function() {
-  if (miniplayer) openMiniplayer();//reopen
+settings.watch("miniplayerType", function(val) {
+  if (val == "notification") {//migrate (notification type is no longer supported)
+    settings.miniplayerType = "popup";
+  } else if (miniplayer) openMiniplayer();//reopen
 });
 settings.addListener("layout", function(val) {
   if (miniplayer && !(miniplayer instanceof Notification)) {
