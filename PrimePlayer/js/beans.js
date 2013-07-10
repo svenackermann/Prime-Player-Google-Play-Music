@@ -1,51 +1,72 @@
 /**
  * Utility class to make properties of an object observable.
  * This also includes the ability to sync the properties with localstorage.
+ * @param defaults object with default values, every value in this object will be observable using "addListener" or "watch"
+ * @param useLocalStorage whether to save values in localStorage, defaults to false
  * @author Sven Recknagel (svenrecknagel@googlemail.com)
  * Licensed under the BSD license
  */
-function Bean(defaults, syncLocalStorage) {
-  this.cache = {};
-  this.listeners = {};
-  this.syncLocalStorage = syncLocalStorage || false;
-  this.equalsFn = {};
+function Bean(defaults, useLocalStorage) {
+  var cache = {};
+  var listeners = {};
+  var syncLocalStorage = useLocalStorage || false;
+  var equalsFn = {};
   var useSyncStorage = false;
   var saveSyncStorageTimer;
   var that = this;
   
   function notify(prop, old, val) {
-    var listeners = that.listeners[prop];
-    if (listeners.length > 0) {
-      for (var i in listeners) {
-        listeners[i](val, old, prop);
+    var ls = listeners[prop];
+    if (ls.length > 0) {
+      for (var i in ls) {
+        ls[i](val, old, prop);
       }
     }
   }
   
+  /**
+   * Adds a listener function for the given property.
+   * The function gets passed 3 parameters:
+   * 1. the new value
+   * 2. the previous value
+   * 3. the name of the property
+   * If the value has been set but did not actually change, the listeners won't be notified.
+   */
   this.addListener = function(prop, listener) {
-    var listeners = that.listeners[prop];
-    if (listeners) listeners.push(listener);
+    var ls = listeners[prop];
+    if (ls) ls.push(listener);
   }
   
+  /**
+   * Removes a listener function for the given property.
+   */
   this.removeListener = function(prop, listener) {
-    var listeners = that.listeners[prop];
-    if (listeners) {
-      for (var i in listeners) {
-        if (listener == listeners[i]) {
-          listeners.splice(i, 1);
+    var ls = listeners[prop];
+    if (ls) {
+      for (var i in ls) {
+        if (listener == ls[i]) {
+          ls.splice(i, 1);
           return;
         }
       }
     }
   }
   
+  /**
+   * Same as addListener, except that the listener will be called immediately with the current value for old and new value.
+   */
   this.watch = function(prop, listener) {
-    listener(that.cache[prop], that.cache[prop], prop);
+    listener(cache[prop], cache[prop], prop);
     that.addListener(prop, listener);
   }
   
-  this.setEqualsFn = function(prop, equalsFn) {
-    that.equalsFn[prop] = equalsFn;
+  /**
+   * Allows to set a function that checks equality for a given property.
+   * On modification, this function will be used to check if the listeners must be notified.
+   * The default is to check if old and new value are the same (===) and setting a property of type object will always notify.
+   */
+  this.setEqualsFn = function(prop, equals) {
+    equalsFn[prop] = equals;
   }
   
   function loadSyncStorage(doneCallback) {
@@ -53,7 +74,7 @@ function Bean(defaults, syncLocalStorage) {
       var error = chrome.runtime.lastError;
       if (error) {
         console.warn("Could not load settings: " + error.message);
-        setTimeout(that.loadSyncStorage, 30000);//try again in 30s
+        setTimeout(loadSyncStorage, 30000);//try again in 30s
       } else {
         for (var prop in items) {
           that[prop] = items[prop];
@@ -66,7 +87,7 @@ function Bean(defaults, syncLocalStorage) {
   function saveSyncStorage() {
     clearTimeout(saveSyncStorageTimer);
     saveSyncStorageTimer = setTimeout(function() {
-      chrome.storage.sync.set(that.cache, function() {
+      chrome.storage.sync.set(cache, function() {
         var error = chrome.runtime.lastError;
         if (error) {
           console.warn("Could not store settings: " + error.message);
@@ -76,6 +97,10 @@ function Bean(defaults, syncLocalStorage) {
     }, 10000);
   }
   
+  /**
+   * Set if the values should be synced with Chrome sync.
+   * If true, the callback will be called after loading the settings.
+   */
   this.setSyncStorage = function(syncStorage, syncedCallback) {
     if (syncStorage) {
       loadSyncStorage(syncedCallback);
@@ -99,7 +124,7 @@ function Bean(defaults, syncLocalStorage) {
    * Convert string value to correct type.
    */
   function parse(name, defaultValue) {
-    if (!that.syncLocalStorage || localStorage[name] == undefined) {
+    if (!syncLocalStorage || localStorage[name] == undefined) {
       return defaultValue;
     }
     var value = localStorage[name];
@@ -118,21 +143,21 @@ function Bean(defaults, syncLocalStorage) {
   }
   
   function setting(name, defaultValue) {
-    that.cache[name] = parse(name, defaultValue);
-    that.listeners[name] = [];
+    cache[name] = parse(name, defaultValue);
+    listeners[name] = [];
     
     that.__defineGetter__(name, function() {
-      return that.cache[name];
+      return cache[name];
     });
     
     that.__defineSetter__(name, function(val) {
-      var old = that.cache[name];
-      var equals = that.equalsFn[name];
+      var old = cache[name];
+      var equals = equalsFn[name];
       if (equals == null) equals = defaultEquals;
       if (equals(val, old)) {
         return;
       }
-      if (that.syncLocalStorage) {
+      if (syncLocalStorage) {
         if (val == null) {
           localStorage.removeItem(name);
         } else {
@@ -141,7 +166,7 @@ function Bean(defaults, syncLocalStorage) {
           localStorage[name] = type.substr(0, 1) + ((type == 'object') ? JSON.stringify(val) : val);
         }
       }
-      that.cache[name] = val;
+      cache[name] = val;
       if (useSyncStorage) saveSyncStorage();
       notify(name, old, val);
     });

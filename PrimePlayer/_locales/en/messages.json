@@ -62,6 +62,9 @@
   "resumeSong": {
     "message": "Resume song"
   },
+  "playPause": {
+    "message": "Pause/Resume song"
+  },
   "lastfmUnlove": {
     "message": "Unlove"
   },
@@ -70,9 +73,6 @@
   },
   "lastfmError": {
     "message": "Error on last.fm communication, click to reload: "
-  },
-  "setting_toastDuration": {
-    "message": "Toast duration (seconds)"
   },
   "setting_scrobblePercent": {
     "message": "Percentage for scrobbling"
@@ -99,10 +99,7 @@
     "message": "Type for the miniplayer"
   },
   "setting_miniplayerTypeHint": {
-    "message": "Panels and popups can be freely moved on the screen (other than notifications). Hint: Go to chrome://flags and activate 'Panels' to enable 'real' panels that can stay always on top."
-  },
-  "setting_miniplayerType_notification": {
-    "message": "Notification"
+    "message": "Hint: Go to chrome://flags and activate 'Panels' to enable 'real' panels that can stay always on top."
   },
   "setting_miniplayerType_normal": {
     "message": "Window"
@@ -145,9 +142,6 @@
   },
   "lastfmSettings": {
     "message": "last.fm Settings"
-  },
-  "toastingSettings": {
-    "message": "Toasting Settings"
   },
   "lfSettings": {
     "message": "Look and Feel"
@@ -196,9 +190,6 @@
   },
   "setting_openGoogleMusicPinned": {
     "message": "Open Google Music in a pinned tab"
-  },
-  "setting_hideToastPlaycontrols": {
-    "message": "Hide playing controls in toasts"
   },
   "setting_syncSettings": {
     "message": "Sync settings with Chrome sync"

@@ -13,6 +13,7 @@ $(function() {
   
   function init() {
 
+    /** send update to background page */
     function post(type, value) {
       if (port) {
         port.postMessage({type: type, value: value});
@@ -77,17 +78,25 @@ $(function() {
       return parseInt($(el.parentElement).find("li.selected").data("rating")) || 0;
     }
     
-    function watchEvent(event, selector, listener) {
+    /** call listener when the DOM subtree of the given selector changes */
+    function watchDOM(selector, listener) {
       var el = $(selector);
       if (el.length == 0) {
         console.error("element does not exist (did Google change their site?): " + selector);
       } else {
-        registeredListeners.push({ event: event, selector: selector, listener: listener});
-        el.on(event, {selector: selector}, listener)
-          .triggerHandler(event);//trigger once to initialize the info
+        registeredListeners.push({ selector: selector, listener: listener});
+        el.on("DOMSubtreeModified", {selector: selector}, listener)
+          .triggerHandler("DOMSubtreeModified");//trigger once to initialize the info
       }
     }
     
+    /** 
+     * Watch changes of an attribute on DOM elements specified by the selector.
+     * @param attr the name of the attribute
+     * @param selector the jQuery selector
+     * @param type the type of message to post on change
+     * @param getValue an optional special function to get the value (default is element.getAttribute(attr))
+     */
     function watchAttr(attr, selector, type, getValue) {
       var element = $(selector).get()[0];
       if (element) {
@@ -107,30 +116,34 @@ $(function() {
       }
     }
     
-    watchEvent("DOMSubtreeModified", "#playlists", playlistListener);
-    watchEvent("DOMSubtreeModified", "#time_container_duration, #playerSongInfo", songListener);
-    watchEvent("DOMSubtreeModified", "#time_container_current", positionListener);
+    watchDOM("#playlists", playlistListener);
+    watchDOM("#time_container_duration, #playerSongInfo", songListener);
+    watchDOM("#time_container_current", positionListener);
     watchAttr("class", "#player > div.player-middle > button[data-id='play-pause']", "player-playing", playingGetter);
     watchAttr("value", "#player > div.player-middle > button[data-id='repeat']", "player-repeat");
     watchAttr("value", "#player > div.player-middle > button[data-id='shuffle']", "player-shuffle");
     watchAttr("class", "#player-right-wrapper > .player-rating-container ul.rating-container li", "song-rating", ratingGetter);
     
+    //we must add this script to the DOM for the code to be executed in the correct context
     var injected = document.createElement('script'); injected.type = 'text/javascript';
     injected.src = chrome.extension.getURL('js/injected.js');
     document.getElementsByTagName('head')[0].appendChild(injected);
     
+    //inject icon with title to mark the tab as connected
     $(".music-banner-icon")
       .css({background: 'url(' + chrome.extension.getURL('img/icon-tabconnected.png') + ')'})
       .attr('title', chrome.i18n.getMessage('connected'));
+    
     initialized = true;
   }
   
+  /** remove all listeners/observers and revert DOM modifications */
   function cleanup() {
     initialized = false;
     window.postMessage({ type: "FROM_PRIMEPLAYER", command: "cleanup" }, "*");
     for (var i in registeredListeners) {
       var l = registeredListeners[i];
-      $(l.selector).off(l.event, l.listener);
+      $(l.selector).off("DOMSubtreeModified", l.listener);
     }
     for (var i in observers) {
       observers[i].disconnect();
