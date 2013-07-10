@@ -39,7 +39,7 @@ var SETTINGS_DEFAULTS = {
 };
 var settings = new Bean(SETTINGS_DEFAULTS, true);
 
-/** the miniplayer instance, if opened (might be a Notification or Tab) */
+/** the miniplayer instance, if opened */
 var miniplayer;
 /** the toast notification id, if opened */
 var toastId = null;
@@ -48,7 +48,7 @@ var googlemusicport;
 var googlemusictabId;
 /** ID of the options tab, if opened */
 var optionsTabId;
-/** the type of just opened player (popup, miniplayer or notification), used by player.js to set the root class */
+/** the type of just opened player (popup or miniplayer), used by player.js to set the root class */
 var justOpenedClass;
 /** ports waiting for a connection when another tab was already connected (if multiple tabs with Google Music  are opened) */
 var parkedPorts = [];
@@ -292,19 +292,28 @@ function lastfmLogout() {
   localSettings.lastfmSessionName = null;
 }
 
+var lastfmReloginNotificationId;
+function lastfmReloginClicked(notificationId) {
+  if (notificationId == lastfmReloginNotificationId) {
+    chrome.notifications.onClicked.removeListener(lastfmReloginClicked);
+    lastfmReloginNotificationId = null;
+    lastfmLogin();
+    chrome.notifications.clear(notificationId, function(wasCleared) {/* not interesting, but required */});
+  }
+}
+
 /** logout from last.fm and show a notification to login again */
 function relogin() {
   lastfmLogout();
-  var notification = webkitNotifications.createNotification(
-    "img/icon-48x48.png",
-    chrome.i18n.getMessage("lastfmSessionTimeout"),
-    chrome.i18n.getMessage("lastfmRelogin")
-  );
-  notification.onclick = function() {
-    lastfmLogin();
-    notification.cancel();
-  };
-  notification.show();
+  chrome.notifications.create("", {
+    type: "basic",
+    title: chrome.i18n.getMessage("lastfmSessionTimeout"),
+    message: chrome.i18n.getMessage("lastfmRelogin"),
+    iconUrl: chrome.extension.getURL("img/icon-48x48.png")
+  }, function(notificationId) {
+    lastfmReloginNotificationId = notificationId;
+    chrome.notifications.onClicked.addListener(lastfmReloginClicked);
+  });
 }
 lastfm.sessionTimeoutCallback = relogin;
 
@@ -563,7 +572,7 @@ settings.watch("miniplayerType", function(val) {
   } else if (miniplayer) openMiniplayer();//reopen
 });
 settings.addListener("layout", function(val) {
-  if (miniplayer && !(miniplayer instanceof Notification)) {
+  if (miniplayer) {
     var sizing = getMiniplayerSizing();
     chrome.windows.update(miniplayer.id, {
         height: sizing.height,

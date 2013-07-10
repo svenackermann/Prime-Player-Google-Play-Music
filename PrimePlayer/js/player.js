@@ -328,7 +328,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       bp.song.removeListener("scrobbleTime", updateScrobblePosition);
     });
     
-    if (typeClass == "miniplayer" && bp.settings.miniplayerType != "notification") {
+    if (typeClass == "miniplayer") {
       setupResizeMoveListeners();
     }
   });
