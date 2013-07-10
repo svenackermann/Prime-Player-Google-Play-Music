@@ -4,6 +4,8 @@
  * @author Sven Recknagel (svenrecknagel@googlemail.com)
  * Licensed under the BSD license
  */
+
+/** settings that must not be synced with Chrome sync */
 var LOCAL_SETTINGS_DEFAULTS = {
   lastfmSessionKey: null,
   lastfmSessionName: null,
@@ -16,6 +18,8 @@ var LOCAL_SETTINGS_DEFAULTS = {
   }
 }
 var localSettings = new Bean(LOCAL_SETTINGS_DEFAULTS, true);
+
+/** settings that should be synced with Chrome sync if enabled */
 var SETTINGS_DEFAULTS = {
   scrobble: true,
   scrobblePercent: 50,
@@ -37,16 +41,25 @@ var SETTINGS_DEFAULTS = {
 };
 var settings = new Bean(SETTINGS_DEFAULTS, true);
 
+/** the miniplayer instance, if opened (might be a Notification or Tab) */
 var miniplayer;
+/** the toast notification instance, if opened */
 var toast;
+/** the currently connected port with its tab */
 var googlemusicport;
 var googlemusictabId;
+/** ID of the options tab, if opened */
 var optionsTabId;
+/** the type of just opened player (popup, miniplayer or notification), used by player.js to set the root class */
 var justOpenedClass;
+/** ports waiting for a connection when another tab was already connected (if multiple tabs with Google Music  are opened) */
 var parkedPorts = [];
+/** whether to view the update notifier (set in onInstalled event listener) */
 var viewUpdateNotifier = localStorage["viewUpdateNotifier"] || false;
+/** the previous version, if we just updated (set in onInstalled event listener, used by options page) */
 var previousVersion = localStorage["previousVersion"];
 
+/** the song currently loaded */
 var SONG_DEFAULTS = {
   position: "0:00",
   positionSec: 0,
@@ -59,6 +72,8 @@ var SONG_DEFAULTS = {
   timestamp: 0,
   ff: false
 };
+var song = new Bean(SONG_DEFAULTS);
+/** the current player state */
 var PLAYER_DEFAULTS = {
   ratingMode: null,
   shuffle: "",
@@ -67,7 +82,6 @@ var PLAYER_DEFAULTS = {
   playing: false
 };
 var player = new Bean(PLAYER_DEFAULTS);
-var song = new Bean(SONG_DEFAULTS);
 
 var LASTFM_APIKEY = "1ecc0b24153df7dc6ac0229d6fcb8dda";
 var LASTFM_APISECRET = "fb4b74854f7a7b099c30bfe71236dfd5";
@@ -90,6 +104,7 @@ function equalsCurrentSong(info, old) {
 }
 song.setEqualsFn("info", equalsCurrentSong);
 
+/** handler for all events that need to update the browser action icon */
 function updateBrowserActionIcon() {
   var path = "img/icon-";
   if (viewUpdateNotifier) {
@@ -114,6 +129,7 @@ function removeParkedPort(port) {
   }
 }
 
+/** use the given port for the connection to Google Music */
 function connectPort(port) {
   port.postMessage({type: "connected"});
   googlemusicport = port;
@@ -124,6 +140,7 @@ function connectPort(port) {
   updateBrowserActionIcon();
 }
 
+/** Check if the given port's tab is already connected */
 function isConnectedTab(port) {
   if (googlemusicport && port.sender.tab.id == googlemusicport.sender.tab.id) return true;
   for (var i in parkedPorts) {
@@ -132,6 +149,12 @@ function isConnectedTab(port) {
   return false;
 }
 
+/** handler for onConnect event
+ * - check origin
+ * - check if tab already connected
+ * - check if another tab is already connected
+ * - otherwise connect the port
+ */
 function onConnectListener(port) {
   console.assert(port.name == "googlemusic");
   if (isConnectedTab(port)) {
@@ -146,6 +169,7 @@ function onConnectListener(port) {
   }
 }
 
+/** handler for onDisconnect event - reset player/song to defaults, try to connect a parked port */
 function onDisconnectListener() {
   googlemusicport = null;
   googlemusictabId = null;
@@ -169,6 +193,7 @@ function onDisconnectListener() {
   if (googlemusicport == null) updateBrowserActionIcon();//disconnected
 }
 
+/** handler for messages from connected port - set song or player state */
 function onMessageListener(message) {
   var val = message.value;
   var type = message.type;
@@ -185,6 +210,7 @@ function isScrobblingEnabled() {
   return settings.scrobble && localSettings.lastfmSessionName != null;
 }
 
+/** @return song position in seconds when the song will be scrobbled or -1 if disabled */
 function calcScrobbleTime() {
   if (song.info
   && song.info.durationSec > 0
@@ -201,6 +227,7 @@ function calcScrobbleTime() {
   }
 }
 
+/** @return time in seconds that a time string represents (e.g. 4:23 - 263) */
 function parseSeconds(time) {
   time = time.split(':');
   var sec = 0;
@@ -241,12 +268,14 @@ function sendNowPlaying() {
   );
 }
 
+/** resets all values of a bean to the given defaults */
 function resetToDefaults(bean, defaults) {
   for (var prop in defaults) {
     bean[prop] = defaults[prop];
   }
 }
 
+/** open the last.fm authentication page */
 function lastfmLogin() {
   var callbackUrl = chrome.extension.getURL("options.html");
   var url = "http://www.last.fm/api/auth?api_key=" + LASTFM_APIKEY + "&cb=" + callbackUrl;
@@ -258,12 +287,14 @@ function lastfmLogin() {
   gaEvent('LastFM', 'AuthorizeStarted');
 }
 
+/** reset last.fm session */
 function lastfmLogout() {
   lastfm.session = {};
   localSettings.lastfmSessionKey = null;
   localSettings.lastfmSessionName = null;
 }
 
+/** logout from last.fm and show a notification to login again */
 function relogin() {
   lastfmLogout();
   var notification = webkitNotifications.createNotification(
@@ -279,6 +310,7 @@ function relogin() {
 }
 lastfm.sessionTimeoutCallback = relogin;
 
+/** open toast notification */
 function toastPopup() {
   if (!song.toasted && settings.toast && !miniplayer) {
     song.toasted = true;
@@ -293,6 +325,7 @@ function toastPopup() {
 }
 
 var miniplayerReopen = false;
+/** reset state when miniplayer is closed, reopen if neccessary */
 function miniplayerClosed(winId) {
   if (miniplayer) {
     if (typeof(winId) == "number") {
@@ -305,17 +338,17 @@ function miniplayerClosed(winId) {
   }
 }
 
+/** @return the saved size and position settings for the miniplayer of current type and layout */
 function getMiniplayerSizing() {
   var addToHeight = {normal: 113, popup: 38, panel: 37, detached_panel: 37};
   var addToWidth = {normal: 16, popup: 16, panel: -1, detached_panel: -1};
   var sizing = localSettings.miniplayerSizing[settings.layout];
-  var result = {
+  return {
     height: sizing.height + addToHeight[settings.miniplayerType],
     width: sizing.width + addToWidth[settings.miniplayerType],
     top: sizing.top,
     left: sizing.left
   };
-  return result;
 }
 
 function openMiniplayer() {
@@ -354,6 +387,7 @@ function openMiniplayer() {
   gaEvent('Internal', miniplayerReopen ? 'MiniplayerReopened' : 'MiniplayerOpened');
 }
 
+/** handler for all settings changes that need to update the browser action */
 function iconClickSettingsChanged() {
   chrome.browserAction.onClicked.removeListener(openGoogleMusicTab);
   chrome.browserAction.onClicked.removeListener(openMiniplayer);
@@ -369,6 +403,7 @@ function iconClickSettingsChanged() {
   }
 }
 
+/** @return true, if the given version is newer than the saved previous version (used by options page and update listener) */
 function isNewerVersion(version) {
   if (previousVersion == null) return false;
   var prev = previousVersion.split(".");
@@ -382,6 +417,7 @@ function isNewerVersion(version) {
   return version.length > prev.length;//version is longer (e.g. 1.0.1 > 1.0), else same version
 }
 
+/** handler for onInstalled event (show the orange icon on update) */
 function updatedListener(details) {
   if (details.reason == "update") {
     previousVersion = details.previousVersion;
@@ -397,12 +433,14 @@ function updatedListener(details) {
   }
 }
 
+/** called by options page when it is first opened after an update */
 function updateInfosViewed() {
   previousVersion = null;
   localStorage.removeItem("previousVersion");
   updateNotifierDone();
 }
 
+/** called by update notifier page when it is first opened after an update */
 function updateNotifierDone() {
   viewUpdateNotifier = false;
   localStorage.removeItem("viewUpdateNotifier");
@@ -410,6 +448,7 @@ function updateNotifierDone() {
   updateBrowserActionIcon();
 }
 
+/** send a command to the connected Google Music port */
 function executeInGoogleMusic(command, options) {
   if (googlemusicport) {
     if (options == null) options = {};
@@ -417,6 +456,7 @@ function executeInGoogleMusic(command, options) {
   }
 }
 
+/** Google Analytics stuff */
 function gaEvent(category, eventName, value) {
   if (settings.gaEnabled) {
     if (value == undefined) {
@@ -426,7 +466,6 @@ function gaEvent(category, eventName, value) {
     }
   }
 }
-
 function recordSetting(prop) {
   var value = settings[prop];
   switch (typeof(value)) {
@@ -440,7 +479,6 @@ function recordSetting(prop) {
       gaEvent("Settings", prop + "-" + value);
   }
 }
-
 function gaEnabledChanged(val) {
   if (val) {
     settings.removeListener("gaEnabled", gaEnabledChanged);//init/record only once

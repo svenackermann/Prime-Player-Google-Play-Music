@@ -41,16 +41,12 @@
   function cleanup() {
     console.debug("Cleanup injected script for Prime Player...");
     window.removeEventListener("message", onMessage);
-    primePlayerExt = null;
   }
   
   function onMessage(event) {
     // We only accept messages from ourselves
     if (event.source != window || event.data.type != "FROM_PRIMEPLAYER") return;
     switch (event.data.command) {
-      case "cleanup":
-        cleanup();
-        break;
       case "playPause":
       case "prevSong":
       case "nextSong":
@@ -73,10 +69,12 @@
       case "setPosition":
         setPosition(event.data.options.percent);
         break;
+      case "cleanup":
+        cleanup();
+        break;
     }
   }
   
   window.addEventListener("message", onMessage);
   console.debug("Prime Player extension connected.");
-  initPrimePlayerExt = null;
 })();
