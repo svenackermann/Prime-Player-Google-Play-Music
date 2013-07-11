@@ -77,6 +77,15 @@
   "lastfmError": {
     "message": "Error on last.fm communication, click to reload: "
   },
+  "setting_toastUseMpStyle": {
+    "message": "Use miniplayer style for toasts"
+  },
+  "setting_toastUseMpStyleHint": {
+    "message": "Make toasts look like the miniplayer. Otherwise toasts will appear as Chrome notifications with less functionality."
+  },
+  "setting_toastDuration": {
+    "message": "Toast duration (seconds)"
+  },
   "setting_scrobblePercent": {
     "message": "Percentage for scrobbling"
   },
@@ -145,6 +154,9 @@
   },
   "lastfmSettings": {
     "message": "last.fm Settings"
+  },
+  "toastingSettings": {
+    "message": "Toasting Settings"
   },
   "lfSettings": {
     "message": "Look and Feel"

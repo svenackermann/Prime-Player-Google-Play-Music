@@ -7,8 +7,8 @@
 <script type="text/javascript" src="js/options.js"></script>
 </head>
 <body>
-  <h1></h1>
   <div class="settings">
+    <h1></h1>
     <fieldset>
       <legend id="legendLastfm"></legend>
       <div id="lastfmStatus">
@@ -48,12 +48,24 @@
       </div>
     </fieldset>
     <fieldset>
-      <legend id="legendLf"></legend>
+      <legend id="legendToasting"></legend>
       <div>
         <input id="toast" type="checkbox"/>
         <label for="toast"></label>
         <img src="img/hint.png" class="hint"></img>
       </div>
+      <div class="v-1.6">
+        <input id="toastUseMpStyle" type="checkbox"/>
+        <label for="toastUseMpStyle"></label>
+        <img src="img/hint.png" class="hint"></img>
+      </div>
+      <div class="v-1.6">
+        <input id="toastDuration" type="number" min="1"/>
+        <label for="toastDuration"></label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend id="legendLf"></legend>
       <div>
         <select id="miniplayerType">
           <option value="normal"></option>
@@ -122,6 +134,12 @@
     </div>
     <div id="changelog">
       <h2>Changelog</h2>
+      <div class="v-1.6">
+        <ul>
+          <li>Volume control</li>
+          <li>Option to use miniplayer style for toasts</li>
+        </ul>
+      </div>
       <div class="v-1.5">
         <ul>
           <li>Use rich notifications for toasts (since Chrome 28 the old notifications no longer work)</li>
@@ -136,7 +154,7 @@
       <div class="v-1.3">
         <ul>
           <li>Control title position from miniplayer (click on timebar)</li>
-          <li>Added keyboard shortcuts <img src="img/hint.png" height="15px" class="hint" title="Select shortcuts link on bottom of chrome://extensions to configure. Chrome allows at most 4 shortcuts and they only work when Chrome has focus."></img></li>
+          <li>Added keyboard shortcuts <img src="img/hint.png" height="12px" class="hint" title="Select shortcuts link on bottom of chrome://extensions to configure. Chrome allows at most 4 shortcuts and they only work when Chrome has focus."></img></li>
           <li>Minor fixes/improvements</li>
         </ul>
       </div>

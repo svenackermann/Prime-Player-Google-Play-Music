@@ -23,6 +23,17 @@ h1 {
   overflow-x: hidden;
   min-width: 250px;
   max-width: 450px;
+  font-size: 10px;
+}
+
+.info h3 {
+  font-size: 11px;
+  margin-bottom: 0;
+}
+
+.info ul {
+  margin: 0.3em 0;
+  padding-left: 25px;
 }
 
 fieldset {

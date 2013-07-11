@@ -28,6 +28,8 @@ var SETTINGS_DEFAULTS = {
   disableScrobbleOnFf: false,
   linkRatings: false,
   toast: true,
+  toastUseMpStyle: false,
+  toastDuration: 5,
   miniplayerType: "popup",
   layout: "normal",
   color: "turq",
@@ -41,15 +43,14 @@ var settings = new Bean(SETTINGS_DEFAULTS, true);
 
 /** the miniplayer instance, if opened */
 var miniplayer;
-/** the toast notification id, if opened */
-var toastId = null;
+/** the toast notification id or window, if opened */
+var toastId;
+var toast;
 /** the currently connected port with its tab */
 var googlemusicport;
 var googlemusictabId;
 /** ID of the options tab, if opened */
 var optionsTabId;
-/** the type of just opened player (popup or miniplayer), used by player.js to set the root class */
-var justOpenedClass;
 /** ports waiting for a connection when another tab was already connected (if multiple tabs with Google Music  are opened) */
 var parkedPorts = [];
 /** whether to view the update notifier (set in onInstalled event listener) */
@@ -318,11 +319,15 @@ function relogin() {
 }
 lastfm.sessionTimeoutCallback = relogin;
 
-function toastClosed(notificationId) {
-  if (notificationId == toastId) {
+function toastClosed(notificationOrWinId) {
+  if (notificationOrWinId == toastId) {
     toastId = null;
     chrome.notifications.onClosed.removeListener(toastClosed);
     chrome.notifications.onButtonClicked.removeListener(toastButtonClicked);
+  }
+  if (toast && notificationOrWinId == toast.id) {
+    toast = null;
+    chrome.windows.onRemoved.removeListener(toastClosed);
   }
 }
 
@@ -340,29 +345,39 @@ function toastButtonClicked(notificationId, buttonIndex) {
 }
 
 function openToast() {
-  chrome.notifications.create("", {
-    type: "basic",
-    title: song.info.title,
-    message: song.info.artist + "\n" + song.info.album,
-    iconUrl: song.info.cover || chrome.extension.getURL("img/cover.png"),
-    buttons: [{title: chrome.i18n.getMessage("nextSong"), iconUrl: chrome.extension.getURL("img/toast-nextSong.png") },
-              {title: chrome.i18n.getMessage("playPause"), iconUrl: chrome.extension.getURL("img/toast-playPause.png") }]
-  }, function(notificationId) {
-    toastId = notificationId;
-    chrome.notifications.onClosed.addListener(toastClosed);
-    chrome.notifications.onButtonClicked.addListener(toastButtonClicked);
-  });
+  if (settings.toastUseMpStyle) {
+    createPlayer("toast", function(win) {
+      toast = win;
+      chrome.windows.onRemoved.addListener(toastClosed);
+    });
+  } else {
+    chrome.notifications.create("", {
+      type: "basic",
+      title: song.info.title,
+      message: song.info.artist + "\n" + song.info.album,
+      iconUrl: song.info.cover || chrome.extension.getURL("img/cover.png"),
+      buttons: [{title: chrome.i18n.getMessage("nextSong"), iconUrl: chrome.extension.getURL("img/toast-nextSong.png") },
+                {title: chrome.i18n.getMessage("playPause"), iconUrl: chrome.extension.getURL("img/toast-playPause.png") }]
+    }, function(notificationId) {
+      toastId = notificationId;
+      chrome.notifications.onClosed.addListener(toastClosed);
+      chrome.notifications.onButtonClicked.addListener(toastButtonClicked);
+    });
+  }
+}
+
+function closeToast(callback) {
+  if (typeof(callback) != "function") callback = function() {};
+  if (toastId) chrome.notifications.clear(toastId, callback)
+  else if (toast) chrome.windows.remove(toast.id, callback)
+  else callback();
 }
 
 /** open toast notification */
 function toastPopup() {
   if (!song.toasted && settings.toast && !miniplayer) {
     song.toasted = true;
-    if (toastId) {
-      chrome.notifications.clear(toastId, openToast);
-    } else {
-      openToast();
-    }
+    closeToast(openToast);
   }
 }
 
@@ -391,8 +406,21 @@ function getMiniplayerSizing() {
   };
 }
 
+function createPlayer(type, callback) {
+  var sizing = getMiniplayerSizing();
+  chrome.windows.create({
+      url: chrome.extension.getURL("player.html") + "?type=" + type,
+      height: sizing.height,
+      width: sizing.width,
+      top: sizing.top,
+      left: sizing.left,
+      type: settings.miniplayerType
+    }, callback
+  );
+}
+
 function openMiniplayer() {
-  if (toastId) chrome.notifications.clear(toastId, function(wasCleared) {/* not interesting, but required */});
+  closeToast();
   if (miniplayer) {//close first
     miniplayerReopen = true;
     chrome.windows.remove(miniplayer.id);
@@ -400,20 +428,10 @@ function openMiniplayer() {
     return;
   }
   
-  var sizing = getMiniplayerSizing();
-  justOpenedClass = "miniplayer";
-  chrome.windows.create({
-      url: chrome.extension.getURL("player.html"),
-      height: sizing.height,
-      width: sizing.width,
-      top: sizing.top,
-      left: sizing.left,
-      type: settings.miniplayerType
-    }, function(win) {
-      miniplayer = win;
-      chrome.windows.onRemoved.addListener(miniplayerClosed);
-    }
-  );
+  createPlayer("miniplayer", function(win) {
+    miniplayer = win;
+    chrome.windows.onRemoved.addListener(miniplayerClosed);
+  });
   gaEvent('Internal', miniplayerReopen ? 'MiniplayerReopened' : 'MiniplayerOpened');
 }
 
@@ -521,6 +539,8 @@ function gaEnabledChanged(val) {
       "disableScrobbleOnFf",
       "linkRatings",
       "toast",
+      "toastUseMpStyle",
+      "toastDuration",
       "miniplayerType",
       "layout",
       "color",
@@ -533,6 +553,12 @@ function gaEnabledChanged(val) {
       recordSetting(settingsToRecord[i]);
     }
   }
+}
+
+function extractUrlParam(name, queryString) {
+  var matched = RegExp(name + "=(.+?)(&|$)").exec(queryString);
+  if (matched == null || matched.length < 2) return null;
+  return matched[1];
 }
 
 function openOptions() {
@@ -582,6 +608,7 @@ settings.addListener("layout", function(val) {
     );
   }
 });
+settings.addListener("toastUseMpStyle", closeToast);
 settings.addListener("scrobble", calcScrobbleTime);
 settings.addListener("scrobbleMaxDuration", calcScrobbleTime);
 settings.addListener("scrobblePercent", calcScrobbleTime);
