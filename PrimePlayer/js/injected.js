@@ -6,24 +6,24 @@
  */
 (function() {
   function dispatchMouseEvent(element, eventname, clientX, clientY) {
-    var event = document.createEvent('MouseEvents');
+    var event = document.createEvent("MouseEvents");
     event.initMouseEvent(eventname, true, true, window, 1, 0, 0, clientX || 0, clientY || 0, false, false, false, false, 0, element);
     element.dispatchEvent(event);
   }
   
   function simClick(element) {
-    dispatchMouseEvent(element, 'click');
+    dispatchMouseEvent(element, "click");
   }
   
   function startPlaylist(plsId) {
-    location.hash = '#/pl/' + encodeURIComponent(plsId);
+    location.hash = "#/pl/" + encodeURIComponent(plsId);
     setTimeout(function() {
-      simClick(document.getElementsByClassName('overlay-icon')[0]);
+      simClick(document.getElementsByClassName("overlay-icon")[0]);
     }, 1000);
   }
   
   function rate(n) {
-    var lis = document.getElementById('player-right-wrapper').getElementsByClassName('rating-container')[0].getElementsByTagName('li');
+    var lis = document.getElementById("player-right-wrapper").getElementsByClassName("rating-container")[0].getElementsByTagName("li");
     for (var i in lis) {
       if (lis[i].dataset.rating == n) {
         simClick(lis[i]);
@@ -32,8 +32,8 @@
     }
   }
   
-  function setPosition(percent) {
-    var slider = document.getElementById('slider');
+  function setPositionPercent(elementId, percent) {
+    var slider = document.getElementById(elementId);
     var rect = slider.getBoundingClientRect();
     dispatchMouseEvent(slider, "mousedown", rect.left + (percent * rect.width), rect.top + 1);
   }
@@ -61,13 +61,16 @@
         startPlaylist(event.data.options.plsId);
         break;
       case "selectArtist":
-        location.hash = '#/ar/' + event.data.options.artistId;
+        location.hash = "#/ar/" + event.data.options.artistId;
         break;
       case "selectAlbum":
-        location.hash = '#/al/' + event.data.options.albumId;
+        location.hash = "#/al/" + event.data.options.albumId;
         break;
       case "setPosition":
-        setPosition(event.data.options.percent);
+        setPositionPercent("slider", event.data.options.percent);
+        break;
+      case "setVolume":
+        setPositionPercent("vslider", event.data.options.percent);
         break;
       case "cleanup":
         cleanup();

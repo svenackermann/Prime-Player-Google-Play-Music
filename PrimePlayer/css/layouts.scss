@@ -4,13 +4,13 @@
  * Licensed under the BSD license
  */
 @mixin colorScheme($color) {
-  #playControls, #time {
+  #playControls, #time, #volumeBarContainer {
     background: $color;
   }
-  #timeBar {
+  #timeBar, #volumeBar {
     background-color: lighten($color, 40%);
   }
-  #timeBarHolder {
+  #timeBarHolder, #volumeBarBorder {
     border-color: lighten($color, 30%);
   }
   .playing #timeBarHolder {
@@ -84,7 +84,24 @@
       @include hoversprite(9, 2, 9, 3, $size);
     }
   }
-
+  
+  #volume {
+    @include sprite(12, 0, $size);
+    &.active {
+      @include hoversprite(12, 0, 12, 1, $size);
+    }
+  }
+  
+  #volumeBarContainer {
+    right: #{$size + 4}px;
+    height: #{$size / 2 + 3.5}px;
+    padding-top: #{$size / 2 - 3.5}px;
+  }
+  
+  #volumeBarBorder {
+    margin: 0 5px 0 #{$size + 10}px;
+  }
+  
   #playlistButton {
     @include hoversprite(3, 0, 3, 1, $size);
   }
@@ -215,7 +232,7 @@
 }
 
 .layout-compact2 {
-  $width: 175px;
+  $width: 200px;
   body {
     min-width: $width;
   }
@@ -257,6 +274,9 @@
     font-size: 8px;
     min-width: 4ex;
   }
+  #volumeBarContainer {
+    top: 20px;
+  }
 }
 
 .layout-hbar {
@@ -265,7 +285,7 @@
   body {
     height: $height;
   }
-  width: 475px;
+  width: 500px;
   #top {
     height: $height;
     padding: 0;
@@ -293,7 +313,7 @@
     position: absolute;
     top: 0;
     left: $height + 165px;
-    width: 260px;
+    width: 285px;
     height: 10px;
     padding: 0;
   }
@@ -307,7 +327,7 @@
   #rating {
     position: absolute;
     top: 10px;
-    left: $height + 315px;
+    left: $height + 340px;
   }
   #rightbuttons {
     margin: 0;

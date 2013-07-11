@@ -62,6 +62,9 @@
   "resumeSong": {
     "message": "Wiedergabe fortsetzen"
   },
+  "volumeControl": {
+    "message": "Lautst\u00E4rke einstellen"
+  },
   "playPause": {
     "message": "Pause/Fortsetzen"
   },
@@ -73,6 +76,15 @@
   },
   "lastfmError": {
     "message": "Fehler bei der Kommunkation mit last.fm, klicken zum neu laden: "
+  },
+  "setting_toastUseMpStyle": {
+    "message": "Benutze Stil des Miniplayers f\u00FCr Toasts"
+  },
+  "setting_toastUseMpStyleHint": {
+    "message": "Wenn aktiviert, sehen Toasts genauso aus, wie der Miniplayer. Ansonsten werden Chrome Benachrichtigungen verwendet, die weniger Funktionen bieten."
+  },
+  "setting_toastDuration": {
+    "message": "Toast Dauer (Sekunden)"
   },
   "setting_scrobblePercent": {
     "message": "Prozentsatz zum Scrobbeln"
@@ -117,7 +129,7 @@
     "message": "Aussehen des Miniplayers"
   },
   "setting_layoutHint": {
-    "message": "Einige Layouts sehen f\u00FCr Benachrichtigungen nicht gut aus. Das liegt an Gr\u00F6\u00DFen-Beschr\u00E4nkungen der Benachrichtigungen in Chrome. Die Kombination von Panels mit 'Horizontale Leiste' funktioniert leider auch nicht sehr gut."
+    "message": "Panels haben initial eine maximale Breite und funktionieren deshalb mit Layout 'Horizontale Leiste' nicht gut."
   },
   "setting_layout_normal": {
     "message": "Normal"
@@ -142,6 +154,9 @@
   },
   "lastfmSettings": {
     "message": "last.fm Einstellungen"
+  },
+  "toastingSettings": {
+    "message": "Toasting Einstellungen"
   },
   "lfSettings": {
     "message": "Aussehen und Verhalten"

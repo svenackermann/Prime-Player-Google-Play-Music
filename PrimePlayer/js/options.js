@@ -7,13 +7,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   var thisTabId;
 
-  /** @return "token" parameter from query string set by last.fm callback or null */
-  function extractToken() {
-    var matched = RegExp('token=(.+?)(&|$)').exec(location.search);
-    if (matched == null || matched.length < 2) return null;
-    return matched[1];
-  }
-
   /** request and store last.fm session info */
   function getLastfmSession(token) {
     var status = $("#lastfmStatus");
@@ -48,6 +41,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#linkRatings").prop('disabled', disabled);
   }
 
+  function toastChanged() {
+    $("#toastUseMpStyle").prop('disabled', !bp.settings.toast);
+    $("#toastDuration").prop('disabled', !bp.settings.toast || !bp.settings.toastUseMpStyle);
+  }
+  
   function lastfmUserChanged(user) {
     var action;
     var actionText;
@@ -143,8 +141,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
   $(function() {
     var optionsText = chrome.i18n.getMessage('options') + ' - ' + chrome.i18n.getMessage('extTitle');
     $("head > title").first().text(optionsText);
-    $("h1").first().text(optionsText);
+    $("div.settings").find("h1").first().text(optionsText);
     $("#legendLastfm").text(chrome.i18n.getMessage('lastfmSettings'));
+    $("#legendToasting").text(chrome.i18n.getMessage('toastingSettings'));
     $("#legendLf").text(chrome.i18n.getMessage('lfSettings'));
     $("#lastfmStatus").find("span").text(chrome.i18n.getMessage('lastfmUser'));
     var bugfeatureinfo = chrome.i18n.getMessage('bugfeatureinfo');
@@ -167,8 +166,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initHint("disableScrobbleOnFf");
     initCheckbox("linkRatings");
     initHint("linkRatings");
-    initCheckbox("toast");
+    initCheckbox("toast").click(toastChanged);
     initHint("toast");
+    initCheckbox("toastUseMpStyle").click(toastChanged);
+    initHint("toastUseMpStyle");
+    initNumberInput("toastDuration");
     initSelect("miniplayerType");
     initHint("miniplayerType");
     initSelect("layout");
@@ -184,6 +186,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     
     //we must watch this as the session could be expired
     bp.localSettings.watch("lastfmSessionName", lastfmUserChanged);
+    //disable inputs if neccessary
+    toastChanged();
     
     //tell the background page that we're open
     if (bp.optionsTabId == null) {
@@ -195,7 +199,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     
     //get last.fm session if we are the callback page (query param "token" exists)
     var token;
-    if (bp.localSettings.lastfmSessionName == null && (token = extractToken())) {
+    if (bp.localSettings.lastfmSessionName == null && (token = bp.extractUrlParam("token", location.search))) {
       getLastfmSession(token);
     }
     

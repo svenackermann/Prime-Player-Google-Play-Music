@@ -1,17 +1,16 @@
 /**
- * This script does all the magic for the miniplayer and popup.
+ * This script does all the magic for the miniplayer, popup and toasts.
  * @author Sven Recknagel (svenrecknagel@googlemail.com)
  * Licensed under the BSD license
  */
 chrome.runtime.getBackgroundPage(function(bp) {
 
-  var typeClass = bp.justOpenedClass || "popup";
-  bp.justOpenedClass = null;
+  var typeClass = bp.extractUrlParam("type", location.search) || "popup";
 
   function layoutWatcher(val, old) {
     $("html").removeClass("layout-" + old).addClass("layout-" + val);
   }
-  if (typeClass == "miniplayer") {
+  if (typeClass == "miniplayer" || typeClass == "toast") {
     bp.settings.watch("layout", layoutWatcher);
   } else {
     $("html").addClass("layout-normal");
@@ -122,6 +121,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }, 1000);
   }
 
+  function setToastAutocloseTimer() {
+    var windowTimer = setTimeout(function() { window.close(); }, bp.settings.toastDuration * 1000);
+    //do not close as long as the mouse is over
+    $(window).mouseover(function() { clearTimeout(windowTimer); });
+    //after the mouse is out, close in 3 seconds
+    $(window).mouseout(function() { windowTimer = setTimeout(function() { window.close(); }, 3000); });
+  }
+
   function lastfmUserWatcher(user, old) {
     $("body").toggleClass("lastfm", user != null);
     if (user) {
@@ -132,6 +139,15 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
 
+  function volumeWatcher(val) {
+    $("#volume").toggleClass("active", val != null);
+    if (val == null) {
+      $("#volumeBarContainer").hide();
+    } else {
+      $("#volumeBar").css({width: val + "%"});
+    }
+  }
+  
   function showPlaylists() {
     var playlistSectionTitle = chrome.i18n.getMessage("playlists");
     var playlists = bp.player.playlists;
@@ -159,6 +175,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#repeat").click(googleMusicExecutor("toggleRepeat")).attr("title", chrome.i18n.getMessage("repeat"));
     $("#shuffle").click(googleMusicExecutor("toggleShuffle")).attr("title", chrome.i18n.getMessage("shuffle"));
     $("#playlistButton").click(showPlaylists).attr("title", chrome.i18n.getMessage("showPlaylists"));
+    $("#volume").click(toggleVolumeControl).attr("title", chrome.i18n.getMessage("volumeControl"));
+    $("#volumeBarBorder").click(setVolume);
   }
 
   function setupGoogleRating() {
@@ -238,6 +256,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
     );
   }
 
+  function toggleVolumeControl() {
+    if (bp.player.volume != null) {
+      $("#volumeBarContainer").toggle();
+    }
+  }
+  
   function googleMusicExecutor(command) {
     return function() { bp.executeInGoogleMusic(command); };
   }
@@ -265,6 +289,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function setSongPosition(event) {
     bp.executeInGoogleMusic("setPosition", {percent: event.offsetX / $(this).width()});
+  }
+
+  function setVolume(event) {
+    bp.executeInGoogleMusic("setVolume", {percent: event.offsetX / $(this).width()});
   }
 
   $(function() {
@@ -304,6 +332,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.player.watch("playlists", playlistsWatcher);
     bp.player.watch("ratingMode", ratingModeWatcher);
     bp.player.watch("playing", playingWatcher);
+    bp.player.watch("volume", volumeWatcher);
     
     bp.song.watch("info", songInfoWatcher);
     bp.song.watch("positionSec", positionSecWatcher);
@@ -321,6 +350,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       bp.player.removeListener("playlists", playlistsWatcher);
       bp.player.removeListener("ratingMode", ratingModeWatcher);
       bp.player.removeListener("playing", playingWatcher);
+      bp.player.removeListener("volume", volumeWatcher);
       
       bp.song.removeListener("info", songInfoWatcher);
       bp.song.removeListener("positionSec", positionSecWatcher);
@@ -328,9 +358,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
       bp.song.removeListener("scrobbleTime", updateScrobblePosition);
     });
     
-    if (typeClass == "miniplayer" && bp.settings.miniplayerType != "notification") {
-      setupResizeMoveListeners();
-    }
+    if (typeClass == "miniplayer" || typeClass == "toast") setupResizeMoveListeners();
+    if (typeClass == "toast") setToastAutocloseTimer();
   });
 
 });
