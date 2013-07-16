@@ -15,16 +15,23 @@
     dispatchMouseEvent(element, "click");
   }
   
-  function startPlaylist(plsId) {
-    location.hash = "#/pl/" + encodeURIComponent(plsId);
-    setTimeout(function() {
-      simClick(document.getElementsByClassName("overlay-icon")[0]);
-    }, 1000);
+  function startPlaylist() {
+    simClick(document.getElementsByClassName("overlay-icon")[0]);
+  }
+  
+  function clickCard(id) {
+    var cards = document.getElementsByClassName("card");
+    for (var i = 0; i < cards.length; i++) {
+      if (cards[i].dataset.id == id) {
+        simClick(cards[i].getElementsByClassName("title")[0]);
+        break;
+      }
+    }
   }
   
   function rate(n) {
     var lis = document.getElementById("player-right-wrapper").getElementsByClassName("rating-container")[0].getElementsByTagName("li");
-    for (var i in lis) {
+    for (var i = 0; i < lis.length; i++) {
       if (lis[i].dataset.rating == n) {
         simClick(lis[i]);
         break;
@@ -58,19 +65,16 @@
         rate(event.data.options.rating);
         break;
       case "startPlaylist":
-        startPlaylist(event.data.options.plsId);
-        break;
-      case "selectArtist":
-        location.hash = "#/ar/" + event.data.options.artistId;
-        break;
-      case "selectAlbum":
-        location.hash = "#/al/" + event.data.options.albumId;
+        startPlaylist();
         break;
       case "setPosition":
         setPositionPercent("slider", event.data.options.percent);
         break;
       case "setVolume":
         setPositionPercent("vslider", event.data.options.percent);
+        break;
+      case "clickCard":
+        clickCard(event.data.options.id);
         break;
       case "cleanup":
         cleanup();

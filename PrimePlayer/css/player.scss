@@ -28,8 +28,10 @@ body {
 
 a {
   color: black;
+  text-decoration: none;
   &:hover {
     color: #333333;
+    text-decoration: underline;
   }
 }
 
@@ -43,6 +45,10 @@ a {
   float: left;
   border: 1px solid #A8A8A8;
   margin-right: 5px;
+}
+
+.connected #coverContainer {
+  cursor: pointer;
 }
 
 #cover {
@@ -74,6 +80,9 @@ a {
     opacity: 1;
     cursor: pointer;
   }
+  #pause {
+    cursor: pointer;
+  }
   #prev {
     opacity: 1;
     cursor: pointer;
@@ -81,12 +90,6 @@ a {
   #next {
     opacity: 1;
     cursor: pointer;
-  }
-  &.playing #pause, #resume {
-    display: block;
-  }
-  &.playing #resume {
-    display: none;
   }
 }
 
@@ -98,6 +101,7 @@ a {
   a {
     margin-top: 8px;
     display: block;
+    text-decoration: underline;
   }
 }
 
@@ -107,12 +111,6 @@ a {
     height: 15px;
     white-space: nowrap;
     display: block;
-  }
-  > a {
-    text-decoration: none;
-  }
-  > a:hover {
-    text-decoration: underline;
   }
 }
 
@@ -192,13 +190,13 @@ a {
 }
 
 #miniplayerlink {
-  display: none;
-}
-
-.popup #miniplayerlink {
   display: block;
   cursor: pointer;
   @include hoversprite(10, 0, 10, 1, 16);
+}
+
+.miniplayer #miniplayerlink {
+  display: none;
 }
 
 #lastfmUser {
@@ -236,6 +234,51 @@ a {
     float: left;
     overflow: hidden;
     white-space: nowrap;
+  }
+}
+
+::-webkit-scrollbar {
+    width: 12px;
+}
+ 
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+    border-radius: 10px;
+}
+ 
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+}
+
+#listenNow {
+  display: none;
+  height: 95%;
+  padding: 2px;
+  overflow: auto;
+  &.loading {
+    background: url(../img/ajax-loader.gif) no-repeat center center;
+  }
+  > div {
+    > img {
+      height: 16px;
+      border: 1px solid #AAA;
+      cursor: pointer;
+    }
+    > img:hover {
+      opacity: 0.5;
+    }
+    > a, > span {
+      width: 40%;
+      display: inline-block;
+      margin-left: 4px;
+      vertical-align: top;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    > span {
+      color: #888;
+    }
   }
 }
 
@@ -351,7 +394,15 @@ a {
 
 #pause {
   display: none;
-  cursor: pointer;
+}
+
+.playing {
+  #pause {
+    display: block;
+  }
+  #resume {
+    display: none;
+  }
 }
 
 #prev {
@@ -393,10 +444,11 @@ a {
 a#volume {
   float: right;
   opacity: 0.2;
-  &.active {
-    opacity: 1;
-    cursor: pointer;
-  }
+}
+
+.connected a#volume {
+  opacity: 1;
+  cursor: pointer;
 }
 
 #volumeBarContainer {

@@ -25,18 +25,18 @@ function LastFM(options){
       data: params
     }).done(function(response) {
       if (response.error) {
-        if (response.error == 9 && typeof(that.sessionTimeoutCallback) == "function") {
-          that.sessionTimeoutCallback();
-        }
         if (typeof(callbacks.error) == "function") {
           callbacks.error(response.error, response.message);
+        }
+        if (response.error == 9 && typeof(that.sessionTimeoutCallback) == "function") {
+          that.sessionTimeoutCallback();
         }
       } else {
         callbacks.success(response);
       }
     }).fail(function(jqXHR, textStatus, errorThrown) {
       if (typeof(callbacks.error) == "function") {
-        callbacks.error(textStatus, errorThrown || textStatus);
+        callbacks.error(-1, errorThrown || textStatus);
       }
     });
   };

@@ -20,6 +20,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
           bp.lastfm.session = response.session;
           status.find(".success").attr('title', chrome.i18n.getMessage('lastfmConnectSuccess')).show();
           bp.gaEvent('LastFM', 'AuthorizeOK');
+          bp.scrobbleCachedSongs();
         },
         error: function(code, message) {
           status.find(".loader").hide();
@@ -122,8 +123,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function initSyncSettings() {
-    var input = $("#syncSettings");
-    input
+    $("#syncSettings")
       .prop('checked', bp.localSettings.syncSettings)
       .click(function() { bp.localSettings.syncSettings = !bp.localSettings.syncSettings })
       .parent().find("label").text(chrome.i18n.getMessage("setting_syncSettings"));
