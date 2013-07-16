@@ -20,6 +20,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
           bp.lastfm.session = response.session;
           status.find(".success").attr('title', chrome.i18n.getMessage('lastfmConnectSuccess')).show();
           bp.gaEvent('LastFM', 'AuthorizeOK');
+          bp.scrobbleCachedSongs();
         },
         error: function(code, message) {
           status.find(".loader").hide();

@@ -248,17 +248,71 @@ function parseSeconds(time) {
   return sec || 0;
 }
 
+function cacheForLaterScrobbling(songInfo) {
+  var scrobbleCache = localStorage["scrobbleCache"];
+  scrobbleCache = scrobbleCache ? JSON.parse(scrobbleCache) : {};
+  if (scrobbleCache.user != localSettings.lastfmSessionName) {
+    scrobbleCache.songs = [];
+    scrobbleCache.user = localSettings.lastfmSessionName;
+  }
+  
+  while (scrobbleCache.songs.length >= 50) {
+    scrobbleCache.songs.shift();
+  }
+  scrobbleCache.songs.push(songInfo);
+  localStorage["scrobbleCache"] = JSON.stringify(scrobbleCache);
+}
+
+function scrobbleCachedSongs() {
+  var scrobbleCache = localStorage["scrobbleCache"];
+  if (scrobbleCache) {
+    scrobbleCache = JSON.parse(scrobbleCache);
+    if (scrobbleCache.user != localSettings.lastfmSessionName) {
+      localStorage.removeItem("scrobbleCache");
+      return;
+    }
+    params = {};
+    for (var i = 0; i < scrobbleCache.songs.length; i++) {
+      var curSong = scrobbleCache.songs[i];
+      for (var prop in curSong) {
+        params[prop + "[" + i + "]"] = curSong[prop];
+      }
+    }
+    lastfm.track.scrobble(params,
+      {
+        success: function(response) {
+          localStorage.removeItem("scrobbleCache");
+          gaEvent('LastFM', 'ScrobbleCachedOK');
+        },
+        error: function(code) {
+          console.debug("Error on cached scrobbling: " + code);
+          gaEvent('LastFM', 'ScrobbleCachedError-' + code);
+        }
+      }
+    );
+  }
+}
+
 function scrobble() {
-  lastfm.track.scrobble({
-      track: song.info.title,
-      timestamp: song.timestamp,
-      artist: song.info.artist,
-      album: song.info.album,
-      duration: song.info.durationSec
-    },
+  var params = {
+    track: song.info.title,
+    timestamp: song.timestamp,
+    artist: song.info.artist,
+    album: song.info.album,
+    duration: song.info.durationSec
+  };
+  var cloned = $.extend({}, params);//clone now, lastfm API will enrich params with additional values we don't need
+  lastfm.track.scrobble(params,
     {
-      success: function(response) { gaEvent('LastFM', 'ScrobbleOK'); },
-      error: function(code) { gaEvent('LastFM', 'ScrobbleError-' + code); }
+      success: function(response) {
+        gaEvent('LastFM', 'ScrobbleOK');
+        scrobbleCachedSongs();//try cached songs again now that the service seems to work again
+      },
+      error: function(code) {
+        console.debug("Error on scrobbling '" + params.track + "': " + code);
+        if (code == 16 || code == 9 || code == -1) cacheForLaterScrobbling(cloned);
+        gaEvent('LastFM', 'ScrobbleError-' + code);
+      }
     }
   );
 }
@@ -272,7 +326,10 @@ function sendNowPlaying() {
     },
     {
       success: function(response) { gaEvent('LastFM', 'NowPlayingOK'); },
-      error: function(code) { gaEvent('LastFM', 'NowPlayingError-' + code); }
+      error: function(code) {
+        console.debug("Error on now playing '" + song.info.title + "': " + code);
+        gaEvent('LastFM', 'NowPlayingError-' + code);
+      }
     }
   );
 }
@@ -297,10 +354,11 @@ function lastfmLogin() {
 }
 
 /** reset last.fm session */
-function lastfmLogout() {
+function lastfmLogout(relogin) {
   lastfm.session = {};
   localSettings.lastfmSessionKey = null;
   localSettings.lastfmSessionName = null;
+  if (!(relogin === true)) localStorage.removeItem("scrobbleCache");//clear data on explicit logout
 }
 
 var lastfmReloginNotificationId;
@@ -315,7 +373,7 @@ function lastfmReloginClicked(notificationId) {
 
 /** logout from last.fm and show a notification to login again */
 function relogin() {
-  lastfmLogout();
+  lastfmLogout(true);
   chrome.notifications.create("", {
     type: "basic",
     title: chrome.i18n.getMessage("lastfmSessionTimeout"),
@@ -733,3 +791,4 @@ chrome.runtime.onSuspend.addListener(function() {
 });
 
 connectGoogleMusicTabs();
+if (isScrobblingEnabled()) scrobbleCachedSongs();
