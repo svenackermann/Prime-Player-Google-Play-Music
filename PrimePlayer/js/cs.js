@@ -11,15 +11,51 @@ $(function() {
   var observers = [];
   var initialized = false;
   
-  function init() {
-
-    /** send update to background page */
-    function post(type, value) {
-      if (port) {
-        port.postMessage({type: type, value: value});
-      }
+  /** send update to background page */
+  function post(type, value) {
+    if (port) {
+      port.postMessage({type: type, value: value});
     }
-    
+  }
+  
+  /** @return link (for hash) constructed from attributes data-type and data-id */
+  function getLink(el) {
+    if (el.data("id")) {
+      return el.data("type") + "/" + el.data("id");
+    }
+    return null;
+  }
+  
+  /**
+   * Execute a function after DOM manipulation on selected elements is finished.
+   * @param fn function to execute, gets the jQuery object for the selector as parameter
+   * @param selector element(s) to be watched for DOM manipulation
+   * @param removeAfterExecute if true, the function will be called only once, otherwise the event listener stays attached
+   * @param timeout time to wait after DOM manipulation before executing the function
+   */
+  function executeAfterContentLoad(fn, selector, removeAfterExecute, timeout) {
+    if (timeout == null) timeout = 500;
+    var content = $(selector);
+    if (content.length == 0) {
+      console.error("element does not exist (did Google change their site?): " + selector);
+      return;
+    }
+    var contentTimer;
+    var listener = function(event) {
+      clearTimeout(contentTimer);
+      contentTimer = setTimeout(function() {
+        contentTimer = null;
+        if (removeAfterExecute) content.off("DOMSubtreeModified", listener);
+        fn(content);
+      }, timeout);//wait til the DOM manipulation is finished
+    };
+    content.on("DOMSubtreeModified", listener).triggerHandler("DOMSubtreeModified");
+    if (!removeAfterExecute) {
+      registeredListeners.push({ selector: selector, listener: listener });
+    }
+  }
+  
+  function init() {
     //when rating is changed, the page gets reloaded, so no need for event listening here
     var ratingMode;
     var ratingContainer = $("#player-right-wrapper > div.player-rating-container > ul.rating-container");
@@ -28,46 +64,38 @@ $(function() {
     ratingContainer = null;
     post("player-ratingMode", ratingMode);
     
-    var playlistTimer;
-    function playlistListener(event) {
-      clearTimeout(playlistTimer);
-      playlistTimer = setTimeout(function() {
-        playlistTimer = null;
-        var playlists = [];
-        $(event.data.selector).find("li").each(function() {
-          var playlist = [$(this).attr("id"), $(this).text()];
-          playlists.push(playlist);
-        });
-        post("player-playlists", playlists);
-      }, 1000);//wait a second till the DOM manipulation is finished
+    function sendPlaylists(pl) {
+      var playlists = [];
+      pl.find("li").each(function() {
+        var playlist = [getLink($(this)), $(this).text()];
+        playlists.push(playlist);
+      });
+      post("player-playlists", playlists);
     }
     
-    var songTimer;
-    function songListener(event) {
-      clearTimeout(songTimer);
-      songTimer = setTimeout(function() {
-        songTimer = null;
-        var hasSong = $("#playerSongInfo").find("div").length > 0;
-        var info = null;
-        if (hasSong) {
-          var cover = $("#playingAlbumArt").attr("src");
-          if (cover) cover = "http:" + cover;
-          info = {
-            duration: $.trim($("#time_container_duration").text()),
-            title: $("#playerSongTitle").text(),
-            artist: $("#player-artist").text(),
-            artistId: $("#player-artist").data("id"),
-            album: $("#playerSongInfo").find(".player-album").text(),
-            albumId: $("#playerSongInfo").find(".player-album").data("id"),
-            cover: cover
-          };
-        }
-        post("song-info", info);
-      }, 1000);//wait for all the song info to be loaded and send once
+    function sendSong() {
+      var hasSong = $("#playerSongInfo").find("div").length > 0;
+      var info = null;
+      if (hasSong) {
+        var artist = $("#player-artist");
+        var album = $("#playerSongInfo").find(".player-album");
+        var cover = $("#playingAlbumArt").attr("src");
+        if (cover) cover = "http:" + cover;
+        info = {
+          duration: $.trim($("#time_container_duration").text()),
+          title: $("#playerSongTitle").text(),
+          artist: artist.text(),
+          artistLink: getLink(artist),
+          album: album.text(),
+          albumLink: getLink(album),
+          cover: cover
+        };
+      }
+      post("song-info", info);
     }
     
-    function positionListener(event) {
-      post("song-position", $.trim($(event.data.selector).text()));
+    function sendPosition(el) {
+      post("song-position", $.trim(el.text()));
     }
     
     function playingGetter(el) {
@@ -76,18 +104,6 @@ $(function() {
     
     function ratingGetter(el) {
       return parseInt($(el.parentElement).find("li.selected").data("rating")) || 0;
-    }
-    
-    /** call listener when the DOM subtree of the given selector changes */
-    function watchDOM(selector, listener) {
-      var el = $(selector);
-      if (el.length == 0) {
-        console.error("element does not exist (did Google change their site?): " + selector);
-      } else {
-        registeredListeners.push({ selector: selector, listener: listener});
-        el.on("DOMSubtreeModified", {selector: selector}, listener)
-          .triggerHandler("DOMSubtreeModified");//trigger once to initialize the info
-      }
     }
     
     /**
@@ -116,9 +132,9 @@ $(function() {
       }
     }
     
-    watchDOM("#playlists", playlistListener);
-    watchDOM("#time_container_duration, #playerSongInfo", songListener);
-    watchDOM("#time_container_current", positionListener);
+    executeAfterContentLoad(sendPlaylists, "#playlists", false);
+    executeAfterContentLoad(sendSong, "#time_container_duration, #playerSongInfo", false);
+    executeAfterContentLoad(sendPosition, "#time_container_current", false, 0);
     watchAttr("class", "#player > div.player-middle > button[data-id='play-pause']", "player-playing", playingGetter);
     watchAttr("value", "#player > div.player-middle > button[data-id='repeat']", "player-repeat");
     watchAttr("value", "#player > div.player-middle > button[data-id='shuffle']", "player-shuffle");
@@ -141,26 +157,76 @@ $(function() {
   /** remove all listeners/observers and revert DOM modifications */
   function cleanup() {
     initialized = false;
-    window.postMessage({ type: "FROM_PRIMEPLAYER", command: "cleanup" }, "*");
-    for (var i in registeredListeners) {
+    sendCommand("cleanup");
+    for (var i = 0; i < registeredListeners.length; i++) {
       var l = registeredListeners[i];
       $(l.selector).off("DOMSubtreeModified", l.listener);
     }
-    for (var i in observers) {
+    for (var i = 0; i < observers.length; i++) {
       observers[i].disconnect();
     }
     $(".music-banner-icon").removeAttr("style").removeAttr("title");
     port = null;
+  }
+  
+  /** Send a command to the injected script. */
+  function sendCommand(command, options) {
+    if (initialized) {
+      window.postMessage({ type: "FROM_PRIMEPLAYER", command: command, options: options }, location.href);
+    }
+  }
+  
+  /** Set the hash to the given link to navigate to another page. */
+  function selectLink(link) {
+    if (link.indexOf("st/") == 0) {//setting hash does not work for type "st"
+      sendCommand("clickCard", {id: link.substr(3)});
+    } else {
+      location.hash = "/" + link;
+    }
+  }
+  
+  function sendListenNowList() {
+    var listenNowList = [];
+    $(".card").each(function() {
+      var card = $(this);
+      var item = {};
+      item.cover = card.find(".image-wrapper img").attr("src");
+      if (item.cover) item.cover = "http:" + item.cover;
+      item.title = card.find(".title").text();
+      item.titleLink = getLink(card);
+      var subTitle = card.find(".sub-title");
+      item.subTitle = subTitle.text();
+      item.subTitleLink = getLink(subTitle);
+      listenNowList.push(item);
+    });
+    post("player-listenNowList", listenNowList);
+  }
+  
+  function getListenNow() {
+    selectLink("now");
+    executeAfterContentLoad(sendListenNowList, "#main > .g-content", true);
   }
 
   port = chrome.extension.connect({name: "googlemusic"});
   port.onMessage.addListener(function(msg) {
     switch (msg.type) {
       case "execute":
-        if (initialized) {
-          window.postMessage({ type: "FROM_PRIMEPLAYER", command: msg.command, options: msg.options }, location.href);
+        if (msg.command == "startPlaylist") {
+          var link = msg.options.pllink;
+          selectLink(link);
+          if (link.indexOf("im/") != 0 || link.indexOf("st/") != 0) {//type "im"/"st" starts automatically
+            executeAfterContentLoad(function() { sendCommand("startPlaylist"); }, "#main > .g-content", true);
+          }
+        } else {
+          sendCommand(msg.command, msg.options);
         }
         break;
+      case "selectLink":
+        selectLink(msg.link);
+        break;
+      case "getListenNow":
+        getListenNow();
+        return true;
       case "connected":
         port.onDisconnect.addListener(cleanup);
         init();

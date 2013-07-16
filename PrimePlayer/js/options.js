@@ -122,8 +122,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function initSyncSettings() {
-    var input = $("#syncSettings");
-    input
+    $("#syncSettings")
       .prop('checked', bp.localSettings.syncSettings)
       .click(function() { bp.localSettings.syncSettings = !bp.localSettings.syncSettings })
       .parent().find("label").text(chrome.i18n.getMessage("setting_syncSettings"));

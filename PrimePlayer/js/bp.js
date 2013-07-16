@@ -79,7 +79,9 @@ var PLAYER_DEFAULTS = {
   repeat: "",
   playlists: [],
   playing: false,
-  volume: null
+  volume: null,
+  listenNowList: [],
+  connected: false
 };
 var player = new Bean(PLAYER_DEFAULTS);
 
@@ -121,7 +123,7 @@ function updateBrowserActionIcon() {
 }
 
 function removeParkedPort(port) {
-  for (var i in parkedPorts) {
+  for (var i = 0; i < parkedPorts.length; i++) {
     if (port == parkedPorts[i]) {
       parkedPorts.splice(i, 1);
       return;
@@ -138,12 +140,13 @@ function connectPort(port) {
   port.onMessage.addListener(onMessageListener);
   port.onDisconnect.addListener(onDisconnectListener);
   updateBrowserActionIcon();
+  player.connected = true;
 }
 
 /** Check if the given port's tab is already connected */
 function isConnectedTab(port) {
   if (googlemusicport && port.sender.tab.id == googlemusicport.sender.tab.id) return true;
-  for (var i in parkedPorts) {
+  for (var i = 0; i < parkedPorts.length; i++) {
     if (port.sender.tab.id == parkedPorts[i].sender.tab.id) return true;
   }
   return false;
@@ -203,6 +206,12 @@ function onMessageListener(message) {
     song[type.substring(5)] = val;
   } else if (type.indexOf("player-") == 0) {
     player[type.substring(7)] = val;
+  }
+}
+
+function loadListenNow() {
+  if (googlemusicport) {
+    googlemusicport.postMessage({type: "getListenNow"});
   }
 }
 
@@ -456,7 +465,7 @@ function isNewerVersion(version) {
   if (previousVersion == null) return false;
   var prev = previousVersion.split(".");
   version = version.split(".");
-  for (var i in prev) {
+  for (var i = 0; i < prev.length; i++) {
     if (version.length <= i) return false;//version is shorter (e.g. 1.0 < 1.0.1)
     var p = parseInt(prev[i]);
     var v = parseInt(version[i]);
@@ -501,6 +510,13 @@ function executeInGoogleMusic(command, options) {
   if (googlemusicport) {
     if (options == null) options = {};
     googlemusicport.postMessage({type: "execute", command: command, options: options});
+  }
+}
+
+/** send a command to the connected Google Music port */
+function selectInGoogleMusic(link) {
+  if (googlemusicport) {
+    googlemusicport.postMessage({type: "selectLink", link: link});
   }
 }
 
@@ -549,7 +565,7 @@ function gaEnabledChanged(val) {
       "openGoogleMusicPinned",
       "updateNotifier"
     ];
-    for (var i in settingsToRecord) {
+    for (var i = 0; i < settingsToRecord.length; i++) {
       recordSetting(settingsToRecord[i]);
     }
   }
@@ -579,7 +595,7 @@ function openGoogleMusicTab() {
 
 function connectGoogleMusicTabs() {
   chrome.tabs.query({url:"*://play.google.com/music/listen*"}, function(tabs) {
-    for (var i in tabs) {
+    for (var i = 0; i < tabs.length; i++) {
       var tabId = tabs[i].id;
       chrome.tabs.executeScript(tabId, {file: "js/jquery-2.0.2.min.js"});
       chrome.tabs.executeScript(tabId, {file: "js/cs.js"});
@@ -676,7 +692,7 @@ function reloadForUpdate() {
     googlemusicport.onDisconnect.removeListener(onDisconnectListener);
     googlemusicport.disconnect();
   }
-  for (var i in parkedPorts) {
+  for (var i = 0; i < parkedPorts.length; i++) {
     parkedPorts[i].onDisconnect.removeListener(removeParkedPort);
     parkedPorts[i].disconnect();
   }

@@ -17,10 +17,8 @@ function Bean(defaults, useLocalStorage) {
   
   function notify(prop, old, val) {
     var ls = listeners[prop];
-    if (ls.length > 0) {
-      for (var i in ls) {
-        ls[i](val, old, prop);
-      }
+    for (var i = 0; i < ls.length; i++) {
+      ls[i](val, old, prop);
     }
   }
   
@@ -43,7 +41,7 @@ function Bean(defaults, useLocalStorage) {
   this.removeListener = function(prop, listener) {
     var ls = listeners[prop];
     if (ls) {
-      for (var i in ls) {
+      for (var i = 0; i < ls.length; i++) {
         if (listener == ls[i]) {
           ls.splice(i, 1);
           return;

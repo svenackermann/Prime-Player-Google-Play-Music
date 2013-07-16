@@ -140,7 +140,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function volumeWatcher(val) {
-    $("#volume").toggleClass("active", val != null);
     if (val == null) {
       $("#volumeBarContainer").hide();
     } else {
@@ -148,15 +147,21 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
   
+  function connectedWatcher(val) {
+    $("body").toggleClass("connected", val);
+    $("#coverContainer").unbind();
+    if (val) $("#coverContainer").click(showListenNow);
+  }
+  
   function showPlaylists() {
     var playlistSectionTitle = chrome.i18n.getMessage("playlists");
     var playlists = bp.player.playlists;
     var playlistLinks = "";
-    for (var i in playlists) {
-      playlistLinks += "<div><a href='#' data-plid='" + playlists[i][0] + "' title='" + playlists[i][1] + "'>" + playlists[i][1] + "</a></div>";
+    for (var i = 0; i < playlists.length; i++) {
+      playlistLinks += "<div><a href='#' data-link='" + playlists[i][0] + "' title='" + playlists[i][1] + "'>" + playlists[i][1] + "</a></div>";
     }
     $("#playlistContainer").html("<h2>" + playlistSectionTitle + "</h2>" + playlistLinks);
-    $("#playlistContainer a").click(function() { playlistStart($(this).data("plid")); });
+    $("#playlistContainer a").click(function() { playlistStart($(this).data("link")); });
     $("#player").hide();
     $("#playlists").unbind().click(hidePlaylists).show();
   }
@@ -166,6 +171,41 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#player").show();
   }
 
+  function renderListenNow(val) {
+    bp.player.removeListener("listenNowList", renderListenNow);
+    var html = "";
+    for (var i = 0; i < val.length; i++) {
+      var e = val[i];
+      html += "<div>";
+      html += "<img src='" + (e.cover || "img/cover.png") + "'/>";
+      html += "<a href='#' data-link='" + e.titleLink + "' title='" + e.title + "'>" + e.title + "</a>"
+      html += e.subTitleLink ? "<a href='#' data-link='" + e.subTitleLink + "'" : "<span";
+      html += " title='" + e.subTitle + "'>" + e.subTitle + "</";
+      html += e.subTitleLink ? "a>" : "span>";
+      html += "</div>";
+    }
+    $("#listenNow").removeClass("loading").html(html).find("a").click(function() {
+      selectLink($(this).data("link"));
+      return false;
+    });
+    $("#listenNow").find("img").click(function() {
+      playlistStart($(this).next("a").data("link"));
+    });
+  }
+  
+  function showListenNow() {
+    $("#player").hide();
+    $("#listenNow").empty().addClass("loading").click(hideListenNow).show();
+    bp.player.addListener("listenNowList", renderListenNow);
+    bp.loadListenNow();
+  }
+
+  function hideListenNow() {
+    bp.player.removeListener("listenNowList", renderListenNow);
+    $("#listenNow").hide();
+    $("#player").show();
+  }
+  
   function renderPlayControls() {
     $(".playPause").click(googleMusicExecutor("playPause")).each(function() {
       $(this).attr("title", chrome.i18n.getMessage(this.id + "Song"));
@@ -273,18 +313,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.executeInGoogleMusic("rate", {rating: rating});
   }
 
-  function playlistStart(plsId) {
-    bp.executeInGoogleMusic("startPlaylist", {plsId: plsId});
-  }
-
-  function selectArtist(artistId) {
-    bp.executeInGoogleMusic("selectArtist", {artistId: artistId});
-    bp.openGoogleMusicTab();
-  }
-
-  function selectAlbum(albumId) {
-    bp.executeInGoogleMusic("selectAlbum", {albumId: albumId});
-    bp.openGoogleMusicTab();
+  function playlistStart(pllink) {
+    bp.executeInGoogleMusic("startPlaylist", {pllink: pllink});
   }
 
   function setSongPosition(event) {
@@ -293,6 +323,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function setVolume(event) {
     bp.executeInGoogleMusic("setVolume", {percent: event.offsetX / $(this).width()});
+  }
+
+  function selectLink(link) {
+    bp.selectInGoogleMusic(link);
+    bp.openGoogleMusicTab();
   }
 
   $(function() {
@@ -313,10 +348,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
         .text(chrome.i18n.getMessage("gotoGmusic"));
         
     $("#artist").click(function() {
-      selectArtist(bp.song.info.artistId);
+      selectLink(bp.song.info.artistLink);
     });
     $("#album").click(function() {
-      selectAlbum(bp.song.info.albumId);
+      selectLink(bp.song.info.albumLink);
     });
     
     $("#scrobblePosition").attr("title", chrome.i18n.getMessage("scrobblePosition"));
@@ -333,6 +368,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.player.watch("ratingMode", ratingModeWatcher);
     bp.player.watch("playing", playingWatcher);
     bp.player.watch("volume", volumeWatcher);
+    bp.player.watch("connected", connectedWatcher);
     
     bp.song.watch("info", songInfoWatcher);
     bp.song.watch("positionSec", positionSecWatcher);
@@ -351,6 +387,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
       bp.player.removeListener("ratingMode", ratingModeWatcher);
       bp.player.removeListener("playing", playingWatcher);
       bp.player.removeListener("volume", volumeWatcher);
+      bp.player.removeListener("connected", connectedWatcher);
+      bp.player.removeListener("listenNowList", renderListenNow);
       
       bp.song.removeListener("info", songInfoWatcher);
       bp.song.removeListener("positionSec", positionSecWatcher);
