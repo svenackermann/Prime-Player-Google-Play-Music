@@ -757,6 +757,7 @@ song.addListener("info", function(val) {
     if (player.playing) toastPopup();
   } else {
     song.timestamp = 0;
+    closeToast();
   }
   calcScrobbleTime();
   updateBrowserActionIcon();
