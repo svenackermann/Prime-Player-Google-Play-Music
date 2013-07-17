@@ -783,7 +783,7 @@ function reloadForUpdate() {
     parkedPorts[i].onDisconnect.removeListener(removeParkedPort);
     parkedPorts[i].disconnect();
   }
-  chrome.runtime.reload();
+  setTimeout(function() { chrome.runtime.reload(); }, 1000);//wait a second til port cleanup is finished
 }
 
 if (localStorage["updateBackup"] != null) {
@@ -813,7 +813,7 @@ chrome.commands.onCommand.addListener(function(command) {
   }
 });
 
-chrome.extension.onConnect.addListener(onConnectListener);
+chrome.runtime.onConnect.addListener(onConnectListener);
 chrome.runtime.onUpdateAvailable.addListener(reloadForUpdate);
 chrome.runtime.onSuspend.addListener(function() {
   chrome.runtime.onUpdateAvailable.removeListener(reloadForUpdate);

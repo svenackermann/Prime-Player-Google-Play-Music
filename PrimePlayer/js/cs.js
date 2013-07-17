@@ -9,7 +9,6 @@ $(function() {
   var port;
   var registeredListeners = [];
   var observers = [];
-  var initialized = false;
   
   /** send update to background page */
   function post(type, value) {
@@ -150,13 +149,15 @@ $(function() {
     $(".music-banner-icon")
       .css({background: 'url(' + chrome.extension.getURL('img/icon-tabconnected.png') + ')'})
       .attr('title', chrome.i18n.getMessage('connected'));
-    
-    initialized = true;
+  }
+  
+  /** Send a command to the injected script. */
+  function sendCommand(command, options) {
+    window.postMessage({ type: "FROM_PRIMEPLAYER", command: command, options: options }, location.href);
   }
   
   /** remove all listeners/observers and revert DOM modifications */
   function cleanup() {
-    initialized = false;
     sendCommand("cleanup");
     for (var i = 0; i < registeredListeners.length; i++) {
       var l = registeredListeners[i];
@@ -167,13 +168,6 @@ $(function() {
     }
     $(".music-banner-icon").removeAttr("style").removeAttr("title");
     port = null;
-  }
-  
-  /** Send a command to the injected script. */
-  function sendCommand(command, options) {
-    if (initialized) {
-      window.postMessage({ type: "FROM_PRIMEPLAYER", command: command, options: options }, location.href);
-    }
   }
   
   /** Set the hash to the given link to navigate to another page. */
@@ -207,7 +201,8 @@ $(function() {
     executeAfterContentLoad(sendListenNowList, "#main > .g-content", true);
   }
 
-  port = chrome.extension.connect({name: "googlemusic"});
+  port = chrome.runtime.connect({name: "googlemusic"});
+  port.onDisconnect.addListener(cleanup);
   port.onMessage.addListener(function(msg) {
     switch (msg.type) {
       case "execute":
@@ -228,7 +223,6 @@ $(function() {
         getListenNow();
         return true;
       case "connected":
-        port.onDisconnect.addListener(cleanup);
         init();
         break;
       case "alreadyConnected":
