@@ -411,7 +411,7 @@ function toastButtonClicked(notificationId, buttonIndex) {
   }
 }
 
-function openToastNotification(iconUrl) {
+function openToastNotification(iconUrl, onOpened) {
   chrome.notifications.create("", {
     type: "basic",
     title: song.info.title,
@@ -423,6 +423,7 @@ function openToastNotification(iconUrl) {
     toastId = notificationId;
     chrome.notifications.onClosed.addListener(toastClosed);
     chrome.notifications.onButtonClicked.addListener(toastButtonClicked);
+    if (typeof(onOpened) == "function") onOpened();
   });
 }
 
@@ -439,7 +440,10 @@ function openToast() {
       xhr.open("GET", song.info.cover, true);
       xhr.responseType = "blob";
       xhr.onload = function() {
-        openToastNotification(window.webkitURL.createObjectURL(this.response));
+        var iconUrl = webkitURL.createObjectURL(this.response);
+        openToastNotification(iconUrl, function() {
+          webkitURL.revokeObjectURL(iconUrl);
+        });
       };
       xhr.send();
     } else {
