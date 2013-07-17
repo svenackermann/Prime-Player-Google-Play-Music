@@ -48,7 +48,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("#artist").text(val.artist);
       $("#album").text(val.album);
       $("#cover").attr("src", val.cover || "img/cover.png");
-      getLovedInfo();
       //although the value of scrobbleTime might have not changed, the relative position might have
       updateScrobblePosition(bp.song.scrobbleTime);
     } else {
@@ -129,13 +128,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $(window).mouseout(function() { windowTimer = setTimeout(function() { window.close(); }, 3000); });
   }
 
-  function lastfmUserWatcher(user, old) {
+  function lastfmUserWatcher(user) {
     $("body").toggleClass("lastfm", user != null);
     if (user) {
       $("#lastfmUser")
         .attr("title", chrome.i18n.getMessage("lastfmUser") + user)
         .attr("href", "http://last.fm/user/" + user);
-      if (user != old) getLovedInfo();//not on initialize to prevent requesting it twice (songInfoWatcher does it)
     }
   }
 
@@ -227,73 +225,21 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
   }
 
-  function setLoveButtonStatus(loved, error) {
-    if (error) {
+  function songLovedWatcher(loved) {
+    $("#lastfmRating").removeClass("loved notloved error");
+    if (typeof(loved) == "string") {
       $("#lastfmRating").addClass("error")
-        .find("a").attr("title", chrome.i18n.getMessage("lastfmError") + error)
-        .unbind().click(getLovedInfo);
-    } else if (loved) {
+        .find("a").attr("title", chrome.i18n.getMessage("lastfmError") + loved)
+        .unbind().click(bp.getLovedInfo);
+    } else if (loved === true) {
       $("#lastfmRating").addClass("loved")
         .find("a").attr("title", chrome.i18n.getMessage("lastfmUnlove"))
-        .unbind().click(unloveTrack);
-    } else {
+        .unbind().click(bp.unloveTrack);
+    } else if (loved === false) {
       $("#lastfmRating").addClass("notloved")
         .find("a").attr("title", chrome.i18n.getMessage("lastfmLove"))
-        .unbind().click(loveTrack);
+        .unbind().click(bp.loveTrack);
     }
-  }
-
-  function getLovedInfo() {
-    $("#lastfmRating").removeClass("loved notloved error");
-    if (bp.localSettings.lastfmSessionName && bp.song.info) {
-      bp.lastfm.track.getInfo({
-          track: bp.song.info.title,
-          artist: bp.song.info.artist,
-          username: bp.localSettings.lastfmSessionName
-        },
-        {
-          success: function(response) { setLoveButtonStatus(response.track && response.track.userloved == 1); },
-          error: function(code, msg) {
-            setLoveButtonStatus(false, msg);
-            if (code != 9) bp.gaEvent("LastFM", "getInfoError-" + code);
-          }
-        }
-      );
-    }
-  }
-
-  function loveTrack(event) {
-    $("#lastfmRating").removeClass("loved notloved error");
-    bp.lastfm.track.love({
-        track: bp.song.info.title,
-        artist: bp.song.info.artist
-      },
-      {
-        success: function(response) { setLoveButtonStatus(true); },
-        error: function(code, msg) {
-          setLoveButtonStatus(false, msg);
-          if (code != 9) bp.gaEvent("LastFM", "loveError-" + code);
-        }
-      }
-    );
-    //auto-rate if this is a click event and not rated yet
-    if (event != null && bp.settings.linkRatings && bp.song.rating == 0) rate(5, true);
-  }
-
-  function unloveTrack() {
-    $("#lastfmRating").removeClass("loved notloved error");
-    bp.lastfm.track.unlove({
-        track: bp.song.info.title,
-        artist: bp.song.info.artist
-      },
-      {
-        success: function(response) { setLoveButtonStatus(false); },
-        error: function(code, msg) {
-          setLoveButtonStatus(false, msg);
-          if (code != 9) bp.gaEvent("LastFM", "unloveError-" + code);
-        }
-      }
-    );
   }
 
   function toggleVolumeControl() {
@@ -306,10 +252,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     return function() { bp.executeInGoogleMusic(command); };
   }
 
-  function rate(rating, noLink) {
+  function rate(rating) {
     var reset = bp.song.rating == rating;
     //auto-love if called by click event, no reset and not loved yet
-    if (!noLink && bp.settings.linkRatings && rating == 5 && !reset && !$("#lastfmRating").hasClass("loved")) loveTrack();
+    if (bp.settings.linkRatings && rating == 5 && !reset && bp.song.loved !== true) bp.loveTrack();
     bp.executeInGoogleMusic("rate", {rating: rating});
   }
 
@@ -374,6 +320,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.song.watch("positionSec", positionSecWatcher);
     bp.song.watch("rating", ratingWatcher);
     bp.song.watch("scrobbleTime", updateScrobblePosition);
+    bp.song.watch("loved", songLovedWatcher);
     
     $(window).unload(function() {
       bp.settings.removeListener("layout", layoutWatcher);
@@ -394,6 +341,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       bp.song.removeListener("positionSec", positionSecWatcher);
       bp.song.removeListener("rating", ratingWatcher);
       bp.song.removeListener("scrobbleTime", updateScrobblePosition);
+      bp.song.removeListener("loved", songLovedWatcher);
     });
     
     if (typeClass == "miniplayer" || typeClass == "toast") setupResizeMoveListeners();
