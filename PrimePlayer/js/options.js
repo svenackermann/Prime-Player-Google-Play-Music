@@ -20,6 +20,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
           bp.lastfm.session = response.session;
           status.find(".success").attr('title', chrome.i18n.getMessage('lastfmConnectSuccess')).show();
           bp.gaEvent('LastFM', 'AuthorizeOK');
+          bp.getLovedInfo();
           bp.scrobbleCachedSongs();
         },
         error: function(code, message) {
@@ -39,7 +40,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#scrobbleTime").prop('disabled', disabled);
     $("#scrobbleMaxDuration").prop('disabled', disabled);
     $("#disableScrobbleOnFf").prop('disabled', disabled);
-    $("#linkRatings").prop('disabled', disabled);
   }
 
   function toastChanged() {
@@ -51,6 +51,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var action;
     var actionText;
     $('#scrobble').prop('disabled', user == null);
+    $("#linkRatings").prop('disabled', user == null);
     scrobbleChanged();
     var links = $('#lastfmStatus').find("a");
     var userLink = links.first();

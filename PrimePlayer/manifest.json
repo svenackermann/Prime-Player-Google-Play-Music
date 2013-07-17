@@ -38,9 +38,9 @@
       "suggested_key": { "default": "Alt+S" },
       "description": "Play/Pause"
     },
-    "prevSong": {
-      "suggested_key": { "default": "Alt+A" },
-      "description": "Previous song"
+    "loveUnloveSong": {
+      "suggested_key": { "default": "Alt+L" },
+      "description": "Love or unlove current song"
     },
     "nextSong": {
       "suggested_key": { "default": "Alt+D" },

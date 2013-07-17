@@ -66,6 +66,7 @@ var SONG_DEFAULTS = {
   positionSec: 0,
   info: null,
   rating: 0,
+  loved: null,
   nowPlayingSent: false,
   scrobbled: false,
   toasted: false,
@@ -313,7 +314,7 @@ function scrobble() {
       error: function(code) {
         console.debug("Error on scrobbling '" + params.track + "': " + code);
         if (code == 16 || code == 9 || code == -1) cacheForLaterScrobbling(cloned);
-        gaEvent('LastFM', 'ScrobbleError-' + code);
+        if (code != 9) gaEvent('LastFM', 'ScrobbleError-' + code);
       }
     }
   );
@@ -330,10 +331,69 @@ function sendNowPlaying() {
       success: function(response) { gaEvent('LastFM', 'NowPlayingOK'); },
       error: function(code) {
         console.debug("Error on now playing '" + song.info.title + "': " + code);
-        gaEvent('LastFM', 'NowPlayingError-' + code);
+        if (code != 9) gaEvent('LastFM', 'NowPlayingError-' + code);
       }
     }
   );
+}
+
+function getLovedInfo() {
+  if (localSettings.lastfmSessionName && song.info) {
+    song.loved = null;
+    lastfm.track.getInfo({
+        track: song.info.title,
+        artist: song.info.artist,
+        username: localSettings.lastfmSessionName
+      },
+      {
+        success: function(response) {
+          song.loved = response.track != null && response.track.userloved == 1;
+        },
+        error: function(code, msg) {
+          song.loved = msg;
+          if (code != 9) gaEvent("LastFM", "getInfoError-" + code);
+        }
+      }
+    );
+  }
+}
+
+function loveTrack(event) {
+  if (localSettings.lastfmSessionKey && song.info) {
+    song.loved = null;
+    lastfm.track.love({
+        track: song.info.title,
+        artist: song.info.artist
+      },
+      {
+        success: function(response) { song.loved = true; },
+        error: function(code, msg) {
+          song.loved = msg;
+          if (code != 9) gaEvent("LastFM", "loveError-" + code);
+        }
+      }
+    );
+    //auto-rate if called by click event and not rated yet
+    if (event != null && settings.linkRatings && song.rating == 0) executeInGoogleMusic("rate", {rating: 5});
+  }
+}
+
+function unloveTrack() {
+  if (localSettings.lastfmSessionKey && song.info) {
+    song.loved = null;
+    lastfm.track.unlove({
+        track: song.info.title,
+        artist: song.info.artist
+      },
+      {
+        success: function(response) { song.loved = false; },
+        error: function(code, msg) {
+          song.loved = msg;
+          if (code != 9) gaEvent("LastFM", "unloveError-" + code);
+        }
+      }
+    );
+  }
 }
 
 /** resets all values of a bean to the given defaults */
@@ -360,6 +420,7 @@ function lastfmLogout(relogin) {
   lastfm.session = {};
   localSettings.lastfmSessionKey = null;
   localSettings.lastfmSessionName = null;
+  song.loved = null;
   if (!(relogin === true)) localStorage.removeItem("scrobbleCache");//clear data on explicit logout
 }
 
@@ -490,7 +551,7 @@ function miniplayerClosed(winId) {
 /** @return the saved size and position settings for the miniplayer of current type and layout */
 function getMiniplayerSizing() {
   var addToHeight = {normal: 113, popup: 38, panel: 37, detached_panel: 37};
-  var addToWidth = {normal: 16, popup: 16, panel: -1, detached_panel: -1};
+  var addToWidth = {normal: 16, popup: 16, panel: 0, detached_panel: 0};
   var sizing = localSettings.miniplayerSizing[settings.layout];
   return {
     height: sizing.height + addToHeight[settings.miniplayerType],
@@ -755,9 +816,11 @@ song.addListener("info", function(val) {
     song.info.durationSec = parseSeconds(val.duration);
     song.timestamp = Math.round(new Date().getTime() / 1000);
     if (player.playing) toastPopup();
+    getLovedInfo();
   } else {
     song.timestamp = 0;
     closeToast();
+    song.loved = null;
   }
   calcScrobbleTime();
   updateBrowserActionIcon();
@@ -803,12 +866,15 @@ if (localStorage["updateBackup"] != null) {
 chrome.commands.onCommand.addListener(function(command) {
   switch (command) {
     case "playPause":
-    case "prevSong":
     case "nextSong":
       executeInGoogleMusic(command);
       break;
     case "openMiniplayer":
       openMiniplayer();
+      break;
+    case "loveUnloveSong":
+      if (song.loved === true) unloveTrack()
+      else loveTrack(true);
       break;
   }
 });
