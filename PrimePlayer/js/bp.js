@@ -411,6 +411,21 @@ function toastButtonClicked(notificationId, buttonIndex) {
   }
 }
 
+function openToastNotification(iconUrl) {
+  chrome.notifications.create("", {
+    type: "basic",
+    title: song.info.title,
+    message: song.info.artist + "\n" + song.info.album,
+    iconUrl: iconUrl,
+    buttons: [{title: chrome.i18n.getMessage("nextSong"), iconUrl: chrome.extension.getURL("img/toast-nextSong.png") },
+              {title: chrome.i18n.getMessage("playPause"), iconUrl: chrome.extension.getURL("img/toast-playPause.png") }]
+  }, function(notificationId) {
+    toastId = notificationId;
+    chrome.notifications.onClosed.addListener(toastClosed);
+    chrome.notifications.onButtonClicked.addListener(toastButtonClicked);
+  });
+}
+
 function openToast() {
   if (settings.toastUseMpStyle) {
     createPlayer("toast", function(win) {
@@ -418,18 +433,18 @@ function openToast() {
       chrome.windows.onRemoved.addListener(toastClosed);
     });
   } else {
-    chrome.notifications.create("", {
-      type: "basic",
-      title: song.info.title,
-      message: song.info.artist + "\n" + song.info.album,
-      iconUrl: song.info.cover || chrome.extension.getURL("img/cover.png"),
-      buttons: [{title: chrome.i18n.getMessage("nextSong"), iconUrl: chrome.extension.getURL("img/toast-nextSong.png") },
-                {title: chrome.i18n.getMessage("playPause"), iconUrl: chrome.extension.getURL("img/toast-playPause.png") }]
-    }, function(notificationId) {
-      toastId = notificationId;
-      chrome.notifications.onClosed.addListener(toastClosed);
-      chrome.notifications.onButtonClicked.addListener(toastButtonClicked);
-    });
+    if (song.info.cover) {
+      //we need a Cross-origin XMLHttpRequest
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", song.info.cover, true);
+      xhr.responseType = "blob";
+      xhr.onload = function() {
+        openToastNotification(window.webkitURL.createObjectURL(this.response));
+      };
+      xhr.send();
+    } else {
+      openToastNotification(chrome.extension.getURL("img/cover.png"));
+    }
   }
 }
 
@@ -660,6 +675,7 @@ function connectGoogleMusicTabs() {
     }
   });
 }
+
 settings.watch("updateNotifier", function(val) {
   if (val) chrome.runtime.onInstalled.addListener(updatedListener)
   else chrome.runtime.onInstalled.removeListener(updatedListener);

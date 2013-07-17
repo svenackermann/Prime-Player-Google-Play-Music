@@ -12,7 +12,6 @@
   },
   "permissions": [
     "*://play.google.com/music/listen*",
-    "http://*.googleusercontent.com/*",
     "notifications",
     "storage"
   ],
