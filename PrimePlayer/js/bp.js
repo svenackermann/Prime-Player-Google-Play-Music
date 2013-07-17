@@ -46,6 +46,8 @@ var miniplayer;
 /** the toast notification id or window, if opened */
 var toastId;
 var toast;
+/** the XMLHttpRequest for the toast cover */
+var toastCoverXhr;
 /** the currently connected port with its tab */
 var googlemusicport;
 var googlemusictabId;
@@ -389,6 +391,10 @@ lastfm.sessionTimeoutCallback = relogin;
 function toastClosed(notificationOrWinId) {
   if (notificationOrWinId == toastId) {
     toastId = null;
+    if (toastCoverXhr) {
+      toastCoverXhr.abort();
+      toastCoverXhr = null;
+    }
     chrome.notifications.onClosed.removeListener(toastClosed);
     chrome.notifications.onButtonClicked.removeListener(toastButtonClicked);
   }
@@ -411,22 +417,6 @@ function toastButtonClicked(notificationId, buttonIndex) {
   }
 }
 
-function openToastNotification(iconUrl, onOpened) {
-  chrome.notifications.create("", {
-    type: "basic",
-    title: song.info.title,
-    message: song.info.artist + "\n" + song.info.album,
-    iconUrl: iconUrl,
-    buttons: [{title: chrome.i18n.getMessage("nextSong"), iconUrl: chrome.extension.getURL("img/toast-nextSong.png") },
-              {title: chrome.i18n.getMessage("playPause"), iconUrl: chrome.extension.getURL("img/toast-playPause.png") }]
-  }, function(notificationId) {
-    toastId = notificationId;
-    chrome.notifications.onClosed.addListener(toastClosed);
-    chrome.notifications.onButtonClicked.addListener(toastButtonClicked);
-    if (typeof(onOpened) == "function") onOpened();
-  });
-}
-
 function openToast() {
   if (settings.toastUseMpStyle) {
     createPlayer("toast", function(win) {
@@ -434,21 +424,39 @@ function openToast() {
       chrome.windows.onRemoved.addListener(toastClosed);
     });
   } else {
-    if (song.info.cover) {
-      //we need a Cross-origin XMLHttpRequest
-      var xhr = new XMLHttpRequest();
-      xhr.open("GET", song.info.cover, true);
-      xhr.responseType = "blob";
-      xhr.onload = function() {
-        var iconUrl = webkitURL.createObjectURL(this.response);
-        openToastNotification(iconUrl, function() {
-          webkitURL.revokeObjectURL(iconUrl);
-        });
-      };
-      xhr.send();
-    } else {
-      openToastNotification(chrome.extension.getURL("img/cover.png"));
-    }
+    var options = {
+      type: "basic",
+      title: song.info.title,
+      message: song.info.artist + "\n" + song.info.album,
+      iconUrl: chrome.extension.getURL("img/cover.png"),
+      buttons: [{title: chrome.i18n.getMessage("nextSong"), iconUrl: chrome.extension.getURL("img/toast-nextSong.png") },
+                {title: chrome.i18n.getMessage("playPause"), iconUrl: chrome.extension.getURL("img/toast-playPause.png") }]
+    };
+    chrome.notifications.create("", options, function(notificationId) {
+      toastId = notificationId;
+      chrome.notifications.onClosed.addListener(toastClosed);
+      chrome.notifications.onButtonClicked.addListener(toastButtonClicked);
+      if (song.info.cover) {
+        //we need a Cross-origin XMLHttpRequest
+        toastCoverXhr = new XMLHttpRequest();
+        toastCoverXhr.open("GET", song.info.cover, true);
+        toastCoverXhr.responseType = "blob";
+        toastCoverXhr.onload = function() {
+          toastCoverXhr = null;
+          options.iconUrl = webkitURL.createObjectURL(this.response);
+          chrome.notifications.update(notificationId, options, function(wasUpdated) {
+            webkitURL.revokeObjectURL(options.iconUrl);
+            if (wasUpdated) {
+              //update calls onClosed listeners, so restore
+              toastId = notificationId;
+              chrome.notifications.onClosed.addListener(toastClosed);
+              chrome.notifications.onButtonClicked.addListener(toastButtonClicked);
+            }
+          });
+        };
+        toastCoverXhr.send();
+      }
+    });
   }
 }
 
