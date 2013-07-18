@@ -127,10 +127,6 @@
 
 .layout-compact1 {
   $height: 73px;
-  height: $height + 10px;
-  body {
-    height: $height + 10px;
-  }
   #top {
     height: 40px;
   }
@@ -281,14 +277,13 @@
 
 .layout-hbar {
   $height: 30px;
-  height: $height;
-  body {
-    height: $height;
-  }
-  width: 500px;
+  min-width: 500px;
   #top {
     height: $height;
     padding: 0;
+  }
+  #player {
+    width: 500px;
   }
   #cover {
     width: $height - 4px;

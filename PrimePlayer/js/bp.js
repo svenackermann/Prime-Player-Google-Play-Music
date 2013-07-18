@@ -11,10 +11,10 @@ var LOCAL_SETTINGS_DEFAULTS = {
   lastfmSessionName: null,
   syncSettings: false,
   miniplayerSizing: {
-    normal:   { width: 271, height: 116, left: 0, top: 0 },
-    compact1: { width: 271, height: 84, left: 0, top: 0 },
-    compact2: { width: 205, height: 133, left: 0, top: 0 },
-    hbar:     { width: 502, height: 31,  left: 0, top: 0 }
+    normal:   { width: 270, height: 115, left: 0, top: 0 },
+    compact1: { width: 270, height: 83, left: 0, top: 0 },
+    compact2: { width: 200, height: 128, left: 0, top: 0 },
+    hbar:     { width: 500, height: 30,  left: 0, top: 0 }
   }
 }
 var localSettings = new Bean(LOCAL_SETTINGS_DEFAULTS, true);
@@ -550,7 +550,7 @@ function miniplayerClosed(winId) {
 
 /** @return the saved size and position settings for the miniplayer of current type and layout */
 function getMiniplayerSizing() {
-  var addToHeight = {normal: 113, popup: 38, panel: 37, detached_panel: 37};
+  var addToHeight = {normal: 113, popup: 38, panel: 36, detached_panel: 36};
   var addToWidth = {normal: 16, popup: 16, panel: 0, detached_panel: 0};
   var sizing = localSettings.miniplayerSizing[settings.layout];
   return {
