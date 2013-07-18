@@ -87,9 +87,10 @@
   
   #volume {
     @include sprite(12, 0, $size);
-    &.active {
-      @include hoversprite(12, 0, 12, 1, $size);
-    }
+  }
+  
+  .connected #volume {
+    @include hoversprite(12, 0, 12, 1, $size);
   }
   
   #volumeBarContainer {
@@ -162,7 +163,7 @@
     }
     &.thumbs-rating {
       .rating-1, .rating-5 {
-        margin-bottom: 15px;
+        margin-bottom: 10px;
         width: $rate-size-px;
         height: $rate-size-px;
       }
