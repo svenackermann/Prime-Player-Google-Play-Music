@@ -701,7 +701,7 @@ function recordSetting(prop) {
   var value = settings[prop];
   switch (typeof(value)) {
     case "boolean":
-      gaEvent("Settings", prop + (value ? "-On" : "-Off"));
+      gaEvent("Settings", prop + (value ? 1 : 0));
       break;
     case "number":
       gaEvent("Settings", prop, value);

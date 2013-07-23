@@ -277,7 +277,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       return false;
     }).on("click", "div > img", function() {
       var div = $(this).parent();
-      if (div.hasClass("playing")) return false;
+      if (div.hasClass("current")) return false;
       var index = div.data("index");
       startQueueSong(index);
     }).on("click", "a.artist", function() {
