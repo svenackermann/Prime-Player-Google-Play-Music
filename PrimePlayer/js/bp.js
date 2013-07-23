@@ -884,10 +884,32 @@ if (localStorage["updateBackup"] != null) {
   updateBackup = null;
 }
 
+function setVolume(percent) {
+  executeInGoogleMusic("setVolume", {percent: percent});
+}
+
+function setSongPosition(percent) {
+  executeInGoogleMusic("setPosition", {percent: percent});
+}
+
+function isRatingReset(oldRating, newRating) {
+  return oldRating == newRating
+    || (player.ratingMode == "thumbs" && ((oldRating == 2 && newRating == 1) || (oldRating == 4 && newRating == 5)));
+}
+
+function rate(rating) {
+  //auto-love if called by click event, no reset and not loved yet
+  if (settings.linkRatings && rating == 5 && !isRatingReset(song.rating, rating) && song.loved !== true) loveTrack();
+  executeInGoogleMusic("rate", {rating: rating});
+}
+
 chrome.commands.onCommand.addListener(function(command) {
   switch (command) {
     case "playPause":
     case "nextSong":
+    case "prevSong":
+    case "toggleRepeat":
+    case "toggleShuffle":
       executeInGoogleMusic(command);
       break;
     case "openMiniplayer":
@@ -897,6 +919,22 @@ chrome.commands.onCommand.addListener(function(command) {
       if (song.loved === true) unloveTrack()
       else loveTrack(true);
       break;
+    case "volumeUp":
+      if (player.volume != null && player.volume != "100") setVolume(Math.min(100, parseInt(player.volume) + 10) / 100);
+      break;
+    case "volumeDown":
+      if (player.volume != null && player.volume != "0") setVolume(Math.max(0, parseInt(player.volume) - 10) / 100);
+      break;
+    case "volumeMute":
+      if (player.volume != null && player.volume != "0") setVolume(0);
+      break;
+    case "ff":
+      if (song.info && song.info.durationSec > 0) setSongPosition(Math.min(1, (song.positionSec + 15) / song.info.durationSec));
+      break;
+    default:
+      if (command.indexOf("rate-") == 0 && song.info) {
+        rate(parseInt(command.substr(5, 1)));
+      }
   }
 });
 

@@ -44,11 +44,47 @@
     },
     "nextSong": {
       "suggested_key": { "default": "Alt+D" },
-      "description": "Next Song"
+      "description": "Next song"
     },
     "openMiniplayer": {
       "suggested_key": { "default": "Alt+W" },
-      "description": "Open Miniplayer"
+      "description": "Open miniplayer"
+    },
+    "volumeUp": {
+      "description": "Volume up"
+    },
+    "volumeDown": {
+      "description": "Volume down"
+    },
+    "volumeMute": {
+      "description": "Volume mute"
+    },
+    "prevSong": {
+      "description": "Previous song"
+    },
+    "toggleRepeat": {
+      "description": "Toggle repeat"
+    },
+    "toggleShuffle": {
+      "description": "Toggle shuffle"
+    },
+    "ff": {
+      "description": "Fast forward 15 seconds"
+    },
+    "rate-1": {
+      "description": "Rate 1 star/thumbs down"
+    },
+    "rate-2": {
+      "description": "Rate 2 stars"
+    },
+    "rate-3": {
+      "description": "Rate 3 stars"
+    },
+    "rate-4": {
+      "description": "Rate 4 stars"
+    },
+    "rate-5": {
+      "description": "Rate 5 stars/thumbs up"
     }
   }
 }

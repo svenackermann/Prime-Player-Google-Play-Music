@@ -200,13 +200,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#listenNow").removeClass("loading").html(html).find("span, a").each(function() {
       $(this).attr("title", $(this).text());
     });
-    $("#listenNow").find("a").click(function() {
-      selectLink($(this).data("link"));
-      return false;
-    });
-    $("#listenNow").find("img").click(function() {
-      playlistStart($(this).next("a").data("link"));
-    });
   }
   
   function showListenNow() {
@@ -220,6 +213,15 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.player.removeListener("listenNowList", renderListenNow);
     $("#listenNow").hide();
     $("#player").show();
+  }
+  
+  function setupListenNowEvents() {
+    $("#listenNow").on("click", "a", function() {
+      selectLink($(this).data("link"));
+      return false;
+    }).on("click", "img", function() {
+      playlistStart($(this).next("a").data("link"));
+    });
   }
 
   function renderQueue(val) {
@@ -269,7 +271,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       var index = par.parent().data("index");
       var rating = $(this).data("rating");
       var e = bp.player.queue[index];
-      var reset = isReset(e.rating, rating);
+      var reset = bp.isRatingReset(e.rating, rating);
       rateQueueSong(index, rating, reset, e.title, e.artist);
       par.removeClass("rating-" + e.rating);
       e.rating = reset ? 0 : rating;
@@ -303,7 +305,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#googleRating").find("div.rating-container").find("a").click(function() {
       var cl = $(this).attr("class");
       var rating = cl.substr(cl.indexOf("rating-") + 7, 1);
-      rate(rating);
+      bp.rate(rating);
     });
   }
 
@@ -333,17 +335,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function googleMusicExecutor(command) {
     return function() { bp.executeInGoogleMusic(command); };
   }
-
-  function isReset(oldRating, newRating) {
-    return oldRating == newRating
-      || (bp.player.ratingMode == "thumbs" && ((oldRating == 2 && newRating == 1) || (oldRating == 4 && newRating == 5)));
-  }
-  
-  function rate(rating) {
-    //auto-love if called by click event, no reset and not loved yet
-    if (bp.settings.linkRatings && rating == 5 && !isReset(bp.song.rating, rating) && bp.song.loved !== true) bp.loveTrack();
-    bp.executeInGoogleMusic("rate", {rating: rating});
-  }
   
   function rateQueueSong(index, rating, reset, title, artist) {
     if (bp.settings.linkRatings && rating == 5 && !reset) bp.loveTrack(null, { info: { title: title, artist: artist} });
@@ -359,11 +350,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function setSongPosition(event) {
-    bp.executeInGoogleMusic("setPosition", {percent: event.offsetX / $(this).width()});
+    bp.setSongPosition(event.offsetX / $(this).width());
   }
 
   function setVolume(event) {
-    bp.executeInGoogleMusic("setVolume", {percent: event.offsetX / $(this).width()});
+    bp.setVolume(event.offsetX / $(this).width());
   }
 
   function selectLink(link) {
@@ -400,6 +391,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     
     $("#timeBarHolder").click(setSongPosition);
     
+    setupListenNowEvents();
     setupQueueEvents();
     
     bp.localSettings.watch("lastfmSessionName", lastfmUserWatcher);
