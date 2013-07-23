@@ -113,17 +113,30 @@ song.setEqualsFn("info", equalsCurrentSong);
 /** handler for all events that need to update the browser action icon */
 function updateBrowserActionIcon() {
   var path = "img/icon-";
+  var title = chrome.i18n.getMessage("extTitle");
   if (viewUpdateNotifier) {
     path += "updated";
+    title += " - " + chrome.i18n.getMessage("browserActionTitle_updated");
   } else if (googlemusicport == null) {
     path += "notconnected";
   } else if (song.info) {
-    path += player.playing ? "play" : "pause";
-    if (song.scrobbled) path += "-scrobbled";
+    if (player.playing) {
+      path += "play";
+      title += " - " + chrome.i18n.getMessage("browserActionTitle_playing");
+    } else {
+      path += "pause";
+      title += " - " + chrome.i18n.getMessage("browserActionTitle_paused");
+    }
+    if (song.scrobbled) {
+      path += "-scrobbled";
+      title += ", " + chrome.i18n.getMessage("browserActionTitle_scrobbled");
+    }
   } else {
     path += "connected";
+    title += " - " + chrome.i18n.getMessage("browserActionTitle_connected");
   }
   chrome.browserAction.setIcon({path: path + ".png"});
+  chrome.browserAction.setTitle({title: title});
 }
 
 function removeParkedPort(port) {
@@ -800,7 +813,7 @@ song.addListener("position", function(val) {
   song.positionSec = parseSeconds(val);
   if (!song.ff && song.positionSec > oldPos + 5) {
     song.ff = true;
-    song.scrobbleTime = -1;
+    if (settings.disableScrobbleOnFf) song.scrobbleTime = -1;
   } else if (song.ff && song.positionSec <= 5) {//prev pressed or gone back
     song.ff = false;
     calcScrobbleTime();

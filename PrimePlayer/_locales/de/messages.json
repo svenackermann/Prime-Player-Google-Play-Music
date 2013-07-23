@@ -217,5 +217,20 @@
   },
   "updateNotifierText": {
     "message": "Die Erweiterung wurde gerade aktualisiert. \u00D6ffne die Optionen um zu sehen, was es Neues gibt."
+  },
+  "browserActionTitle_updated": {
+    "message": "Wurde aktualisiert"
+  },
+  "browserActionTitle_playing": {
+    "message": "Wiedergabe"
+  },
+  "browserActionTitle_paused": {
+    "message": "Pausiert"
+  },
+  "browserActionTitle_scrobbled": {
+    "message": "Gescrobbelt"
+  },
+  "browserActionTitle_connected": {
+    "message": "Verbunden mit Google Music"
   }
 }
