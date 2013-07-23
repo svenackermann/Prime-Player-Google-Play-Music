@@ -36,6 +36,9 @@
 .color-black {
   @include colorScheme(#242424);
 }
+.color-orange {
+  @include colorScheme(#FB8521);
+}
 
 @mixin playcontrols($size) {
   #playControls {

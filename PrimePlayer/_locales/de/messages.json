@@ -188,6 +188,9 @@
   "setting_color_black": {
     "message": "Schwarz"
   },
+  "setting_color_orange": {
+    "message": "Orange"
+  },
   "lastfmConnectSuccess": {
     "message": "Verbindung erfolgreich"
   },
