@@ -11,10 +11,10 @@ var LOCAL_SETTINGS_DEFAULTS = {
   lastfmSessionName: null,
   syncSettings: false,
   miniplayerSizing: {
-    normal:   { width: 271, height: 116, left: 0, top: 0 },
-    compact1: { width: 271, height: 84, left: 0, top: 0 },
-    compact2: { width: 205, height: 133, left: 0, top: 0 },
-    hbar:     { width: 502, height: 31,  left: 0, top: 0 }
+    normal:   { width: 270, height: 115, left: 0, top: 0 },
+    compact1: { width: 270, height: 83, left: 0, top: 0 },
+    compact2: { width: 200, height: 128, left: 0, top: 0 },
+    hbar:     { width: 500, height: 30,  left: 0, top: 0 }
   }
 }
 var localSettings = new Bean(LOCAL_SETTINGS_DEFAULTS, true);
@@ -84,6 +84,7 @@ var PLAYER_DEFAULTS = {
   playing: false,
   volume: null,
   listenNowList: [],
+  queue: [],
   connected: false
 };
 var player = new Bean(PLAYER_DEFAULTS);
@@ -112,17 +113,30 @@ song.setEqualsFn("info", equalsCurrentSong);
 /** handler for all events that need to update the browser action icon */
 function updateBrowserActionIcon() {
   var path = "img/icon-";
+  var title = chrome.i18n.getMessage("extTitle");
   if (viewUpdateNotifier) {
     path += "updated";
+    title += " - " + chrome.i18n.getMessage("browserActionTitle_updated");
   } else if (googlemusicport == null) {
     path += "notconnected";
   } else if (song.info) {
-    path += player.playing ? "play" : "pause";
-    if (song.scrobbled) path += "-scrobbled";
+    if (player.playing) {
+      path += "play";
+      title += " - " + chrome.i18n.getMessage("browserActionTitle_playing");
+    } else {
+      path += "pause";
+      title += " - " + chrome.i18n.getMessage("browserActionTitle_paused");
+    }
+    if (song.scrobbled) {
+      path += "-scrobbled";
+      title += ", " + chrome.i18n.getMessage("browserActionTitle_scrobbled");
+    }
   } else {
     path += "connected";
+    title += " - " + chrome.i18n.getMessage("browserActionTitle_connected");
   }
   chrome.browserAction.setIcon({path: path + ".png"});
+  chrome.browserAction.setTitle({title: title});
 }
 
 function removeParkedPort(port) {
@@ -215,6 +229,12 @@ function onMessageListener(message) {
 function loadListenNow() {
   if (googlemusicport) {
     googlemusicport.postMessage({type: "getListenNow"});
+  }
+}
+
+function loadQueue() {
+  if (googlemusicport) {
+    googlemusicport.postMessage({type: "getQueue"});
   }
 }
 
@@ -358,23 +378,24 @@ function getLovedInfo() {
   }
 }
 
-function loveTrack(event) {
-  if (localSettings.lastfmSessionKey && song.info) {
-    song.loved = null;
+function loveTrack(event, aSong) {
+  if (aSong == undefined) aSong = song;
+  if (localSettings.lastfmSessionKey && aSong.info) {
+    aSong.loved = null;
     lastfm.track.love({
-        track: song.info.title,
-        artist: song.info.artist
+        track: aSong.info.title,
+        artist: aSong.info.artist
       },
       {
-        success: function(response) { song.loved = true; },
+        success: function(response) { aSong.loved = true; },
         error: function(code, msg) {
-          song.loved = msg;
+          aSong.loved = msg;
           if (code != 9) gaEvent("LastFM", "loveError-" + code);
         }
       }
     );
     //auto-rate if called by click event and not rated yet
-    if (event != null && settings.linkRatings && song.rating == 0) executeInGoogleMusic("rate", {rating: 5});
+    if (event != null && settings.linkRatings && aSong.rating == 0) executeInGoogleMusic("rate", {rating: 5});
   }
 }
 
@@ -550,7 +571,7 @@ function miniplayerClosed(winId) {
 
 /** @return the saved size and position settings for the miniplayer of current type and layout */
 function getMiniplayerSizing() {
-  var addToHeight = {normal: 113, popup: 38, panel: 37, detached_panel: 37};
+  var addToHeight = {normal: 113, popup: 38, panel: 36, detached_panel: 36};
   var addToWidth = {normal: 16, popup: 16, panel: 0, detached_panel: 0};
   var sizing = localSettings.miniplayerSizing[settings.layout];
   return {
@@ -792,10 +813,10 @@ song.addListener("position", function(val) {
   song.positionSec = parseSeconds(val);
   if (!song.ff && song.positionSec > oldPos + 5) {
     song.ff = true;
-    song.scrobbleTime = -1;
+    if (settings.disableScrobbleOnFf) song.scrobbleTime = -1;
   } else if (song.ff && song.positionSec <= 5) {//prev pressed or gone back
     song.ff = false;
-    calcScrobbleTime();
+    if (settings.disableScrobbleOnFf) calcScrobbleTime();
   }
   if (player.playing && song.info && isScrobblingEnabled()) {
     if (!song.nowPlayingSent && song.positionSec >= 3) {

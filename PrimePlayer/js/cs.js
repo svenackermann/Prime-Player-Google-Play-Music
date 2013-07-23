@@ -186,10 +186,10 @@ $(function() {
       var item = {};
       item.cover = card.find(".image-wrapper img").attr("src");
       if (item.cover) item.cover = "http:" + item.cover;
-      item.title = card.find(".title").text();
+      item.title = $.trim(card.find(".title").text());
       item.titleLink = getLink(card);
       var subTitle = card.find(".sub-title");
-      item.subTitle = subTitle.text();
+      item.subTitle = $.trim(subTitle.text());
       item.subTitleLink = getLink(subTitle);
       listenNowList.push(item);
     });
@@ -199,6 +199,30 @@ $(function() {
   function getListenNow() {
     selectLink("now");
     executeAfterContentLoad(sendListenNowList, "#main > .g-content", true);
+  }
+  
+  function sendQueue() {
+    var queue = [];
+    $(".song-row").each(function() {
+      var song = $(this);
+      var item = {};
+      var title = song.find("td[data-col='title'] .content");
+      item.cover = title.find("img").attr("src");
+      if (item.cover) item.cover = "http:" + item.cover;
+      item.title = $.trim(title.text());
+      if (title.find(".song-indicator").length > 0) item.current = true;
+      item.duration = $.trim(song.find("td[data-col='duration']").text());
+      item.artist = $.trim(song.find("td[data-col='artist'] .content").text());
+      if (item.artist) item.artistLink = "ar/" + encodeURIComponent(item.artist);
+      item.rating = parseInt(song.find("td[data-col='rating']").data("rating")) || 0;
+      queue.push(item);
+    });
+    post("player-queue", queue);
+  }
+  
+  function getQueue() {
+    selectLink("ap/queue");
+    executeAfterContentLoad(sendQueue, "#main > .g-content", true);
   }
 
   port = chrome.runtime.connect({name: "googlemusic"});
@@ -221,7 +245,10 @@ $(function() {
         break;
       case "getListenNow":
         getListenNow();
-        return true;
+        break;
+      case "getQueue":
+        getQueue();
+        break;
       case "connected":
         init();
         break;

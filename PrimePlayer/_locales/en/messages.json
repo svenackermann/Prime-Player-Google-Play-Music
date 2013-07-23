@@ -217,5 +217,20 @@
   },
   "updateNotifierText": {
     "message": "The extension just updated. Go to the options page to see what's new."
+  },
+  "browserActionTitle_updated": {
+    "message": "just updated"
+  },
+  "browserActionTitle_playing": {
+    "message": "playing"
+  },
+  "browserActionTitle_paused": {
+    "message": "paused"
+  },
+  "browserActionTitle_scrobbled": {
+    "message": "scrobbled"
+  },
+  "browserActionTitle_connected": {
+    "message": "connected to Google Music"
   }
 }
