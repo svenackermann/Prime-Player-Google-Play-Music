@@ -263,6 +263,7 @@ a {
   > div {
     > img {
       height: 16px;
+      width: 16px;
       border: 1px solid #AAA;
       cursor: pointer;
     }
@@ -308,6 +309,7 @@ a {
   > div {
     overflow: hidden;
     white-space: nowrap;
+    height: 18px;
     > span:first-child {
       width: 50%;
       display: inline-block;

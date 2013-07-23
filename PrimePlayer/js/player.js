@@ -189,18 +189,16 @@ chrome.runtime.getBackgroundPage(function(bp) {
       var e = val[i];
       html += "<div>";
       html += "<img src='" + (e.cover || "img/cover.png") + "'/>";
-      html += "<a href='#' data-link='" + e.titleLink + "' title='" + e.title + "'>" + e.title + "</a>";
-      html += e.subTitleLink ? "<a href='#' data-link='" + e.subTitleLink + "'" : "<span";
-      html += " title='" + e.subTitle + "'>" + e.subTitle + "</";
-      html += e.subTitleLink ? "a>" : "span>";
+      html += "<a href='#' data-link='" + e.titleLink + "'>" + e.title + "</a>";
+      if (e.subTitleLink) {
+        html += "<a href='#' data-link='" + e.subTitleLink + "'>" + e.subTitle + "</a>";
+      } else {
+        html += "<span>" +  e.subTitle + "</span>";
+      }
       html += "</div>";
     }
-    $("#listenNow").removeClass("loading").html(html).find("a").click(function() {
-      selectLink($(this).data("link"));
-      return false;
-    });
-    $("#listenNow").find("img").click(function() {
-      playlistStart($(this).next("a").data("link"));
+    $("#listenNow").removeClass("loading").html(html).find("span, a").each(function() {
+      $(this).attr("title", $(this).text());
     });
   }
   
@@ -216,13 +214,23 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#listenNow").hide();
     $("#player").show();
   }
+  
+  function setupListenNowEvents() {
+    $("#listenNow").on("click", "a", function() {
+      selectLink($(this).data("link"));
+      return false;
+    }).on("click", "img", function() {
+      playlistStart($(this).next("a").data("link"));
+    });
+  }
 
   function renderQueue(val) {
     bp.player.removeListener("queue", renderQueue);
     var html = "";
     var ratingHtml = "";
     if (bp.player.ratingMode == "star") {
-      for (var i = 1; i <= 5; i++) ratingHtml += "<div></div><a href='#' data-rating='" + i + "'></a>";
+      ratingHtml += "<div></div>";
+      for (var i = 1; i <= 5; i++) ratingHtml += "<a href='#' data-rating='" + i + "'></a>";
     } else if (bp.player.ratingMode == "thumbs") {
       ratingHtml = "<a href='#' data-rating='5'></a><a href='#' data-rating='1'></a>";
     }
@@ -231,16 +239,17 @@ chrome.runtime.getBackgroundPage(function(bp) {
       html += "<div data-index='" + i + (e.current ? "' class='current'>" : "'>");
       html += "<img src='" + (e.cover || "img/cover.png") + "'/>";
       html += "<div class='rating-" + e.rating + "'>" + ratingHtml + "</div>";
-      html += "<div><span title='" + e.title + " (" + e.duration + ")'>" + e.title + "</span>";
+      html += "<div><span title=' (" + e.duration + ")'>" + e.title + "</span>";
       if (e.artistLink) {
-        html += "<a class='artist' href='#' title='" + e.artist + "'>" + e.artist + "</a>";
+        html += "<a class='artist' href='#'>" + e.artist + "</a>";
       } else {
-        html += "<span title='" + e.artist + "'>" + e.artist + "</span>";
+        html += "<span>" + e.artist + "</span>";
       }
-      html += "</div>";
-      html += "</div>";
+      html += "</div></div>";
     }
-    $("#queue").removeClass("loading").html(html);
+    $("#queue").removeClass("loading").html(html).find("span, a.artist").each(function() {
+      $(this).attr("title", $(this).text() + ($(this).attr("title") || ""));
+    });
   }
   
   function showQueue() {
@@ -262,7 +271,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       var index = par.parent().data("index");
       var rating = $(this).data("rating");
       var e = bp.player.queue[index];
-      var reset = isReset(e.rating, rating);
+      var reset = bp.isRatingReset(e.rating, rating);
       rateQueueSong(index, rating, reset, e.title, e.artist);
       par.removeClass("rating-" + e.rating);
       e.rating = reset ? 0 : rating;
@@ -270,7 +279,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       return false;
     }).on("click", "div > img", function() {
       var div = $(this).parent();
-      if (div.hasClass("playing")) return false;
+      if (div.hasClass("current")) return false;
       var index = div.data("index");
       startQueueSong(index);
     }).on("click", "a.artist", function() {
@@ -296,7 +305,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#googleRating").find("div.rating-container").find("a").click(function() {
       var cl = $(this).attr("class");
       var rating = cl.substr(cl.indexOf("rating-") + 7, 1);
-      rate(rating);
+      bp.rate(rating);
     });
   }
 
@@ -326,17 +335,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function googleMusicExecutor(command) {
     return function() { bp.executeInGoogleMusic(command); };
   }
-
-  function isReset(oldRating, newRating) {
-    return oldRating == newRating
-      || (bp.player.ratingMode == "thumbs" && ((oldRating == 2 && newRating == 1) || (oldRating == 4 && newRating == 5)));
-  }
-  
-  function rate(rating) {
-    //auto-love if called by click event, no reset and not loved yet
-    if (bp.settings.linkRatings && rating == 5 && !isReset(bp.song.rating, rating) && bp.song.loved !== true) bp.loveTrack();
-    bp.executeInGoogleMusic("rate", {rating: rating});
-  }
   
   function rateQueueSong(index, rating, reset, title, artist) {
     if (bp.settings.linkRatings && rating == 5 && !reset) bp.loveTrack(null, { info: { title: title, artist: artist} });
@@ -352,11 +350,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function setSongPosition(event) {
-    bp.executeInGoogleMusic("setPosition", {percent: event.offsetX / $(this).width()});
+    bp.setSongPosition(event.offsetX / $(this).width());
   }
 
   function setVolume(event) {
-    bp.executeInGoogleMusic("setVolume", {percent: event.offsetX / $(this).width()});
+    bp.setVolume(event.offsetX / $(this).width());
   }
 
   function selectLink(link) {
@@ -393,6 +391,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     
     $("#timeBarHolder").click(setSongPosition);
     
+    setupListenNowEvents();
     setupQueueEvents();
     
     bp.localSettings.watch("lastfmSessionName", lastfmUserWatcher);
