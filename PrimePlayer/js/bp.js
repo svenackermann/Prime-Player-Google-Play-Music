@@ -816,7 +816,7 @@ song.addListener("position", function(val) {
     if (settings.disableScrobbleOnFf) song.scrobbleTime = -1;
   } else if (song.ff && song.positionSec <= 5) {//prev pressed or gone back
     song.ff = false;
-    calcScrobbleTime();
+    if (settings.disableScrobbleOnFf) calcScrobbleTime();
   }
   if (player.playing && song.info && isScrobblingEnabled()) {
     if (!song.nowPlayingSent && song.positionSec >= 3) {
