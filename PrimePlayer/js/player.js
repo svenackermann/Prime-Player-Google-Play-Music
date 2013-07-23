@@ -189,13 +189,18 @@ chrome.runtime.getBackgroundPage(function(bp) {
       var e = val[i];
       html += "<div>";
       html += "<img src='" + (e.cover || "img/cover.png") + "'/>";
-      html += "<a href='#' data-link='" + e.titleLink + "' title='" + e.title + "'>" + e.title + "</a>";
-      html += e.subTitleLink ? "<a href='#' data-link='" + e.subTitleLink + "'" : "<span";
-      html += " title='" + e.subTitle + "'>" + e.subTitle + "</";
-      html += e.subTitleLink ? "a>" : "span>";
+      html += "<a href='#' data-link='" + e.titleLink + "'>" + e.title + "</a>";
+      if (e.subTitleLink) {
+        html += "<a href='#' data-link='" + e.subTitleLink + "'>" + e.subTitle + "</a>";
+      } else {
+        html += "<span>" +  e.subTitle + "</span>";
+      }
       html += "</div>";
     }
-    $("#listenNow").removeClass("loading").html(html).find("a").click(function() {
+    $("#listenNow").removeClass("loading").html(html).find("span, a").each(function() {
+      $(this).attr("title", $(this).text());
+    });
+    $("#listenNow").find("a").click(function() {
       selectLink($(this).data("link"));
       return false;
     });
@@ -222,7 +227,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var html = "";
     var ratingHtml = "";
     if (bp.player.ratingMode == "star") {
-      for (var i = 1; i <= 5; i++) ratingHtml += "<div></div><a href='#' data-rating='" + i + "'></a>";
+      ratingHtml += "<div></div>";
+      for (var i = 1; i <= 5; i++) ratingHtml += "<a href='#' data-rating='" + i + "'></a>";
     } else if (bp.player.ratingMode == "thumbs") {
       ratingHtml = "<a href='#' data-rating='5'></a><a href='#' data-rating='1'></a>";
     }
@@ -231,16 +237,17 @@ chrome.runtime.getBackgroundPage(function(bp) {
       html += "<div data-index='" + i + (e.current ? "' class='current'>" : "'>");
       html += "<img src='" + (e.cover || "img/cover.png") + "'/>";
       html += "<div class='rating-" + e.rating + "'>" + ratingHtml + "</div>";
-      html += "<div><span title='" + e.title + " (" + e.duration + ")'>" + e.title + "</span>";
+      html += "<div><span title=' (" + e.duration + ")'>" + e.title + "</span>";
       if (e.artistLink) {
-        html += "<a class='artist' href='#' title='" + e.artist + "'>" + e.artist + "</a>";
+        html += "<a class='artist' href='#'>" + e.artist + "</a>";
       } else {
-        html += "<span title='" + e.artist + "'>" + e.artist + "</span>";
+        html += "<span>" + e.artist + "</span>";
       }
-      html += "</div>";
-      html += "</div>";
+      html += "</div></div>";
     }
-    $("#queue").removeClass("loading").html(html);
+    $("#queue").removeClass("loading").html(html).find("span, a.artist").each(function() {
+      $(this).attr("title", $(this).text() + ($(this).attr("title") || ""));
+    });
   }
   
   function showQueue() {
