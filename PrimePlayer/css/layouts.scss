@@ -161,47 +161,47 @@
       width: $rate-size-px;
       top: 0;
     }
-    &.thumbs-rating {
-      .rating-1, .rating-5 {
-        margin-bottom: 10px;
-        width: $rate-size-px;
-        height: $rate-size-px;
-      }
-      .rating-1 {
-        @include hoversprite(1, 0, 1, 1, $rate-size);
-      }
-      .rating-5 {
-        @include hoversprite(0, 0, 0, 1, $rate-size);
-      }
-      &.rating-1 .rating-1 {
-        @include hoversprite(1, 2, 1, 3, $rate-size);
-      }
-      &.rating-5 .rating-5 {
-        @include hoversprite(0, 2, 0, 3, $rate-size);
-      }
-    }
-    &.star-rating {
-      position: relative;
+  }
+  .thumbs-rating #googleRating {
+    .rating-1, .rating-5 {
+      margin-bottom: 10px;
       width: $rate-size-px;
-      height: #{$rate-size * 5}px;
+      height: $rate-size-px;
+    }
+    .rating-1 {
+      @include hoversprite(1, 0, 1, 1, $rate-size);
+    }
+    .rating-5 {
+      @include hoversprite(0, 0, 0, 1, $rate-size);
+    }
+    &.rating-1 .rating-1, &.rating-2 .rating-1 {
+      @include hoversprite(1, 2, 1, 3, $rate-size);
+    }
+    &.rating-4 .rating-5, &.rating-5 .rating-5 {
+      @include hoversprite(0, 2, 0, 3, $rate-size);
+    }
+  }
+  .star-rating #googleRating {
+    position: relative;
+    width: $rate-size-px;
+    height: #{$rate-size * 5}px;
+    background-repeat: repeat-y;
+    background-size: $rate-size-px;
+    .user-rating {
       background-repeat: repeat-y;
       background-size: $rate-size-px;
-      .user-rating {
-        background-repeat: repeat-y;
-        background-size: $rate-size-px;
+    }
+    @for $i from 0 through 5 {
+      .rating-#{$i}, &.rating-#{$i} .user-rating {
+        height: 20% * $i;
+        width: $rate-size-px;
+        position: absolute;
+        bottom: 0;
       }
-      @for $i from 0 through 5 {
-        .rating-#{$i}, &.rating-#{$i} .user-rating {
-          height: 20% * $i;
-          width: $rate-size-px;
-          position: absolute;
-          bottom: 0;
-        }
-      }
-      .rating-container > a:hover {
-        background-repeat: repeat-y;
-        background-size: $rate-size-px;
-      }
+    }
+    .rating-container > a:hover {
+      background-repeat: repeat-y;
+      background-size: $rate-size-px;
     }
   }
   #lastfmRating {

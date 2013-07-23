@@ -252,7 +252,7 @@ a {
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
 }
 
-#listenNow {
+#listenNow, #queue {
   display: none;
   height: 95%;
   padding: 2px;
@@ -269,16 +269,121 @@ a {
     > img:hover {
       opacity: 0.5;
     }
-    > a, > span {
-      width: 40%;
+  }
+}
+
+#listenNow > div {
+  > a, > span {
+    width: 40%;
+  }
+  > span {
+    color: #888;
+  }
+  > a, > span {
+    display: inline-block;
+    margin-left: 4px;
+    vertical-align: top;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+}
+
+#queue > div {
+  height: 18px;
+  &.current {
+    background: url(../img/paused.png) no-repeat;
+    background-size: 18px;
+    > img {
+      cursor: default;
+      opacity: 0.2;
+      :hover {
+        opacity: 0.2;
+      }
+    }
+  }
+  > img {
+    float: left;
+    margin-right: 4px;
+  }
+  > div {
+    overflow: hidden;
+    white-space: nowrap;
+    > span:first-child {
+      width: 50%;
       display: inline-block;
-      margin-left: 4px;
-      vertical-align: top;
+      margin-right: 4px;
+    }
+    > span, > a {
       overflow: hidden;
       white-space: nowrap;
     }
-    > span {
-      color: #888;
+  }
+  a[data-rating] {
+    width: 12px;
+    height: 12px;
+    display: inline-block;
+    background-size: 12px;
+  }
+  @for $i from 0 through 5 {
+    div.rating-#{$i} {
+      float: right;
+      height: 12px;
+      margin-left: 4px;
+    }
+  }
+}
+
+.playing #queue > div.current {
+  background-image: url(../img/playing.gif);
+}
+
+.thumbs-rating #queue > div {
+  a[data-rating='1'] {
+    &:hover {
+      @include sprite(1, 3, 12);
+    }
+  }
+  a[data-rating='5'] {
+    &:hover {
+      @include sprite(0, 3, 12);
+    }
+  }
+  div.rating-1 a[data-rating='1'], div.rating-2 a[data-rating='1'] {
+    @include sprite(1, 2, 12);
+  }
+  div.rating-4 a[data-rating='5'], div.rating-5 a[data-rating='5'] {
+    @include sprite(0, 2, 12);
+  }
+}
+
+.star-rating #queue > div {
+  a[data-rating] {
+    background-repeat: repeat-x;
+    position: absolute;
+    top: 0;
+    &:hover {
+      background-image: url(../img/star-hover.png);
+    }
+  }
+  div.rating-0 {
+    position: relative;
+    width: 60px;
+  }
+  @for $i from 1 through 5 {
+    div.rating-#{$i} {
+      position: relative;
+      width: 60px;
+      > div {
+        width: 12px * $i;
+        height: 12px;
+        background-image: url(../img/star-background.png);
+        background-size: 12px;
+        background-repeat: repeat-x;
+      }
+    }
+    a[data-rating='#{$i}'] {
+      width: 12px * $i;
+      z-index: 7-$i;
     }
   }
 }
@@ -324,57 +429,59 @@ a {
   .user-rating {
     display: none;
   }
-  &.thumbs-rating {
+}
+
+.thumbs-rating #googleRating {
+  display: block;
+  .rating-1, .rating-5 {
     display: block;
-    .rating-1, .rating-5 {
-      display: block;
-      width: 16px;
-      height: 16px;
-      margin-right: 10px;
-      float: left;
-    }
-    .rating-1 {
-      @include hoversprite(1, 0, 1, 1, 16);
-    }
-    .rating-5 {
-      @include hoversprite(0, 0, 0, 1, 16);
-    }
-    &.rating-1 .rating-1 {
-      @include hoversprite(1, 2, 1, 3, 16);
-    }
-    &.rating-5 .rating-5 {
-      @include hoversprite(0, 2, 0, 3, 16);
-    }
-  }
-  &.star-rating {
-    width: 80px;
+    width: 16px;
     height: 16px;
-    background: repeat-x url(../img/star-background.png);
+    margin-right: 10px;
+    float: left;
+  }
+  .rating-1 {
+    @include hoversprite(1, 0, 1, 1, 16);
+  }
+  .rating-5 {
+    @include hoversprite(0, 0, 0, 1, 16);
+  }
+  &.rating-1 .rating-1, &.rating-2 .rating-1 {
+    @include hoversprite(1, 2, 1, 3, 16);
+  }
+  &.rating-4 .rating-5, &.rating-5 .rating-5 {
+    @include hoversprite(0, 2, 0, 3, 16);
+  }
+}
+
+.star-rating #googleRating {
+  width: 80px;
+  height: 16px;
+  background: repeat-x url(../img/star-background.png);
+  display: block;
+  .user-rating {
+    background: repeat-x url(../img/star-active.png);
+    height: inherit;
     display: block;
-    .user-rating {
-      background: repeat-x url(../img/star-active.png);
-      height: inherit;
+  }
+  @for $i from 0 through 5 {
+    .rating-#{$i}, &.rating-#{$i} .user-rating { width: 20% * $i; }
+  }
+  .rating-container {
+    position: relative;
+    top: -16px;
+    width: 80px;
+    height: inherit;
+    > a {
       display: block;
-    }
-    @for $i from 0 through 5 {
-      .rating-#{$i}, &.rating-#{$i} .user-rating { width: 20% * $i; }
-    }
-    .rating-container {
-      position: relative;
-      top: -16px;
-      width: 80px;
+      position: absolute;
       height: inherit;
-      > a {
-        display: block;
-        position: absolute;
-        height: inherit;
-        &:hover {
-          background: repeat-x url(../img/star-hover.png);
-        }
-        @for $i from 1 through 5 {
-          &.rating-#{$i} {
-            z-index: 7-$i;
-          }
+      &:hover {
+        background: repeat-x url(../img/star-hover.png);
+      }
+      @for $i from 1 through 5 {
+        &.rating-#{$i} {
+          z-index: 7-$i;
         }
       }
     }

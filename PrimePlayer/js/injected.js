@@ -29,10 +29,41 @@
     }
   }
   
-  function rate(n) {
-    var lis = document.getElementById("player-right-wrapper").getElementsByClassName("rating-container")[0].getElementsByTagName("li");
+  function getQueueCol(index, col) {
+    if (location.hash != "#/ap/queue") return null;
+    var row = document.getElementsByClassName("song-row")[index];
+    var tds = row.getElementsByTagName("td");
+    for (var i = 0; i < tds.length; i++) {
+      if (tds[i].dataset.col == col) return tds[i];
+    }
+    return null;
+  }
+  
+  function startQueueSong(index) {
+    var col = getQueueCol(index, "title");
+    if (col) {
+      var span = col.getElementsByClassName("content")[0];
+      dispatchMouseEvent(span, "mouseover");
+      setTimeout(function() {
+        simClick(span.getElementsByClassName("hover-button")[0]);
+      }, 250);
+    }
+  }
+  
+  function rateQueueSong(index, rating) {
+    var col = getQueueCol(index, "rating");
+    if (col) {
+      dispatchMouseEvent(col, "mouseover");
+      setTimeout(function() {
+        rate(col, rating);
+      }, 250);
+    }
+  }
+  
+  function rate(parent, rating) {
+    var lis = parent.getElementsByClassName("rating-container")[0].getElementsByTagName("li");
     for (var i = 0; i < lis.length; i++) {
-      if (lis[i].dataset.rating == n) {
+      if (lis[i].dataset.rating == rating) {
         simClick(lis[i]);
         break;
       }
@@ -62,7 +93,7 @@
         SJBpost(event.data.command);
         break;
       case "rate":
-        rate(event.data.options.rating);
+        rate(document.getElementById("player-right-wrapper"), event.data.options.rating);
         break;
       case "startPlaylist":
         startPlaylist();
@@ -75,6 +106,12 @@
         break;
       case "clickCard":
         clickCard(event.data.options.id);
+        break;
+      case "startQueueSong":
+        startQueueSong(event.data.options.index);
+        break;
+      case "rateQueueSong":
+        rateQueueSong(event.data.options.index, event.data.options.rating);
         break;
       case "cleanup":
         cleanup();

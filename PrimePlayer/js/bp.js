@@ -84,6 +84,7 @@ var PLAYER_DEFAULTS = {
   playing: false,
   volume: null,
   listenNowList: [],
+  queue: [],
   connected: false
 };
 var player = new Bean(PLAYER_DEFAULTS);
@@ -215,6 +216,12 @@ function onMessageListener(message) {
 function loadListenNow() {
   if (googlemusicport) {
     googlemusicport.postMessage({type: "getListenNow"});
+  }
+}
+
+function loadQueue() {
+  if (googlemusicport) {
+    googlemusicport.postMessage({type: "getQueue"});
   }
 }
 
@@ -358,23 +365,24 @@ function getLovedInfo() {
   }
 }
 
-function loveTrack(event) {
-  if (localSettings.lastfmSessionKey && song.info) {
-    song.loved = null;
+function loveTrack(event, aSong) {
+  if (aSong == undefined) aSong = song;
+  if (localSettings.lastfmSessionKey && aSong.info) {
+    aSong.loved = null;
     lastfm.track.love({
-        track: song.info.title,
-        artist: song.info.artist
+        track: aSong.info.title,
+        artist: aSong.info.artist
       },
       {
-        success: function(response) { song.loved = true; },
+        success: function(response) { aSong.loved = true; },
         error: function(code, msg) {
-          song.loved = msg;
+          aSong.loved = msg;
           if (code != 9) gaEvent("LastFM", "loveError-" + code);
         }
       }
     );
     //auto-rate if called by click event and not rated yet
-    if (event != null && settings.linkRatings && song.rating == 0) executeInGoogleMusic("rate", {rating: 5});
+    if (event != null && settings.linkRatings && aSong.rating == 0) executeInGoogleMusic("rate", {rating: 5});
   }
 }
 
