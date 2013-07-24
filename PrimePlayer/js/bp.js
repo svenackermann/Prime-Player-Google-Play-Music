@@ -904,6 +904,7 @@ function isRatingReset(oldRating, newRating) {
 }
 
 function rate(rating) {
+  if (song.rating < 0) return;//negative ratings cannot be changed
   //auto-love if called by click event, no reset and not loved yet
   if (settings.linkRatings && rating == 5 && !isRatingReset(song.rating, rating) && song.loved !== true) loveTrack();
   executeInGoogleMusic("rate", {rating: rating});

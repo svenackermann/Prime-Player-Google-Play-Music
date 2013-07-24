@@ -326,12 +326,15 @@ a {
     display: inline-block;
     background-size: 12px;
   }
-  @for $i from 0 through 5 {
+  @for $i from -1 through 5 {
     div.rating-#{$i} {
       float: right;
       height: 12px;
       margin-left: 4px;
     }
+  }
+  div.rating--1 {
+    visibility: hidden;
   }
 }
 
@@ -367,7 +370,7 @@ a {
       background-image: url(../img/star-hover.png);
     }
   }
-  div.rating-0 {
+  div.rating-0, div.rating--1 {
     position: relative;
     width: 60px;
   }
@@ -430,6 +433,9 @@ a {
   }
   .user-rating {
     display: none;
+  }
+  &.rating--1 {
+    visibility: hidden;
   }
 }
 
