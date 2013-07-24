@@ -25,6 +25,12 @@ $(function() {
     return null;
   }
   
+  function parseCover(el) {
+    var cover = el.attr("src");
+    if (cover && cover.indexOf("http") != 0) cover = "https:" + cover;
+    return cover;
+  }
+  
   /**
    * Execute a function after DOM manipulation on selected elements is finished.
    * @param fn function to execute, gets the jQuery object for the selector as parameter
@@ -78,8 +84,7 @@ $(function() {
       if (hasSong) {
         var artist = $("#player-artist");
         var album = $("#playerSongInfo").find(".player-album");
-        var cover = $("#playingAlbumArt").attr("src");
-        if (cover) cover = "http:" + cover;
+        var cover = parseCover($("#playingAlbumArt"));
         info = {
           duration: $.trim($("#time_container_duration").text()),
           title: $("#playerSongTitle").text(),
@@ -184,8 +189,7 @@ $(function() {
     $(".card").each(function() {
       var card = $(this);
       var item = {};
-      item.cover = card.find(".image-wrapper img").attr("src");
-      if (item.cover) item.cover = "http:" + item.cover;
+      item.cover = parseCover(card.find(".image-wrapper img"));
       item.title = $.trim(card.find(".title").text());
       item.titleLink = getLink(card);
       var subTitle = card.find(".sub-title");
@@ -207,8 +211,7 @@ $(function() {
       var song = $(this);
       var item = {};
       var title = song.find("td[data-col='title'] .content");
-      item.cover = title.find("img").attr("src");
-      if (item.cover) item.cover = "http:" + item.cover;
+      item.cover = parseCover(title.find("img"));
       item.title = $.trim(title.text());
       if (title.find(".song-indicator").length > 0) item.current = true;
       item.duration = $.trim(song.find("td[data-col='duration']").text());
