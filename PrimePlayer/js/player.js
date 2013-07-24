@@ -302,7 +302,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function setupGoogleRating() {
-    $("#googleRating").find("div.rating-container").find("a").click(function() {
+    $("#googleRating").find("div.rating-container").on("click", "a", function() {
       var cl = $(this).attr("class");
       var rating = cl.substr(cl.indexOf("rating-") + 7, 1);
       bp.rate(rating);
@@ -367,7 +367,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("head > title").first().text(chrome.i18n.getMessage("extTitle"));
     
     setupGoogleRating();
-    
     renderPlayControls();
     
     $("#miniplayerlink")

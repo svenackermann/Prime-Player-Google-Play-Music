@@ -818,6 +818,11 @@ song.addListener("position", function(val) {
     song.ff = false;
     if (settings.disableScrobbleOnFf) calcScrobbleTime();
   }
+  if (song.positionSec == 0) {//when repeat-single is active, song.info does not change
+    song.nowPlayingSent = false;
+    song.scrobbled = false;
+    song.timestamp = Math.round(new Date().getTime() / 1000);
+  }
   if (player.playing && song.info && isScrobblingEnabled()) {
     if (!song.nowPlayingSent && song.positionSec >= 3) {
       song.nowPlayingSent = true;
@@ -828,7 +833,7 @@ song.addListener("position", function(val) {
     }
   }
 });
-song.addListener("info", function(val) {
+song.addListener("info", function(val, old) {
   song.nowPlayingSent = false;
   song.scrobbled = false;
   song.toasted = false;
@@ -838,13 +843,14 @@ song.addListener("info", function(val) {
     song.timestamp = Math.round(new Date().getTime() / 1000);
     if (player.playing) toastPopup();
     getLovedInfo();
+    if (old == null) updateBrowserActionIcon();
   } else {
     song.timestamp = 0;
     closeToast();
     song.loved = null;
+    updateBrowserActionIcon();
   }
   calcScrobbleTime();
-  updateBrowserActionIcon();
 });
 
 function reloadForUpdate() {
@@ -898,6 +904,7 @@ function isRatingReset(oldRating, newRating) {
 }
 
 function rate(rating) {
+  if (song.rating < 0) return;//negative ratings cannot be changed
   //auto-love if called by click event, no reset and not loved yet
   if (settings.linkRatings && rating == 5 && !isRatingReset(song.rating, rating) && song.loved !== true) loveTrack();
   executeInGoogleMusic("rate", {rating: rating});
