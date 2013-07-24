@@ -94,6 +94,9 @@
   
   .connected #volume {
     @include hoversprite(12, 0, 12, 1, $size);
+    &.muted {
+      @include hoversprite(12, 2, 12, 3, $size);
+    }
   }
   
   #volumeBarContainer {

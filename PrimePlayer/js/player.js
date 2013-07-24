@@ -155,6 +155,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("#volumeBarContainer").hide();
     } else {
       $("#volumeBar").css({width: val + "%"});
+      $("#volume").toggleClass("muted", val == "0");
     }
   }
   
