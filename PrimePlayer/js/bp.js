@@ -59,6 +59,8 @@ var parkedPorts = [];
 var viewUpdateNotifier = localStorage["viewUpdateNotifier"] || false;
 /** the previous version, if we just updated (set in onInstalled event listener, used by options page) */
 var previousVersion = localStorage["previousVersion"];
+/** the volume before mute for restoring */
+var volumeBeforeMute;
 
 /** the song currently loaded */
 var SONG_DEFAULTS = {
@@ -933,7 +935,15 @@ chrome.commands.onCommand.addListener(function(command) {
       if (player.volume != null && player.volume != "0") setVolume(Math.max(0, parseInt(player.volume) - 10) / 100);
       break;
     case "volumeMute":
-      if (player.volume != null && player.volume != "0") setVolume(0);
+      if (player.volume != null) {
+        if (volumeBeforeMute != null && player.volume == "0") {
+          setVolume(parseInt(volumeBeforeMute) / 100);
+          volumeBeforeMute = null;
+        } else if (player.volume != "0") {
+          volumeBeforeMute = player.volume;
+          setVolume(0);
+        }
+      }
       break;
     case "ff":
       if (song.info && song.info.durationSec > 0) setSongPosition(Math.min(1, (song.positionSec + 15) / song.info.durationSec));
