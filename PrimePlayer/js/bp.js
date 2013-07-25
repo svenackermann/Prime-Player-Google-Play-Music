@@ -865,6 +865,7 @@ function reloadForUpdate() {
   backup.songFf = song.ff;
   backup.songPosition = song.position;
   backup.songInfo = song.info;
+  backup.volumeBeforeMute = volumeBeforeMute;
   localStorage["updateBackup"] = JSON.stringify(backup);
   //sometimes the onDisconnect listener in the content script is not triggered on reload(), so explicitely disconnect here
   if (googlemusicport) {
@@ -888,6 +889,7 @@ if (localStorage["updateBackup"] != null) {
   song.scrobbled = updateBackup.scrobbled;
   song.toasted = updateBackup.toasted;
   song.timestamp = updateBackup.songTimestamp;
+  volumeBeforeMute = backup.volumeBeforeMute;
   if (updateBackup.miniplayerOpen) openMiniplayer();
   updateBackup = null;
 }
