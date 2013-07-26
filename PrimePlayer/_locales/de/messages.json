@@ -215,6 +215,9 @@
   "setting_updateNotifier": {
     "message": "Bei Aktualisierungen benachrichtigen (Symbol wird orange)"
   },
+  "setting_iconStyle": {
+    "message": "Stil des Browser-Symbols"
+  },
   "updateNotifierTitle": {
     "message": "Prime Player wurde aktualisiert"
   },
@@ -223,9 +226,6 @@
   },
   "browserActionTitle_updated": {
     "message": "Wurde aktualisiert"
-  },
-  "browserActionTitle_playing": {
-    "message": "Wiedergabe"
   },
   "browserActionTitle_paused": {
     "message": "Pausiert"

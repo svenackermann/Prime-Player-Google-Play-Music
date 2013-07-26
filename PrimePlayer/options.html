@@ -66,6 +66,17 @@
     </fieldset>
     <fieldset>
       <legend id="legendLf"></legend>
+      <div class="v-1.10" id="iconStyle">
+        <label></label>
+        <input type="radio" name="iconStyle" value="default"/>
+        <img src="img/default/connected.png"/>
+        <input type="radio" name="iconStyle" value="grey"/>
+        <img src="img/grey/connected.png"/>
+        <input type="radio" name="iconStyle" value="phones"/>
+        <img src="img/phones/connected.png"/>
+        <input type="radio" name="iconStyle" value="phones-grey"/>
+        <img src="img/phones-grey/connected.png"/>
+      </div>
       <div>
         <select id="miniplayerType">
           <option value="normal"></option>
@@ -144,6 +155,13 @@
     </div>
     <div id="changelog">
       <h2>Changelog</h2>
+      <div class="v-1.10">
+        <ul>
+          <li>Option to change the browser icon style</li>
+          <li>Show song info in browser action hint</li>
+          <li>Improved volume mute (different icon in miniplayer, unmute when muted)</li>
+        </ul>
+      </div>
       <div class="v-1.9.2">
         <ul>
           <li>Fixed layout issue in queue list for radio station songs (thanks to Gregor Smith)</li>

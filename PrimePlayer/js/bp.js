@@ -37,6 +37,7 @@ var SETTINGS_DEFAULTS = {
   iconClickConnect: false,
   openGoogleMusicPinned: false,
   updateNotifier: true,
+  iconStyle: "default",
   gaEnabled: true
 };
 var settings = new Bean(SETTINGS_DEFAULTS, true);
@@ -59,6 +60,8 @@ var parkedPorts = [];
 var viewUpdateNotifier = localStorage["viewUpdateNotifier"] || false;
 /** the previous version, if we just updated (set in onInstalled event listener, used by options page) */
 var previousVersion = localStorage["previousVersion"];
+/** the volume before mute for restoring */
+var volumeBeforeMute;
 
 /** the song currently loaded */
 var SONG_DEFAULTS = {
@@ -110,9 +113,9 @@ function equalsCurrentSong(info, old) {
 }
 song.setEqualsFn("info", equalsCurrentSong);
 
-/** handler for all events that need to update the browser action icon */
-function updateBrowserActionIcon() {
-  var path = "img/icon-";
+/** handler for all events that need to update the browser action icon/title */
+function updateBrowserActionInfo() {
+  var path = "img/" + settings.iconStyle + "/";
   var title = chrome.i18n.getMessage("extTitle");
   if (viewUpdateNotifier) {
     path += "updated";
@@ -120,16 +123,16 @@ function updateBrowserActionIcon() {
   } else if (googlemusicport == null) {
     path += "notconnected";
   } else if (song.info) {
+    title = song.info.artist + " - " + song.info.title
     if (player.playing) {
       path += "play";
-      title += " - " + chrome.i18n.getMessage("browserActionTitle_playing");
     } else {
       path += "pause";
-      title += " - " + chrome.i18n.getMessage("browserActionTitle_paused");
+      title += " (" + chrome.i18n.getMessage("browserActionTitle_paused") + ")";
     }
     if (song.scrobbled) {
       path += "-scrobbled";
-      title += ", " + chrome.i18n.getMessage("browserActionTitle_scrobbled");
+      title += " (" + chrome.i18n.getMessage("browserActionTitle_scrobbled") + ")";
     }
   } else {
     path += "connected";
@@ -156,7 +159,7 @@ function connectPort(port) {
   iconClickSettingsChanged();
   port.onMessage.addListener(onMessageListener);
   port.onDisconnect.addListener(onDisconnectListener);
-  updateBrowserActionIcon();
+  updateBrowserActionInfo();
   player.connected = true;
 }
 
@@ -210,7 +213,7 @@ function onDisconnectListener() {
     }
   }
   
-  if (googlemusicport == null) updateBrowserActionIcon();//disconnected
+  if (googlemusicport == null) updateBrowserActionInfo();//disconnected
 }
 
 /** handler for messages from connected port - set song or player state */
@@ -650,7 +653,7 @@ function updatedListener(details) {
       viewUpdateNotifier = true;
       localStorage["viewUpdateNotifier"] = viewUpdateNotifier;
       iconClickSettingsChanged();
-      updateBrowserActionIcon();
+      updateBrowserActionInfo();
     } else {
       previousVersion = null;
     }
@@ -669,7 +672,7 @@ function updateNotifierDone() {
   viewUpdateNotifier = false;
   localStorage.removeItem("viewUpdateNotifier");
   iconClickSettingsChanged();
-  updateBrowserActionIcon();
+  updateBrowserActionInfo();
 }
 
 /** send a command to the connected Google Music port */
@@ -798,6 +801,7 @@ settings.addListener("scrobbleMaxDuration", calcScrobbleTime);
 settings.addListener("scrobblePercent", calcScrobbleTime);
 settings.addListener("scrobbleTime", calcScrobbleTime);
 settings.addListener("disableScrobbleOnFf", calcScrobbleTime);
+settings.watch("iconStyle", updateBrowserActionInfo);
 
 localSettings.watch("syncSettings", function(val) {
   settings.setSyncStorage(val, function() {
@@ -806,8 +810,8 @@ localSettings.watch("syncSettings", function(val) {
 });
 localSettings.addListener("lastfmSessionName", calcScrobbleTime);
 
-player.addListener("playing", updateBrowserActionIcon);
-song.addListener("scrobbled", updateBrowserActionIcon);
+player.addListener("playing", updateBrowserActionInfo);
+song.addListener("scrobbled", updateBrowserActionInfo);
 song.addListener("position", function(val) {
   var oldPos = song.positionSec;
   song.positionSec = parseSeconds(val);
@@ -843,12 +847,12 @@ song.addListener("info", function(val, old) {
     song.timestamp = Math.round(new Date().getTime() / 1000);
     if (player.playing) toastPopup();
     getLovedInfo();
-    if (old == null) updateBrowserActionIcon();
+    if (old == null) updateBrowserActionInfo();
   } else {
     song.timestamp = 0;
     closeToast();
     song.loved = null;
-    updateBrowserActionIcon();
+    updateBrowserActionInfo();
   }
   calcScrobbleTime();
 });
@@ -863,6 +867,7 @@ function reloadForUpdate() {
   backup.songFf = song.ff;
   backup.songPosition = song.position;
   backup.songInfo = song.info;
+  backup.volumeBeforeMute = volumeBeforeMute;
   localStorage["updateBackup"] = JSON.stringify(backup);
   //sometimes the onDisconnect listener in the content script is not triggered on reload(), so explicitely disconnect here
   if (googlemusicport) {
@@ -886,6 +891,7 @@ if (localStorage["updateBackup"] != null) {
   song.scrobbled = updateBackup.scrobbled;
   song.toasted = updateBackup.toasted;
   song.timestamp = updateBackup.songTimestamp;
+  volumeBeforeMute = backup.volumeBeforeMute;
   if (updateBackup.miniplayerOpen) openMiniplayer();
   updateBackup = null;
 }
@@ -933,7 +939,15 @@ chrome.commands.onCommand.addListener(function(command) {
       if (player.volume != null && player.volume != "0") setVolume(Math.max(0, parseInt(player.volume) - 10) / 100);
       break;
     case "volumeMute":
-      if (player.volume != null && player.volume != "0") setVolume(0);
+      if (player.volume != null) {
+        if (volumeBeforeMute != null && player.volume == "0") {
+          setVolume(parseInt(volumeBeforeMute) / 100);
+          volumeBeforeMute = null;
+        } else if (player.volume != "0") {
+          volumeBeforeMute = player.volume;
+          setVolume(0);
+        }
+      }
       break;
     case "ff":
       if (song.info && song.info.durationSec > 0) setSongPosition(Math.min(1, (song.positionSec + 15) / song.info.durationSec));

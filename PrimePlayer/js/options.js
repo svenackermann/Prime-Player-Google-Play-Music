@@ -129,6 +129,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
       .click(function() { bp.localSettings.syncSettings = !bp.localSettings.syncSettings })
       .parent().find("label").text(chrome.i18n.getMessage("setting_syncSettings"));
   }
+  
+  function initIconStyle() {
+    $("#iconStyle").find("label").text(chrome.i18n.getMessage("setting_iconStyle"));
+    $("#iconStyle").find("input[value='" + bp.settings.iconStyle + "']").prop("checked", true);
+    $("#iconStyle").find("input").click(stringUpdater("iconStyle"));
+  }
 
   /** @return version from a class attribute (e.g. for an element with class "abc v-1.2.3 def" this returns "1.2.3") */
   function extractVersionFromClass(el) {
@@ -172,6 +178,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("toastUseMpStyle").click(toastChanged);
     initHint("toastUseMpStyle");
     initNumberInput("toastDuration");
+    initIconStyle();
     initSelect("miniplayerType");
     initHint("miniplayerType");
     initSelect("layout");
