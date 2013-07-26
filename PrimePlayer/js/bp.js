@@ -37,6 +37,7 @@ var SETTINGS_DEFAULTS = {
   iconClickConnect: false,
   openGoogleMusicPinned: false,
   updateNotifier: true,
+  iconStyle: "default",
   gaEnabled: true
 };
 var settings = new Bean(SETTINGS_DEFAULTS, true);
@@ -114,7 +115,7 @@ song.setEqualsFn("info", equalsCurrentSong);
 
 /** handler for all events that need to update the browser action icon/title */
 function updateBrowserActionInfo() {
-  var path = "img/icon-";
+  var path = "img/" + settings.iconStyle + "/";
   var title = chrome.i18n.getMessage("extTitle");
   if (viewUpdateNotifier) {
     path += "updated";
@@ -800,6 +801,7 @@ settings.addListener("scrobbleMaxDuration", calcScrobbleTime);
 settings.addListener("scrobblePercent", calcScrobbleTime);
 settings.addListener("scrobbleTime", calcScrobbleTime);
 settings.addListener("disableScrobbleOnFf", calcScrobbleTime);
+settings.watch("iconStyle", updateBrowserActionInfo);
 
 localSettings.watch("syncSettings", function(val) {
   settings.setSyncStorage(val, function() {
