@@ -112,8 +112,8 @@ function equalsCurrentSong(info, old) {
 }
 song.setEqualsFn("info", equalsCurrentSong);
 
-/** handler for all events that need to update the browser action icon */
-function updateBrowserActionIcon() {
+/** handler for all events that need to update the browser action icon/title */
+function updateBrowserActionInfo() {
   var path = "img/icon-";
   var title = chrome.i18n.getMessage("extTitle");
   if (viewUpdateNotifier) {
@@ -122,16 +122,16 @@ function updateBrowserActionIcon() {
   } else if (googlemusicport == null) {
     path += "notconnected";
   } else if (song.info) {
+    title = song.info.artist + " - " + song.info.title
     if (player.playing) {
       path += "play";
-      title += " - " + chrome.i18n.getMessage("browserActionTitle_playing");
     } else {
       path += "pause";
-      title += " - " + chrome.i18n.getMessage("browserActionTitle_paused");
+      title += " (" + chrome.i18n.getMessage("browserActionTitle_paused") + ")";
     }
     if (song.scrobbled) {
       path += "-scrobbled";
-      title += ", " + chrome.i18n.getMessage("browserActionTitle_scrobbled");
+      title += " (" + chrome.i18n.getMessage("browserActionTitle_scrobbled") + ")";
     }
   } else {
     path += "connected";
@@ -158,7 +158,7 @@ function connectPort(port) {
   iconClickSettingsChanged();
   port.onMessage.addListener(onMessageListener);
   port.onDisconnect.addListener(onDisconnectListener);
-  updateBrowserActionIcon();
+  updateBrowserActionInfo();
   player.connected = true;
 }
 
@@ -212,7 +212,7 @@ function onDisconnectListener() {
     }
   }
   
-  if (googlemusicport == null) updateBrowserActionIcon();//disconnected
+  if (googlemusicport == null) updateBrowserActionInfo();//disconnected
 }
 
 /** handler for messages from connected port - set song or player state */
@@ -652,7 +652,7 @@ function updatedListener(details) {
       viewUpdateNotifier = true;
       localStorage["viewUpdateNotifier"] = viewUpdateNotifier;
       iconClickSettingsChanged();
-      updateBrowserActionIcon();
+      updateBrowserActionInfo();
     } else {
       previousVersion = null;
     }
@@ -671,7 +671,7 @@ function updateNotifierDone() {
   viewUpdateNotifier = false;
   localStorage.removeItem("viewUpdateNotifier");
   iconClickSettingsChanged();
-  updateBrowserActionIcon();
+  updateBrowserActionInfo();
 }
 
 /** send a command to the connected Google Music port */
@@ -808,8 +808,8 @@ localSettings.watch("syncSettings", function(val) {
 });
 localSettings.addListener("lastfmSessionName", calcScrobbleTime);
 
-player.addListener("playing", updateBrowserActionIcon);
-song.addListener("scrobbled", updateBrowserActionIcon);
+player.addListener("playing", updateBrowserActionInfo);
+song.addListener("scrobbled", updateBrowserActionInfo);
 song.addListener("position", function(val) {
   var oldPos = song.positionSec;
   song.positionSec = parseSeconds(val);
@@ -845,12 +845,12 @@ song.addListener("info", function(val, old) {
     song.timestamp = Math.round(new Date().getTime() / 1000);
     if (player.playing) toastPopup();
     getLovedInfo();
-    if (old == null) updateBrowserActionIcon();
+    if (old == null) updateBrowserActionInfo();
   } else {
     song.timestamp = 0;
     closeToast();
     song.loved = null;
-    updateBrowserActionIcon();
+    updateBrowserActionInfo();
   }
   calcScrobbleTime();
 });

@@ -224,9 +224,6 @@
   "browserActionTitle_updated": {
     "message": "Wurde aktualisiert"
   },
-  "browserActionTitle_playing": {
-    "message": "Wiedergabe"
-  },
   "browserActionTitle_paused": {
     "message": "Pausiert"
   },
