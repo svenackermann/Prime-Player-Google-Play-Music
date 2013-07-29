@@ -153,8 +153,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#legendToasting").text(chrome.i18n.getMessage('toastingSettings'));
     $("#legendLf").text(chrome.i18n.getMessage('lfSettings'));
     $("#lastfmStatus").find("span").text(chrome.i18n.getMessage('lastfmUser'));
-    var bugfeatureinfo = chrome.i18n.getMessage('bugfeatureinfo');
-    bugfeatureinfo = bugfeatureinfo.replace("GitHub", "<a target='_blank' href='https://github.com/svenrecknagel/Prime-Player-Google-Play-Music/issues'>GitHub</a>");
+    var bugfeatureinfo = chrome.i18n.getMessage("bugfeatureinfo", "<a target='_blank' href='https://github.com/svenrecknagel/Prime-Player-Google-Play-Music/issues'>GitHub</a>");
     $("#bugfeatureinfo").html(bugfeatureinfo);
     
     initCheckbox("scrobble").click(scrobbleChanged);
