@@ -235,5 +235,11 @@
   },
   "browserActionTitle_connected": {
     "message": "Verbunden mit Google Music"
+  },
+  "showQueue": {
+    "message": "Wiedergabeliste anzeigen"
+  },
+  "showListenNow": {
+    "message": "Bereich \u0022Jetzt anh\u00F6ren\u0022 anzeigen"
   }
 }

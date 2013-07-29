@@ -235,5 +235,11 @@
   },
   "browserActionTitle_connected": {
     "message": "connected to Google Music"
+  },
+  "showQueue": {
+    "message": "Show queue"
+  },
+  "showListenNow": {
+    "message": "Show \u0022Listen now\u0022 area"
   }
 }

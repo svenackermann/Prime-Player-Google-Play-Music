@@ -162,7 +162,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function connectedWatcher(val) {
     $("body").toggleClass("connected", val);
     $("#coverContainer").unbind();
-    if (val) $("#coverContainer").click(showListenNow);
+    $("#cover").removeAttr("title");
+    if (val) {
+      $("#coverContainer").click(showListenNow);
+      $("#cover").attr("title", chrome.i18n.getMessage("showListenNow"));
+    }
   }
   
   function showPlaylists() {
@@ -379,7 +383,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         .click(bp.openGoogleMusicTab)
         .text(chrome.i18n.getMessage("gotoGmusic"));
 
-    $("#track").click(showQueue);
+    $("#track").click(showQueue).attr("title", chrome.i18n.getMessage("showQueue"));
     $("#artist").click(function() {
       selectLink(bp.song.info.artistLink);
     });
