@@ -704,7 +704,7 @@ function recordSetting(prop) {
   var value = settings[prop];
   switch (typeof(value)) {
     case "boolean":
-      gaEvent("Settings", prop + (value ? 1 : 0));
+      gaEvent("Settings", prop, (value ? 1 : 0));
       break;
     case "number":
       gaEvent("Settings", prop, value);
@@ -733,7 +733,8 @@ function gaEnabledChanged(val) {
       "iconClickMiniplayer",
       "iconClickConnect",
       "openGoogleMusicPinned",
-      "updateNotifier"
+      "updateNotifier",
+      "iconStyle"
     ];
     for (var i = 0; i < settingsToRecord.length; i++) {
       recordSetting(settingsToRecord[i]);
