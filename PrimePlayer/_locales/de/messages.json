@@ -204,7 +204,8 @@
     "message": "Zum Wiederverbinden hier klicken."
   },
   "bugfeatureinfo": {
-    "message": "Wenn du Fehler findest oder Ideen f\u00FCr neue Funktionen hast, lege bitte einen Issue auf GitHub an oder - noch besser - sende mir einen Pull-Request."
+    "message": "Wenn du Fehler findest oder Ideen f\u00FCr neue Funktionen hast, lege bitte einen Issue auf $GITHUB$ an oder - noch besser - sende mir einen Pull-Request.",
+    "placeholders": { "GITHUB": { "content": "$1" } }
   },
   "setting_openGoogleMusicPinned": {
     "message": "Google Music in einem angehefteten Tab \u00F6ffnen"
@@ -235,5 +236,11 @@
   },
   "browserActionTitle_connected": {
     "message": "Verbunden mit Google Music"
+  },
+  "showQueue": {
+    "message": "Wiedergabeliste anzeigen"
+  },
+  "showListenNow": {
+    "message": "Bereich \u0022Jetzt anh\u00F6ren\u0022 anzeigen"
   }
 }

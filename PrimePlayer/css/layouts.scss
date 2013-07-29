@@ -341,6 +341,9 @@
   #lastfmUser {
     @include hoversprite(11, 2, 11, 1, 14);
   }
+  .scrobbleEnabled #lastfmUser {
+    @include hoversprite(11, 0, 11, 1, 14);
+  }
   #playlistContainer {
     h2 {
       font-size: 12px;

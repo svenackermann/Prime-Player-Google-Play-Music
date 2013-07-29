@@ -204,7 +204,8 @@
     "message": "Click here to reconnect."
   },
   "bugfeatureinfo": {
-    "message": "If you find any bugs or would like to see new features, please file an issue on GitHub or - even better - send a pull request."
+    "message": "If you find any bugs or would like to see new features, please file an issue on $GITHUB$ or - even better - send a pull request.",
+    "placeholders": { "GITHUB": { "content": "$1" } }
   },
   "setting_openGoogleMusicPinned": {
     "message": "Open Google Music in a pinned tab"
@@ -235,5 +236,11 @@
   },
   "browserActionTitle_connected": {
     "message": "connected to Google Music"
+  },
+  "showQueue": {
+    "message": "Show queue"
+  },
+  "showListenNow": {
+    "message": "Show \u0022Listen now\u0022 area"
   }
 }
