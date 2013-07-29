@@ -892,7 +892,7 @@ if (localStorage["updateBackup"] != null) {
   song.scrobbled = updateBackup.scrobbled;
   song.toasted = updateBackup.toasted;
   song.timestamp = updateBackup.songTimestamp;
-  volumeBeforeMute = backup.volumeBeforeMute;
+  volumeBeforeMute = updateBackup.volumeBeforeMute;
   if (updateBackup.miniplayerOpen) openMiniplayer();
   updateBackup = null;
 }
