@@ -308,11 +308,11 @@ function scrobbleCachedSongs() {
       {
         success: function(response) {
           localStorage.removeItem("scrobbleCache");
-          gaEvent('LastFM', 'ScrobbleCachedOK');
+          gaEvent("LastFM", "ScrobbleCachedOK");
         },
         error: function(code) {
           console.debug("Error on cached scrobbling: " + code);
-          gaEvent('LastFM', 'ScrobbleCachedError-' + code);
+          gaEvent("LastFM", "ScrobbleCachedError-" + code);
         }
       }
     );
@@ -331,13 +331,13 @@ function scrobble() {
   lastfm.track.scrobble(params,
     {
       success: function(response) {
-        gaEvent('LastFM', 'ScrobbleOK');
+        gaEvent("LastFM", "ScrobbleOK");
         scrobbleCachedSongs();//try cached songs again now that the service seems to work again
       },
       error: function(code) {
         console.debug("Error on scrobbling '" + params.track + "': " + code);
         if (code == 16 || code == 9 || code == -1) cacheForLaterScrobbling(cloned);
-        if (code != 9) gaEvent('LastFM', 'ScrobbleError-' + code);
+        gaEvent("LastFM", "ScrobbleError-" + code);
       }
     }
   );
@@ -351,10 +351,10 @@ function sendNowPlaying() {
       duration: song.info.durationSec
     },
     {
-      success: function(response) { gaEvent('LastFM', 'NowPlayingOK'); },
+      success: function(response) { gaEvent("LastFM", "NowPlayingOK"); },
       error: function(code) {
         console.debug("Error on now playing '" + song.info.title + "': " + code);
-        if (code != 9) gaEvent('LastFM', 'NowPlayingError-' + code);
+        gaEvent("LastFM", "NowPlayingError-" + code);
       }
     }
   );
@@ -374,7 +374,7 @@ function getLovedInfo() {
         },
         error: function(code, msg) {
           song.loved = msg;
-          if (code != 9) gaEvent("LastFM", "getInfoError-" + code);
+          gaEvent("LastFM", "getInfoError-" + code);
         }
       }
     );
@@ -393,7 +393,7 @@ function loveTrack(event, aSong) {
         success: function(response) { aSong.loved = true; },
         error: function(code, msg) {
           aSong.loved = msg;
-          if (code != 9) gaEvent("LastFM", "loveError-" + code);
+          gaEvent("LastFM", "loveError-" + code);
         }
       }
     );
@@ -413,7 +413,7 @@ function unloveTrack() {
         success: function(response) { song.loved = false; },
         error: function(code, msg) {
           song.loved = msg;
-          if (code != 9) gaEvent("LastFM", "unloveError-" + code);
+          gaEvent("LastFM", "unloveError-" + code);
         }
       }
     );
@@ -436,7 +436,7 @@ function lastfmLogin() {
   } else {
     chrome.tabs.create({ url: url });
   }
-  gaEvent('LastFM', 'AuthorizeStarted');
+  gaEvent("LastFM", "AuthorizeStarted");
 }
 
 /** reset last.fm session */
@@ -611,7 +611,6 @@ function openMiniplayer() {
     miniplayer = win;
     chrome.windows.onRemoved.addListener(miniplayerClosed);
   });
-  gaEvent('Internal', miniplayerReopen ? 'MiniplayerReopened' : 'MiniplayerOpened');
 }
 
 /** handler for all settings changes that need to update the browser action */
