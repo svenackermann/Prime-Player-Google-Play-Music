@@ -6,6 +6,7 @@
 chrome.runtime.getBackgroundPage(function(bp) {
 
   var typeClass = bp.extractUrlParam("type", location.search) || "popup";
+  var savedSizing = {};
 
   function layoutWatcher(val, old) {
     $("html").removeClass("layout-" + old).addClass("layout-" + val);
@@ -107,22 +108,36 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   /** listen for resize events and poll for position changes to update the settings */
   function setupResizeMoveListeners() {
-    function doneResizing() {
-      var sizing = bp.localSettings.miniplayerSizing;
-      sizing[bp.settings.layout].width = window.innerWidth;
-      sizing[bp.settings.layout].height = window.innerHeight;
-      bp.localSettings.miniplayerSizing = sizing;//trigger listener notification
-    }
     var timerId;
     $(window).resize(function() {
       clearTimeout(timerId);
-      timerId = setTimeout(doneResizing, 1000);
+      timerId = setTimeout(function() {
+        if ($("#player").is(":visible")) {
+          var sizing = bp.localSettings.miniplayerSizing;
+          sizing[bp.settings.layout].width = window.innerWidth;
+          sizing[bp.settings.layout].height = window.innerHeight;
+          bp.localSettings.miniplayerSizing = sizing;//trigger listener notification
+        } else {
+          var sizingSetting;
+          if ($("#playlists").is(":visible")) {
+            sizingSetting = "playlistsSizing";
+          } else if ($("#listenNow").is(":visible")) {
+            sizingSetting = "listenNowSizing";
+          } else if ($("#queue").is(":visible")) {
+            sizingSetting = "queueSizing";
+          } else return;
+          var sizing = bp.localSettings[sizingSetting];
+          sizing.width = window.outerWidth;
+          sizing.height = window.outerHeight;
+          bp.localSettings[sizingSetting] = sizing;//trigger listener notification
+        }
+      }, 500);
     });
     
     var oldX = window.screenX;
     var oldY = window.screenY;
     setInterval(function() {
-      if (oldX != window.screenX || oldY != window.screenY) {
+      if ($("#player").is(":visible") && (oldX != window.screenX || oldY != window.screenY)) {
         oldX = window.screenX;
         oldY = window.screenY;
         var sizing = bp.localSettings.miniplayerSizing;
@@ -169,7 +184,30 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
   
+  function resize(sizing) {
+    if ((typeClass == "miniplayer" || typeClass == "toast") && sizing.width != null && sizing.height != null) {
+      window.resizeTo(sizing.width, sizing.height);
+    }
+  }
+  
+  function savePlayerSizing() {
+    if (typeClass == "miniplayer" || typeClass == "toast") {
+      savedSizing.height = window.outerHeight;
+      savedSizing.width = window.outerWidth;
+      savedSizing.screenX = window.screenX;
+      savedSizing.screenY = window.screenY;
+    }
+  }
+  
+  function restorePlayerSizing() {
+    if (typeClass == "miniplayer" || typeClass == "toast") {
+      resize(savedSizing);
+      window.moveTo(savedSizing.screenX, savedSizing.screenY);
+    }
+  }
+  
   function showPlaylists() {
+    savePlayerSizing();
     var playlistSectionTitle = chrome.i18n.getMessage("playlists");
     var playlists = bp.player.playlists;
     var playlistLinks = "";
@@ -180,15 +218,18 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#playlistContainer a").click(function() { playlistStart($(this).data("link")); });
     $("#player").hide();
     $("#playlists").unbind().click(hidePlaylists).show();
+    resize(bp.localSettings.playlistsSizing);
   }
 
   function hidePlaylists() {
     $("#playlists").hide();
+    restorePlayerSizing();
     $("#player").show();
   }
 
   function renderListenNow(val) {
     bp.player.removeListener("listenNowList", renderListenNow);
+    resize(bp.localSettings.listenNowSizing);
     var html = "";
     for (var i = 0; i < val.length; i++) {
       var e = val[i];
@@ -208,6 +249,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function showListenNow() {
+    savePlayerSizing();
     $("#player").hide();
     $("#listenNow").empty().addClass("loading").click(hideListenNow).show();
     bp.player.addListener("listenNowList", renderListenNow);
@@ -217,6 +259,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function hideListenNow() {
     bp.player.removeListener("listenNowList", renderListenNow);
     $("#listenNow").hide();
+    restorePlayerSizing();
     $("#player").show();
   }
   
@@ -231,6 +274,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function renderQueue(val) {
     bp.player.removeListener("queue", renderQueue);
+    resize(bp.localSettings.queueSizing);
     var html = "";
     var ratingHtml = "";
     if (bp.player.ratingMode == "star") {
@@ -243,7 +287,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       var e = val[i];
       html += "<div data-index='" + i + (e.current ? "' class='current'>" : "'>");
       html += "<img src='" + (e.cover || "img/cover.png") + "'/>";
-      html += "<div class='rating-" + e.rating + "'>" + ratingHtml + "</div>";
+      html += "<div class='rating r" + e.rating + "'>" + ratingHtml + "</div>";
       html += "<div><span title=' (" + e.duration + ")'>" + e.title + "</span>";
       if (e.artistLink) {
         html += "<a class='artist' href='#'>" + e.artist + "</a>";
@@ -258,6 +302,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function showQueue() {
+    savePlayerSizing();
     $("#player").hide();
     $("#queue").empty().addClass("loading").click(hideQueue).show();
     bp.player.addListener("queue", renderQueue);
@@ -267,6 +312,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function hideQueue() {
     bp.player.removeListener("queue", renderQueue);
     $("#queue").hide().empty();
+    restorePlayerSizing();
     $("#player").show();
   }
   
@@ -278,9 +324,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
       var e = bp.player.queue[index];
       var reset = bp.isRatingReset(e.rating, rating);
       rateQueueSong(index, rating, reset, e.title, e.artist);
-      par.removeClass("rating-" + e.rating);
+      par.removeClass("r" + e.rating);
       e.rating = reset ? 0 : rating;
-      par.addClass("rating-" + e.rating);
+      par.addClass("r" + e.rating);
       return false;
     }).on("click", "div > img", function() {
       var div = $(this).parent();

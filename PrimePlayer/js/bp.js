@@ -15,7 +15,10 @@ var LOCAL_SETTINGS_DEFAULTS = {
     compact1: { width: 270, height: 83, left: 0, top: 0 },
     compact2: { width: 200, height: 128, left: 0, top: 0 },
     hbar:     { width: 500, height: 30,  left: 0, top: 0 }
-  }
+  },
+  playlistsSizing: {},
+  listenNowSizing: {},
+  queueSizing: {}
 }
 var localSettings = new Bean(LOCAL_SETTINGS_DEFAULTS, true);
 

@@ -344,21 +344,4 @@
   .scrobbleEnabled #lastfmUser {
     @include hoversprite(11, 0, 11, 1, 14);
   }
-  #playlistContainer {
-    h2 {
-      font-size: 12px;
-      float: left;
-      margin: 0;
-      margin-right: 2ex;
-    }
-    div {
-      margin-top: 1px;
-      margin-right: 2ex;
-      width: auto;
-    }
-  }
-  #listenNow > div {
-    width: 45%;
-    float: left;
-  }
 }
