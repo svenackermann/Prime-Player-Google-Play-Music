@@ -108,10 +108,13 @@ a {
 
 #song {
   display: none;
-  > * {
+  > a {
     height: 15px;
     white-space: nowrap;
     display: block;
+    &:empty {
+      cursor: default;
+    }
   }
 }
 

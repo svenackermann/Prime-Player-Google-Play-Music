@@ -87,10 +87,10 @@ $(function() {
         var cover = parseCover($("#playingAlbumArt"));
         info = {
           duration: $.trim($("#time_container_duration").text()),
-          title: $("#playerSongTitle").text(),
-          artist: artist.text(),
+          title: $.trim($("#playerSongTitle").text()),
+          artist: $.trim(artist.text()),
           artistLink: getLink(artist),
-          album: album.text(),
+          album: $.trim(album.text()),
           albumLink: getLink(album),
           cover: cover
         };

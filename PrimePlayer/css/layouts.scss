@@ -141,7 +141,7 @@
     width: $height;
     height: $height;
   }
-  #song > * {
+  #song > a {
     font-size: 10px;
     height: 13px;
   }
@@ -268,7 +268,7 @@
     margin-right: -66px;
     overflow: visible;
   }
-  #song > * {
+  #song > a {
     font-size: 10px;
     height: 13px;
     overflow: hidden;
@@ -296,7 +296,7 @@
     width: $height - 4px;
     height: $height - 4px;
   }
-  #song > * {
+  #song > a {
     font-size: $height / 3 - 2;
     height: $height / 3;
   }

@@ -293,6 +293,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
   }
   
+  function googleMusicExecutor(command) {
+    return function() { bp.executeInGoogleMusic(command); };
+  }
+  
   function renderPlayControls() {
     $(".playPause").click(googleMusicExecutor("playPause")).each(function() {
       $(this).attr("title", chrome.i18n.getMessage(this.id + "Song"));
@@ -337,10 +341,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
   
-  function googleMusicExecutor(command) {
-    return function() { bp.executeInGoogleMusic(command); };
-  }
-  
   function rateQueueSong(index, rating, reset, title, artist) {
     if (bp.settings.linkRatings && rating == 5 && !reset) bp.loveTrack(null, { info: { title: title, artist: artist} });
     bp.executeInGoogleMusic("rateQueueSong", {index: index, rating: rating});
@@ -363,8 +363,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function selectLink(link) {
-    bp.selectInGoogleMusic(link);
-    bp.openGoogleMusicTab();
+    if (link) {
+      bp.selectInGoogleMusic(link);
+      bp.openGoogleMusicTab();
+    }
   }
 
   $(function() {
@@ -384,15 +386,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
         .text(chrome.i18n.getMessage("gotoGmusic"));
 
     $("#track").click(showQueue).attr("title", chrome.i18n.getMessage("showQueue"));
-    $("#artist").click(function() {
-      selectLink(bp.song.info.artistLink);
-    });
-    $("#album").click(function() {
-      selectLink(bp.song.info.albumLink);
-    });
+    $("#artist").click(function() { selectLink(bp.song.info.artistLink); });
+    $("#album").click(function() { selectLink(bp.song.info.albumLink); });
     
     $("#scrobblePosition").attr("title", chrome.i18n.getMessage("scrobblePosition"));
-    
     $("#timeBarHolder").click(setSongPosition);
     
     setupListenNowEvents();
