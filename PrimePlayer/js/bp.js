@@ -39,6 +39,7 @@ var SETTINGS_DEFAULTS = {
   iconClickMiniplayer: false,
   iconClickConnect: false,
   openGoogleMusicPinned: false,
+  hideRatings: false,
   updateNotifier: true,
   iconStyle: "default",
   gaEnabled: true
@@ -719,27 +720,8 @@ function gaEnabledChanged(val) {
   if (val) {
     settings.removeListener("gaEnabled", gaEnabledChanged);//init/record only once
     initGA(currentVersion);
-    var settingsToRecord = [
-      "scrobble",
-      "scrobblePercent",
-      "scrobbleTime",
-      "scrobbleMaxDuration",
-      "disableScrobbleOnFf",
-      "linkRatings",
-      "toast",
-      "toastUseMpStyle",
-      "toastDuration",
-      "miniplayerType",
-      "layout",
-      "color",
-      "iconClickMiniplayer",
-      "iconClickConnect",
-      "openGoogleMusicPinned",
-      "updateNotifier",
-      "iconStyle"
-    ];
-    for (var i = 0; i < settingsToRecord.length; i++) {
-      recordSetting(settingsToRecord[i]);
+    for (var prop in SETTINGS_DEFAULTS) {
+      if (prop != "gaEnabled") recordSetting(prop);
     }
   }
 }
@@ -798,6 +780,9 @@ settings.addListener("layout", function(val) {
     );
   }
 });
+settings.addListener("hideRatings", function(val) {
+  if (!val && song.info) getLovedInfo();
+});
 settings.addListener("toastUseMpStyle", closeToast);
 settings.addListener("scrobble", calcScrobbleTime);
 settings.addListener("scrobbleMaxDuration", calcScrobbleTime);
@@ -849,7 +834,7 @@ song.addListener("info", function(val, old) {
     song.info.durationSec = parseSeconds(val.duration);
     song.timestamp = Math.round(new Date().getTime() / 1000);
     if (player.playing) toastPopup();
-    getLovedInfo();
+    if (!settings.hideRatings) getLovedInfo();
     if (old == null) updateBrowserActionInfo();
   } else {
     song.timestamp = 0;

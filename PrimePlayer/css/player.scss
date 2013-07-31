@@ -19,7 +19,6 @@ $sprite-icon-size: 30;
 }
 
 body {
-  min-width: 270px;
   background: #EEE;
   margin: 0;
   font-family: arial;
@@ -39,7 +38,6 @@ a {
 #top {
   position: relative;
   padding: 3px;
-  height: 65px;
 }
 
 #coverContainer {
@@ -73,6 +71,9 @@ a {
     display: block;
     padding-top: 3px;
     overflow-x: hidden;
+  }
+  &.hideRatings #rating {
+    display: none;
   }
   #time > div {
     visibility: visible;
@@ -581,6 +582,10 @@ a#playlistButton {
   display: none;
   cursor: pointer;
   float: right;
+}
+
+.playlists a#playlistButton {
+  display: block;
 }
 
 @import "layouts"

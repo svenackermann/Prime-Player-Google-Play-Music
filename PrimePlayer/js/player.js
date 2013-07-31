@@ -26,14 +26,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function playlistsWatcher(val) {
-    if (val.length > 0) {
-      $("#playlistButton").show();
-    } else {
-      $("#playlistButton").hide();
-      hidePlaylists();
-    }
+    $("body").toggleClass("playlists", val.length > 0);
     if ($("#playlists").is(":visible")) {
-      showPlaylists();//re-render
+      if (val.length > 0) {
+        showPlaylists(true);//re-render
+      } else {
+        hidePlaylists();
+      }
     }
   }
 
@@ -104,6 +103,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function colorWatcher(val, old) {
     $("html").removeClass("color-" + old).addClass("color-" + val);
+  }
+  
+  function hideRatingsWatcher(val) {
+    $("body").toggleClass("hideRatings", val);
   }
 
   /** listen for resize events and poll for position changes to update the settings */
@@ -206,8 +209,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
   
-  function showPlaylists() {
-    savePlayerSizing();
+  function showPlaylists(rerender) {
+    if (!(rerender == true)) savePlayerSizing();
     var playlistSectionTitle = chrome.i18n.getMessage("playlists");
     var playlists = bp.player.playlists;
     var playlistLinks = "";
@@ -218,7 +221,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#playlistContainer a").click(function() { playlistStart($(this).data("link")); });
     $("#player").hide();
     $("#playlists").unbind().click(hidePlaylists).show();
-    resize(bp.localSettings.playlistsSizing);
+    if (!(rerender == true)) resize(bp.localSettings.playlistsSizing);
   }
 
   function hidePlaylists() {
@@ -444,6 +447,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.localSettings.watch("lastfmSessionName", lastfmUserWatcher);
     bp.settings.watch("scrobble", scrobbleWatcher);
     bp.settings.watch("color", colorWatcher);
+    bp.settings.watch("hideRatings", hideRatingsWatcher);
     
     bp.player.watch("repeat", repeatWatcher);
     bp.player.watch("shuffle", shuffleWatcher);
@@ -464,6 +468,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       bp.localSettings.removeListener("lastfmSessionName", lastfmUserWatcher);
       bp.settings.removeListener("scrobble", scrobbleWatcher);
       bp.settings.removeListener("color", colorWatcher);
+      bp.settings.removeListener("hideRatings", hideRatingsWatcher);
       
       bp.player.removeListener("repeat", repeatWatcher);
       bp.player.removeListener("shuffle", shuffleWatcher);

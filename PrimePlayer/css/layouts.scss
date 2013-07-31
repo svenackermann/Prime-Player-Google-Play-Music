@@ -130,12 +130,22 @@
 
 .layout-normal {
   @include playcontrols(30);
+  .hideRatings #cover {
+    width: 41px;
+    height: 41px;
+  }
+  body {
+    min-width: 270px;
+  }
 }
 
 .layout-compact1 {
   $height: 73px;
-  #top {
-    height: 40px;
+  body {
+    min-width: 250px;
+    &.playlists {
+      min-width: 270px;
+    }
   }
   #cover {
     width: $height;
@@ -149,6 +159,9 @@
   $rate-size-px: #{$rate-size}px;
   #coverContainer {
     margin-right: #{$rate-size + 5}px;
+  }
+  .hideRatings #coverContainer {
+    margin-right: 5px;
   }
   #rating {
     position: absolute;
@@ -235,9 +248,20 @@
 }
 
 .layout-compact2 {
-  $width: 200px;
   body {
-    min-width: $width;
+    min-width: 180px;
+    &.hideRatings {
+      min-width: 150px;
+    }
+    &.playlists {
+      min-width: 200px;
+    }
+    &.playlists.hideRatings {
+      min-width: 170px;
+    }
+  }
+  #top {
+    height: 64px;
   }
   #rightbuttons {
     position: absolute;
@@ -253,6 +277,23 @@
     }
     > a {
       margin: 0 3px;
+    }
+  }
+  .hideRatings {
+    #top {
+      height: 40px;
+    }
+    #cover {
+      width: 36px;
+      height: 36px;
+    }
+    #playControls {
+      left: 46px;
+    }
+    #song, #nosong {
+      top: 61px;
+      left: -44px;
+      margin-right: -44px;
     }
   }
   #rating {
@@ -286,10 +327,12 @@
   $height: 30px;
   min-width: 500px;
   #top {
-    height: $height;
     padding: 0;
   }
   #player {
+    width: 476px;
+  }
+  .playlists #player {
     width: 500px;
   }
   #cover {
@@ -306,6 +349,20 @@
   #song, #nosong {
     width: 150px;
   }
+  .hideRatings {
+    #time {
+      width: 144px;
+    }
+    &.playlists #time {
+      width: 168px;
+    }
+    #player {
+      width: 359px;
+    }
+    &.playlists #player {
+      width: 383px;
+    }
+  }
   #playControls {
     position: absolute;
     left: $height + 165px;
@@ -315,9 +372,12 @@
     position: absolute;
     top: 0;
     left: $height + 165px;
-    width: 285px;
+    width: 261px;
     height: 10px;
     padding: 0;
+  }
+  .playlists #time {
+    width: 285px;
   }
   #currentTime, #songTime {
     font-size: 8px;
@@ -329,6 +389,9 @@
   #rating {
     position: absolute;
     top: 10px;
+    left: $height + 316px;
+  }
+  .playlists #rating {
     left: $height + 340px;
   }
   #rightbuttons {
