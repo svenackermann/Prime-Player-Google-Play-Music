@@ -130,12 +130,20 @@
 
 .layout-normal {
   @include playcontrols(30);
-  .hideRatings #cover {
-    width: 41px;
-    height: 41px;
-  }
   body {
     min-width: 270px;
+  }
+  #top {
+    height: 65px;
+  }
+  .hideRatings {
+    #cover {
+      width: 41px;
+      height: 41px;
+    }
+    #top {
+      height: 46px;
+    }
   }
 }
 
@@ -146,6 +154,9 @@
     &.playlists {
       min-width: 270px;
     }
+  }
+  #top {
+    height: 40px;
   }
   #cover {
     width: $height;
@@ -305,8 +316,8 @@
   #song, #nosong {
     position: relative;
     top: 85px;
-    left: -66px;
-    margin-right: -66px;
+    left: -68px;
+    margin-right: -68px;
     overflow: visible;
   }
   #song > a {
