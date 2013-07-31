@@ -872,6 +872,7 @@ function reloadForUpdate() {
 if (localStorage["updateBackup"] != null) {
   var updateBackup = JSON.parse(localStorage["updateBackup"]);
   localStorage.removeItem("updateBackup");
+  song.positionSec = parseSeconds(updateBackup.songPosition);
   song.position = updateBackup.songPosition;
   song.ff = updateBackup.songFf;
   song.info = updateBackup.songInfo;
