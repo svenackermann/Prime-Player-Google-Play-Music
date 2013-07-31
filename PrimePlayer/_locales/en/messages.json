@@ -219,6 +219,9 @@
   "setting_iconStyle": {
     "message": "Style of the browser icon"
   },
+  "setting_hideRatings": {
+    "message": "Hide rating icons (last.fm and thumbs/stars)"
+  },
   "updateNotifierTitle": {
     "message": "Prime Player Updated"
   },

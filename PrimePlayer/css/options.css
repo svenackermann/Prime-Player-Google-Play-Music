@@ -52,6 +52,10 @@ img.hint {
   vertical-align: text-bottom;
 }
 
+#changelog img.hint {
+  height: 12px;
+}
+
 #lastfmStatus {
   height: 16px;
 }

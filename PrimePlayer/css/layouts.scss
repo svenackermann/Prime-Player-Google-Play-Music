@@ -130,18 +130,28 @@
 
 .layout-normal {
   @include playcontrols(30);
+  .hideRatings #cover {
+    width: 41px;
+    height: 41px;
+  }
+  body {
+    min-width: 270px;
+  }
 }
 
 .layout-compact1 {
   $height: 73px;
-  #top {
-    height: 40px;
+  body {
+    min-width: 250px;
+    &.playlists {
+      min-width: 270px;
+    }
   }
   #cover {
     width: $height;
     height: $height;
   }
-  #song > * {
+  #song > a {
     font-size: 10px;
     height: 13px;
   }
@@ -149,6 +159,9 @@
   $rate-size-px: #{$rate-size}px;
   #coverContainer {
     margin-right: #{$rate-size + 5}px;
+  }
+  .hideRatings #coverContainer {
+    margin-right: 5px;
   }
   #rating {
     position: absolute;
@@ -235,9 +248,20 @@
 }
 
 .layout-compact2 {
-  $width: 200px;
   body {
-    min-width: $width;
+    min-width: 180px;
+    &.hideRatings {
+      min-width: 150px;
+    }
+    &.playlists {
+      min-width: 200px;
+    }
+    &.playlists.hideRatings {
+      min-width: 170px;
+    }
+  }
+  #top {
+    height: 64px;
   }
   #rightbuttons {
     position: absolute;
@@ -255,6 +279,23 @@
       margin: 0 3px;
     }
   }
+  .hideRatings {
+    #top {
+      height: 40px;
+    }
+    #cover {
+      width: 36px;
+      height: 36px;
+    }
+    #playControls {
+      left: 46px;
+    }
+    #song, #nosong {
+      top: 61px;
+      left: -44px;
+      margin-right: -44px;
+    }
+  }
   #rating {
     margin-top: 3px;
   }
@@ -268,7 +309,7 @@
     margin-right: -66px;
     overflow: visible;
   }
-  #song > * {
+  #song > a {
     font-size: 10px;
     height: 13px;
     overflow: hidden;
@@ -286,17 +327,19 @@
   $height: 30px;
   min-width: 500px;
   #top {
-    height: $height;
     padding: 0;
   }
   #player {
+    width: 476px;
+  }
+  .playlists #player {
     width: 500px;
   }
   #cover {
     width: $height - 4px;
     height: $height - 4px;
   }
-  #song > * {
+  #song > a {
     font-size: $height / 3 - 2;
     height: $height / 3;
   }
@@ -305,6 +348,20 @@
   }
   #song, #nosong {
     width: 150px;
+  }
+  .hideRatings {
+    #time {
+      width: 144px;
+    }
+    &.playlists #time {
+      width: 168px;
+    }
+    #player {
+      width: 359px;
+    }
+    &.playlists #player {
+      width: 383px;
+    }
   }
   #playControls {
     position: absolute;
@@ -315,9 +372,12 @@
     position: absolute;
     top: 0;
     left: $height + 165px;
-    width: 285px;
+    width: 261px;
     height: 10px;
     padding: 0;
+  }
+  .playlists #time {
+    width: 285px;
   }
   #currentTime, #songTime {
     font-size: 8px;
@@ -329,6 +389,9 @@
   #rating {
     position: absolute;
     top: 10px;
+    left: $height + 316px;
+  }
+  .playlists #rating {
     left: $height + 340px;
   }
   #rightbuttons {
@@ -343,22 +406,5 @@
   }
   .scrobbleEnabled #lastfmUser {
     @include hoversprite(11, 0, 11, 1, 14);
-  }
-  #playlistContainer {
-    h2 {
-      font-size: 12px;
-      float: left;
-      margin: 0;
-      margin-right: 2ex;
-    }
-    div {
-      margin-top: 1px;
-      margin-right: 2ex;
-      width: auto;
-    }
-  }
-  #listenNow > div {
-    width: 45%;
-    float: left;
   }
 }
