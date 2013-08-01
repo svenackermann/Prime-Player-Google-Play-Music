@@ -66,6 +66,8 @@ var viewUpdateNotifier = localStorage["viewUpdateNotifier"] || false;
 var previousVersion = localStorage["previousVersion"];
 /** the volume before mute for restoring */
 var volumeBeforeMute;
+/** functions to call when the user triggered a rating, set by the miniplayer/toast/popup */
+var ratedCallbacks = {};
 
 /** the song currently loaded */
 var SONG_DEFAULTS = {
@@ -898,11 +900,28 @@ function isRatingReset(oldRating, newRating) {
     || (player.ratingMode == "thumbs" && ((oldRating == 2 && newRating == 1) || (oldRating == 4 && newRating == 5)));
 }
 
+function notifyRated(rating, old, reset, index) {
+  for (var x in ratedCallbacks) {
+    if (typeof(ratedCallbacks[x]) == "function") ratedCallbacks[x](reset ? 0 : rating, old, index);
+  }
+}
+
+function rateQueueSong(index, rating) {
+  var qs = player.queue[index];
+  if (qs.rating < 0) return;//negative ratings cannot be changed
+  var reset = isRatingReset(qs.rating, rating);
+  if (settings.linkRatings && rating == 5 && !reset) loveTrack(null, { info: { title: qs.title, artist: qs.artist} });
+  executeInGoogleMusic("rateQueueSong", {index: index, rating: rating});
+  notifyRated(rating, qs.rating, reset, index);
+}
+
 function rate(rating) {
   if (song.rating < 0) return;//negative ratings cannot be changed
   //auto-love if called by click event, no reset and not loved yet
-  if (settings.linkRatings && rating == 5 && !isRatingReset(song.rating, rating) && song.loved !== true) loveTrack();
+  var reset = isRatingReset(song.rating, rating);
+  if (settings.linkRatings && rating == 5 && !reset && song.loved !== true) loveTrack();
   executeInGoogleMusic("rate", {rating: rating});
+  notifyRated(rating, song.rating, reset);
 }
 
 chrome.commands.onCommand.addListener(function(command) {

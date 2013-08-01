@@ -6,7 +6,7 @@
 chrome.runtime.getBackgroundPage(function(bp) {
 
   var typeClass = bp.extractUrlParam("type", location.search) || "popup";
-  var savedSizing = {};
+  var savedSizing;
 
   function layoutWatcher(val, old) {
     $("html").removeClass("layout-" + old).addClass("layout-" + val);
@@ -56,11 +56,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var plQueue = $("#queue").children("div.current");
     if (plQueue.length > 0) {
       plQueue.removeClass("current");
+      var q = bp.player.queue;
+      q[parseInt(plQueue.data("index"))].current = false;
       if (val) {
-        var q = bp.player.queue;
         for (var i = 0; i < q.length; i++) {
           if (q[i].artist == val.artist && q[i].title == val.title) {
-            $($("#queue").children("div").get(i)).addClass("current");
+            $("#queue").children("div[data-index='" + i + "']").addClass("current");
+            q[i].current = true;
             break;
           }
         }
@@ -184,6 +186,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
     if (val) {
       $("#coverContainer").click(showListenNow);
       $("#cover").attr("title", chrome.i18n.getMessage("showListenNow"));
+    } else {
+      $("#listenNow").hide();
+      $("#queue").hide();
+      $("#playlists").hide();
+      restorePlayerSizing();
+      $("#player").show();
     }
   }
   
@@ -195,17 +203,20 @@ chrome.runtime.getBackgroundPage(function(bp) {
   
   function savePlayerSizing() {
     if (typeClass == "miniplayer" || typeClass == "toast") {
-      savedSizing.height = window.outerHeight;
-      savedSizing.width = window.outerWidth;
-      savedSizing.screenX = window.screenX;
-      savedSizing.screenY = window.screenY;
+      savedSizing = {
+        height: window.outerHeight,
+        width: window.outerWidth,
+        screenX: window.screenX,
+        screenY: window.screenY
+      }
     }
   }
   
   function restorePlayerSizing() {
-    if (typeClass == "miniplayer" || typeClass == "toast") {
+    if (savedSizing != null) {
       resize(savedSizing);
       window.moveTo(savedSizing.screenX, savedSizing.screenY);
+      savedSizing = null;
     }
   }
   
@@ -276,7 +287,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function renderQueue(val) {
-    bp.player.removeListener("queue", renderQueue);
     resize(bp.localSettings.queueSizing);
     var html = "";
     var ratingHtml = "";
@@ -321,15 +331,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
   
   function setupQueueEvents() {
     $("#queue").on("click", "a[data-rating]", function() {
-      var par = $(this).parent();
-      var index = par.parent().data("index");
+      var index = $(this).parent().parent().data("index");
       var rating = $(this).data("rating");
-      var e = bp.player.queue[index];
-      var reset = bp.isRatingReset(e.rating, rating);
-      rateQueueSong(index, rating, reset, e.title, e.artist);
-      par.removeClass("r" + e.rating);
-      e.rating = reset ? 0 : rating;
-      par.addClass("r" + e.rating);
+      bp.rateQueueSong(index, rating);
       return false;
     }).on("click", "div > img", function() {
       var div = $(this).parent();
@@ -340,6 +344,22 @@ chrome.runtime.getBackgroundPage(function(bp) {
       var index = $(this).parent().parent().data("index");
       selectLink(bp.player.queue[index].artistLink);
     });
+  }
+
+  function ratedCallback(rating, old, index) {
+    if ($("#queue").is(":visible")) {
+      var row;
+      if (index === undefined) {
+        row = $("#queue").children("div.current");
+        index = row.data("index");
+      } else {
+        row = $("#queue").children("div[data-index='" + index + "']");
+      }
+      bp.player.queue[index].rating = rating;
+      if (row.length > 0) {
+        row.find("div.rating").removeClass("r" + old).addClass("r" + rating);
+      }
+    }
   }
   
   function googleMusicExecutor(command) {
@@ -389,11 +409,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("#volumeBarContainer").toggle();
     }
   }
-  
-  function rateQueueSong(index, rating, reset, title, artist) {
-    if (bp.settings.linkRatings && rating == 5 && !reset) bp.loveTrack(null, { info: { title: title, artist: artist} });
-    bp.executeInGoogleMusic("rateQueueSong", {index: index, rating: rating});
-  }
 
   function playlistStart(pllink) {
     bp.executeInGoogleMusic("startPlaylist", {pllink: pllink});
@@ -417,7 +432,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       bp.openGoogleMusicTab();
     }
   }
-
+  
   $(function() {
     $("html").addClass(typeClass);
     $("head > title").first().text(chrome.i18n.getMessage("extTitle"));
@@ -463,6 +478,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.song.watch("scrobbleTime", updateScrobblePosition);
     bp.song.watch("loved", songLovedWatcher);
     
+    bp.ratedCallbacks[typeClass] = ratedCallback;
+    
     $(window).unload(function() {
       bp.settings.removeListener("layout", layoutWatcher);
       bp.localSettings.removeListener("lastfmSessionName", lastfmUserWatcher);
@@ -485,6 +502,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
       bp.song.removeListener("rating", ratingWatcher);
       bp.song.removeListener("scrobbleTime", updateScrobblePosition);
       bp.song.removeListener("loved", songLovedWatcher);
+      
+      bp.ratedCallbacks[typeClass] = null;
     });
     
     if (typeClass == "miniplayer" || typeClass == "toast") setupResizeMoveListeners();
