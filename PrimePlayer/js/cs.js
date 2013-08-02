@@ -107,7 +107,8 @@ $(function() {
     }
     
     function ratingGetter(el) {
-      return parseInt($(el.parentElement).find("li.selected").data("rating")) || 0;
+      var rating = parseInt($(el.parentElement).find("li.selected").data("rating"));
+      return isNaN(rating) ? -1 : rating;
     }
     
     /**

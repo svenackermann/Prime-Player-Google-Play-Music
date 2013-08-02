@@ -220,6 +220,7 @@
     .user-rating {
       background-repeat: repeat-y;
       background-size: $rate-size-px;
+      height: initial;
     }
     @for $i from 0 through 5 {
       .rating-#{$i}, &.rating-#{$i} .user-rating {
