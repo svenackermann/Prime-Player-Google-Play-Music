@@ -331,15 +331,20 @@ chrome.runtime.getBackgroundPage(function(bp) {
   
   function setupQueueEvents() {
     $("#queue").on("click", "a[data-rating]", function() {
-      var index = $(this).parent().parent().data("index");
+      var div = $(this).parent().parent();
       var rating = $(this).data("rating");
-      bp.rateQueueSong(index, rating);
+      if (div.hasClass("current")) {
+        bp.rate(rating);
+      } else {
+        var index = div.data("index");
+        bp.rateQueueSong(index, rating);
+      }
       return false;
     }).on("click", "div > img", function() {
       var div = $(this).parent();
       if (div.hasClass("current")) return false;
       var index = div.data("index");
-      startQueueSong(index);
+      bp.executeInGoogleMusic("startQueueSong", {index: index});
     }).on("click", "a.artist", function() {
       var index = $(this).parent().parent().data("index");
       selectLink(bp.player.queue[index].artistLink);
@@ -412,10 +417,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function playlistStart(pllink) {
     bp.executeInGoogleMusic("startPlaylist", {pllink: pllink});
-  }
-
-  function startQueueSong(index) {
-    bp.executeInGoogleMusic("startQueueSong", {index: index});
   }
 
   function setSongPosition(event) {
