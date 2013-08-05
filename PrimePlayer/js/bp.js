@@ -106,18 +106,18 @@ lastfm.session.name = localSettings.lastfmSessionName;
 
 var currentVersion = chrome.runtime.getManifest().version;
 
-function equalsCurrentSong(info, old) {
-  if (old == info) return true;//both null
-  if (old != null && info != null
-      && old.duration == info.duration
-      && old.title == info.title
-      && old.artist == info.artist
-      && old.album == info.album) {
+function songsEqual(song1, song2) {
+  if (song1 == song2) return true;//both null
+  if (song1 != null && song2 != null
+      && song1.duration == song2.duration
+      && song1.title == song2.title
+      && song1.artist == song2.artist
+      && song1.album == song2.album) {
     return true;
   }
   return false;
 }
-song.setEqualsFn("info", equalsCurrentSong);
+song.setEqualsFn("info", songsEqual);
 
 /** handler for all events that need to update the browser action icon/title */
 function updateBrowserActionInfo() {
@@ -132,9 +132,10 @@ function updateBrowserActionInfo() {
     title = song.info.artist + " - " + song.info.title
     if (player.playing) {
       path += "play";
+      title = chrome.i18n.getMessage("browserActionTitle_playing") + ": " + title;
     } else {
       path += "pause";
-      title += " (" + chrome.i18n.getMessage("browserActionTitle_paused") + ")";
+      title = chrome.i18n.getMessage("browserActionTitle_paused") + ": " + title;
     }
     if (song.scrobbled) {
       path += "-scrobbled";

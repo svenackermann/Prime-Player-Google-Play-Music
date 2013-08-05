@@ -60,7 +60,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       q[parseInt(plQueue.data("index"))].current = false;
       if (val) {
         for (var i = 0; i < q.length; i++) {
-          if (q[i].artist == val.artist && q[i].title == val.title) {
+          if (bp.songsEqual(q[i], val)) {
             $("#queue").children("div[data-index='" + i + "']").addClass("current");
             q[i].current = true;
             break;
