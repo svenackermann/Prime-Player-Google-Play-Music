@@ -838,13 +838,12 @@ song.addListener("info", function(val, old) {
     song.timestamp = Math.round(new Date().getTime() / 1000);
     if (player.playing) toastPopup();
     if (!settings.hideRatings) getLovedInfo();
-    if (old == null) updateBrowserActionInfo();
   } else {
     song.timestamp = 0;
     closeToast();
     song.loved = null;
-    updateBrowserActionInfo();
   }
+  updateBrowserActionInfo();
   calcScrobbleTime();
 });
 
