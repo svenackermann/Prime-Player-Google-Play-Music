@@ -45,8 +45,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     if (val) {
       $("#songTime").text(val.duration);
       $("#track").text(val.title);
-      $("#artist").text(val.artist);
-      $("#album").text(val.album);
+      $("#artist").text(val.artist).attr("title", val.artist);
+      $("#album").text(val.album).attr("title", val.album);
       $("#cover").attr("src", val.cover || "img/cover.png");
       //although the value of scrobbleTime might have not changed, the relative position might have
       updateScrobblePosition(bp.song.scrobbleTime);
