@@ -232,7 +232,10 @@
     "message": "just updated"
   },
   "browserActionTitle_paused": {
-    "message": "paused"
+    "message": "Paused"
+  },
+  "browserActionTitle_playing": {
+    "message": "Playing"
   },
   "browserActionTitle_scrobbled": {
     "message": "scrobbled"

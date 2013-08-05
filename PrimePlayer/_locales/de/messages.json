@@ -234,6 +234,9 @@
   "browserActionTitle_paused": {
     "message": "Pausiert"
   },
+  "browserActionTitle_playing": {
+    "message": "Wiedergabe"
+  },
   "browserActionTitle_scrobbled": {
     "message": "Gescrobbelt"
   },
