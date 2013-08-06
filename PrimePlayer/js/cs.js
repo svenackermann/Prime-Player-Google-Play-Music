@@ -190,6 +190,15 @@ $(function() {
     }
   }
   
+  function selectAndExecute(hash, callback) {
+    if (location.hash == "#/" + hash) {
+      callback();
+    } else {
+      selectLink(hash);
+      executeAfterContentLoad(callback, CONTENT_SEL, true, 1000);
+    }
+  }
+  
   function sendListenNowList() {
     var listenNowList = [];
     $(".card").each(function() {
@@ -207,8 +216,7 @@ $(function() {
   }
   
   function getListenNow() {
-    selectLink("now");
-    executeAfterContentLoad(sendListenNowList, CONTENT_SEL, true);
+    selectAndExecute("now", sendListenNowList);
   }
   
   function sendQueue() {
@@ -230,8 +238,7 @@ $(function() {
   }
   
   function getQueue() {
-    selectLink("ap/queue");
-    executeAfterContentLoad(sendQueue, CONTENT_SEL, true);
+    selectAndExecute("ap/queue", sendQueue);
   }
 
   port = chrome.runtime.connect({name: "googlemusic"});
@@ -241,10 +248,10 @@ $(function() {
       case "execute":
         if (msg.command == "startPlaylist") {
           var link = msg.options.pllink;
-          selectLink(link);
-          if (link.indexOf("im/") != 0 || link.indexOf("st/") != 0) {//type "im"/"st" starts automatically
-            executeAfterContentLoad(function() { sendCommand("startPlaylist"); }, CONTENT_SEL, true);
-          }
+          selectAndExecute(link, function() {
+            //type "im"/"st" starts automatically
+            if (link.indexOf("im/") != 0 && link.indexOf("st/") != 0) sendCommand("startPlaylist");
+          });
         } else {
           sendCommand(msg.command, msg.options);
         }
