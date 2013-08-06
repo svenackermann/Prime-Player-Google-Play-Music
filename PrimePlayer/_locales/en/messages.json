@@ -150,7 +150,7 @@
     "message": "Always open Google Music first on icon click, if not opened yet"
   },
   "connected": {
-    "message": "This tab is connected to Prime Player."
+    "message": "This tab is connected to Prime Player. Click to disconnect."
   },
   "lastfmSettings": {
     "message": "last.fm Settings"

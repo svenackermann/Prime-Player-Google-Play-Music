@@ -150,7 +150,7 @@
     "message": "Beim Klick auf das Symbol immer erst Google Music \u00F6ffnen, wenn nicht bereits ge\u00F6ffnet"
   },
   "connected": {
-    "message": "Dieser Tab ist mit Prime Player verbunden."
+    "message": "Dieser Tab ist mit Prime Player verbunden. Zum Trennen klicken."
   },
   "lastfmSettings": {
     "message": "last.fm Einstellungen"

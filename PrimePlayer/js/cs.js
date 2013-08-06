@@ -9,6 +9,7 @@ $(function() {
   var port;
   var registeredListeners = [];
   var observers = [];
+  var CONTENT_SEL = "#main > .g-content:not(#flash-missing-message)";
   
   /** send update to background page */
   function post(type, value) {
@@ -153,8 +154,12 @@ $(function() {
     
     //inject icon with title to mark the tab as connected
     $(".music-banner-icon")
-      .css({background: 'url(' + chrome.extension.getURL('img/icon-tabconnected.png') + ')'})
-      .attr('title', chrome.i18n.getMessage('connected'));
+      .css({background: 'url(' + chrome.extension.getURL('img/icon-tabconnected.png') + ')', cursor: "pointer"})
+      .attr('title', chrome.i18n.getMessage('connected'))
+      .click(function() {
+        port.disconnect();
+        cleanup();
+      });
   }
   
   /** Send a command to the injected script. */
@@ -172,7 +177,7 @@ $(function() {
     for (var i = 0; i < observers.length; i++) {
       observers[i].disconnect();
     }
-    $(".music-banner-icon").removeAttr("style").removeAttr("title");
+    $(".music-banner-icon").removeAttr("style").removeAttr("title").off("click");
     port = null;
   }
   
@@ -203,7 +208,7 @@ $(function() {
   
   function getListenNow() {
     selectLink("now");
-    executeAfterContentLoad(sendListenNowList, "#main > .g-content", true);
+    executeAfterContentLoad(sendListenNowList, CONTENT_SEL, true);
   }
   
   function sendQueue() {
@@ -226,7 +231,7 @@ $(function() {
   
   function getQueue() {
     selectLink("ap/queue");
-    executeAfterContentLoad(sendQueue, "#main > .g-content", true);
+    executeAfterContentLoad(sendQueue, CONTENT_SEL, true);
   }
 
   port = chrome.runtime.connect({name: "googlemusic"});
@@ -238,7 +243,7 @@ $(function() {
           var link = msg.options.pllink;
           selectLink(link);
           if (link.indexOf("im/") != 0 || link.indexOf("st/") != 0) {//type "im"/"st" starts automatically
-            executeAfterContentLoad(function() { sendCommand("startPlaylist"); }, "#main > .g-content", true);
+            executeAfterContentLoad(function() { sendCommand("startPlaylist"); }, CONTENT_SEL, true);
           }
         } else {
           sendCommand(msg.command, msg.options);
