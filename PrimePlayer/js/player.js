@@ -345,6 +345,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       if (div.hasClass("current")) return false;
       var index = div.data("index");
       bp.executeInGoogleMusic("startQueueSong", {index: index});
+      return false;
     }).on("click", "a.artist", function() {
       var index = $(this).parent().parent().data("index");
       selectLink(bp.player.queue[index].artistLink);

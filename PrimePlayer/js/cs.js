@@ -231,6 +231,7 @@ $(function() {
       item.duration = $.trim(song.find("td[data-col='duration']").text());
       item.artist = $.trim(song.find("td[data-col='artist'] .content").text());
       if (item.artist) item.artistLink = "ar/" + encodeURIComponent(item.artist);
+      item.album = $.trim(song.find("td[data-col='album'] .content").text());
       item.rating = parseInt(song.find("td[data-col='rating']").data("rating")) || 0;
       queue.push(item);
     });
