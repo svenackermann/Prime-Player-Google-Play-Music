@@ -9,6 +9,7 @@ $(function() {
   var port;
   var registeredListeners = [];
   var observers = [];
+  var omitUnknownAlbums = false;
   
   /** send update to background page */
   function post(type, value) {
@@ -216,6 +217,8 @@ $(function() {
     $(".card").each(function() {
       var card = $(this);
       var item = {};
+      var id = card.data("id");
+      if (omitUnknownAlbums && id.charAt(id.length - 1) == "/") return;
       item.cover = parseCover(card.find(".image-wrapper img"));
       item.title = $.trim(card.find(".title").text());
       item.titleLink = getLink(card);
@@ -279,6 +282,7 @@ $(function() {
         sendCommand(msg.command, msg.options);
         break;
       case "getPlaylistsList":
+        omitUnknownAlbums = msg.omitUnknownAlbums;
         if (msg.link == "myPlaylists") sendMyPlaylists();
         else selectAndExecute(msg.link, sendPlaylistsList);
         break;

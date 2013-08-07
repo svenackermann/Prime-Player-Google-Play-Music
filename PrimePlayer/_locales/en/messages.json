@@ -219,6 +219,9 @@
   "setting_hideRatings": {
     "message": "Hide rating icons (last.fm and thumbs/stars)"
   },
+  "setting_omitUnknownAlbums": {
+    "message": "Omit 'unknown albums' (songs of an artist without album) in the albums list of the miniplayer"
+  },
   "updateNotifierTitle": {
     "message": "Prime Player Updated"
   },

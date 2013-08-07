@@ -41,6 +41,7 @@ var SETTINGS_DEFAULTS = {
   iconClickConnect: false,
   openGoogleMusicPinned: false,
   hideRatings: false,
+  omitUnknownAlbums: false,
   updateNotifier: true,
   iconStyle: "default",
   gaEnabled: true
@@ -245,7 +246,7 @@ function postToGooglemusic(msg) {
 }
 
 function loadPlaylistsList(link) {
-  postToGooglemusic({type: "getPlaylistsList", link: link});
+  postToGooglemusic({type: "getPlaylistsList", link: link, omitUnknownAlbums: link == "albums" && settings.omitUnknownAlbums});
 }
 
 function loadPlaylist(link) {
