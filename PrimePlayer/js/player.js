@@ -336,9 +336,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
       return false;
     }).on("click", "div > img", function() {
       var div = $(this).parent();
-      if (div.hasClass("current")) return false;
-      var index = div.data("index");
-      bp.executeInGoogleMusic("startPlaylistSong", {link: bp.player.playlist.controlLink, index: index});
+      if (div.hasClass("current")) {
+        bp.executeInGoogleMusic("playPause");
+      } else {
+        var index = div.data("index");
+        bp.executeInGoogleMusic("startPlaylistSong", {link: bp.player.playlist.controlLink, index: index});
+      }
       return false;
     }).on("click", "a.artist", function() {
       clearPlaylist();
