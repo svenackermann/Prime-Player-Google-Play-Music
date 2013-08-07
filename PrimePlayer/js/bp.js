@@ -16,9 +16,10 @@ var LOCAL_SETTINGS_DEFAULTS = {
     compact2: { width: 200, height: 128, left: 0, top: 0 },
     hbar:     { width: 500, height: 30,  left: 0, top: 0 }
   },
-  playlistsSizing: {},
-  listenNowSizing: {},
-  queueSizing: {}
+  playlistsListSizing: {width: 350, height: 300},
+  playlistSizing: {width: 350, height: 275},
+  quicklinksSizing: {width: 280, height: 130},
+  albumContainersSizing: {width: 200, height: 300}
 }
 var localSettings = new Bean(LOCAL_SETTINGS_DEFAULTS, true);
 
@@ -89,11 +90,12 @@ var PLAYER_DEFAULTS = {
   ratingMode: null,
   shuffle: "",
   repeat: "",
-  playlists: [],
   playing: false,
   volume: null,
-  listenNowList: [],
-  queue: [],
+  playlistsList: [],
+  playlist: null,
+  quicklinks: null,
+  albumContainers: [],
   connected: false
 };
 var player = new Bean(PLAYER_DEFAULTS);
@@ -109,7 +111,7 @@ var currentVersion = chrome.runtime.getManifest().version;
 function songsEqual(song1, song2) {
   if (song1 == song2) return true;//both null
   if (song1 != null && song2 != null
-      && song1.duration == song2.duration
+      && (song1.duration == null || song2.duration == null || song1.duration == song2.duration)
       && song1.title == song2.title
       && song1.artist == song2.artist
       && song1.album == song2.album) {
@@ -236,16 +238,31 @@ function onMessageListener(message) {
   }
 }
 
-function loadListenNow() {
+function postToGooglemusic(msg) {
   if (googlemusicport) {
-    googlemusicport.postMessage({type: "getListenNow"});
+    googlemusicport.postMessage(msg);
   }
 }
 
-function loadQueue() {
-  if (googlemusicport) {
-    googlemusicport.postMessage({type: "getQueue"});
-  }
+function loadPlaylistsList(link) {
+  postToGooglemusic({type: "getPlaylistsList", link: link});
+}
+
+function loadPlaylist(link) {
+  postToGooglemusic({type: "getPlaylist", link: link});
+}
+
+function loadAlbumContainers(link) {
+  postToGooglemusic({type: "getAlbumContainers", link: link});
+}
+
+function startPlaylist(link) {
+  postToGooglemusic({type: "startPlaylist", link: link});
+}
+
+/** send a command to the connected Google Music port */
+function executeInGoogleMusic(command, options) {
+  postToGooglemusic({type: "execute", command: command, options: options || {}});
 }
 
 function isScrobblingEnabled() {
@@ -681,21 +698,6 @@ function updateNotifierDone() {
   updateBrowserActionInfo();
 }
 
-/** send a command to the connected Google Music port */
-function executeInGoogleMusic(command, options) {
-  if (googlemusicport) {
-    if (options == null) options = {};
-    googlemusicport.postMessage({type: "execute", command: command, options: options});
-  }
-}
-
-/** send a command to the connected Google Music port */
-function selectInGoogleMusic(link) {
-  if (googlemusicport) {
-    googlemusicport.postMessage({type: "selectLink", link: link});
-  }
-}
-
 /** Google Analytics stuff */
 function gaEvent(category, eventName, value) {
   if (settings.gaEnabled) {
@@ -906,12 +908,12 @@ function notifyRated(rating, old, reset, index) {
   }
 }
 
-function rateQueueSong(index, rating) {
-  var qs = player.queue[index];
+function ratePlaylistSong(index, rating) {
+  var qs = player.playlist.list[index];
   if (qs.rating < 0) return;//negative ratings cannot be changed
   var reset = isRatingReset(qs.rating, rating);
   if (settings.linkRatings && rating == 5 && !reset) loveTrack(null, { info: { title: qs.title, artist: qs.artist} });
-  executeInGoogleMusic("rateQueueSong", {index: index, rating: rating});
+  executeInGoogleMusic("ratePlaylistSong", {link: player.playlist.controlLink, index: index, rating: rating});
   notifyRated(rating, qs.rating, reset, index);
 }
 

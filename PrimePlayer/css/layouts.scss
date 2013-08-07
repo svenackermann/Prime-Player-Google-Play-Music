@@ -50,52 +50,52 @@
   }
   
   #resume {
-    @include sprite(4, 0, $size);
+    @include sprite(3, 0, $size);
   }
 
   #pause {
-    @include hoversprite(5, 0, 5, 1, $size);
+    @include hoversprite(4, 0, 4, 1, $size);
   }
 
   #prev {
-    @include sprite(6, 0, $size);
+    @include sprite(5, 0, $size);
   }
 
   #next {
-    @include sprite(7, 0, $size);
+    @include sprite(6, 0, $size);
   }
 
   #shuffle {
-    @include sprite(8, 0, $size);
+    @include sprite(7, 0, $size);
     &.NO_SHUFFLE {
-      @include hoversprite(8, 0, 8, 1, $size);
+      @include hoversprite(7, 0, 7, 1, $size);
     }
     &.ALL_SHUFFLE {
-      @include hoversprite(8, 2, 8, 1, $size);
+      @include hoversprite(7, 2, 7, 1, $size);
     }
   }
 
   #repeat {
-    @include sprite(9, 0, $size);
+    @include sprite(8, 0, $size);
     &.NO_REPEAT {
-      @include hoversprite(9, 0, 9, 1, $size);
+      @include hoversprite(8, 0, 8, 1, $size);
     }
     &.LIST_REPEAT {
-      @include hoversprite(9, 4, 9, 1, $size);
+      @include hoversprite(8, 4, 8, 1, $size);
     }
     &.SINGLE_REPEAT {
-      @include hoversprite(9, 2, 9, 3, $size);
+      @include hoversprite(8, 2, 8, 3, $size);
     }
   }
   
   #volume {
-    @include sprite(12, 0, $size);
+    @include sprite(11, 0, $size);
   }
   
   .connected #volume {
-    @include hoversprite(12, 0, 12, 1, $size);
+    @include hoversprite(11, 0, 11, 1, $size);
     &.muted {
-      @include hoversprite(12, 2, 12, 3, $size);
+      @include hoversprite(11, 2, 11, 3, $size);
     }
   }
   
@@ -109,19 +109,15 @@
     margin: 0 5px 0 #{$size + 10}px;
   }
   
-  #playlistButton {
-    @include hoversprite(3, 0, 3, 1, $size);
-  }
-  
   .hasSong {
     #resume {
-      @include hoversprite(4, 0, 4, 1, $size);
+      @include hoversprite(3, 0, 3, 1, $size);
     }
     #prev {
-      @include hoversprite(6, 0, 6, 1, $size);
+      @include hoversprite(5, 0, 5, 1, $size);
     }
     #next {
-      @include hoversprite(7, 0, 7, 1, $size);
+      @include hoversprite(6, 0, 6, 1, $size);
     }
   }
 }
@@ -130,13 +126,10 @@
 
 .layout-normal {
   @include playcontrols(30);
-  body {
-    min-width: 270px;
-  }
   #top {
     height: 65px;
   }
-  .hideRatings {
+  &.hideRatings {
     #cover {
       width: 41px;
       height: 41px;
@@ -149,12 +142,6 @@
 
 .layout-compact1 {
   $height: 73px;
-  body {
-    min-width: 250px;
-    &.playlists {
-      min-width: 270px;
-    }
-  }
   #top {
     height: 40px;
   }
@@ -171,7 +158,7 @@
   #coverContainer {
     margin-right: #{$rate-size + 5}px;
   }
-  .hideRatings #coverContainer {
+  &.hideRatings #coverContainer {
     margin-right: 5px;
   }
   #rating {
@@ -262,15 +249,6 @@
 .layout-compact2 {
   body {
     min-width: 180px;
-    &.hideRatings {
-      min-width: 150px;
-    }
-    &.playlists {
-      min-width: 200px;
-    }
-    &.playlists.hideRatings {
-      min-width: 170px;
-    }
   }
   #top {
     height: 64px;
@@ -291,7 +269,10 @@
       margin: 0 3px;
     }
   }
-  .hideRatings {
+  &.hideRatings {
+    body {
+      min-width: 150px;
+    }
     #top {
       height: 40px;
     }
@@ -337,15 +318,11 @@
 
 .layout-hbar {
   $height: 30px;
-  min-width: 500px;
   #top {
     padding: 0;
   }
   #player {
     width: 476px;
-  }
-  .playlists #player {
-    width: 500px;
   }
   #cover {
     width: $height - 4px;
@@ -361,18 +338,12 @@
   #song, #nosong {
     width: 150px;
   }
-  .hideRatings {
+  &.hideRatings {
     #time {
       width: 144px;
     }
-    &.playlists #time {
-      width: 168px;
-    }
     #player {
       width: 359px;
-    }
-    &.playlists #player {
-      width: 383px;
     }
   }
   #playControls {
@@ -388,9 +359,6 @@
     height: 10px;
     padding: 0;
   }
-  .playlists #time {
-    width: 285px;
-  }
   #currentTime, #songTime {
     font-size: 8px;
     min-width: 4ex;
@@ -403,20 +371,17 @@
     top: 10px;
     left: $height + 316px;
   }
-  .playlists #rating {
-    left: $height + 340px;
-  }
   #rightbuttons {
     margin: 0;
-    > * {
+    > a {
       height: 14px;
       width: 14px;
     }
   }
   #lastfmUser {
-    @include hoversprite(11, 2, 11, 1, 14);
+    @include hoversprite(10, 2, 10, 1, 14);
   }
   .scrobbleEnabled #lastfmUser {
-    @include hoversprite(11, 0, 11, 1, 14);
+    @include hoversprite(10, 0, 10, 1, 14);
   }
 }

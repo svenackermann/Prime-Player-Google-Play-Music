@@ -14,8 +14,8 @@
   "gotoGmusic": {
     "message": "\u00D6ffne Google Play Music"
   },
-  "playlists": {
-    "message": "Playlisten"
+  "myPlaylists": {
+    "message": "Meine Playlists"
   },
   "setting_scrobble": {
     "message": "Scrobbeln aktivieren"
@@ -40,9 +40,6 @@
   },
   "disconnected": {
     "message": "Nicht verbunden"
-  },
-  "showPlaylists": {
-    "message": "Playlisten anzeigen"
   },
   "repeat": {
     "message": "Wiederholen"
@@ -248,5 +245,11 @@
   },
   "showListenNow": {
     "message": "Bereich \u0022Jetzt anh\u00F6ren\u0022 anzeigen"
+  },
+  "showQuicklinks": {
+    "message": "Quick-Links anzeigen"
+  },
+  "emptyList": {
+    "message": "Die Liste ist leer."
   }
 }

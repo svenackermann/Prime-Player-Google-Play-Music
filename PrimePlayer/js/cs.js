@@ -9,7 +9,6 @@ $(function() {
   var port;
   var registeredListeners = [];
   var observers = [];
-  var CONTENT_SEL = "#main > .g-content:not(#flash-missing-message)";
   
   /** send update to background page */
   function post(type, value) {
@@ -30,6 +29,26 @@ $(function() {
     var cover = el.attr("src");
     if (cover && cover.indexOf("http") != 0) cover = "https:" + cover;
     return cover;
+  }
+
+  function sendQuickLinks() {
+    var ql = {};
+    var nav = $("#nav_collections");
+    ql.listenNowText = $.trim(nav.children("li[data-type='now']").text());
+    ql.mixesText = $.trim(nav.children("li[data-type='rd']").text());
+    var br = $("#browse-tabs");
+    ql.artistsText = $.trim(br.children("div[data-type='artists']").text());
+    ql.albumsText = $.trim(br.children("div[data-type='albums']").text());
+    ql.genresText = $.trim(br.children("div[data-type='genres']").text());
+    var apl = [];
+    $("#auto-playlists").children("li").each(function() {
+      apl.push({
+        link: getLink($(this)),
+        text: $.trim($(this).find("div.tooltip").text())
+      });
+    });
+    ql.autoPlaylists = apl;
+    post("player-quicklinks", ql);
   }
   
   /**
@@ -55,9 +74,10 @@ $(function() {
         fn(content);
       }, timeout);//wait til the DOM manipulation is finished
     };
-    content.on("DOMSubtreeModified", listener).triggerHandler("DOMSubtreeModified");
+    content.on("DOMSubtreeModified", listener);
     if (!removeAfterExecute) {
       registeredListeners.push({ selector: selector, listener: listener });
+      content.triggerHandler("DOMSubtreeModified");
     }
   }
   
@@ -69,15 +89,6 @@ $(function() {
     else if (ratingContainer.hasClass("stars")) ratingMode = "star";
     ratingContainer = null;
     post("player-ratingMode", ratingMode);
-    
-    function sendPlaylists(pl) {
-      var playlists = [];
-      pl.find("li").each(function() {
-        var playlist = [getLink($(this)), $(this).text()];
-        playlists.push(playlist);
-      });
-      post("player-playlists", playlists);
-    }
     
     function sendSong() {
       var hasSong = $("#playerSongInfo").find("div").length > 0;
@@ -138,7 +149,6 @@ $(function() {
       }
     }
     
-    executeAfterContentLoad(sendPlaylists, "#playlists", false);
     executeAfterContentLoad(sendSong, "#time_container_duration, #playerSongInfo", false);
     executeAfterContentLoad(sendPosition, "#time_container_current", false, 0);
     watchAttr("class", "#player > div.player-middle > button[data-id='play-pause']", "player-playing", playingGetter);
@@ -160,6 +170,8 @@ $(function() {
         port.disconnect();
         cleanup();
       });
+    
+    sendQuickLinks();
   }
   
   /** Send a command to the injected script. */
@@ -194,13 +206,13 @@ $(function() {
     if (location.hash == "#/" + hash) {
       callback();
     } else {
+      executeAfterContentLoad(callback, "#main", true, 500);
       selectLink(hash);
-      executeAfterContentLoad(callback, CONTENT_SEL, true, 1000);
     }
   }
   
-  function sendListenNowList() {
-    var listenNowList = [];
+  function sendPlaylistsList() {
+    var playlists = [];
     $(".card").each(function() {
       var card = $(this);
       var item = {};
@@ -210,61 +222,77 @@ $(function() {
       var subTitle = card.find(".sub-title");
       item.subTitle = $.trim(subTitle.text());
       item.subTitleLink = getLink(subTitle);
-      listenNowList.push(item);
+      playlists.push(item);
     });
-    post("player-listenNowList", listenNowList);
+    post("player-playlistsList", playlists);
   }
   
-  function getListenNow() {
-    selectAndExecute("now", sendListenNowList);
-  }
-  
-  function sendQueue() {
-    var queue = [];
+  function sendPlaylist() {
+    var playlist = [];
     $(".song-row").each(function() {
       var song = $(this);
       var item = {};
       var title = song.find("td[data-col='title'] .content");
       item.cover = parseCover(title.find("img"));
       item.title = $.trim(title.text());
-      if (title.find(".song-indicator").length > 0) item.current = true;
-      item.duration = $.trim(song.find("td[data-col='duration']").text());
+      if (song.find(".song-indicator").length > 0) item.current = true;
+      if (location.hash != "#/ap/google-play-recommends") {//no real duration on recommandation page
+        item.duration = $.trim(song.find("td[data-col='duration']").text());
+      }
       item.artist = $.trim(song.find("td[data-col='artist'] .content").text());
       if (item.artist) item.artistLink = "ar/" + encodeURIComponent(item.artist);
       item.album = $.trim(song.find("td[data-col='album'] .content").text());
-      item.rating = parseInt(song.find("td[data-col='rating']").data("rating")) || 0;
-      queue.push(item);
+      var rating = parseInt(song.find("td[data-col='rating']").data("rating"));
+      item.rating = isNaN(rating) ? -1 : rating;
+      playlist.push(item);
     });
-    post("player-queue", queue);
+    post("player-playlist", {list: playlist, controlLink: location.hash});
   }
   
-  function getQueue() {
-    selectAndExecute("ap/queue", sendQueue);
+  function sendAlbumContainers() {
+    var items = [];
+    $(".card").each(function() {
+      var card = $(this);
+      var item = {};
+      var img = card.find(".image-inner-wrapper img:first");
+      if (img.attr("src").indexOf("/default_artist.png") < 0) item.cover = parseCover(img);
+      item.title = $.trim(card.find(".details .title").text());
+      item.link = getLink(card);
+      items.push(item);
+    });
+    post("player-albumContainers", items);
   }
-
+  
+  function sendMyPlaylists() {
+    var playlists = [];
+    $("#playlists").children("li").each(function() {
+      playlists.push({title: $.trim($(this).find(".tooltip").text()), titleLink: getLink($(this))});
+    });
+    post("player-playlistsList", playlists);
+  }
+  
   port = chrome.runtime.connect({name: "googlemusic"});
   port.onDisconnect.addListener(cleanup);
   port.onMessage.addListener(function(msg) {
     switch (msg.type) {
       case "execute":
-        if (msg.command == "startPlaylist") {
-          var link = msg.options.pllink;
-          selectAndExecute(link, function() {
-            //type "im"/"st" starts automatically
-            if (link.indexOf("im/") != 0 && link.indexOf("st/") != 0) sendCommand("startPlaylist");
-          });
-        } else {
-          sendCommand(msg.command, msg.options);
-        }
+        sendCommand(msg.command, msg.options);
         break;
-      case "selectLink":
-        selectLink(msg.link);
+      case "getPlaylistsList":
+        if (msg.link == "myPlaylists") sendMyPlaylists();
+        else selectAndExecute(msg.link, sendPlaylistsList);
         break;
-      case "getListenNow":
-        getListenNow();
+      case "getPlaylist":
+        selectAndExecute(msg.link, sendPlaylist);
         break;
-      case "getQueue":
-        getQueue();
+      case "getAlbumContainers":
+        selectAndExecute(msg.link, sendAlbumContainers);
+        break;
+      case "startPlaylist":
+        selectAndExecute(msg.link, function() {
+          //type "im"/"st" starts automatically
+          if (msg.link.indexOf("im/") != 0 && msg.link.indexOf("st/") != 0) sendCommand("startPlaylist");
+        });
         break;
       case "connected":
         init();

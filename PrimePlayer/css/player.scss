@@ -72,9 +72,6 @@ a {
     padding-top: 3px;
     overflow-x: hidden;
   }
-  &.hideRatings #rating {
-    display: none;
-  }
   #time > div {
     visibility: visible;
   }
@@ -93,6 +90,10 @@ a {
     opacity: 1;
     cursor: pointer;
   }
+}
+
+.hideRatings .hasSong #rating {
+  display: none;
 }
 
 #nosong {
@@ -185,28 +186,52 @@ a {
 #rightbuttons {
   float: right;
   margin-left: 1ex;
-  margin-bottom: 1ex;
-  > * {
-    margin-bottom: 1px;
+  > a {
     clear: both;
-    height: 16px;
-    width: 16px;
+    height: 15px;
+    width: 15px;
   }
 }
 
 #miniplayerlink {
   display: block;
-  cursor: pointer;
-  @include hoversprite(10, 0, 10, 1, 16);
+  @include hoversprite(9, 0, 9, 1, 15);
 }
 
 .miniplayer #miniplayerlink {
   display: none;
 }
 
+#quickLinksBtn {
+  display: none;
+  @include hoversprite(12, 0, 12, 1, 15);
+}
+
+.connected #quickLinksBtn {
+  display: block;
+}
+
+.toast .connected #quickLinksBtn {
+  display: none;
+}
+
+.popup {
+  height: 115px;
+  body {
+    height: 115px;
+    min-width: 240px;
+  }
+  &.hideRatings {
+    height: 96px;
+    body {
+      height: 96px;
+    }
+  }
+}
+
 #lastfmUser {
   display: none;
-  @include hoversprite(11, 2, 11, 1, 16);
+  @include hoversprite(10, 2, 10, 1, 15);
 }
 
 .lastfm {
@@ -216,7 +241,7 @@ a {
 }
 
 .scrobbleEnabled #lastfmUser {
-  @include hoversprite(11, 0, 11, 1, 16);
+  @include hoversprite(10, 0, 10, 1, 16);
 }
 
 #playlists {
@@ -256,31 +281,35 @@ a {
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
 }
 
-#listenNow, #queue {
+#playlistsList, #playlist, #albumContainers {
   display: none;
-  height: 95%;
+  height: 98%;
   padding: 2px;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   &.loading {
     background: url(../img/ajax-loader.gif) no-repeat center center;
   }
+  > div {
+    white-space: nowrap;
+  }
+}
+
+#playlistsList, #playlist {
   > div {
     > img {
       height: 16px;
       width: 16px;
       border: 1px solid #AAA;
       cursor: pointer;
-    }
-    > img:hover {
-      opacity: 0.5;
+      &:hover {
+        opacity: 0.5;
+      }
     }
   }
 }
 
-#listenNow > div {
-  > a, > span {
-    width: 40%;
-  }
+#playlistsList > div {
   > span {
     color: #888;
   }
@@ -291,9 +320,15 @@ a {
     overflow: hidden;
     white-space: nowrap;
   }
+  > a.title {
+    width: 50%;
+    &:last-child {
+      width: auto;
+    }
+  }
 }
 
-#queue > div {
+#playlist > div {
   height: 18px;
   &.current {
     background: url(../img/paused.png) no-repeat;
@@ -340,11 +375,11 @@ a {
   }
 }
 
-.playing #queue > div.current {
+.playing #playlist > div.current {
   background-image: url(../img/playing.gif);
 }
 
-.thumbs-rating #queue > div > div.rating {
+.thumbs-rating #playlist > div > div.rating {
   a[data-rating='1']:hover {
     @include sprite(1, 3, 12);
   }
@@ -359,7 +394,7 @@ a {
   }
 }
 
-.star-rating #queue > div > div.rating {
+.star-rating #playlist > div > div.rating {
   position: relative;
   width: 60px;
   a[data-rating] {
@@ -385,6 +420,42 @@ a {
       width: 12px * $i;
       z-index: 7-$i;
     }
+  }
+}
+
+#playlist > .empty {
+  text-align: center;
+  position: relative;
+  top: 40%;
+  &:after {
+    content: "__MSG_emptyList__";
+  }
+}
+
+#quickLinks {
+  display: none;
+  height: 100%;
+  > div {
+    width: 47%;
+    margin: 3px;
+    float: left;
+    &#qlAutoPlaylists {
+      float: right;
+    }
+    > a {
+      display: block;
+    }
+  }
+}
+
+#albumContainers > div {
+  > img {
+    height: 16px;
+  }
+  > a {
+    margin-left: 5px;
+    vertical-align: top;
+    white-space: nowrap;
   }
 }
 
@@ -576,16 +647,6 @@ a#volume {
 
 #volumeBar {
   height: inherit;
-}
-
-a#playlistButton {
-  display: none;
-  cursor: pointer;
-  float: right;
-}
-
-.playlists a#playlistButton {
-  display: block;
 }
 
 @import "layouts"

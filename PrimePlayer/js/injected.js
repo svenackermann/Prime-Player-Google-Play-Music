@@ -29,18 +29,15 @@
     }
   }
   
-  function getQueueCol(index, col) {
-    if (location.hash != "#/ap/queue") return null;
+  function getPlaylistCols(controlLink, index) {
+    if (location.hash != controlLink) return null;
     var row = document.getElementsByClassName("song-row")[index];
-    var tds = row.getElementsByTagName("td");
-    for (var i = 0; i < tds.length; i++) {
-      if (tds[i].dataset.col == col) return tds[i];
-    }
-    return null;
+    if (row) return row.getElementsByTagName("td");
+    return [];
   }
   
-  function startQueueSong(index) {
-    var col = getQueueCol(index, "title");
+  function startPlaylistSong(controlLink, index) {
+    var col = getPlaylistCols(controlLink, index)[0];
     if (col) {
       var span = col.getElementsByClassName("content")[0];
       dispatchMouseEvent(span, "mouseover");
@@ -50,13 +47,16 @@
     }
   }
   
-  function rateQueueSong(index, rating) {
-    var col = getQueueCol(index, "rating");
-    if (col) {
-      dispatchMouseEvent(col, "mouseover");
-      setTimeout(function() {
-        rate(col, rating);
-      }, 250);
+  function ratePlaylistSong(controlLink, index, rating) {
+    var cols = getPlaylistCols(controlLink, index);
+    for (var i = cols.length - 1; i >= 0; i--) {
+      if (cols[i].dataset.col == "rating") {
+        dispatchMouseEvent(cols[i], "mouseover");
+        setTimeout(function() {
+          rate(cols[i], rating);
+        }, 250);
+        return;
+      }
     }
   }
   
@@ -107,11 +107,11 @@
       case "clickCard":
         clickCard(event.data.options.id);
         break;
-      case "startQueueSong":
-        startQueueSong(event.data.options.index);
+      case "startPlaylistSong":
+        startPlaylistSong(event.data.options.link, event.data.options.index);
         break;
-      case "rateQueueSong":
-        rateQueueSong(event.data.options.index, event.data.options.rating);
+      case "ratePlaylistSong":
+        ratePlaylistSong(event.data.options.link, event.data.options.index, event.data.options.rating);
         break;
       case "cleanup":
         cleanup();
