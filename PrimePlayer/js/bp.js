@@ -106,6 +106,7 @@ var LASTFM_APISECRET = "fb4b74854f7a7b099c30bfe71236dfd5";
 var lastfm = new LastFM({apiKey: LASTFM_APIKEY, apiSecret: LASTFM_APISECRET});
 lastfm.session.key = localSettings.lastfmSessionKey;
 lastfm.session.name = localSettings.lastfmSessionName;
+lastfm.unavailableMessage = chrome.i18n.getMessage("lastfmUnavailable");
 
 var currentVersion = chrome.runtime.getManifest().version;
 
@@ -465,12 +466,11 @@ function lastfmLogin() {
 }
 
 /** reset last.fm session */
-function lastfmLogout(relogin) {
+function lastfmLogout() {
   lastfm.session = {};
   localSettings.lastfmSessionKey = null;
   localSettings.lastfmSessionName = null;
   song.loved = null;
-  if (!(relogin === true)) localStorage.removeItem("scrobbleCache");//clear data on explicit logout
 }
 
 var lastfmReloginNotificationId;
@@ -485,7 +485,7 @@ function lastfmReloginClicked(notificationId) {
 
 /** logout from last.fm and show a notification to login again */
 function relogin() {
-  lastfmLogout(true);
+  lastfmLogout();
   chrome.notifications.create("", {
     type: "basic",
     title: chrome.i18n.getMessage("lastfmSessionTimeout"),

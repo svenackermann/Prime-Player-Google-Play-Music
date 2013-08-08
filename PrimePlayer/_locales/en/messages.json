@@ -74,6 +74,9 @@
   "lastfmError": {
     "message": "Error on last.fm communication, click to reload: "
   },
+  "lastfmUnavailable": {
+    "message": "The last.fm webservice is unavailable."
+  },
   "setting_toastUseMpStyle": {
     "message": "Use miniplayer style for toasts"
   },

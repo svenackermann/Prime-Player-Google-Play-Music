@@ -14,6 +14,7 @@ function LastFM(options){
 
   this.session = {};
   this.sessionTimeoutCallback;
+  this.unavailableMessage;
   var that = this;
 
   /* Internal call (POST, GET). */
@@ -36,7 +37,10 @@ function LastFM(options){
       }
     }).fail(function(jqXHR, textStatus, errorThrown) {
       if (typeof(callbacks.error) == "function") {
-        callbacks.error(-1, errorThrown || textStatus);
+        var msg = textStatus + " " + jqXHR.status;
+        if (errorThrown) msg += " " + errorThrown;
+        if (that.unavailableMessage) msg = that.unavailableMessage + " (" + msg + ")";
+        callbacks.error(-1, msg);
       }
     });
   };
