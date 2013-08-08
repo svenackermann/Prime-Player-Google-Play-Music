@@ -202,7 +202,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       savedSizing = {
         height: window.outerHeight,
         width: window.outerWidth,
-        screenX: window.screenX,
+        screenX: window.screenX - screen.availLeft,
         screenY: window.screenY
       }
     }
