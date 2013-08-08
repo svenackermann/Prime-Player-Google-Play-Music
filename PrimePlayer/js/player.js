@@ -178,9 +178,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("body").toggleClass("connected", val);
     $("#coverContainer").unbind();
     $("#cover").removeAttr("title");
+    $("#nosong a:first-child").removeAttr("title").unbind();
     if (val) {
       $("#coverContainer").click(function() { showPlaylistsList("now"); });
       $("#cover").attr("title", chrome.i18n.getMessage("showListenNow"));
+      $("#nosong a:first-child")
+        .attr("title", chrome.i18n.getMessage("showQueue"))
+        .click(function() { showPlaylist("ap/queue"); });
       renderQuicklinks();
     } else {
       restorePlayer();
@@ -516,8 +520,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
       .click(bp.openMiniplayer)
       .attr("title", chrome.i18n.getMessage("openMiniplayer"));
       
-    $("#nosong").find("span").text(chrome.i18n.getMessage("nothingPlaying"))
-      .parent().find("a")
+    $("#nosong").children("a:first-child").text(chrome.i18n.getMessage("nothingPlaying"))
+      .parent().children("a:last-child")
         .click(bp.openGoogleMusicTab)
         .text(chrome.i18n.getMessage("gotoGmusic"));
 

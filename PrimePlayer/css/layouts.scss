@@ -332,7 +332,7 @@
     font-size: $height / 3 - 2;
     height: $height / 3;
   }
-  #nosong a {
+  #nosong a:last {
     margin-top: 2px;
   }
   #song, #nosong {

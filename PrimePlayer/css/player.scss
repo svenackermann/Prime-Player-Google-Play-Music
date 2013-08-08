@@ -97,13 +97,26 @@ a {
 }
 
 #nosong {
-  span {
+  a:first-child {
     font-style: italic;
     display: block;
+    cursor: default;
+    &:hover {
+      color: black;
+      text-decoration: none;
+    }
   }
-  a {
+  a:last-child {
     margin-top: 8px;
     display: block;
+    text-decoration: underline;
+  }
+}
+
+.connected #nosong a:first-child {
+  cursor: pointer;
+  &:hover {
+    color: #333333;
     text-decoration: underline;
   }
 }
