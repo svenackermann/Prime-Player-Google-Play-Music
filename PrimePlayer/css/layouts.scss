@@ -16,8 +16,9 @@
   .playing #timeBarHolder {
     border-color: lighten($color, 50%);
   }
-  h2 {
-    color: lighten($color, 20%)
+  #quickLinksBtn {
+    background-color: $color;
+    border-top-color: lighten($color, 20%)
   }
 }
 
@@ -376,10 +377,15 @@
   }
   #rightbuttons {
     margin: 0;
-    > a {
-      height: 14px;
-      width: 14px;
-    }
+  }
+  #miniplayerlink, #lastfmUser {
+    height: 14px;
+    width: 14px;
+  }
+  #quickLinksBtn {
+    @include sprite(12, 0, 13);
+    height: 12px;
+    width: 13px;
   }
   #lastfmUser {
     @include hoversprite(10, 2, 10, 1, 14);

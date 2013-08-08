@@ -7,7 +7,9 @@ $sprite-height: 150;
 $sprite-icon-size: 30;
 
 @mixin sprite($x, $y, $size) {
-  background: no-repeat url(../img/sprites.png) -#{$x * $size}px -#{$y * $size}px;
+  background-repeat: no-repeat;
+  background-image: url(../img/sprites.png);
+  background-position: -#{$x * $size}px -#{$y * $size}px;
   background-size: auto #{$sprite-height / $sprite-icon-size * $size}px;
 }
 
@@ -205,13 +207,13 @@ a {
   margin-left: 1ex;
   > a {
     clear: both;
-    height: 15px;
-    width: 15px;
   }
 }
 
 #miniplayerlink {
   display: block;
+  height: 15px;
+  width: 15px;
   @include hoversprite(9, 0, 9, 1, 15);
 }
 
@@ -221,7 +223,16 @@ a {
 
 #quickLinksBtn {
   display: none;
-  @include hoversprite(12, 0, 12, 1, 15);
+  border-radius: 3px;
+  height: 13px;
+  width: 14px;
+  border-top: 1px solid;
+  margin-bottom: 1px;
+  @include sprite(12, 0, 14);
+  &:hover {
+    background-color: #12C0CF !important;
+    border-top-color: #44F0FF !important;
+  }
 }
 
 .connected #quickLinksBtn {
@@ -248,6 +259,8 @@ a {
 
 #lastfmUser {
   display: none;
+  height: 15px;
+  width: 15px;
   @include hoversprite(10, 2, 10, 1, 15);
 }
 
