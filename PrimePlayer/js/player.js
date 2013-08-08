@@ -95,6 +95,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("#scrobblePosition").removeClass("songscrobble");
     }
   }
+  
+  function scrobbledWatcher(val) {
+    $("body").toggleClass("scrobbled");
+  }
 
   function scrobbleWatcher(val) {
     $("body").toggleClass("scrobbleEnabled", val);
@@ -565,6 +569,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.song.watch("rating", ratingWatcher);
     bp.song.watch("scrobbleTime", updateScrobblePosition);
     bp.song.watch("loved", songLovedWatcher);
+    bp.song.watch("scrobbled", scrobbledWatcher);
     
     bp.ratedCallbacks[typeClass] = ratedCallback;
     
@@ -590,6 +595,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       bp.song.removeListener("rating", ratingWatcher);
       bp.song.removeListener("scrobbleTime", updateScrobblePosition);
       bp.song.removeListener("loved", songLovedWatcher);
+      bp.song.removeListener("scrobbled", scrobbledWatcher);
       
       bp.ratedCallbacks[typeClass] = null;
     });

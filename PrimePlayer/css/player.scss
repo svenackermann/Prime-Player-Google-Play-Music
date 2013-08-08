@@ -192,6 +192,10 @@ a {
   height: 100%;
 }
 
+.scrobbled #scrobblePosition {
+  background-color: #888;
+}
+
 .scrobbleEnabled #scrobblePosition.songscrobble {
   display: block;
 }

@@ -273,6 +273,7 @@ function isScrobblingEnabled() {
 
 /** @return song position in seconds when the song will be scrobbled or -1 if disabled */
 function calcScrobbleTime() {
+  if (song.scrobbled) return;
   if (song.info
   && song.info.durationSec > 0
   && isScrobblingEnabled()
@@ -813,7 +814,7 @@ song.addListener("position", function(val) {
   song.positionSec = parseSeconds(val);
   if (!song.ff && song.positionSec > oldPos + 5) {
     song.ff = true;
-    if (settings.disableScrobbleOnFf) song.scrobbleTime = -1;
+    if (settings.disableScrobbleOnFf && !song.scrobbled) song.scrobbleTime = -1;
   } else if (song.ff && song.positionSec <= 5) {//prev pressed or gone back
     song.ff = false;
     if (settings.disableScrobbleOnFf) calcScrobbleTime();

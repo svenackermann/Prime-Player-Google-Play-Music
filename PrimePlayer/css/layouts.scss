@@ -35,6 +35,9 @@
 }
 .color-black {
   @include colorScheme(#242424);
+  .scrobbled #scrobblePosition {
+    background-color: #BBB;
+  }
 }
 .color-orange {
   @include colorScheme(#FB8521);
