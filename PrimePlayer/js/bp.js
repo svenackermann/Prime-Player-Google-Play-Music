@@ -681,6 +681,8 @@ function updatedListener(details) {
     } else {
       previousVersion = null;
     }
+  } else if (details.reason == "install") {
+    chrome.tabs.create({url: chrome.extension.getURL("options.html")});
   }
 }
 
