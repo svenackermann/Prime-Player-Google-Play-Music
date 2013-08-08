@@ -52,8 +52,53 @@ img.hint {
   vertical-align: text-bottom;
 }
 
+#changelog h2 {
+  display: inline-block;
+  margin-right: 2ex;
+}
+
+#changelog label {
+  margin-right: 1ex;
+}
+
 #changelog img.hint {
   height: 12px;
+}
+
+#changelog li.B:before {
+  content: "B: ";
+}
+#changelog li.I:before {
+  content: "I: ";
+}
+#changelog li.F:before {
+  content: "F: ";
+}
+#changelog li.B.I:before {
+  content: "I/B: ";
+}
+#changelog li.F.I:before {
+  content: "F/I: ";
+}
+
+#changelog .F, #changelog .I, #changelog .B, #changelog h3 {
+  display: none;
+}
+
+#changelog.F .F {
+  display: list-item;
+}
+
+#changelog.I .I {
+  display: list-item;
+}
+
+#changelog.B .B {
+  display: list-item;
+}
+
+#changelog.V h3 {
+  display: block;
 }
 
 #lastfmStatus {

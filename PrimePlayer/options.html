@@ -161,167 +161,176 @@
       </div>
       <span id="bugfeatureinfo"></span>
     </div>
-    <div id="changelog">
+    <div id="changelog" class="F I B V">
       <h2>Changelog</h2>
+      <input title="Show/hide features" id="cl-F" type="checkbox" checked/>
+      <label for="cl-F">F</label>
+      <input title="Show/hide improvements" id="cl-I" type="checkbox" checked/>
+      <label for="cl-I">I</label>
+      <input title="Show/hide bugfixes" id="cl-B" type="checkbox" checked/>
+      <label for="cl-B">B</label>
+      <input title="Show/hide versions" id="cl-V" type="checkbox" checked/>
+      <label for="cl-V">V</label>
       <div class="v-2.0">
         New major version including:
         <ul>
-          <li>Quicklinks for direct access to all areas in Google Music (except "all titles")</li>
-          <li>All links are now opened in the miniplayer</li>
-          <li>Removed playlists icon as it is now included as quicklink</li>
-          <li>Option to omit unknown albums in albums list</li>
-          <li>Ratings in playlist view (former queue) are now updated on keyboard shortcut rating</li>
-          <li>Google Music tab can now be disconnected from the extension by clicking on the "P" icon on the tab (useful for development)</li>
-          <li>Many improvements/fixes for design and usability</li>
+          <li class="F I">Quicklinks for direct access to all areas in Google Music (except "all titles")</li>
+          <li class="I">All links are now opened in the miniplayer</li>
+          <li class="I">Removed playlists icon as it is now included as quicklink</li>
+          <li class="F">Option to omit unknown albums in albums list</li>
+          <li class="I">Ratings in playlist view (former queue) are now updated on keyboard shortcut rating</li>
+          <li class="F">Google Music tab can now be disconnected from the extension by clicking on the "P" icon on the tab (useful for development)</li>
+          <li class="F">Changelog filtering</li>
+          <li class="B I">Many improvements/fixes for design and usability</li>
           <li>Please see also the new FAQ on the <a target="_blank" href="https://chrome.google.com/webstore/detail/prime-player-for-google-p/npngaakpdgeaajbnidkkginekmnaejbi/details">extension's homepage</a></li>
         </ul>
       </div>
       <div class="v-1.11.1">
         <ul>
-          <li>Fixed layout issue when no song is loaded</li>
+          <li class="B">Fixed layout issue when no song is loaded</li>
         </ul>
       </div>
       <div class="v-1.11">
         <ul>
-          <li>Option to hide rating symbols</li>
-          <li>Save individual player size for queue, playlists, listen now and player <img src="img/hint.png" class="hint" title="If you resize the player while it shows the queue (or playlists or listen now), the extension will remember that size and restore it the next time you open the queue. So you can view the queue in a temporary bigger size."></img></li>
-          <li>Do not show an empty link for songs with no album</li>
+          <li class="F">Option to hide rating symbols</li>
+          <li class="I">Save individual player size for queue, playlists, listen now and player <img src="img/hint.png" class="hint" title="If you resize the player while it shows the queue (or playlists or listen now), the extension will remember that size and restore it the next time you open the queue. So you can view the queue in a temporary bigger size."></img></li>
+          <li class="B">Do not show an empty link for songs with no album</li>
         </ul>
       </div>
       <div class="v-1.10.1">
         <ul>
-          <li>Fixed stupid "Uncaught ReferenceError" on updates (thanks to Billy Keyes)</li>
-          <li>Minor fixes/improvements</li>
+          <li class="B">Fixed stupid "Uncaught ReferenceError" on updates (thanks to Billy Keyes)</li>
+          <li class="B">Minor fixes/improvements</li>
         </ul>
       </div>
       <div class="v-1.10">
         <ul>
-          <li>Option to change the browser icon style</li>
-          <li>Show song info in browser action hint</li>
-          <li>Improved volume mute (different icon in miniplayer, unmute when muted)</li>
+          <li class="F">Option to change the browser icon style</li>
+          <li class="I">Show song info in browser action hint</li>
+          <li class="I">Improved volume mute (different icon in miniplayer, unmute when muted)</li>
         </ul>
       </div>
       <div class="v-1.9.2">
         <ul>
-          <li>Fixed layout issue in queue list for radio station songs (thanks to Gregor Smith)</li>
-          <li>Scrobble and send now playing again when single repeat is active</li>
-          <li>Fixed displaying of covers from recommendations</li>
+          <li class="B">Fixed layout issue in queue list for radio station songs (thanks to Gregor Smith)</li>
+          <li class="I">Scrobble and send now playing again when single repeat is active</li>
+          <li class="B">Fixed displaying of covers from recommendations</li>
         </ul>
       </div>
       <div class="v-1.9.1">
         <ul>
-          <li>Orange color scheme</li>
+          <li class="F">Orange color scheme</li>
         </ul>
       </div>
       <div class="v-1.9">
         <ul>
-          <li>Added more keyboard shortcuts (see bottom of chrome://extensions)</li>
-          <li>Minor fixes for queue preview</li>
+          <li class="F">Added more keyboard shortcuts (see bottom of chrome://extensions)</li>
+          <li class="B">Minor fixes for queue preview</li>
         </ul>
       </div>
       <div class="v-1.8">
         <ul>
-          <li>Direct access to queue in miniplayer (click on title)</li>
-          <li>Show status in browser icon</li>
-          <li>Use Google images for thumbs/volume</li>
-          <li>Minor layout fixes</li>
-          <li>Fixed bug with "disable scrobble after fast forward" option</li>
+          <li class="F">Direct access to queue in miniplayer (click on title)</li>
+          <li class="I">Show status in browser icon</li>
+          <li class="I">Use Google images for thumbs/volume</li>
+          <li class="B">Minor layout fixes</li>
+          <li class="B">Fixed bug with "disable scrobble after fast forward" option</li>
         </ul>
       </div>
       <div class="v-1.7.5">
         <ul>
-          <li>Included donate button</li>
+          <li class="F">Included donate button</li>
         </ul>
       </div>
       <div class="v-1.7.4">
         <ul>
-          <li>Improved last.fm loved status handling (load only once for a song)</li>
-          <li>Replaced keyboard shortcut for previous song with one to love/unlove the current song</li>
-          <li>Fixed sizing issue when panel is opened</li>
-          <li>Allow link ratings option if scrobbling is disabled</li>
+          <li class="I">Improved last.fm loved status handling (load only once for a song)</li>
+          <li class="F">Replaced keyboard shortcut for previous song with one to love/unlove the current song</li>
+          <li class="B">Fixed sizing issue when panel is opened</li>
+          <li class="B">Allow link ratings option if scrobbling is disabled</li>
         </ul>
       </div>
       <div class="v-1.7.3">
         <ul>
-          <li>Fixed some minor bugs with toasts and auto-update</li>
+          <li class="B">Fixed some minor bugs with toasts and auto-update</li>
         </ul>
       </div>
       <div class="v-1.7.2">
         <ul>
-          <li>Removed need for googleusercontent.com permission</li>
+          <li class="I">Removed need for googleusercontent.com permission</li>
         </ul>
       </div>
       <div class="v-1.7">
         <ul>
-          <li>Direct access to "listen now" area (click on cover in player)</li>
-          <li>Cache (up to 50) songs (on local machine only) for later batch scrobbling when last.fm API is temporarily unavailable</li>
+          <li class="F">Direct access to "listen now" area (click on cover in player)</li>
+          <li class="I">Cache (up to 50) songs (on local machine only) for later batch scrobbling when last.fm API is temporarily unavailable</li>
         </ul>
       </div>
       <div class="v-1.6.1">
         <ul>
-          <li>Renamed extension to include its purpose</li>
+          <li class="I">Renamed extension to include its purpose</li>
         </ul>
       </div>
       <div class="v-1.6">
         <ul>
-          <li>Volume control</li>
-          <li>Option to use miniplayer style for toasts</li>
+          <li class="F">Volume control</li>
+          <li class="F">Option to use miniplayer style for toasts</li>
         </ul>
       </div>
       <div class="v-1.5">
         <ul>
-          <li>Use rich notifications for toasts (since Chrome 28 the old notifications no longer work)</li>
+          <li class="F">Use rich notifications for toasts (since Chrome 28 the old notifications no longer work)</li>
         </ul>
       </div>
       <div class="v-1.4">
         <ul>
-          <li>Use event pages (free memory when unused)</li>
-          <li>Option to sync settings with Chrome sync</li>
+          <li class="I">Use event pages (free memory when unused)</li>
+          <li class="F">Option to sync settings with Chrome sync</li>
         </ul>
       </div>
       <div class="v-1.3">
         <ul>
-          <li>Control title position from miniplayer (click on timebar)</li>
-          <li>Added keyboard shortcuts <img src="img/hint.png" class="hint" title="Select shortcuts link on bottom of chrome://extensions to configure. Shortcuts only work when Chrome has focus."></img></li>
-          <li>Minor fixes/improvements</li>
+          <li class="F">Control title position from miniplayer (click on timebar)</li>
+          <li class="F">Added keyboard shortcuts <img src="img/hint.png" class="hint" title="Select shortcuts link on bottom of chrome://extensions to configure. Shortcuts only work when Chrome has focus."></img></li>
+          <li class="B">Minor fixes/improvements</li>
         </ul>
       </div>
       <div class="v-1.2">
         <ul>
-          <li>Option to disable scrobbling after fast forward</li>
-          <li>Option to link ratings between last.fm and Google</li>
-          <li>Linked artist/album</li>
-          <li>Accessibility improvements</li>
-          <li>Improved auto-update behavior</li>
+          <li class="F">Option to disable scrobbling after fast forward</li>
+          <li class="F">Option to link ratings between last.fm and Google</li>
+          <li class="I">Linked artist/album</li>
+          <li class="I">Accessibility improvements</li>
+          <li class="I">Improved auto-update behavior</li>
         </ul>
       </div>
       <div class="v-1.1.1">
         <ul>
-          <li>Fixed scrobbling</li>
+          <li class="B">Fixed scrobbling</li>
         </ul>
       </div>
       <div class="v-1.1">
         <ul>
-          <li>Option to hide play controls for toasts</li>
-          <li>Option to open Google Music in pinned tab</li>
-          <li>Show last.fm errors on love/unlove (broken heart)</li>
-          <li>Update notifications</li>
+          <li class="F">Option to hide play controls for toasts</li>
+          <li class="F">Option to open Google Music in pinned tab</li>
+          <li class="I">Show last.fm errors on love/unlove (broken heart)</li>
+          <li class="F">Update notifications</li>
         </ul>
       </div>
       <div class="v-1.0.1">
         <ul>
-          <li>Fixed bug with thumbs ratings</li>
+          <li class="B">Fixed bug with thumbs ratings</li>
         </ul>
       </div>
       <div class="v-1.0">
         Initial release including:
         <ul>
-          <li>last.fm integration (now playing, scrobbling, like/unlike)</li>
-          <li>a powerful miniplayer with different layouts and color schemes</li>
-          <li>toast notifications</li>
-          <li>support for thumbs and 5-star ratings</li>
-          <li>playlist selection</li>
-          <li>and more</li>
+          <li class="F">last.fm integration (now playing, scrobbling, like/unlike)</li>
+          <li class="F">a powerful miniplayer with different layouts and color schemes</li>
+          <li class="F">toast notifications</li>
+          <li class="F">support for thumbs and 5-star ratings</li>
+          <li class="F">playlist selection</li>
+          <li class="F">and more</li>
         </ul>
       </div>
     </div>

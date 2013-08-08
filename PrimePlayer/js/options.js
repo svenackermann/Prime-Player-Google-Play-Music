@@ -226,6 +226,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
       var version = extractVersionFromClass(this);
       $(this).prepend("<h3>Version " + version + "</h3>");
     });
+    
+    $("#changelog").on("click", "input[type='checkbox']", function() {
+      $("#changelog").toggleClass(this.id.substr(3,1));
+    });
   });
 
   $(window).unload(function() {
