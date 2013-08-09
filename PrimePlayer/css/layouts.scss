@@ -16,9 +16,9 @@
   .playing #timeBarHolder {
     border-color: lighten($color, 50%);
   }
-  #quickLinksBtn {
+  #quickLinksBtn, #miniplayerlink {
     background-color: $color;
-    border-top-color: lighten($color, 20%)
+    border-top-color: lighten($color, 20%);
   }
 }
 
@@ -58,7 +58,7 @@
   }
 
   #pause {
-    @include hoversprite(4, 0, 4, 1, $size);
+    @include hoversprite(4, 0, 1, $size);
   }
 
   #prev {
@@ -72,23 +72,23 @@
   #shuffle {
     @include sprite(7, 0, $size);
     &.NO_SHUFFLE {
-      @include hoversprite(7, 0, 7, 1, $size);
+      @include hoversprite(7, 0, 1, $size);
     }
     &.ALL_SHUFFLE {
-      @include hoversprite(7, 2, 7, 1, $size);
+      @include hoversprite(7, 2, 1, $size);
     }
   }
 
   #repeat {
     @include sprite(8, 0, $size);
     &.NO_REPEAT {
-      @include hoversprite(8, 0, 8, 1, $size);
+      @include hoversprite(8, 0, 1, $size);
     }
     &.LIST_REPEAT {
-      @include hoversprite(8, 4, 8, 1, $size);
+      @include hoversprite(8, 4, 1, $size);
     }
     &.SINGLE_REPEAT {
-      @include hoversprite(8, 2, 8, 3, $size);
+      @include hoversprite(8, 2, 3, $size);
     }
   }
   
@@ -97,9 +97,9 @@
   }
   
   .connected #volume {
-    @include hoversprite(11, 0, 11, 1, $size);
+    @include hoversprite(11, 0, 1, $size);
     &.muted {
-      @include hoversprite(11, 2, 11, 3, $size);
+      @include hoversprite(11, 2, 3, $size);
     }
   }
   
@@ -115,13 +115,13 @@
   
   .hasSong {
     #resume {
-      @include hoversprite(3, 0, 3, 1, $size);
+      @include hoversprite(3, 0, 1, $size);
     }
     #prev {
-      @include hoversprite(5, 0, 5, 1, $size);
+      @include hoversprite(5, 0, 1, $size);
     }
     #next {
-      @include hoversprite(6, 0, 6, 1, $size);
+      @include hoversprite(6, 0, 1, $size);
     }
   }
 }
@@ -190,16 +190,16 @@
       height: $rate-size-px;
     }
     .rating-1 {
-      @include hoversprite(1, 0, 1, 1, $rate-size);
+      @include hoversprite(1, 0, 1, $rate-size);
     }
     .rating-5 {
-      @include hoversprite(0, 0, 0, 1, $rate-size);
+      @include hoversprite(0, 0, 1, $rate-size);
     }
     &.rating-1 .rating-1, &.rating-2 .rating-1 {
-      @include hoversprite(1, 2, 1, 3, $rate-size);
+      @include hoversprite(1, 2, 3, $rate-size);
     }
     &.rating-4 .rating-5, &.rating-5 .rating-5 {
-      @include hoversprite(0, 2, 0, 3, $rate-size);
+      @include hoversprite(0, 2, 3, $rate-size);
     }
   }
   .star-rating #googleRating {
@@ -235,13 +235,13 @@
       height: $rate-size-px;
     }
     &.loved a {
-      @include hoversprite(2, 2, 2, 1, $rate-size);
+      @include hoversprite(2, 2, 1, $rate-size);
     }
     &.notloved a {
-      @include hoversprite(2, 0, 2, 1, $rate-size);
+      @include hoversprite(2, 0, 1, $rate-size);
     }
     &.error a {
-      @include hoversprite(2, 3, 2, 1, $rate-size);
+      @include hoversprite(2, 3, 1, $rate-size);
     }
     img {
       width: $rate-size-px;
@@ -378,19 +378,14 @@
   #rightbuttons {
     margin: 0;
   }
-  #miniplayerlink, #lastfmUser {
-    height: 14px;
-    width: 14px;
-  }
-  #quickLinksBtn {
-    @include sprite(12, 0, 13);
+  #quickLinksBtn, #lastfmUser {
     height: 12px;
     width: 13px;
   }
-  #lastfmUser {
-    @include hoversprite(10, 2, 10, 1, 14);
+  #quickLinksBtn {
+    @include sprite(12, 0, 13);
   }
-  .scrobbleEnabled #lastfmUser {
-    @include hoversprite(10, 0, 10, 1, 14);
+  #lastfmUser {
+    @include sprite(10, 0, 13);
   }
 }

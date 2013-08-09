@@ -3,21 +3,23 @@
  * @author Sven Recknagel (svenrecknagel@googlemail.com)
  * Licensed under the BSD license
  */
-$sprite-height: 150;
-$sprite-icon-size: 30;
+$sprite-y-count: 5;
 
 @mixin sprite($x, $y, $size) {
-  background-repeat: no-repeat;
-  background-image: url(../img/sprites.png);
   background-position: -#{$x * $size}px -#{$y * $size}px;
-  background-size: auto #{$sprite-height / $sprite-icon-size * $size}px;
+  background-size: auto #{$sprite-y-count * $size}px;
 }
 
-@mixin hoversprite($x, $y, $hx, $hy, $size) {
+@mixin hoversprite($x, $y, $hy, $size) {
   @include sprite($x, $y, $size);
   &:hover {
-    @include sprite($hx, $hy, $size);
+    @include sprite($x, $hy, $size);
   }
+}
+
+#rightbuttons > a, .thumbs-rating a[data-rating], #lastfmRating > a, .thumbs-rating .rating-container > a, #playControls > a {
+  background-repeat: no-repeat;
+  background-image: url(../img/sprites.png);
 }
 
 body {
@@ -207,6 +209,16 @@ a {
   margin-left: 1ex;
   > a {
     clear: both;
+    border-radius: 3px;
+    height: 13px;
+    width: 14px;
+    border-top-width: 1px;
+    border-top-style: solid;
+    margin-bottom: 1px;
+    &:hover {
+      background-color: #12C0CF !important;
+      border-top-color: #44F0FF !important;
+    }
   }
 }
 
@@ -214,7 +226,7 @@ a {
   display: block;
   height: 15px;
   width: 15px;
-  @include hoversprite(9, 0, 9, 1, 15);
+  @include sprite(9, 0, 14);
 }
 
 .miniplayer #miniplayerlink {
@@ -223,16 +235,7 @@ a {
 
 #quickLinksBtn {
   display: none;
-  border-radius: 3px;
-  height: 13px;
-  width: 14px;
-  border-top: 1px solid;
-  margin-bottom: 1px;
   @include sprite(12, 0, 14);
-  &:hover {
-    background-color: #12C0CF !important;
-    border-top-color: #44F0FF !important;
-  }
 }
 
 .connected #quickLinksBtn {
@@ -261,7 +264,9 @@ a {
   display: none;
   height: 15px;
   width: 15px;
-  @include hoversprite(10, 2, 10, 1, 15);
+  @include sprite(10, 0, 14);
+  background-color: gray;
+  border-top-color: lighten(gray, 20%);
 }
 
 .lastfm {
@@ -271,7 +276,8 @@ a {
 }
 
 .scrobbleEnabled #lastfmUser {
-  @include hoversprite(10, 0, 10, 1, 15);
+  background-color: #CC2424;
+  border-top-color: red;
 }
 
 #playlists {
@@ -507,13 +513,13 @@ a {
     height: 16px;
   }
   &.loved a {
-    @include hoversprite(2, 2, 2, 1, 16);
+    @include hoversprite(2, 2, 1, 16);
   }
   &.notloved a {
-    @include hoversprite(2, 0, 2, 1, 16);
+    @include hoversprite(2, 0, 1, 16);
   }
   &.error a {
-    @include hoversprite(2, 3, 2, 1, 16);
+    @include hoversprite(2, 3, 1, 16);
   }
 }
 
@@ -544,16 +550,16 @@ a {
     float: left;
   }
   .rating-1 {
-    @include hoversprite(1, 0, 1, 1, 16);
+    @include hoversprite(1, 0, 1, 16);
   }
   .rating-5 {
-    @include hoversprite(0, 0, 0, 1, 16);
+    @include hoversprite(0, 0, 1, 16);
   }
   &.rating-1 .rating-1, &.rating-2 .rating-1 {
-    @include hoversprite(1, 2, 1, 3, 16);
+    @include hoversprite(1, 2, 3, 16);
   }
   &.rating-4 .rating-5, &.rating-5 .rating-5 {
-    @include hoversprite(0, 2, 0, 3, 16);
+    @include hoversprite(0, 2, 3, 16);
   }
 }
 
