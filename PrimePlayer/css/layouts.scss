@@ -16,7 +16,7 @@
   .playing #timeBarHolder {
     border-color: lighten($color, 50%);
   }
-  #quickLinksBtn, #miniplayerlink {
+  #quickLinksBtn, #miniplayerlink, .scrobbleEnabled #lastfmUser {
     background-color: $color;
     border-top-color: lighten($color, 20%);
   }
