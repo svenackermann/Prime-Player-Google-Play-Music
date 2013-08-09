@@ -201,7 +201,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
   
-  function savePlayerSizing() {
+  function switchView(view) {
     if ($("#player").is(":visible") && (typeClass == "miniplayer" || typeClass == "toast")) {
       savedSizing = {
         height: window.outerHeight,
@@ -210,6 +210,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
         screenY: window.screenY
       }
     }
+    $("body > div:visible").hide();
+    resize(bp.localSettings[view + "Sizing"]);
+    return $("#" + view).show();
   }
   
   function restorePlayer() {
@@ -226,7 +229,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function renderPlaylistsList(val) {
-    resize(bp.localSettings.playlistsListSizing);
     var html = "";
     for (var i = 0; i < val.length; i++) {
       var e = val[i];
@@ -246,9 +248,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function showPlaylistsList(link) {
-    savePlayerSizing();
-    $("body > div:visible").hide();
-    $("#playlistsList").empty().addClass("loading").show();
+    switchView("playlistsList").empty().addClass("loading");
     bp.player.addListener("playlistsList", renderPlaylistsList);
     bp.loadPlaylistsList(link);
   }
@@ -286,7 +286,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("#playlist").removeClass("loading").html("<div class='empty'></div>");
       return;
     }
-    resize(bp.localSettings.playlistSizing);
     var html = "";
     var ratingHtml = "";
     if (bp.player.ratingMode == "star") {
@@ -314,9 +313,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function showPlaylist(link) {
-    savePlayerSizing();
-    $("body > div:visible").hide();
-    $("#playlist").empty().addClass("loading").show();
+    switchView("playlist").empty().addClass("loading");
     bp.player.addListener("playlist", renderPlaylist);
     bp.loadPlaylist(link);
   }
@@ -468,14 +465,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function showQuicklinks() {
-    savePlayerSizing();
-    $("#player").hide();
-    $("#quicklinks").show();
-    resize(bp.localSettings.quicklinksSizing);
+    switchView("quicklinks");
   }
   
   function renderAlbumContainers(val) {
-    resize(bp.localSettings.albumContainersSizing);
     var html = "";
     for (var i = 0; i < val.length; i++) {
       var e = val[i];
@@ -488,9 +481,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function showAlbumContainers(link) {
-    savePlayerSizing();
-    $("body > div:visible").hide();
-    $("#albumContainers").empty().addClass("loading").show();
+    switchView("albumContainers").empty().addClass("loading");
     bp.player.addListener("albumContainers", renderAlbumContainers);
     bp.loadAlbumContainers(link);
   }
