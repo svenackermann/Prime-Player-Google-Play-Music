@@ -97,7 +97,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function scrobbledWatcher(val) {
-    $("body").toggleClass("scrobbled");
+    $("body").toggleClass("scrobbled", val);
   }
 
   function scrobbleWatcher(val) {
