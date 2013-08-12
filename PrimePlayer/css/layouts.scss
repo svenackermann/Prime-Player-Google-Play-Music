@@ -5,7 +5,7 @@
  */
 @mixin colorScheme($color) {
   #playControls, #time, #volumeBarContainer {
-    background: $color;
+    background-color: $color;
   }
   #timeBar, #volumeBar {
     background-color: lighten($color, 40%);
@@ -19,6 +19,9 @@
   #quickLinksBtn, #miniplayerlink, .scrobbleEnabled #lastfmUser {
     background-color: $color;
     border-top-color: lighten($color, 20%);
+  }
+  #navHead {
+    color: darken($color, 10%);
   }
 }
 

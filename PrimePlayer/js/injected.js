@@ -30,7 +30,7 @@
   }
   
   function getPlaylistCols(controlLink, index) {
-    if (location.hash != controlLink) return null;
+    if (location.hash != controlLink) return [];
     var row = document.getElementsByClassName("song-row")[index];
     if (row) return row.getElementsByTagName("td");
     return [];

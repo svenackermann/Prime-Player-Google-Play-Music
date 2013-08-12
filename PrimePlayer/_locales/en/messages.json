@@ -257,5 +257,8 @@
   },
   "emptyList": {
     "message": "The list is empty."
+  },
+  "quicklinks": {
+    "message": "quick-links"
   }
 }

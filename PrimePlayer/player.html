@@ -22,8 +22,8 @@
       </div>
       <div id="song">
         <a href="#" id="track"></a>
-        <a href="#" id="artist"></a>
-        <a href="#" id="album"></a>
+        <a href="#" id="artist" data-navtype="playlistsList"></a>
+        <a href="#" id="album" data-navtype="playlist"></a>
       </div>
       <div id="rating">
         <div id="googleRating">
@@ -65,19 +65,26 @@
       </div>
     </div>
   </div>
-  <div id="playlistsList"></div>
-  <div id="playlist"></div>
-  <div id="quicklinks">
-    <div>
-      <a href="#" id="qlListenNow"></a>
-      <a href="#" id="qlArtists"></a>
-      <a href="#" id="qlAlbums"></a>
-      <a href="#" id="qlGenres"></a>
-      <a href="#" id="qlMixes"></a>
-      <a href="#" id="qlPlaylists"></a>
+  <div id="nav">
+    <div id="navHead">
+      <a href="#" class="back"></a>
+      <a href="#" class="close"></a>
+      <span></span>
     </div>
-    <div id="qlAutoPlaylists"></div>
+    <div id="navlistContainer">
+      <div id="navlist"></div>
+    </div>
+    <div id="quicklinks">
+      <div>
+        <a href="#" data-navtype="playlistsList" data-link="now"></a>
+        <a href="#" data-navtype="albumContainers" data-link="artists"></a>
+        <a href="#" data-navtype="playlistsList" data-link="albums"></a>
+        <a href="#" data-navtype="albumContainers" data-link="genres"></a>
+        <a href="#" data-navtype="playlistsList" data-link="rd"></a>
+        <a href="#" data-navtype="playlistsList" data-link="myPlaylists"></a>
+      </div>
+      <div id="qlAutoPlaylists"></div>
+    </div>
   </div>
-  <div id="albumContainers"></div>
 </body>
 </html>

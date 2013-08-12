@@ -10,6 +10,7 @@ $(function() {
   var registeredListeners = [];
   var observers = [];
   var omitUnknownAlbums = false;
+  var executeOnContentLoad;
   
   /** send update to background page */
   function post(type, value) {
@@ -124,6 +125,14 @@ $(function() {
       return isNaN(rating) ? -1 : rating;
     }
     
+    function mainLoaded() {
+      if (typeof(executeOnContentLoad) == "function") {
+        var fn = executeOnContentLoad;
+        executeOnContentLoad = null;
+        fn();
+      }
+    }
+    
     /**
      * Watch changes of an attribute on DOM elements specified by the selector.
      * @param attr the name of the attribute
@@ -152,6 +161,7 @@ $(function() {
     
     executeAfterContentLoad(sendSong, "#time_container_duration, #playerSongInfo", false);
     executeAfterContentLoad(sendPosition, "#time_container_current", false, 0);
+    executeAfterContentLoad(mainLoaded, "#main", false, 1000);
     watchAttr("class", "#player > div.player-middle > button[data-id='play-pause']", "player-playing", playingGetter);
     watchAttr("value", "#player > div.player-middle > button[data-id='repeat']", "player-repeat");
     watchAttr("value", "#player > div.player-middle > button[data-id='shuffle']", "player-shuffle");
@@ -197,7 +207,16 @@ $(function() {
   /** Set the hash to the given link to navigate to another page. */
   function selectLink(link) {
     if (link.indexOf("st/") == 0) {//setting hash does not work for type "st"
-      sendCommand("clickCard", {id: link.substr(3)});
+      var listId = link.substr(3);
+      if ($(".card[data-id='" + listId + "'][data-type='st']").length > 0) {
+        sendCommand("clickCard", {id: listId});
+      } else {
+        var bakExecuteOnContentLoad = executeOnContentLoad;
+        selectAndExecute("rd", function() {
+          executeOnContentLoad = bakExecuteOnContentLoad;
+          sendCommand("clickCard", {id: listId});
+        });
+      }
     } else {
       location.hash = "/" + link;
     }
@@ -207,71 +226,73 @@ $(function() {
     if (location.hash == "#/" + hash) {
       callback();
     } else {
-      executeAfterContentLoad(callback, "#main", true, 500);
+      executeOnContentLoad = callback;
       selectLink(hash);
     }
   }
   
-  function sendPlaylistsList() {
-    var playlists = [];
-    $(".card").each(function() {
-      var card = $(this);
-      var item = {};
-      var id = card.data("id");
-      if (omitUnknownAlbums && id.charAt(id.length - 1) == "/") return;
-      item.cover = parseCover(card.find(".image-wrapper img"));
-      item.title = $.trim(card.find(".title").text());
-      item.titleLink = getLink(card);
-      var subTitle = card.find(".sub-title");
-      item.subTitle = $.trim(subTitle.text());
-      item.subTitleLink = getLink(subTitle);
-      playlists.push(item);
-    });
-    post("player-playlistsList", playlists);
-  }
-  
-  function sendPlaylist() {
-    var playlist = [];
-    $(".song-row").each(function() {
-      var song = $(this);
-      var item = {};
-      var title = song.find("td[data-col='title'] .content");
-      item.cover = parseCover(title.find("img"));
-      item.title = $.trim(title.text());
-      if (song.find(".song-indicator").length > 0) item.current = true;
-      if (location.hash != "#/ap/google-play-recommends") {//no real duration on recommandation page
-        item.duration = $.trim(song.find("td[data-col='duration']").text());
-      }
-      item.artist = $.trim(song.find("td[data-col='artist'] .content").text());
-      if (item.artist) item.artistLink = "ar/" + encodeURIComponent(item.artist);
-      item.album = $.trim(song.find("td[data-col='album'] .content").text());
-      var rating = parseInt(song.find("td[data-col='rating']").data("rating"));
-      item.rating = isNaN(rating) ? -1 : rating;
-      playlist.push(item);
-    });
-    post("player-playlist", {list: playlist, controlLink: location.hash});
-  }
-  
-  function sendAlbumContainers() {
-    var items = [];
-    $(".card").each(function() {
-      var card = $(this);
-      var item = {};
-      var img = card.find(".image-inner-wrapper img:first");
-      if (img.attr("src").indexOf("/default_artist.png") < 0) item.cover = parseCover(img);
-      item.title = $.trim(card.find(".details .title").text());
-      item.link = getLink(card);
-      items.push(item);
-    });
-    post("player-albumContainers", items);
-  }
+  var parseNavigationList = {
+    playlistsList: function() {
+      var playlists = [];
+      $(".card").each(function() {
+        var card = $(this);
+        var item = {};
+        var id = card.data("id");
+        if (omitUnknownAlbums && id.charAt(id.length - 1) == "/") return;
+        item.cover = parseCover(card.find(".image-wrapper img"));
+        item.title = $.trim(card.find(".title").text());
+        item.titleLink = getLink(card);
+        var subTitle = card.find(".sub-title");
+        item.subTitle = $.trim(subTitle.text());
+        item.subTitleLink = getLink(subTitle);
+        playlists.push(item);
+      });
+      return playlists;
+    },
+    playlist: function() {
+      var playlist = [];
+      $(".song-row").each(function() {
+        var song = $(this);
+        var item = {};
+        var title = song.find("td[data-col='title'] .content");
+        item.cover = parseCover(title.find("img"));
+        item.title = $.trim(title.text());
+        if (song.find(".song-indicator").length > 0) item.current = true;
+        if (location.hash != "#/ap/google-play-recommends") {//no real duration on recommandation page
+          item.duration = $.trim(song.find("td[data-col='duration']").text());
+        }
+        item.artist = $.trim(song.find("td[data-col='artist'] .content").text());
+        if (item.artist) item.artistLink = "ar/" + encodeURIComponent(item.artist);
+        var album = song.find("td[data-col='album']");
+        item.album = $.trim(album.find(".content").text());
+        if (item.album) item.albumLink = "al/" + album.data("album-artist") + "/" + encodeURIComponent(item.album);
+        var rating = parseInt(song.find("td[data-col='rating']").data("rating"));
+        item.rating = isNaN(rating) ? -1 : rating;
+        playlist.push(item);
+      });
+      return playlist;
+    },
+    albumContainers: function() {
+      var items = [];
+      $(".card").each(function() {
+        var card = $(this);
+        var item = {};
+        var img = card.find(".image-inner-wrapper img:first");
+        if (img.attr("src").indexOf("/default_artist.png") < 0) item.cover = parseCover(img);
+        item.title = $.trim(card.find(".details .title").text());
+        item.link = getLink(card);
+        items.push(item);
+      });
+      return items;
+    }
+  };
   
   function sendMyPlaylists() {
     var playlists = [];
     $("#playlists").children("li").each(function() {
       playlists.push({title: $.trim($(this).find(".tooltip").text()), titleLink: getLink($(this))});
     });
-    post("player-playlistsList", playlists);
+    post("player-navigationList", {link: "myPlaylists", list: playlists});
   }
   
   port = chrome.runtime.connect({name: "googlemusic"});
@@ -281,16 +302,16 @@ $(function() {
       case "execute":
         sendCommand(msg.command, msg.options);
         break;
-      case "getPlaylistsList":
-        omitUnknownAlbums = msg.omitUnknownAlbums;
-        if (msg.link == "myPlaylists") sendMyPlaylists();
-        else selectAndExecute(msg.link, sendPlaylistsList);
-        break;
-      case "getPlaylist":
-        selectAndExecute(msg.link, sendPlaylist);
-        break;
-      case "getAlbumContainers":
-        selectAndExecute(msg.link, sendAlbumContainers);
+      case "getNavigationList":
+        if (msg.link == "myPlaylists") {
+          sendMyPlaylists();
+        } else {
+          omitUnknownAlbums = msg.omitUnknownAlbums;
+          selectAndExecute(msg.link, function() {
+            var list = parseNavigationList[msg.listType]();
+            post("player-navigationList", {link: msg.link, list: list, controlLink: location.hash});
+          });
+        }
         break;
       case "startPlaylist":
         selectAndExecute(msg.link, function() {

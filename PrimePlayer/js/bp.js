@@ -16,10 +16,10 @@ var LOCAL_SETTINGS_DEFAULTS = {
     compact2: { width: 200, height: 128, left: 0, top: 0 },
     hbar:     { width: 500, height: 30,  left: 0, top: 0 }
   },
-  playlistsListSizing: {width: 350, height: 300},
-  playlistSizing: {width: 350, height: 275},
-  quicklinksSizing: {width: 280, height: 130},
-  albumContainersSizing: {width: 200, height: 300}
+  playlistsListSizing: {width: 350, height: 320},
+  playlistSizing: {width: 500, height: 295},
+  quicklinksSizing: {width: 280, height: 150},
+  albumContainersSizing: {width: 220, height: 320}
 }
 var localSettings = new Bean(LOCAL_SETTINGS_DEFAULTS, true);
 
@@ -68,8 +68,6 @@ var viewUpdateNotifier = localStorage["viewUpdateNotifier"] || false;
 var previousVersion = localStorage["previousVersion"];
 /** the volume before mute for restoring */
 var volumeBeforeMute;
-/** functions to call when the user triggered a rating, set by the miniplayer/toast/popup */
-var ratedCallbacks = {};
 
 /** the song currently loaded */
 var SONG_DEFAULTS = {
@@ -93,10 +91,8 @@ var PLAYER_DEFAULTS = {
   repeat: "",
   playing: false,
   volume: null,
-  playlistsList: [],
-  playlist: null,
+  navigationList: null,
   quicklinks: null,
-  albumContainers: [],
   connected: false
 };
 var player = new Bean(PLAYER_DEFAULTS);
@@ -246,16 +242,8 @@ function postToGooglemusic(msg) {
   }
 }
 
-function loadPlaylistsList(link) {
-  postToGooglemusic({type: "getPlaylistsList", link: link, omitUnknownAlbums: link == "albums" && settings.omitUnknownAlbums});
-}
-
-function loadPlaylist(link) {
-  postToGooglemusic({type: "getPlaylist", link: link});
-}
-
-function loadAlbumContainers(link) {
-  postToGooglemusic({type: "getAlbumContainers", link: link});
+function loadNavigationList(link, listType) {
+  postToGooglemusic({type: "getNavigationList", listType: listType, link: link, omitUnknownAlbums: link == "albums" && settings.omitUnknownAlbums});
 }
 
 function startPlaylist(link) {
@@ -906,28 +894,12 @@ function isRatingReset(oldRating, newRating) {
     || (player.ratingMode == "thumbs" && ((oldRating == 2 && newRating == 1) || (oldRating == 4 && newRating == 5)));
 }
 
-function notifyRated(rating, old, reset, index) {
-  for (var x in ratedCallbacks) {
-    if (typeof(ratedCallbacks[x]) == "function") ratedCallbacks[x](reset ? 0 : rating, old, index);
-  }
-}
-
-function ratePlaylistSong(index, rating) {
-  var qs = player.playlist.list[index];
-  if (qs.rating < 0) return;//negative ratings cannot be changed
-  var reset = isRatingReset(qs.rating, rating);
-  if (settings.linkRatings && rating == 5 && !reset) loveTrack(null, { info: { title: qs.title, artist: qs.artist} });
-  executeInGoogleMusic("ratePlaylistSong", {link: player.playlist.controlLink, index: index, rating: rating});
-  notifyRated(rating, qs.rating, reset, index);
-}
-
 function rate(rating) {
   if (song.rating < 0) return;//negative ratings cannot be changed
   //auto-love if called by click event, no reset and not loved yet
   var reset = isRatingReset(song.rating, rating);
   if (settings.linkRatings && rating == 5 && !reset && song.loved !== true) loveTrack();
   executeInGoogleMusic("rate", {rating: rating});
-  notifyRated(rating, song.rating, reset);
 }
 
 chrome.commands.onCommand.addListener(function(command) {
