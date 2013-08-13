@@ -294,14 +294,14 @@ $(function() {
         item.cover = parseCover(title.find("img"));
         item.title = $.trim(title.text());
         if (song.find(".song-indicator").length > 0) item.current = true;
-        if (location.hash != "#/ap/google-play-recommends") {//no real duration on recommandation page
-          item.duration = $.trim(song.find("td[data-col='duration']").text());
-        }
         item.artist = $.trim(song.find("td[data-col='artist'] .content").text());
-        if (item.artist) item.artistLink = "ar/" + forHash(item.artist);
         var album = song.find("td[data-col='album']");
         item.album = $.trim(album.find(".content").text());
-        if (item.album) item.albumLink = "al/" + forHash(album.data("album-artist")) + "/" + forHash(item.album);
+        if (location.hash != "#/ap/google-play-recommends") {//no real duration/links on recommandation page
+          item.duration = $.trim(song.find("td[data-col='duration']").text());
+          if (item.artist) item.artistLink = "ar/" + forHash(item.artist);
+          if (item.album) item.albumLink = "al/" + forHash(album.data("album-artist")) + "/" + forHash(item.album);
+        }
         item.rating = parseRating(song.find("td[data-col='rating']").data("rating"));
         listRatings.push(item.rating);
         playlist.push(item);

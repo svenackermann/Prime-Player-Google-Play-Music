@@ -426,6 +426,19 @@ a {
   }
 }
 
+#navlist.playlist.norating > div div.rating {
+  display: none;
+}
+
+#navlist.playlist.noduration > div > div.info {
+  > span, > a {
+    width: 33%;
+  }
+  > span.duration {
+    display: none;
+  }
+}
+
 .playing #navlist.playlist > div.current {
   background-image: url(../img/playing.gif);
 }
