@@ -11,6 +11,7 @@ $(function() {
   var observers = [];
   var omitUnknownAlbums = false;
   var executeOnContentLoad;
+  var listRatings;
   
   /** send update to background page */
   function post(type, value) {
@@ -31,6 +32,11 @@ $(function() {
     var cover = el.attr("src");
     if (cover && cover.indexOf("//") == 0) cover = "https:" + cover;
     return cover;
+  }
+  
+  function parseRating(rating) {
+    rating = parseInt(rating);
+    return isNaN(rating) ? -1 : rating;
   }
 
   function sendQuickLinks() {
@@ -121,8 +127,7 @@ $(function() {
     }
     
     function ratingGetter(el) {
-      var rating = parseInt($(el.parentElement).find("li.selected").data("rating"));
-      return isNaN(rating) ? -1 : rating;
+      return parseRating($(el.parentElement).find("li.selected").data("rating"));
     }
     
     function mainLoaded() {
@@ -172,6 +177,7 @@ $(function() {
     var injected = document.createElement('script'); injected.type = 'text/javascript';
     injected.src = chrome.extension.getURL('js/injected.js');
     document.getElementsByTagName('head')[0].appendChild(injected);
+    window.addEventListener("message", onMessage);
     
     //inject icon with title to mark the tab as connected
     $(".music-banner-icon")
@@ -183,6 +189,29 @@ $(function() {
       });
     
     sendQuickLinks();
+    
+    $("#main").on("DOMSubtreeModified", ".song-row td[data-col='rating']", function() {
+      if (listRatings) {
+        var rating = parseRating(this.dataset.rating);
+        var index = $.inArray(this.parentNode, this.parentNode.parentNode.children);
+        if (listRatings[index] != rating) {
+          listRatings[index] = rating;
+          post("player-listrating", {index: index, rating: rating, controlLink: location.hash});
+        }
+      }
+    });
+    $(window).on("hashchange", function() { listRatings = null; });
+  }
+  
+  function onMessage(event) {
+    // We only accept messages from the injected script
+    if (event.source != window || event.data.type != "FROM_PRIMEPLAYER_INJECTED") return;
+    switch (event.data.msg) {
+      case "playlistSongRated":
+        var row = $("#main .song-row").get(event.data.index);
+        $(row).find("td[data-col='rating']").trigger("DOMSubtreeModified");
+        break;
+    }
   }
   
   /** Send a command to the injected script. */
@@ -197,6 +226,8 @@ $(function() {
       var l = registeredListeners[i];
       $(l.selector).off("DOMSubtreeModified", l.listener);
     }
+    $("#main").off("DOMSubtreeModified");
+    $(window).off("hashchange");
     for (var i = 0; i < observers.length; i++) {
       observers[i].disconnect();
     }
@@ -255,6 +286,7 @@ $(function() {
     },
     playlist: function() {
       var playlist = [];
+      listRatings = [];
       $(".song-row").each(function() {
         var song = $(this);
         var item = {};
@@ -270,8 +302,8 @@ $(function() {
         var album = song.find("td[data-col='album']");
         item.album = $.trim(album.find(".content").text());
         if (item.album) item.albumLink = "al/" + forHash(album.data("album-artist")) + "/" + forHash(item.album);
-        var rating = parseInt(song.find("td[data-col='rating']").data("rating"));
-        item.rating = isNaN(rating) ? -1 : rating;
+        item.rating = parseRating(song.find("td[data-col='rating']").data("rating"));
+        listRatings.push(item.rating);
         playlist.push(item);
       });
       return playlist;

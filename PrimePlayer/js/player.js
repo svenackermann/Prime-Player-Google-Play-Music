@@ -266,6 +266,15 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   };
   
+  function updateListrating(val) {
+    if (val == null || val.controlLink != currentNavList.controlLink) return;
+    var e = currentNavList.list[val.index];
+    $("#navlist.playlist")
+      .children("div[data-index='" + val.index + "']")
+      .children("div.rating").removeClass("r" + e.rating).addClass("r" + val.rating);
+    e.rating = val.rating;
+  }
+  
   function renderNavigationList(val) {
     if (val == null || val.link != currentNavList.link) return;
     currentNavList.list = val.list;
@@ -370,9 +379,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
         var reset = bp.isRatingReset(e.rating, rating);
         if (bp.settings.linkRatings && rating == 5 && !reset) bp.loveTrack(null, { info: { title: e.title, artist: e.artist} });
         bp.executeInGoogleMusic("ratePlaylistSong", {link: currentNavList.controlLink, index: index, rating: rating});
-        rating = reset ? 0 : rating;
-        $(this).parent().removeClass("r" + e.rating).addClass("r" + rating);
-        e.rating = rating;
       }
     });
   }
@@ -486,6 +492,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.player.watch("volume", volumeWatcher);
     bp.player.watch("connected", connectedWatcher);
     bp.player.addListener("navigationList", renderNavigationList);
+    bp.player.addListener("listrating", updateListrating);
     
     bp.song.watch("info", songInfoWatcher);
     bp.song.watch("positionSec", positionSecWatcher);
@@ -511,6 +518,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       bp.player.removeListener("volume", volumeWatcher);
       bp.player.removeListener("connected", connectedWatcher);
       bp.player.removeListener("navigationList", renderNavigationList);
+      bp.player.removeListener("listrating", updateListrating);
       
       bp.song.removeListener("info", songInfoWatcher);
       bp.song.removeListener("positionSec", positionSecWatcher);

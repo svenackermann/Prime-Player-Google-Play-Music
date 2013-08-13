@@ -47,13 +47,14 @@
     }
   }
   
-  function ratePlaylistSong(controlLink, index, rating) {
+  function ratePlaylistSong(controlLink, index, rating, source) {
     var cols = getPlaylistCols(controlLink, index);
     for (var i = cols.length - 1; i >= 0; i--) {
       if (cols[i].dataset.col == "rating") {
         dispatchMouseEvent(cols[i], "mouseover");
         setTimeout(function() {
           rate(cols[i], rating);
+          source.postMessage({ type: "FROM_PRIMEPLAYER_INJECTED", msg: "playlistSongRated", index: index }, location.href);
         }, 250);
         return;
       }
@@ -111,7 +112,7 @@
         startPlaylistSong(event.data.options.link, event.data.options.index);
         break;
       case "ratePlaylistSong":
-        ratePlaylistSong(event.data.options.link, event.data.options.index, event.data.options.rating);
+        ratePlaylistSong(event.data.options.link, event.data.options.index, event.data.options.rating, event.source);
         break;
       case "cleanup":
         cleanup();

@@ -92,6 +92,7 @@ var PLAYER_DEFAULTS = {
   playing: false,
   volume: null,
   navigationList: null,
+  listrating: null,
   quicklinks: null,
   connected: false
 };
