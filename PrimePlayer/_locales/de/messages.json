@@ -223,7 +223,7 @@
     "message": "Bewertungs-Symbole verstecken (last.fm und Daumen/Sterne)"
   },
   "setting_omitUnknownAlbums": {
-    "message": "Verberge 'Unbekannte Alben' (Songs eines Interpreten ohne Album) in der Albums-Liste des Miniplayers"
+    "message": "Verberge 'Unbekannte Alben' (Songs eines Interpreten ohne Album) in der Album-Liste des Miniplayers"
   },
   "updateNotifierTitle": {
     "message": "Prime Player wurde aktualisiert"
