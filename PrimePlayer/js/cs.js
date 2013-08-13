@@ -231,6 +231,10 @@ $(function() {
     }
   }
   
+  function forHash(text) {
+    return encodeURIComponent(text).replace(/%20/g, "+");
+  }
+  
   var parseNavigationList = {
     playlistsList: function() {
       var playlists = [];
@@ -262,10 +266,10 @@ $(function() {
           item.duration = $.trim(song.find("td[data-col='duration']").text());
         }
         item.artist = $.trim(song.find("td[data-col='artist'] .content").text());
-        if (item.artist) item.artistLink = "ar/" + encodeURIComponent(item.artist);
+        if (item.artist) item.artistLink = "ar/" + forHash(item.artist);
         var album = song.find("td[data-col='album']");
         item.album = $.trim(album.find(".content").text());
-        if (item.album) item.albumLink = "al/" + album.data("album-artist") + "/" + encodeURIComponent(item.album);
+        if (item.album) item.albumLink = "al/" + forHash(album.data("album-artist")) + "/" + forHash(item.album);
         var rating = parseInt(song.find("td[data-col='rating']").data("rating"));
         item.rating = isNaN(rating) ? -1 : rating;
         playlist.push(item);
