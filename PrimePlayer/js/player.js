@@ -193,7 +193,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("#nosong a:first-child")
         .attr("title", chrome.i18n.getMessage("showQueue"))
         .click(function() { switchView("playlist", bp.player.quicklinks.queueText, "ap/queue"); });
-      renderQuicklinks();
     } else {
       restorePlayer();
     }
@@ -430,20 +429,20 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
   
-  function renderQuicklinks() {
-    var ql = bp.player.quicklinks;
-    $("#quicklinks a[data-link='now']").text(ql.listenNowText);
-    $("#quicklinks a[data-link='artists']").text(ql.artistsText);
-    $("#quicklinks a[data-link='albums']").text(ql.albumsText);
-    $("#quicklinks a[data-link='genres']").text(ql.genresText);
-    $("#quicklinks a[data-link='rd']").text(ql.mixesText);
-    $("#quicklinks a[data-link='myPlaylists']").text(chrome.i18n.getMessage("myPlaylists"));
-    var apl = "";
-    for (var i = 0; i < ql.autoPlaylists.length; i++) {
-      apl += "<a href='#' data-navtype='playlist' data-link='" + ql.autoPlaylists[i].link + "'>" + ql.autoPlaylists[i].text + "</a>";
-      if (ql.autoPlaylists[i].link == "ap/queue") ql.queueText = ql.autoPlaylists[i].text;
+  function renderQuicklinks(val) {
+    if (val) {
+      $("#quicklinks a[data-link='now']").text(val.listenNowText);
+      $("#quicklinks a[data-link='artists']").text(val.artistsText);
+      $("#quicklinks a[data-link='albums']").text(val.albumsText);
+      $("#quicklinks a[data-link='genres']").text(val.genresText);
+      $("#quicklinks a[data-link='rd']").text(val.mixesText);
+      $("#quicklinks a[data-link='myPlaylists']").text(chrome.i18n.getMessage("myPlaylists"));
+      var apl = $("#qlAutoPlaylists").empty();
+      for (var i = 0; i < val.autoPlaylists.length; i++) {
+        $("<a href='#' data-navtype='playlist'></a>").data("link", val.autoPlaylists[i].link).text(val.autoPlaylists[i].text).appendTo(apl);
+        if (val.autoPlaylists[i].link == "ap/queue") val.queueText = val.autoPlaylists[i].text;
+      }
     }
-    $("#qlAutoPlaylists").html(apl);
   }
 
   function setSongPosition(event) {
@@ -491,6 +490,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.player.watch("playing", playingWatcher);
     bp.player.watch("volume", volumeWatcher);
     bp.player.watch("connected", connectedWatcher);
+    bp.player.watch("quicklinks", renderQuicklinks);
     bp.player.addListener("navigationList", renderNavigationList);
     bp.player.addListener("listrating", updateListrating);
     
@@ -517,6 +517,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       bp.player.removeListener("playing", playingWatcher);
       bp.player.removeListener("volume", volumeWatcher);
       bp.player.removeListener("connected", connectedWatcher);
+      bp.player.removeListener("quicklinks", renderQuicklinks);
       bp.player.removeListener("navigationList", renderNavigationList);
       bp.player.removeListener("listrating", updateListrating);
       
