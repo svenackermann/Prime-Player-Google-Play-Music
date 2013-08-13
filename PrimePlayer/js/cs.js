@@ -146,7 +146,7 @@ $(function() {
         if (getValue == undefined) {
           getValue = function(el) {return el.getAttribute(attr)};
         }
-        var observer = new WebKitMutationObserver(function (mutations) {
+        var observer = new MutationObserver(function (mutations) {
           mutations.forEach(function(mutation) {
             post(type, getValue(mutation.target));
           });
