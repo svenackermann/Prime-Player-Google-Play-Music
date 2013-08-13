@@ -175,6 +175,18 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   $(function() {
+    if (location.hash == "#welcome") {
+      $("body").children().toggle();
+      $("#welcome").children("div").text(chrome.i18n.getMessage("welcomeMessage"));
+      $("#welcome .close").text(chrome.i18n.getMessage("close")).click(function() {
+        chrome.tabs.remove(thisTabId);
+      });
+      $("#welcome .toOptions").text(chrome.i18n.getMessage("toOptions")).click(function() {
+        $("body").children().toggle();
+        location.hash = "";
+      });
+    }
+    
     var optionsText = chrome.i18n.getMessage('options') + ' - ' + chrome.i18n.getMessage('extTitle');
     $("head > title").first().text(optionsText);
     $("div.settings").find("h1").first().text(optionsText);

@@ -134,3 +134,21 @@ div.newFeature button {
   color: red;
   border-color: #FF8F00;
 }
+
+#welcome {
+  padding: 50px;
+  max-width: 800px;
+  display: none;
+}
+
+#welcome div {
+  font-size: 18px;
+}
+
+#welcome img {
+  float: left;
+}
+
+#welcome .close, #welcome .toOptions {
+  float: right;
+}

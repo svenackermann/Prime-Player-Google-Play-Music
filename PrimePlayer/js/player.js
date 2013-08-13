@@ -340,7 +340,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       currentNavList = {};
       switchView(current.type, current.title, current.link);
     });
-    $("#navHead").find(".close").click(restorePlayer);
+    $("#navHead").find(".close").attr("title", chrome.i18n.getMessage("close")).click(restorePlayer);
     
     $("body").on("click", "a[data-navtype]", function() {
       switchView($(this).data("navtype"), $(this).text(), $(this).data("link"));

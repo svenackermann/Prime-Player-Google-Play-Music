@@ -272,5 +272,14 @@
   },
   "setting_fixPermissionToastHint": {
     "message": "On some systems the album covers only show up in rich notifications with an additional permission. If you always see only the grey standard cover in toast notifications, click the button to add the additional permission."
+  },
+  "welcomeMessage": {
+    "message": "Thank you for installing Prime Player. The extension has a bunch of options - please take your time to try them all out. Next to some options you see a green question mark. If you hover over it with your mouse, you'll get more detailed informations. For more info please take a look at the FAQ on the extension's homepage at the Chrome Store. And now have fun with Prime Player!"
+  },
+  "toOptions": {
+    "message": "To the options"
+  },
+  "close": {
+    "message": "Close"
   }
 }
