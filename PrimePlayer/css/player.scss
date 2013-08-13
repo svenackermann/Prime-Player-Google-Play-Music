@@ -294,11 +294,8 @@ a {
 }
 
 #navHead {
-  font-weight: bold;
-  text-align: center;
   padding: 1px;
   background-color: #DDD;
-  overflow: hidden;
   > a {
     width: 16px;
     height: 16px;
@@ -317,6 +314,13 @@ a {
       @include hoversprite(14, 0, 1, 16);
       float: right;
     }
+  }
+  > span {
+    white-space: nowrap;
+    overflow: hidden;
+    display: block;
+    text-align: center;
+    font-weight: bold;
   }
 }
 
