@@ -45,6 +45,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function toastChanged() {
     $("#toastUseMpStyle").prop('disabled', !bp.settings.toast);
     $("#toastDuration").prop('disabled', !bp.settings.toast || !bp.settings.toastUseMpStyle);
+    $("#fixPermissionToast").prop('disabled', !bp.settings.toast || bp.settings.toastUseMpStyle);
   }
   
   function lastfmUserChanged(user) {
@@ -52,6 +53,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var actionText;
     $('#scrobble').prop('disabled', user == null);
     $("#linkRatings").prop('disabled', user == null);
+    $("#fixPermissionLastfm").prop('disabled', user == null);
     scrobbleChanged();
     var links = $('#lastfmStatus').find("a");
     var userLink = links.first();
@@ -135,6 +137,33 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#iconStyle").find("input[value='" + bp.settings.iconStyle + "']").prop("checked", true);
     $("#iconStyle").find("input").click(stringUpdater("iconStyle"));
   }
+  
+  function initPermissionButton(id, origin) {
+    chrome.permissions.contains({
+      origins: [origin]
+    }, function(result) {
+      if (result) {
+        // everything is fine
+      } else {
+        var button = $("#" + id);
+        button
+          .text(chrome.i18n.getMessage("setting_" + id))
+          .click(function() {
+            chrome.permissions.request({
+              origins: [origin]
+            }, function(granted) {
+              if (granted) {
+                button.parent().hide();
+              } else {
+                //nothing changed
+              }
+            });
+          });
+        initHint(id);
+        button.parent().show();
+      }
+    });
+  }
 
   /** @return version from a class attribute (e.g. for an element with class "abc v-1.2.3 def" this returns "1.2.3") */
   function extractVersionFromClass(el) {
@@ -172,11 +201,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initHint("disableScrobbleOnFf");
     initCheckbox("linkRatings");
     initHint("linkRatings");
+    initPermissionButton("fixPermissionLastfm", "*://ws.audioscrobbler.com/2.0/*");
     initCheckbox("toast").click(toastChanged);
     initHint("toast");
     initCheckbox("toastUseMpStyle").click(toastChanged);
     initHint("toastUseMpStyle");
     initNumberInput("toastDuration");
+    initPermissionButton("fixPermissionToast", "https://*.googleusercontent.com/*");
     initIconStyle();
     initSelect("miniplayerType");
     initHint("miniplayerType");

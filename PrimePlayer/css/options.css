@@ -129,3 +129,8 @@ div.newFeature {
   color: #FF8F00;
   font-weight: bold;
 }
+
+div.newFeature button {
+  color: red;
+  border-color: #FF8F00;
+}

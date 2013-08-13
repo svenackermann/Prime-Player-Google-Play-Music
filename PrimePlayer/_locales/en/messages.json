@@ -260,5 +260,17 @@
   },
   "quicklinks": {
     "message": "quick-links"
+  },
+  "setting_fixPermissionLastfm": {
+    "message": "Add last.fm permission"
+  },
+  "setting_fixPermissionLastfmHint": {
+    "message": "On some systems the last.fm integration only works with an additional permission. If the last.fm login does not work for you, click the button to add the additional permission."
+  },
+  "setting_fixPermissionToast": {
+    "message": "Add cover permission"
+  },
+  "setting_fixPermissionToastHint": {
+    "message": "On some systems the album covers only show up in rich notifications with an additional permission. If you always see only the grey standard cover in toast notifications, click the button to add the additional permission."
   }
 }

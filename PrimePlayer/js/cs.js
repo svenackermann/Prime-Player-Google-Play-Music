@@ -29,7 +29,7 @@ $(function() {
   
   function parseCover(el) {
     var cover = el.attr("src");
-    if (cover && cover.indexOf("http") != 0) cover = "https:" + cover;
+    if (cover && cover.indexOf("//") == 0) cover = "https:" + cover;
     return cover;
   }
 
