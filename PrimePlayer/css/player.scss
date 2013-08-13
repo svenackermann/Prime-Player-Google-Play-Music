@@ -415,6 +415,12 @@ a {
   }
 }
 
+#navlist.playlist.noalbum > div > div.info {
+  > span:not(.duration), > a {
+    width: 45%;
+  }
+}
+
 .playing #navlist.playlist > div.current {
   background-image: url(../img/playing.gif);
 }

@@ -227,6 +227,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       } else if (bp.player.ratingMode == "thumbs") {
         ratingHtml = "<a href='#' data-rating='5'></a><a href='#' data-rating='1'></a>";
       }
+      var noAlbum = true;
       for (var i = 0; i < list.length; i++) {
         var e = list[i];
         var row = $("<div data-index='" + i + (e.current ? "' class='current'>" : "'></div>"));
@@ -241,13 +242,17 @@ chrome.runtime.getBackgroundPage(function(bp) {
           $("<span></span>").text(e.artist).attr("title", e.artist).appendTo(info);
         }
         if (e.albumLink) {
-          $("<a href='#' data-navtype='playlist'></a>").data("link", e.albumLink).text(e.album).attr("title", e.album).appendTo(info);
+          if (e.albumLink != currentNavList.link) {
+            $("<a href='#' data-navtype='playlist'></a>").data("link", e.albumLink).text(e.album).attr("title", e.album).appendTo(info);
+            noAlbum = false;
+          }
         } else {
           $("<span></span>").text(e.album).attr("title", e.album).appendTo(info);
         }
         row.append(info);
         navlist.append(row);
       }
+      if (noAlbum) navlist.addClass("noalbum");
     },
     albumContainers: function(navlist, list) {
       for (var i = 0; i < list.length; i++) {
