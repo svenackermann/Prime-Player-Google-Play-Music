@@ -126,6 +126,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $(window).resize(function() {
       clearTimeout(timerId);
       timerId = setTimeout(function() {
+        if (document.webkitHidden) return;//do not save size of minimized window
         if ($("#player").is(":visible")) {
           var sizing = bp.localSettings.miniplayerSizing;
           sizing[bp.settings.layout].width = window.innerWidth;
@@ -144,7 +145,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var oldX = window.screenX;
     var oldY = window.screenY;
     setInterval(function() {
-      if ($("#player").is(":visible") && (oldX != window.screenX || oldY != window.screenY)) {
+      if ($("#player").is(":visible") && (oldX != window.screenX || oldY != window.screenY) && !document.webkitHidden) {
         oldX = window.screenX;
         oldY = window.screenY;
         var sizing = bp.localSettings.miniplayerSizing;
