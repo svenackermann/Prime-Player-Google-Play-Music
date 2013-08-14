@@ -41,20 +41,17 @@ $(function() {
   }
 
   function sendQuickLinks() {
-    var ql = {};
+    var ql = {texts: {}};
     var nav = $("#nav_collections");
-    ql.listenNowText = $.trim(nav.children("li[data-type='now']").text());
-    ql.mixesText = $.trim(nav.children("li[data-type='rd']").text());
+    ql.texts.now = $.trim(nav.children("li[data-type='now']").text());
+    ql.texts.rd = $.trim(nav.children("li[data-type='rd']").text());
     var br = $("#browse-tabs");
-    ql.artistsText = $.trim(br.children("div[data-type='artists']").text());
-    ql.albumsText = $.trim(br.children("div[data-type='albums']").text());
-    ql.genresText = $.trim(br.children("div[data-type='genres']").text());
-    var apl = [];
+    ql.texts.artists = $.trim(br.children("div[data-type='artists']").text());
+    ql.texts.albums = $.trim(br.children("div[data-type='albums']").text());
+    ql.texts.genres = $.trim(br.children("div[data-type='genres']").text());
+    var apl = {};
     $("#auto-playlists").children("li").each(function() {
-      apl.push({
-        link: getLink($(this)),
-        text: $.trim($(this).find("div.tooltip").text())
-      });
+      apl[getLink($(this))] = $.trim($(this).find("div.tooltip").text());
     });
     ql.autoPlaylists = apl;
     post("player-quicklinks", ql);
@@ -173,6 +170,18 @@ $(function() {
     watchAttr("class", "#player-right-wrapper > .player-rating-container ul.rating-container li", "song-rating", ratingGetter);
     watchAttr("aria-valuenow", "#vslider", "player-volume");
     
+    $("#main").on("DOMSubtreeModified", ".song-row td[data-col='rating']", function() {
+      if (listRatings) {
+        var rating = parseRating(this.dataset.rating);
+        var index = $.inArray(this.parentNode, this.parentNode.parentNode.children);
+        if (listRatings[index] != rating) {
+          listRatings[index] = rating;
+          post("player-listrating", {index: index, rating: rating, controlLink: location.hash});
+        }
+      }
+    });
+    $(window).on("hashchange", function() { listRatings = null; });
+    
     //we must add this script to the DOM for the code to be executed in the correct context
     var injected = document.createElement('script'); injected.type = 'text/javascript';
     injected.src = chrome.extension.getURL('js/injected.js');
@@ -189,18 +198,6 @@ $(function() {
       });
     
     sendQuickLinks();
-    
-    $("#main").on("DOMSubtreeModified", ".song-row td[data-col='rating']", function() {
-      if (listRatings) {
-        var rating = parseRating(this.dataset.rating);
-        var index = $.inArray(this.parentNode, this.parentNode.parentNode.children);
-        if (listRatings[index] != rating) {
-          listRatings[index] = rating;
-          post("player-listrating", {index: index, rating: rating, controlLink: location.hash});
-        }
-      }
-    });
-    $(window).on("hashchange", function() { listRatings = null; });
   }
   
   function onMessage(event) {

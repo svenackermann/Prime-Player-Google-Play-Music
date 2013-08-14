@@ -116,6 +116,28 @@
         </select>
         <label for="color"></label>
       </div>
+      <div class="v-2.0">
+        <select id="coverClickLink">
+          <option value=""></option>
+          <option value="playlistsList;now"></option>
+          <option value="albumContainers;artists"></option>
+          <option value="playlistsList;albums"></option>
+          <option value="albumContainers;genres"></option>
+          <option value="playlistsList;rd"></option>
+          <option value="playlistsList;myPlaylists"></option>
+          <option value="playlist;ap/queue"></option>
+          <option value="playlist;ap/auto-playlist-thumbs-up"></option>
+          <option value="playlist;ap/auto-playlist-recent"></option>
+          <option value="playlist;ap/auto-playlist-promo"></option>
+          <option value="playlist;ap/shared-with-me"></option>
+          <option value="playlist;ap/google-play-recommends"></option>
+        </select>
+        <label for="coverClickLink"></label>
+      </div>
+      <div class="v-2.0">
+        <select id="titleClickLink"></select>
+        <label for="titleClickLink"></label>
+      </div>
       <div>
         <input id="iconClickMiniplayer" type="checkbox"/>
         <label for="iconClickMiniplayer"></label>
@@ -186,6 +208,7 @@
           <li class="I">All links are now opened in the miniplayer</li>
           <li class="I">Removed playlists icon as it is now included as quicklink</li>
           <li class="I">Possibility to add additional permissions for last.fm and toast covers</li>
+          <li class="F">Options to change what happens when album cover or song title is clicked</li>
           <li class="F">Option to omit unknown albums in albums list</li>
           <li class="I">Ratings in playlist view (former queue) are now updated on keyboard shortcut rating</li>
           <li class="F">Google Music tab can now be disconnected from the extension by clicking on the "P" icon on the tab (useful for development)</li>

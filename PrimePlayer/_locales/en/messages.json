@@ -246,12 +246,6 @@
   "browserActionTitle_connected": {
     "message": "connected to Google Music"
   },
-  "showQueue": {
-    "message": "Show queue"
-  },
-  "showListenNow": {
-    "message": "Show \u0022Listen now\u0022 area"
-  },
   "showQuicklinks": {
     "message": "Show quick-links"
   },
@@ -284,5 +278,47 @@
   },
   "close": {
     "message": "Close"
+  },
+  "setting_coverClickLink": {
+    "message": "Open on click on album cover"
+  },
+  "setting_coverClickLink_": {
+    "message": "Nothing"
+  },
+  "setting_coverClickLink_playlistsList_now": {
+    "message": "Listen Now"
+  },
+  "setting_coverClickLink_albumContainers_artists": {
+    "message": "Artists"
+  },
+  "setting_coverClickLink_playlistsList_albums": {
+    "message": "Albums"
+  },
+  "setting_coverClickLink_albumContainers_genres": {
+    "message": "Genres"
+  },
+  "setting_coverClickLink_playlistsList_rd": {
+    "message": "Instant Mixes"
+  },
+  "setting_coverClickLink_playlist_ap_queue": {
+    "message": "Queue"
+  },
+  "setting_coverClickLink_playlist_ap_auto_playlist_thumbs_up": {
+    "message": "Highly rated"
+  },
+  "setting_coverClickLink_playlist_ap_auto_playlist_recent": {
+    "message": "Last added"
+  },
+  "setting_coverClickLink_playlist_ap_auto_playlist_promo": {
+    "message": "Free and purchased"
+  },
+  "setting_coverClickLink_playlist_ap_shared_with_me": {
+    "message": "Shared with me"
+  },
+  "setting_coverClickLink_playlist_ap_google_play_recommends": {
+    "message": "Google Play recommends"
+  },
+  "setting_titleClickLink": {
+    "message": "Open on click on song title"
   }
 }

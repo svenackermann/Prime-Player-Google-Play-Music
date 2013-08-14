@@ -223,7 +223,7 @@
     "message": "Bewertungs-Symbole verstecken (last.fm und Daumen/Sterne)"
   },
   "setting_omitUnknownAlbums": {
-    "message": "Verberge 'Unbekannte Alben' (Songs eines Interpreten ohne Album) in der Album-Liste des Miniplayers"
+    "message": "Verberge 'Unbekannte Alben' (Songs eines Interpreten ohne Album) in der Alben-Liste des Miniplayers"
   },
   "updateNotifierTitle": {
     "message": "Prime Player wurde aktualisiert"
@@ -245,12 +245,6 @@
   },
   "browserActionTitle_connected": {
     "message": "Verbunden mit Google Music"
-  },
-  "showQueue": {
-    "message": "Wiedergabeliste anzeigen"
-  },
-  "showListenNow": {
-    "message": "Bereich \u0022Jetzt anh\u00F6ren\u0022 anzeigen"
   },
   "showQuicklinks": {
     "message": "Quick-Links anzeigen"
@@ -284,5 +278,47 @@
   },
   "close": {
     "message": "Schlie\u00DFen"
+  },
+  "setting_coverClickLink": {
+    "message": "Beim Klick auf das Album-Cover \u00F6ffnen"
+  },
+  "setting_coverClickLink_": {
+    "message": "Nichts"
+  },
+  "setting_coverClickLink_playlistsList_now": {
+    "message": "Jetzt anh\u00F6ren"
+  },
+  "setting_coverClickLink_albumContainers_artists": {
+    "message": "Interpreten"
+  },
+  "setting_coverClickLink_playlistsList_albums": {
+    "message": "Alben"
+  },
+  "setting_coverClickLink_albumContainers_genres": {
+    "message": "Genres"
+  },
+  "setting_coverClickLink_playlistsList_rd": {
+    "message": "Schnellmixe"
+  },
+  "setting_coverClickLink_playlist_ap_queue": {
+    "message": "Wiedergabeliste"
+  },
+  "setting_coverClickLink_playlist_ap_auto_playlist_thumbs_up": {
+    "message": "Hoch bewertet"
+  },
+  "setting_coverClickLink_playlist_ap_auto_playlist_recent": {
+    "message": "Zuletzt hinzugef\u00FCgt"
+  },
+  "setting_coverClickLink_playlist_ap_auto_playlist_promo": {
+    "message": "Kostenlos \u0026 gekauft"
+  },
+  "setting_coverClickLink_playlist_ap_shared_with_me": {
+    "message": "Mit mir geteilt"
+  },
+  "setting_coverClickLink_playlist_ap_google_play_recommends": {
+    "message": "Empfehlungen auf Play"
+  },
+  "setting_titleClickLink": {
+    "message": "Beim Klick auf den Song-Titel \u00F6ffnen"
   }
 }

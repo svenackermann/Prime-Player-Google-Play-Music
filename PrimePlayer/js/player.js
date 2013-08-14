@@ -120,6 +120,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function colorWatcher(val, old) {
     $("html").removeClass("color-" + old).addClass("color-" + val);
   }
+  
+  function coverClickLinkWatcher(val) {
+    $("#coverContainer").toggleClass("clickable", val.length > 0);
+  }
+  
+  function titleClickLinkWatcher(val) {
+    $("#track, #nosong a:first-child").toggleClass("clickable", val.length > 0);
+  }
 
   /** listen for resize events and poll for position changes to update the settings */
   function setupResizeMoveListeners() {
@@ -183,17 +191,24 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
   
+  function switchBySetting(setting) {
+    if (setting) {
+      var view = setting.split(";");
+      switchView(view[0], bp.getTextForQuicklink(setting), view[1]);
+    }
+  }
+  
+  function titleClicked() {
+    switchBySetting(bp.settings.titleClickLink);
+  }
+  
   function connectedWatcher(val) {
     $("body").toggleClass("connected", val);
     $("#coverContainer").unbind();
-    $("#cover").removeAttr("title");
-    $("#nosong a:first-child").removeAttr("title").unbind();
+    $("#nosong a:first-child").unbind();
     if (val) {
-      $("#coverContainer").click(function() { switchView("playlistsList", bp.player.quicklinks.listenNowText, "now"); });
-      $("#cover").attr("title", chrome.i18n.getMessage("showListenNow"));
-      $("#nosong a:first-child")
-        .attr("title", chrome.i18n.getMessage("showQueue"))
-        .click(function() { switchView("playlist", bp.player.quicklinks.queueText, "ap/queue"); });
+      $("#coverContainer").click(function() { switchBySetting(bp.settings.coverClickLink); });
+      $("#nosong a:first-child").click(titleClicked);
     } else {
       restorePlayer();
     }
@@ -443,16 +458,15 @@ chrome.runtime.getBackgroundPage(function(bp) {
   
   function renderQuicklinks(val) {
     if (val) {
-      $("#quicklinks a[data-link='now']").text(val.listenNowText);
-      $("#quicklinks a[data-link='artists']").text(val.artistsText);
-      $("#quicklinks a[data-link='albums']").text(val.albumsText);
-      $("#quicklinks a[data-link='genres']").text(val.genresText);
-      $("#quicklinks a[data-link='rd']").text(val.mixesText);
+      $("#quicklinks a[data-link='now']").text(val.texts.now);
+      $("#quicklinks a[data-link='artists']").text(val.texts.artists);
+      $("#quicklinks a[data-link='albums']").text(val.texts.albums);
+      $("#quicklinks a[data-link='genres']").text(val.texts.genres);
+      $("#quicklinks a[data-link='rd']").text(val.texts.rd);
       $("#quicklinks a[data-link='myPlaylists']").text(chrome.i18n.getMessage("myPlaylists"));
       var apl = $("#qlAutoPlaylists").empty();
-      for (var i = 0; i < val.autoPlaylists.length; i++) {
-        $("<a href='#' data-navtype='playlist'></a>").data("link", val.autoPlaylists[i].link).text(val.autoPlaylists[i].text).appendTo(apl);
-        if (val.autoPlaylists[i].link == "ap/queue") val.queueText = val.autoPlaylists[i].text;
+      for (var link in val.autoPlaylists) {
+        $("<a href='#' data-navtype='playlist'></a>").data("link", link).text(val.autoPlaylists[link]).appendTo(apl);
       }
     }
   }
@@ -481,7 +495,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         .click(bp.openGoogleMusicTab)
         .text(chrome.i18n.getMessage("gotoGmusic"));
 
-    $("#track").click(function(){ switchView("playlist", bp.player.quicklinks.queueText, "ap/queue"); }).attr("title", chrome.i18n.getMessage("showQueue"));
+    $("#track").click(titleClicked);
     
     $("#scrobblePosition").attr("title", chrome.i18n.getMessage("scrobblePosition"));
     $("#timeBarHolder").click(setSongPosition);
@@ -495,6 +509,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.localSettings.watch("lastfmSessionName", lastfmUserWatcher);
     bp.settings.watch("scrobble", scrobbleWatcher);
     bp.settings.watch("color", colorWatcher);
+    bp.settings.watch("coverClickLink", coverClickLinkWatcher);
+    bp.settings.watch("titleClickLink", titleClickLinkWatcher);
     
     bp.player.watch("repeat", repeatWatcher);
     bp.player.watch("shuffle", shuffleWatcher);
@@ -521,6 +537,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
       bp.localSettings.removeListener("lastfmSessionName", lastfmUserWatcher);
       bp.settings.removeListener("scrobble", scrobbleWatcher);
       bp.settings.removeListener("color", colorWatcher);
+      bp.settings.removeListener("coverClickLink", coverClickLinkWatcher);
+      bp.settings.removeListener("titleClickLink", titleClickLinkWatcher);
       bp.settings.removeListener("hideRatings", hideRatingsWatcher);
       
       bp.player.removeListener("repeat", repeatWatcher);

@@ -113,14 +113,17 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   /** the i18n key for option "<opt>" for property "<prop>" is "setting_<prop>_<opt>" */
-  function initSelect(prop) {
+  function initSelect(prop, getOptionText) {
+    if (typeof(getOptionText) != "function") {
+      getOptionText = function(val) {return chrome.i18n.getMessage("setting_" + prop + "_" + val);};
+    }
     var input = $("#" + prop);
     input
       .val(bp.settings[prop])
       .change(stringUpdater(prop))
       .parent().find("label").text(chrome.i18n.getMessage("setting_" + prop));
     input.find("option").each(function() {
-        $(this).text(chrome.i18n.getMessage("setting_" + prop + "_" + $(this).attr('value')));
+        $(this).text(getOptionText($(this).attr("value")));
       });
     return input;
   }
@@ -226,6 +229,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initSelect("layout");
     initHint("layout")
     initSelect("color");
+    initSelect("coverClickLink", function(val) {
+      var text = bp.getTextForQuicklink(val);
+      if (text) return text;
+      return chrome.i18n.getMessage("setting_coverClickLink_" + val.replace(/;/g, "_").replace(/-/g, "_").replace(/\//g, "_"));
+    });
+    var titleClickLink = initSelect("titleClickLink");
+    titleClickLink.append($("#coverClickLink").children().clone());
+    titleClickLink.val(bp.settings.titleClickLink);
     initCheckbox("iconClickMiniplayer");
     initCheckbox("iconClickConnect");
     initCheckbox("openGoogleMusicPinned");

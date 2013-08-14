@@ -37,6 +37,8 @@ var SETTINGS_DEFAULTS = {
   miniplayerType: "popup",
   layout: "normal",
   color: "turq",
+  coverClickLink: "playlistsList;now",
+  titleClickLink: "playlist;ap/queue",
   iconClickMiniplayer: false,
   iconClickConnect: false,
   openGoogleMusicPinned: false,
@@ -288,6 +290,14 @@ function parseSeconds(time) {
     factor *= 60;
   }
   return sec || 0;
+}
+
+function getTextForQuicklink(setting) {
+  if (setting == "playlistsList;myPlaylists") return chrome.i18n.getMessage("myPlaylists");
+  if (setting && player.quicklinks) {
+    var link = setting.split(";")[1];
+    return player.quicklinks.texts[link] || player.quicklinks.autoPlaylists[link];
+  }
 }
 
 function cacheForLaterScrobbling(songInfo) {
