@@ -226,7 +226,10 @@
     "message": "Hide rating icons (last.fm and thumbs/stars)"
   },
   "setting_omitUnknownAlbums": {
-    "message": "Omit 'unknown albums' (songs of an artist without album) in the album list of the miniplayer"
+    "message": "Omit 'unknown albums' in the album list of the miniplayer"
+  },
+  "setting_omitUnknownAlbumsHint": {
+    "message": "Google shows songs of an artist without album as 'Unknown Album' in the albums list. With this option enabled, those 'pseudo' albums will be hidden in the album list of the miniplayer."
   },
   "updateNotifierTitle": {
     "message": "Prime Player Updated"
