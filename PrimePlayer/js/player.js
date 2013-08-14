@@ -288,7 +288,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     currentNavList.controlLink = val.controlLink;
     var navlist = $("#navlist");
     navlist.removeClass("loading").addClass(currentNavList.type);
-    if (currentNavList.list.length == 0) {
+    if (val.error) {
+      navlist.html("<div class='error'></div>");
+    } else if (currentNavList.list.length == 0) {
       navlist.html("<div class='empty'></div>");
     } else {
       resize(bp.localSettings[currentNavList.type + "Sizing"]);

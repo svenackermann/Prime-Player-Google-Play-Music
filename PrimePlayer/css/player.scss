@@ -494,13 +494,18 @@ a {
   }
 }
 
-#navlist > .empty {
+#navlist > .empty, #navlist > .error {
   text-align: center;
   position: relative;
   top: 40%;
-  &:after {
-    content: "__MSG_emptyList__";
-  }
+}
+
+#navlist > .empty:after {
+  content: "__MSG_emptyList__";
+}
+
+#navlist > .error:after {
+  content: "__MSG_loadListError__";
 }
 
 #quickLinks {

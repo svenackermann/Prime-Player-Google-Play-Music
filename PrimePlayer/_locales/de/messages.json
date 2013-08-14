@@ -258,6 +258,9 @@
   "emptyList": {
     "message": "Die Liste ist leer."
   },
+  "loadListError": {
+    "message": "Die Liste konnte nicht geladen werden."
+  },
   "quicklinks": {
     "message": "Quick-Links"
   },

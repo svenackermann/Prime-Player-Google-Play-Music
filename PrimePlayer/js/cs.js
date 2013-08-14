@@ -11,6 +11,7 @@ $(function() {
   var observers = [];
   var omitUnknownAlbums = false;
   var executeOnContentLoad;
+  var contentLoadDestination;
   var listRatings;
   
   /** send update to background page */
@@ -66,27 +67,23 @@ $(function() {
    * @param removeAfterExecute if true, the function will be called only once, otherwise the event listener stays attached
    * @param timeout time to wait after DOM manipulation before executing the function
    */
-  function executeAfterContentLoad(fn, selector, removeAfterExecute, timeout) {
-    if (timeout == null) timeout = 500;
+  function executeAfterContentLoad(fn, selector, timeout) {
     var content = $(selector);
     if (content.length == 0) {
       console.error("element does not exist (did Google change their site?): " + selector);
       return;
     }
     var contentTimer;
-    var listener = function(event) {
+    var listener = function() {
       clearTimeout(contentTimer);
       contentTimer = setTimeout(function() {
         contentTimer = null;
-        if (removeAfterExecute) content.off("DOMSubtreeModified", listener);
         fn(content);
       }, timeout);//wait til the DOM manipulation is finished
     };
     content.on("DOMSubtreeModified", listener);
-    if (!removeAfterExecute) {
-      registeredListeners.push({ selector: selector, listener: listener });
-      content.triggerHandler("DOMSubtreeModified");
-    }
+    registeredListeners.push({ selector: selector, listener: listener });
+    listener();
   }
   
   function init() {
@@ -133,8 +130,10 @@ $(function() {
     
     function mainLoaded() {
       if (typeof(executeOnContentLoad) == "function") {
+        if (contentLoadDestination && location.hash != contentLoadDestination) return;//wait til we are on the correct page
         var fn = executeOnContentLoad;
         executeOnContentLoad = null;
+        contentLoadDestination = null;
         fn();
       }
     }
@@ -165,9 +164,9 @@ $(function() {
       }
     }
     
-    executeAfterContentLoad(sendSong, "#time_container_duration, #playerSongInfo", false);
-    executeAfterContentLoad(sendPosition, "#time_container_current", false, 0);
-    executeAfterContentLoad(mainLoaded, "#main", false, 1000);
+    executeAfterContentLoad(sendSong, "#time_container_duration, #playerSongInfo", 500);
+    executeAfterContentLoad(sendPosition, "#time_container_current", 0);
+    executeAfterContentLoad(mainLoaded, "#main", 500);
     watchAttr("class disabled", "#player > div.player-middle > button[data-id='play-pause']", "player-playing", playingGetter);
     watchAttr("value", "#player > div.player-middle > button[data-id='repeat']", "player-repeat");
     watchAttr("value", "#player > div.player-middle > button[data-id='shuffle']", "player-shuffle");
@@ -236,30 +235,36 @@ $(function() {
     port = null;
   }
   
-  /** Set the hash to the given link to navigate to another page. */
-  function selectLink(link) {
-    if (link.indexOf("st/") == 0) {//setting hash does not work for type "st"
-      var listId = link.substr(3);
-      if ($(".card[data-id='" + listId + "'][data-type='st']").length > 0) {
-        sendCommand("clickCard", {id: listId});
-      } else {
-        var bakExecuteOnContentLoad = executeOnContentLoad;
-        selectAndExecute("rd", function() {
-          executeOnContentLoad = bakExecuteOnContentLoad;
-          sendCommand("clickCard", {id: listId});
-        });
-      }
-    } else {
-      location.hash = "/" + link;
+  function clickListCard(listId) {
+    var found = $(".card[data-id='" + listId + "'][data-type='st']").length > 0;
+    if (found) {
+      contentLoadDestination = "#/ap/queue";
+      sendCommand("clickCard", {id: listId});
     }
+    return found;
   }
   
+  /** Set the hash to the given value to navigate to another page and call the function when finished. */
   function selectAndExecute(hash, callback) {
-    if (location.hash == "#/" + hash) {
+    if (location.hash == "#/" + hash) {//we're already here
       callback();
     } else {
       executeOnContentLoad = callback;
-      selectLink(hash);
+      contentLoadDestination = null;
+      if (hash.indexOf("st/") == 0) {//setting hash does not work for type "st"
+        var listId = hash.substr(3);
+        if (!clickListCard(listId)) {
+          selectAndExecute("rd", function() {//try to find it on the mixes page
+            executeOnContentLoad = callback;//set again (was overwritten by the recursive call)
+            if (!clickListCard(listId)) {//still not found
+              executeOnContentLoad = null;
+              callback(true);
+            }
+          });
+        }
+      } else {
+        location.hash = "/" + hash;
+      }
     }
   }
   
@@ -344,16 +349,18 @@ $(function() {
           sendMyPlaylists();
         } else {
           omitUnknownAlbums = msg.omitUnknownAlbums;
-          selectAndExecute(msg.link, function() {
-            var list = parseNavigationList[msg.listType]();
-            post("player-navigationList", {link: msg.link, list: list, controlLink: location.hash});
+          selectAndExecute(msg.link, function(error) {
+            var response = {link: msg.link, list: [], controlLink: location.hash};
+            if (error) response.error = true
+            else response.list = parseNavigationList[msg.listType]();
+            post("player-navigationList", response);
           });
         }
         break;
       case "startPlaylist":
-        selectAndExecute(msg.link, function() {
+        selectAndExecute(msg.link, function(error) {
           //type "im"/"st" starts automatically
-          if (msg.link.indexOf("im/") != 0 && msg.link.indexOf("st/") != 0) sendCommand("startPlaylist");
+          if (!error && msg.link.indexOf("im/") != 0 && msg.link.indexOf("st/") != 0) sendCommand("startPlaylist");
         });
         break;
       case "connected":
