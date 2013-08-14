@@ -9,7 +9,6 @@ $(function() {
   var port;
   var registeredListeners = [];
   var observers = [];
-  var omitUnknownAlbums = false;
   var executeOnContentLoad;
   var contentLoadDestination;
   var listRatings;
@@ -270,7 +269,7 @@ $(function() {
   }
   
   var parseNavigationList = {
-    playlistsList: function() {
+    playlistsList: function(omitUnknownAlbums) {
       var playlists = [];
       $(".card").each(function() {
         var card = $(this);
@@ -345,11 +344,10 @@ $(function() {
         if (msg.link == "myPlaylists") {
           sendMyPlaylists();
         } else {
-          omitUnknownAlbums = msg.omitUnknownAlbums;
           selectAndExecute(msg.link, function(error) {
             var response = {link: msg.link, list: [], controlLink: location.hash};
             if (error) response.error = true
-            else response.list = parseNavigationList[msg.listType]();
+            else response.list = parseNavigationList[msg.listType](msg.omitUnknownAlbums);
             post("player-navigationList", response);
           });
         }
