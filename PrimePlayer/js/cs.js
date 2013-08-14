@@ -123,7 +123,8 @@ $(function() {
     }
     
     function playingGetter(el) {
-      return $(el).hasClass("playing");
+      var play = $(el);
+      return play.is(":disabled") ? null : play.hasClass("playing");
     }
     
     function ratingGetter(el) {
@@ -139,26 +140,26 @@ $(function() {
     }
     
     /**
-     * Watch changes of an attribute on DOM elements specified by the selector.
-     * @param attr the name of the attribute
+     * Watch changes of attributes on DOM elements specified by the selector.
+     * @param attrs the space separated names of the attributes
      * @param selector the jQuery selector
      * @param type the type of message to post on change
-     * @param getValue an optional special function to get the value (default is element.getAttribute(attr))
+     * @param getValue an optional special function to get the value (default is to return the changed attribute value)
      */
-    function watchAttr(attr, selector, type, getValue) {
-      var element = $(selector).get()[0];
+    function watchAttr(attrs, selector, type, getValue) {
+      var element = $(selector).get(0);
       if (element) {
         if (getValue == undefined) {
-          getValue = function(el) {return el.getAttribute(attr)};
+          getValue = function(el, attr) {return el.getAttribute(attr)};
         }
         var observer = new MutationObserver(function (mutations) {
           mutations.forEach(function(mutation) {
-            post(type, getValue(mutation.target));
+            post(type, getValue(mutation.target, mutation.attributeName));
           });
         });
         observers.push(observer);
-        observer.observe(element, { attributes: true, attributeFilter: [attr] });
-        post(type, getValue(element));//trigger once to initialize the info
+        observer.observe(element, { attributes: true, attributeFilter: attrs.split(" ") });
+        post(type, getValue(element, attrs));//trigger once to initialize the info
       } else {
         console.error("element does not exist (did Google change their site?): " + selector);
       }
@@ -167,7 +168,7 @@ $(function() {
     executeAfterContentLoad(sendSong, "#time_container_duration, #playerSongInfo", false);
     executeAfterContentLoad(sendPosition, "#time_container_current", false, 0);
     executeAfterContentLoad(mainLoaded, "#main", false, 1000);
-    watchAttr("class", "#player > div.player-middle > button[data-id='play-pause']", "player-playing", playingGetter);
+    watchAttr("class disabled", "#player > div.player-middle > button[data-id='play-pause']", "player-playing", playingGetter);
     watchAttr("value", "#player > div.player-middle > button[data-id='repeat']", "player-repeat");
     watchAttr("value", "#player > div.player-middle > button[data-id='shuffle']", "player-shuffle");
     watchAttr("class", "#player-right-wrapper > .player-rating-container ul.rating-container li", "song-rating", ratingGetter);

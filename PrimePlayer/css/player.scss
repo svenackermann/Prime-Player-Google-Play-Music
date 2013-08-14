@@ -79,10 +79,6 @@ a {
   #time > div {
     visibility: visible;
   }
-  #resume {
-    opacity: 1;
-    cursor: pointer;
-  }
   #pause {
     cursor: pointer;
   }
@@ -635,6 +631,10 @@ a {
 
 #resume {
   opacity: 0.2;
+  &.enabled {
+    cursor: pointer;
+    opacity: 1;
+  }
 }
 
 #pause {

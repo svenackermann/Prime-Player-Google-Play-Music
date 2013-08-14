@@ -34,7 +34,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function playingWatcher(val) {
-    $("body").toggleClass("playing", val);
+    $("#resume").toggleClass("enabled", val != null);
+    $("body").toggleClass("playing", val === true);
   }
 
   function songInfoWatcher(val) {
@@ -390,7 +391,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function googleMusicExecutor(command) {
-    return function() { bp.executeInGoogleMusic(command); };
+    return function() {
+      if ($(this).css("opacity") == 1) bp.executeInGoogleMusic(command);
+    };
   }
   
   function renderPlayControls() {

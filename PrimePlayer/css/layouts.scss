@@ -58,6 +58,9 @@
   
   #resume {
     @include sprite(3, 0, $size);
+    &.enabled:hover {
+      @include sprite(3, 1, $size);
+    }
   }
 
   #pause {
@@ -117,9 +120,6 @@
   }
   
   .hasSong {
-    #resume {
-      @include hoversprite(3, 0, 1, $size);
-    }
     #prev {
       @include hoversprite(5, 0, 1, $size);
     }
