@@ -18,17 +18,18 @@ chrome.runtime.getBackgroundPage(function(bp) {
           bp.localSettings.lastfmSessionKey = response.session.key;
           bp.localSettings.lastfmSessionName = response.session.name;
           bp.lastfm.session = response.session;
-          status.find(".success").attr('title', chrome.i18n.getMessage('lastfmConnectSuccess')).show();
-          bp.gaEvent('LastFM', 'AuthorizeOK');
+          status.find(".success").attr("title", chrome.i18n.getMessage("lastfmConnectSuccess")).show();
+          bp.gaEvent("LastFM", "AuthorizeOK");
           bp.getLovedInfo();
           bp.scrobbleCachedSongs();
         },
         error: function(code, message) {
           status.find(".loader").hide();
-          var title = chrome.i18n.getMessage('lastfmConnectError');
+          var title = chrome.i18n.getMessage("lastfmConnectError");
           if (message) title += ": " + message;
-          status.find(".failure").attr('title', title).show();
-          bp.gaEvent('LastFM', 'AuthorizeError-' + code);
+          if (code == -1) title += ", " + chrome.i18n.getMessage("lastfmConnectErrorTryPermission");
+          status.find(".failure").attr("title", title).show();
+          bp.gaEvent("LastFM", "AuthorizeError-" + code);
         }
       }
     );

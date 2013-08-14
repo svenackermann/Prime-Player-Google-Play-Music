@@ -197,6 +197,9 @@
   "lastfmConnectError": {
     "message": "Error connecting"
   },
+  "lastfmConnectErrorTryPermission": {
+    "message": "try button 'Add last.fm permission'"
+  },
   "lastfmSessionTimeout": {
     "message": "Last.fm disconnect"
   },

@@ -197,6 +197,9 @@
   "lastfmConnectError": {
     "message": "Fehler beim Verbinden"
   },
+  "lastfmConnectErrorTryPermission": {
+    "message": "versuche den Button 'F\u00FCge last.fm Berechtigung hinzu'"
+  },
   "lastfmSessionTimeout": {
     "message": "Last.fm getrennt"
   },
