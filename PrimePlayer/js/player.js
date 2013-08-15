@@ -298,11 +298,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function renderNavigationList(val) {
-    if (val == null || val.link != currentNavList.link) return;
+    if (!val || val.link != currentNavList.link) return;
+    bp.player.navigationList = null;//free memory
     currentNavList.list = val.list;
     currentNavList.controlLink = val.controlLink;
     var navlist = $("#navlist");
-    navlist.removeClass("loading");
+    navlist.removeClass();
     if (val.error) {
       navlist.html("<div class='error'></div>");
     } else if (currentNavList.list.length == 0) {
@@ -347,14 +348,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function restorePlayer() {
     $("#nav").hide();
     $("#navlist").empty();
-    if (savedSizing != null) {
+    if (savedSizing) {
       resize(savedSizing);
       window.moveTo(savedSizing.screenX, savedSizing.screenY);
       savedSizing = null;
     }
     navHistory = [];
     currentNavList = {};
-    bp.player.navigationList = null;
     $("#player").show();
   }
 
