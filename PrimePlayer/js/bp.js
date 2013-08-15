@@ -12,9 +12,9 @@ var LOCAL_SETTINGS_DEFAULTS = {
   syncSettings: false,
   miniplayerSizing: {
     normal:   { width: 270, height: 115, left: 0, top: 0 },
-    compact1: { width: 270, height: 83, left: 0, top: 0 },
-    compact2: { width: 200, height: 128, left: 0, top: 0 },
-    hbar:     { width: 500, height: 30,  left: 0, top: 0 }
+    compact1: { width: 250, height: 83, left: 0, top: 0 },
+    compact2: { width: 180, height: 128, left: 0, top: 0 },
+    hbar:     { width: 480, height: 30,  left: 0, top: 0 }
   },
   playlistsListSizing: {width: 350, height: 320},
   playlistSizing: {width: 500, height: 295},
