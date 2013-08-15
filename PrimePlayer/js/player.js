@@ -359,7 +359,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function updateNavHead(title) {
-    $("#navHead").find(".back").attr("title", navHistory.length > 0 ? navHistory[navHistory.length - 1].title : chrome.i18n.getMessage("backToPlayer"));
+    var backHint = navHistory.length > 0 ? chrome.i18n.getMessage("backToLink", navHistory[navHistory.length - 1].title) : chrome.i18n.getMessage("backToPlayer");
+    $("#navHead").find(".back").attr("title", backHint);
     $("#navHead").find("span").text(title);
   }
   

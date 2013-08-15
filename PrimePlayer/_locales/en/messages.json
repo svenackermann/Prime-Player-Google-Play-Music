@@ -331,6 +331,10 @@
     "message": "Open '$LINK$'",
     "placeholders": { "LINK": { "content": "$1" } }
   },
+  "backToLink": {
+    "message": "Back to '$LINK$'",
+    "placeholders": { "LINK": { "content": "$1" } }
+  },
   "backToPlayer": {
     "message": "Back to miniplayer"
   }
