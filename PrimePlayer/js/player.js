@@ -266,7 +266,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
             $("<a href='#' class='nav'></a>").data("link", e.albumLink).text(e.album).attr("title", e.album).appendTo(info);
             noAlbum = false;
           }
-        } else {
+        } else if (e.album) {
           $("<span></span>").text(e.album).attr("title", e.album).appendTo(info);
           noAlbum = false;
         }
@@ -375,7 +375,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#navHead").find(".close").attr("title", chrome.i18n.getMessage("close")).click(restorePlayer);
     
     $("body").on("click", ".nav", function() {
-      switchView($(this).data("text") || $(this).text(), $(this).data("link"));
+      if ($(this).data("link")) switchView($(this).data("text") || $(this).text(), $(this).data("link"));
     });
     
     $("#nav").on("click", "#navlist.playlistsList img", function() {
