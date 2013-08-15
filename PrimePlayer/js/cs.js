@@ -330,7 +330,27 @@ $(function() {
     $("#playlists").children("li").each(function() {
       playlists.push({title: $.trim($(this).find(".tooltip").text()), titleLink: getLink($(this))});
     });
-    post("player-navigationList", {link: "myPlaylists", list: playlists});
+    post("player-navigationList", {type: "playlistsList", link: "myPlaylists", list: playlists});
+  }
+  
+  function getListType() {
+    var hash = location.hash.substr(2);
+    var i = hash.indexOf("/");
+    if (i > 0) hash = hash.substring(0, i);
+    switch (hash) {
+      case "artists":
+      case "genres":
+        return "albumContainers";
+      case "now":
+      case "albums":
+      case "rd":
+      case "ar":
+      case "sar":
+      case "tg":
+        return "playlistsList";
+      default:
+        return "playlist";
+    }
   }
   
   port = chrome.runtime.connect({name: "googlemusic"});
@@ -346,8 +366,12 @@ $(function() {
         } else {
           selectAndExecute(msg.link, function(error) {
             var response = {link: msg.link, list: [], controlLink: location.hash};
-            if (error) response.error = true
-            else response.list = parseNavigationList[msg.listType](msg.omitUnknownAlbums);
+            if (error) {
+              response.error = true;
+            } else {
+              response.type = getListType();
+              response.list = parseNavigationList[response.type](msg.omitUnknownAlbums);
+            }
             post("player-navigationList", response);
           });
         }

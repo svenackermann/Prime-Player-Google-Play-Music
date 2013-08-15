@@ -288,43 +288,50 @@
   "setting_coverClickLink": {
     "message": "Beim Klick auf das Album-Cover \u00F6ffnen"
   },
-  "setting_coverClickLink_": {
-    "message": "Nichts"
-  },
-  "setting_coverClickLink_playlistsList_now": {
-    "message": "Jetzt anh\u00F6ren"
-  },
-  "setting_coverClickLink_albumContainers_artists": {
-    "message": "Interpreten"
-  },
-  "setting_coverClickLink_playlistsList_albums": {
-    "message": "Alben"
-  },
-  "setting_coverClickLink_albumContainers_genres": {
-    "message": "Genres"
-  },
-  "setting_coverClickLink_playlistsList_rd": {
-    "message": "Schnellmixe"
-  },
-  "setting_coverClickLink_playlist_ap_queue": {
-    "message": "Wiedergabeliste"
-  },
-  "setting_coverClickLink_playlist_ap_auto_playlist_thumbs_up": {
-    "message": "Hoch bewertet"
-  },
-  "setting_coverClickLink_playlist_ap_auto_playlist_recent": {
-    "message": "Zuletzt hinzugef\u00FCgt"
-  },
-  "setting_coverClickLink_playlist_ap_auto_playlist_promo": {
-    "message": "Kostenlos \u0026 gekauft"
-  },
-  "setting_coverClickLink_playlist_ap_shared_with_me": {
-    "message": "Mit mir geteilt"
-  },
-  "setting_coverClickLink_playlist_ap_google_play_recommends": {
-    "message": "Empfehlungen auf Play"
-  },
   "setting_titleClickLink": {
     "message": "Beim Klick auf den Song-Titel \u00F6ffnen"
+  },
+  "quicklink_": {
+    "message": "Nichts"
+  },
+  "quicklink_now": {
+    "message": "Jetzt anh\u00F6ren"
+  },
+  "quicklink_artists": {
+    "message": "Interpreten"
+  },
+  "quicklink_albums": {
+    "message": "Alben"
+  },
+  "quicklink_genres": {
+    "message": "Genres"
+  },
+  "quicklink_rd": {
+    "message": "Schnellmixe"
+  },
+  "quicklink_ap_queue": {
+    "message": "Wiedergabeliste"
+  },
+  "quicklink_ap_auto_playlist_thumbs_up": {
+    "message": "Hoch bewertet"
+  },
+  "quicklink_ap_auto_playlist_recent": {
+    "message": "Zuletzt hinzugef\u00FCgt"
+  },
+  "quicklink_ap_auto_playlist_promo": {
+    "message": "Kostenlos \u0026 gekauft"
+  },
+  "quicklink_ap_shared_with_me": {
+    "message": "Mit mir geteilt"
+  },
+  "quicklink_ap_google_play_recommends": {
+    "message": "Empfehlungen auf Play"
+  },
+  "openLink": {
+    "message": "\u00D6ffne '$LINK$'",
+    "placeholders": { "LINK": { "content": "$1" } }
+  },
+  "backToPlayer": {
+    "message": "Zur\u00FCck zum Miniplayer"
   }
 }

@@ -230,11 +230,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initSelect("layout");
     initHint("layout")
     initSelect("color");
-    initSelect("coverClickLink", function(val) {
-      var text = bp.getTextForQuicklink(val);
-      if (text) return text;
-      return chrome.i18n.getMessage("setting_coverClickLink_" + val.replace(/;/g, "_").replace(/-/g, "_").replace(/\//g, "_"));
-    });
+    initSelect("coverClickLink", bp.getTextForQuicklink);
     var titleClickLink = initSelect("titleClickLink");
     titleClickLink.append($("#coverClickLink").children().clone());
     titleClickLink.val(bp.settings.titleClickLink);

@@ -288,43 +288,50 @@
   "setting_coverClickLink": {
     "message": "Open on click on album cover"
   },
-  "setting_coverClickLink_": {
-    "message": "Nothing"
-  },
-  "setting_coverClickLink_playlistsList_now": {
-    "message": "Listen Now"
-  },
-  "setting_coverClickLink_albumContainers_artists": {
-    "message": "Artists"
-  },
-  "setting_coverClickLink_playlistsList_albums": {
-    "message": "Albums"
-  },
-  "setting_coverClickLink_albumContainers_genres": {
-    "message": "Genres"
-  },
-  "setting_coverClickLink_playlistsList_rd": {
-    "message": "Instant Mixes"
-  },
-  "setting_coverClickLink_playlist_ap_queue": {
-    "message": "Queue"
-  },
-  "setting_coverClickLink_playlist_ap_auto_playlist_thumbs_up": {
-    "message": "Highly rated"
-  },
-  "setting_coverClickLink_playlist_ap_auto_playlist_recent": {
-    "message": "Last added"
-  },
-  "setting_coverClickLink_playlist_ap_auto_playlist_promo": {
-    "message": "Free and purchased"
-  },
-  "setting_coverClickLink_playlist_ap_shared_with_me": {
-    "message": "Shared with me"
-  },
-  "setting_coverClickLink_playlist_ap_google_play_recommends": {
-    "message": "Google Play recommends"
-  },
   "setting_titleClickLink": {
     "message": "Open on click on song title"
+  },
+  "quicklink_": {
+    "message": "Nothing"
+  },
+  "quicklink_now": {
+    "message": "Listen Now"
+  },
+  "quicklink_artists": {
+    "message": "Artists"
+  },
+  "quicklink_albums": {
+    "message": "Albums"
+  },
+  "quicklink_genres": {
+    "message": "Genres"
+  },
+  "quicklink_rd": {
+    "message": "Instant Mixes"
+  },
+  "quicklink_ap_queue": {
+    "message": "Queue"
+  },
+  "quicklink_ap_auto_playlist_thumbs_up": {
+    "message": "Highly rated"
+  },
+  "quicklink_ap_auto_playlist_recent": {
+    "message": "Last added"
+  },
+  "quicklink_ap_auto_playlist_promo": {
+    "message": "Free and purchased"
+  },
+  "quicklink_ap_shared_with_me": {
+    "message": "Shared with me"
+  },
+  "quicklink_ap_google_play_recommends": {
+    "message": "Google Play recommends"
+  },
+  "openLink": {
+    "message": "Open '$LINK$'",
+    "placeholders": { "LINK": { "content": "$1" } }
+  },
+  "backToPlayer": {
+    "message": "Back to miniplayer"
   }
 }

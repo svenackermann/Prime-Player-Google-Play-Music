@@ -37,8 +37,8 @@ var SETTINGS_DEFAULTS = {
   miniplayerType: "popup",
   layout: "normal",
   color: "turq",
-  coverClickLink: "playlistsList;now",
-  titleClickLink: "playlist;ap/queue",
+  coverClickLink: "now",
+  titleClickLink: "ap/queue",
   iconClickMiniplayer: false,
   iconClickConnect: false,
   openGoogleMusicPinned: false,
@@ -245,8 +245,8 @@ function postToGooglemusic(msg) {
   }
 }
 
-function loadNavigationList(link, listType) {
-  postToGooglemusic({type: "getNavigationList", listType: listType, link: link, omitUnknownAlbums: link == "albums" && settings.omitUnknownAlbums});
+function loadNavigationList(link) {
+  postToGooglemusic({type: "getNavigationList", link: link, omitUnknownAlbums: link == "albums" && settings.omitUnknownAlbums});
 }
 
 function startPlaylist(link) {
@@ -292,12 +292,14 @@ function parseSeconds(time) {
   return sec || 0;
 }
 
-function getTextForQuicklink(setting) {
-  if (setting == "playlistsList;myPlaylists") return chrome.i18n.getMessage("myPlaylists");
-  if (setting && player.quicklinks) {
-    var link = setting.split(";")[1];
-    return player.quicklinks.texts[link] || player.quicklinks.autoPlaylists[link];
+function getTextForQuicklink(link) {
+  if (link == "myPlaylists") return chrome.i18n.getMessage("myPlaylists");
+  var text;
+  if (link && player.quicklinks) {//try to get text from Google site
+    text = player.quicklinks.texts[link] || player.quicklinks.autoPlaylists[link];
   }
+  //use default
+  return text || chrome.i18n.getMessage("quicklink_" + link.replace(/-/g, "_").replace(/\//g, "_"));
 }
 
 function cacheForLaterScrobbling(songInfo) {
