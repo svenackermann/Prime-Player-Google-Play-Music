@@ -128,24 +128,21 @@ a {
     height: 15px;
     white-space: nowrap;
     display: block;
-    &:empty {
-      cursor: default;
+    text-decoration: none;
+    color: black;
+    cursor: default;
+    &.nav {
+      cursor: pointer;
+      &:hover {
+        color: #333333;
+        text-decoration: underline;
+      }
     }
   }
 }
 
 #track {
   font-weight: bold;
-  text-decoration: none;
-  color: black;
-  cursor: default;
-  &.nav {
-    cursor: pointer;
-    &:hover {
-      color: #333333;
-      text-decoration: underline;
-    }
-  }
 }
 
 #album {
