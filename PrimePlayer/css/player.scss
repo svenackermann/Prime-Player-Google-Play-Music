@@ -392,11 +392,14 @@ a {
       white-space: nowrap;
       height: 18px;
       > span, > a {
-        width: 30%;
+        width: 25%;
         overflow: hidden;
         white-space: nowrap;
         display: inline-block;
         margin-right: 4px;
+      }
+      > span:first-child {
+        width: 40%;
       }
       > span.duration {
         width: 6ex;
@@ -422,7 +425,10 @@ a {
 
 #navlist.playlist.noalbum > div > div.info {
   > span:not(.duration), > a {
-    width: 45%;
+    width: 40%;
+  }
+  > span:first-child {
+    width: 50%;
   }
 }
 
@@ -431,8 +437,8 @@ a {
 }
 
 #navlist.playlist.noduration > div > div.info {
-  > span, > a {
-    width: 33%;
+  > span:first-child {
+    width: 50%;
   }
   > span.duration {
     display: none;
