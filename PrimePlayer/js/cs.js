@@ -297,13 +297,12 @@ $(function() {
         item.title = $.trim(title.text());
         if (song.find(".song-indicator").length > 0) item.current = true;
         item.artist = $.trim(song.find("td[data-col='artist'] .content").text());
+        if (item.artist) item.artistLink = "ar/" + forHash(item.artist);
         var album = song.find("td[data-col='album']");
         item.album = $.trim(album.find(".content").text());
-        if (location.hash != "#/ap/google-play-recommends") {//no real duration/links on recommandation page
-          item.duration = $.trim(song.find("td[data-col='duration']").text());
-          if (item.artist) item.artistLink = "ar/" + forHash(item.artist);
-          if (item.album) item.albumLink = "al/" + forHash(album.data("album-artist")) + "/" + forHash(item.album);
-        }
+        if (item.album) item.albumLink = "al/" + forHash(album.data("album-artist")) + "/" + forHash(item.album);
+        var duration = $.trim(song.find("td[data-col='duration']").text());
+        if (/^\d\d?(\:\d\d)*$/.test(duration)) item.duration = duration;//no real duration on recommandation page
         item.rating = parseRating(song.find("td[data-col='rating']").data("rating"));
         listRatings.push(item.rating);
         playlist.push(item);
@@ -333,8 +332,27 @@ $(function() {
     post("player-navigationList", {type: "playlistsList", link: "myPlaylists", list: playlists});
   }
   
-  function getListType() {
-    var hash = location.hash.substr(2);
+  function sendNavigationList(link, omitUnknownAlbums) {
+    selectAndExecute(link, function(error) {
+      var response = {link: link, list: [], controlLink: location.hash};
+      if (error) {
+        response.error = true;
+      } else {
+        var type = getListType(link);
+        //check if we are on a page with correct type
+        //e.g. in recommendations list the album link might not work in which case we get redirected to albums page
+        if (type == getListType(location.hash.substr(2))) {
+          response.type = type;
+          response.list = parseNavigationList[type](omitUnknownAlbums);
+        } else {
+          response.error = true;
+        }
+      }
+      post("player-navigationList", response);
+    });
+  }
+  
+  function getListType(hash) {
     var i = hash.indexOf("/");
     if (i > 0) hash = hash.substring(0, i);
     switch (hash) {
@@ -364,16 +382,7 @@ $(function() {
         if (msg.link == "myPlaylists") {
           sendMyPlaylists();
         } else {
-          selectAndExecute(msg.link, function(error) {
-            var response = {link: msg.link, list: [], controlLink: location.hash};
-            if (error) {
-              response.error = true;
-            } else {
-              response.type = getListType();
-              response.list = parseNavigationList[response.type](msg.omitUnknownAlbums);
-            }
-            post("player-navigationList", response);
-          });
+          sendNavigationList(msg.link, msg.omitUnknownAlbums);
         }
         break;
       case "startPlaylist":
