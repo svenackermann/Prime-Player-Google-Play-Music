@@ -377,7 +377,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     
     $("body").on("click", ".nav", function(e) {
       var link = $(this).data("link");
-      if (link) {
+      if (link && bp.player.connected) {
         e.preventDefault();
         if (bp.settings.openLinksInMiniplayer == e.shiftKey && link != "quicklinks") bp.selectLink(link)
         else switchView($(this).data("text") || $(this).text(), link);
