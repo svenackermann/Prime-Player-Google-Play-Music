@@ -23,7 +23,8 @@ function LastFM(options){
     $.ajax({
       type: requestMethod,
       url: apiUrl,
-      data: params
+      data: params,
+      timeout: 10000
     }).done(function(response) {
       if (response.error) {
         if (typeof(callbacks.error) == "function") {
@@ -37,8 +38,9 @@ function LastFM(options){
       }
     }).fail(function(jqXHR, textStatus, errorThrown) {
       if (typeof(callbacks.error) == "function") {
-        var msg = textStatus + " " + jqXHR.status;
-        if (errorThrown) msg += " " + errorThrown;
+        var msg = textStatus;
+        if (jqXHR.status) msg += " " + jqXHR.status;
+        if (errorThrown && errorThrown != textStatus) msg += " " + errorThrown;
         if (that.unavailableMessage) msg = that.unavailableMessage + " (" + msg + ")";
         callbacks.error(-1, msg);
       }
