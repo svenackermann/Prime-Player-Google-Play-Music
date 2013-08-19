@@ -36,33 +36,33 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function scrobbleChanged() {
     var disabled = !bp.isScrobblingEnabled();
-    $("#scrobblePercent").prop('disabled', disabled);
-    $("#scrobbleTime").prop('disabled', disabled);
-    $("#scrobbleMaxDuration").prop('disabled', disabled);
-    $("#disableScrobbleOnFf").prop('disabled', disabled);
+    $("#scrobblePercent").prop("disabled", disabled);
+    $("#scrobbleTime").prop("disabled", disabled);
+    $("#scrobbleMaxDuration").prop("disabled", disabled);
+    $("#disableScrobbleOnFf").prop("disabled", disabled);
   }
 
   function toastChanged() {
-    $("#toastUseMpStyle").prop('disabled', !bp.settings.toast);
-    $("#toastDuration").prop('disabled', !bp.settings.toast || !bp.settings.toastUseMpStyle);
+    $("#toastUseMpStyle").prop("disabled", !bp.settings.toast);
+    $("#toastDuration").prop("disabled", !bp.settings.toast || !bp.settings.toastUseMpStyle);
   }
   
   function lastfmUserChanged(user) {
     var action;
     var actionText;
-    $('#scrobble').prop('disabled', user == null);
-    $("#linkRatings").prop('disabled', user == null);
+    $("#scrobble").prop("disabled", user == null);
+    $("#linkRatings").prop("disabled", user == null);
     scrobbleChanged();
-    var links = $('#lastfmStatus').find("a");
+    var links = $("#lastfmStatus").find("a");
     var userLink = links.first();
     if (user) {
       action = bp.lastfmLogout;
-      actionText = chrome.i18n.getMessage('logout');
-      userLink.text(user).attr('href', "http://last.fm/user/" + user).removeClass("disconnected");
+      actionText = chrome.i18n.getMessage("logout");
+      userLink.text(user).attr("href", "http://last.fm/user/" + user).removeClass("disconnected");
     } else {
       action = bp.lastfmLogin;
-      actionText = chrome.i18n.getMessage('connect');
-      userLink.text(chrome.i18n.getMessage('disconnected')).attr('href', "javascript:return false;").addClass("disconnected");
+      actionText = chrome.i18n.getMessage("connect");
+      userLink.text(chrome.i18n.getMessage("disconnected")).attr("href", "javascript:return false;").addClass("disconnected");
     }
     links.last().text(actionText).unbind().click(action);
   }
@@ -88,14 +88,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
   /** the i18n key for the hint for property "<prop>" is "setting_<prop>Hint" */
   function initHint(prop) {
     $("#" + prop)
-      .parent().find("img.hint").attr('title', chrome.i18n.getMessage("setting_" + prop + 'Hint'));
+      .parent().find("img.hint").attr("title", chrome.i18n.getMessage("setting_" + prop + "Hint"));
   }
 
   /** the i18n key for the label for property "<prop>" is "setting_<prop>" */
   function initCheckbox(prop) {
     var input = $("#" + prop);
     input
-      .prop('checked', bp.settings[prop])
+      .prop("checked", bp.settings[prop])
       .click(boolUpdater(prop))
       .parent().find("label").text(chrome.i18n.getMessage("setting_" + prop));
     return input;
@@ -128,7 +128,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function initSyncSettings() {
     $("#syncSettings")
-      .prop('checked', bp.localSettings.syncSettings)
+      .prop("checked", bp.localSettings.syncSettings)
       .click(function() { bp.localSettings.syncSettings = !bp.localSettings.syncSettings })
       .parent().find("label").text(chrome.i18n.getMessage("setting_syncSettings"));
   }
@@ -161,13 +161,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
       });
     }
     
-    var optionsText = chrome.i18n.getMessage('options') + ' - ' + chrome.i18n.getMessage('extTitle');
+    var optionsText = chrome.i18n.getMessage("options") + " - " + chrome.i18n.getMessage("extTitle");
     $("head > title").first().text(optionsText);
     $("div.settings").find("h1").first().text(optionsText);
-    $("#legendLastfm").text(chrome.i18n.getMessage('lastfmSettings'));
-    $("#legendToasting").text(chrome.i18n.getMessage('toastingSettings'));
-    $("#legendLf").text(chrome.i18n.getMessage('lfSettings'));
-    $("#lastfmStatus").find("span").text(chrome.i18n.getMessage('lastfmUser'));
+    $("#legendLastfm").text(chrome.i18n.getMessage("lastfmSettings"));
+    $("#legendToasting").text(chrome.i18n.getMessage("toastingSettings"));
+    $("#legendLf").text(chrome.i18n.getMessage("lfSettings"));
+    $("#lastfmStatus").find("span").text(chrome.i18n.getMessage("lastfmUser"));
     var bugfeatureinfo = chrome.i18n.getMessage("bugfeatureinfo", "<a target='_blank' href='https://github.com/svenrecknagel/Prime-Player-Google-Play-Music/issues'>GitHub</a>");
     $("#bugfeatureinfo").html(bugfeatureinfo);
     
@@ -177,9 +177,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     percentSpan.text(bp.settings.scrobblePercent);
     $("#scrobblePercent")
       .val(bp.settings.scrobblePercent)
-      .mouseup(numberUpdater('scrobblePercent'))
+      .mouseup(numberUpdater("scrobblePercent"))
       .change(function(){ percentSpan.text($(this).val()); })
-      .parent().find("label").text(chrome.i18n.getMessage('setting_scrobblePercent'));
+      .parent().find("label").text(chrome.i18n.getMessage("setting_scrobblePercent"));
 
     initNumberInput("scrobbleTime");
     initNumberInput("scrobbleMaxDuration");
@@ -219,6 +219,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.localSettings.watch("lastfmSessionName", lastfmUserChanged);
     //disable inputs if neccessary
     toastChanged();
+    
+    $("#resetSettings").click(function() {
+      bp.settings.resetToDefaults();
+      bp.localSettings.resetToDefaults();
+      location.reload();
+    }).text(chrome.i18n.getMessage("resetSettings"));
     
     //tell the background page that we're open
     if (bp.optionsTabId == null) {

@@ -209,8 +209,8 @@ function onDisconnectListener() {
   googlemusictabId = null;
   iconClickSettingsChanged();
   
-  resetToDefaults(player, PLAYER_DEFAULTS);
-  resetToDefaults(song, SONG_DEFAULTS);
+  player.resetToDefaults();
+  song.resetToDefaults();
   
   //try to connect another tab
   while (parkedPorts.length > 0) {
@@ -451,13 +451,6 @@ function unloveTrack() {
         }
       }
     );
-  }
-}
-
-/** resets all values of a bean to the given defaults */
-function resetToDefaults(bean, defaults) {
-  for (var prop in defaults) {
-    bean[prop] = defaults[prop];
   }
 }
 
