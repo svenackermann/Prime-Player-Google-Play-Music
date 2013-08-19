@@ -331,5 +331,8 @@
   },
   "resetSettings": {
     "message": "Reset settings to default"
+  },
+  "setting_connectedIndicator": {
+    "message": "Show 'P'-icon on connected Google Music tab"
   }
 }

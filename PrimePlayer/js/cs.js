@@ -82,7 +82,7 @@ $(function() {
     listener();
   }
   
-  function init() {
+  function init(connectedIndicator) {
     //when rating is changed, the page gets reloaded, so no need for event listening here
     var ratingMode;
     var ratingContainer = $("#player-right-wrapper > div.player-rating-container > ul.rating-container");
@@ -187,14 +187,16 @@ $(function() {
     document.getElementsByTagName('head')[0].appendChild(injected);
     window.addEventListener("message", onMessage);
     
-    //inject icon with title to mark the tab as connected
-    $(".music-banner-icon")
-      .css({background: 'url(' + chrome.extension.getURL('img/icon-tabconnected.png') + ')', cursor: "pointer"})
-      .attr('title', chrome.i18n.getMessage('connected'))
-      .click(function() {
-        port.disconnect();
-        cleanup();
-      });
+    if (connectedIndicator) {
+      //inject icon with title to mark the tab as connected
+      $(".music-banner-icon")
+        .css({background: 'url(' + chrome.extension.getURL('img/icon-tabconnected.png') + ')', cursor: "pointer"})
+        .attr('title', chrome.i18n.getMessage('connected'))
+        .click(function() {
+          port.disconnect();
+          cleanup();
+        });
+    }
     
     sendQuickLinks();
   }
@@ -395,7 +397,7 @@ $(function() {
         });
         break;
       case "connected":
-        init();
+        init(msg.connectedIndicator);
         break;
       case "alreadyConnected":
         port.disconnect();

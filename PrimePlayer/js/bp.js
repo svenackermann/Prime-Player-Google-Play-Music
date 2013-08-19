@@ -47,6 +47,7 @@ var SETTINGS_DEFAULTS = {
   omitUnknownAlbums: false,
   updateNotifier: true,
   iconStyle: "default",
+  connectedIndicator: true,
   gaEnabled: true
 };
 var settings = new Bean(SETTINGS_DEFAULTS, true);
@@ -164,7 +165,7 @@ function removeParkedPort(port) {
 
 /** use the given port for the connection to Google Music */
 function connectPort(port) {
-  port.postMessage({type: "connected"});
+  port.postMessage({type: "connected", connectedIndicator: settings.connectedIndicator});
   googlemusicport = port;
   googlemusictabId = port.sender.tab.id;
   iconClickSettingsChanged();

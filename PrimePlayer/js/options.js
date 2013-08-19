@@ -207,6 +207,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("iconClickMiniplayer");
     initCheckbox("iconClickConnect");
     initCheckbox("openGoogleMusicPinned");
+    initCheckbox("connectedIndicator");
     initCheckbox("hideRatings");
     initCheckbox("omitUnknownAlbums");
     initHint("omitUnknownAlbums");

@@ -331,5 +331,8 @@
   },
   "resetSettings": {
     "message": "Einstellungen auf Standard zur\u00FCcksetzen"
+  },
+  "setting_connectedIndicator": {
+    "message": "Zeige 'P'-Symbol in dem verbundenen Google Music Tab an"
   }
 }
