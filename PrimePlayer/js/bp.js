@@ -39,6 +39,7 @@ var SETTINGS_DEFAULTS = {
   color: "turq",
   coverClickLink: "now",
   titleClickLink: "ap/queue",
+  openLinksInMiniplayer: true,
   iconClickMiniplayer: false,
   iconClickConnect: false,
   openGoogleMusicPinned: false,
@@ -247,6 +248,11 @@ function postToGooglemusic(msg) {
 
 function loadNavigationList(link) {
   postToGooglemusic({type: "getNavigationList", link: link, omitUnknownAlbums: link == "albums" && settings.omitUnknownAlbums});
+}
+
+function selectLink(link) {
+  postToGooglemusic({type: "selectLink", link: link});
+  openGoogleMusicTab();
 }
 
 function startPlaylist(link) {

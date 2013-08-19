@@ -234,6 +234,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var titleClickLink = initSelect("titleClickLink");
     titleClickLink.append($("#coverClickLink").children().clone());
     titleClickLink.val(bp.settings.titleClickLink);
+    initCheckbox("openLinksInMiniplayer");
+    initHint("openLinksInMiniplayer");
     initCheckbox("iconClickMiniplayer");
     initCheckbox("iconClickConnect");
     initCheckbox("openGoogleMusicPinned");

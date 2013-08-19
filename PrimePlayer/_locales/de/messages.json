@@ -337,5 +337,11 @@
   },
   "backToPlayer": {
     "message": "Zur\u00FCck zum Miniplayer"
+  },
+  "setting_openLinksInMiniplayer": {
+    "message": "\u00D6ffne Links im Miniplayer"
+  },
+  "setting_openLinksInMiniplayerHint": {
+    "message": "Wenn aktiviert, werden Links zu Alben, Interpreten usw. direkt im Miniplayer ge\u00F6ffnet, ansonsten im Google Music Tab. Mit Umschalt+Klick auf den Link wird das Verhalten vor\u00FCbergehend umgekehrt."
   }
 }

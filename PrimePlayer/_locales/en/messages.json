@@ -337,5 +337,11 @@
   },
   "backToPlayer": {
     "message": "Back to miniplayer"
+  },
+  "setting_openLinksInMiniplayer": {
+    "message": "Open links in miniplayer"
+  },
+  "setting_openLinksInMiniplayerHint": {
+    "message": "If enabled, links to albums, artist etc. will be opened directly in the miniplayer, otherwise in the Google Music tab. With Shift+Click you can switch this behavior temporarily."
   }
 }

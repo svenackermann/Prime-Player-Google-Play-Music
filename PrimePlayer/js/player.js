@@ -375,8 +375,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
     $("#navHead").find(".close").attr("title", chrome.i18n.getMessage("close")).click(restorePlayer);
     
-    $("body").on("click", ".nav", function() {
-      if ($(this).data("link")) switchView($(this).data("text") || $(this).text(), $(this).data("link"));
+    $("body").on("click", ".nav", function(e) {
+      var link = $(this).data("link");
+      if (link) {
+        e.preventDefault();
+        if (bp.settings.openLinksInMiniplayer == e.shiftKey && link != "quicklinks") bp.selectLink(link)
+        else switchView($(this).data("text") || $(this).text(), link);
+      }
     });
     
     $("#nav").on("click", "#navlist.playlistsList img", function() {

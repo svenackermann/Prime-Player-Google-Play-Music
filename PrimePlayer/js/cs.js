@@ -232,18 +232,18 @@ $(function() {
   }
   
   function clickListCard(listId) {
-    var found = $(".card[data-id='" + listId + "'][data-type='st']").length > 0;
-    if (found) {
+    if ($(".card[data-id='" + listId + "'][data-type='st']").length > 0) {
       contentLoadDestination = "#/ap/queue";
       sendCommand("clickCard", {id: listId});
+      return true;
     }
-    return found;
+    return false;
   }
   
   /** Set the hash to the given value to navigate to another page and call the function when finished. */
   function selectAndExecute(hash, callback) {
     if (location.hash == "#/" + hash) {//we're already here
-      callback();
+      if (callback) callback();
     } else {
       executeOnContentLoad = callback;
       contentLoadDestination = null;
@@ -254,7 +254,7 @@ $(function() {
             executeOnContentLoad = callback;//set again (was overwritten by the recursive call)
             if (!clickListCard(listId)) {//still not found
               executeOnContentLoad = null;
-              callback(true);
+              if (callback) callback(true);
             }
           });
         }
@@ -384,6 +384,9 @@ $(function() {
         } else {
           sendNavigationList(msg.link, msg.omitUnknownAlbums);
         }
+        break;
+      case "selectLink":
+        selectAndExecute(msg.link);
         break;
       case "startPlaylist":
         selectAndExecute(msg.link, function(error) {
