@@ -130,11 +130,6 @@ div.newFeature {
   font-weight: bold;
 }
 
-div.newFeature button {
-  color: red;
-  border-color: #FF8F00;
-}
-
 #welcome {
   padding: 50px;
   max-width: 800px;

@@ -197,9 +197,6 @@
   "lastfmConnectError": {
     "message": "Fehler beim Verbinden"
   },
-  "lastfmConnectErrorTryPermission": {
-    "message": "versuche den Button 'F\u00FCge last.fm Berechtigung hinzu'"
-  },
   "lastfmSessionTimeout": {
     "message": "Last.fm getrennt"
   },
@@ -263,18 +260,6 @@
   },
   "quicklinks": {
     "message": "Quick-Links"
-  },
-  "setting_fixPermissionLastfm": {
-    "message": "F\u00FCge last.fm Berechtigung hinzu"
-  },
-  "setting_fixPermissionLastfmHint": {
-    "message": "Auf manchen Systemen funktioniert die last.fm Integration nur mit einer zus\u00E4tzlichen Berechtigung. Wenn die last.fm Anmeldung bei dir nicht klappt, klicke auf den Button, um diese Berechtigung hinzuzuf\u00FCgen."
-  },
-  "setting_fixPermissionToast": {
-    "message": "F\u00FCge Cover Berechtigung hinzu"
-  },
-  "setting_fixPermissionToastHint": {
-    "message": "Auf manchen Systemen werden die Album-Covers in Rich Notifications nur mit einer zus\u00E4tzlichen Berechtigung angezeigt. Wenn du in den Benachrichtigungen immer nur das graue Standard-Cover siehst, klicke auf den Button, um diese Berechtigung hinzuzuf\u00FCgen."
   },
   "welcomeMessage": {
     "message": "Danke, dass du Prime Player installiert hast. Die Erweiterung bietet viele Optionen - bitte nimm dir die Zeit, sie alle auszuprobieren. Neben einigen Optionen findest du ein gr\u00FCnes Fragezeichen. Wenn du mit dem Mauszeiger dar\u00FCber f\u00E4hrst, erh\u00E4ltst du genauere Informationen. F\u00FCr weitere Informationen sieh auch in den FAQ auf der Homepage der Erweiterung im Chrome Store nach. Und nun viel Spa\u00DF mit Prime Player!"
