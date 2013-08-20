@@ -171,7 +171,8 @@ function connectPort(port) {
   googlemusictabId = port.sender.tab.id;
   port.onMessage.addListener(onMessageListener);
   port.onDisconnect.addListener(onDisconnectListener);
-  port.postMessage({type: "connected", connectedIndicator: settings.connectedIndicator});
+  port.postMessage({type: "connected"});
+  if (settings.connectedIndicator) port.postMessage({type: "connectedIndicator", show: true});
   iconClickSettingsChanged();
 }
 
@@ -810,6 +811,9 @@ settings.addListener("scrobblePercent", calcScrobbleTime);
 settings.addListener("scrobbleTime", calcScrobbleTime);
 settings.addListener("disableScrobbleOnFf", calcScrobbleTime);
 settings.watch("iconStyle", updateBrowserActionInfo);
+settings.addListener("connectedIndicator", function(val) {
+  postToGooglemusic({type: "connectedIndicator", show: val});
+});
 
 localSettings.watch("syncSettings", function(val) {
   settings.setSyncStorage(val, function() {

@@ -65,6 +65,21 @@ $(function() {
     listener();
   }
   
+  function showConnectedIndicator() {
+    //inject icon with title to mark the tab as connected
+    $(".music-banner-icon")
+      .css({background: "url(" + chrome.extension.getURL("img/icon-tabconnected.png") + ")", cursor: "pointer"})
+      .attr("title", chrome.i18n.getMessage("connected"))
+      .unbind().click(function() {
+        port.disconnect();
+        cleanup();
+      });
+  }
+  
+  function hideConnectedIndicator() {
+    $(".music-banner-icon").removeAttr("style title").off("click");
+  }
+  
   function init(connectedIndicator) {
     //when rating is changed, the page gets reloaded, so no need for event listening here
     var ratingMode;
@@ -178,21 +193,10 @@ $(function() {
     $(window).on("hashchange", function() { listRatings = null; });
     
     //we must add this script to the DOM for the code to be executed in the correct context
-    var injected = document.createElement('script'); injected.type = 'text/javascript';
-    injected.src = chrome.extension.getURL('js/injected.js');
-    document.getElementsByTagName('head')[0].appendChild(injected);
+    var injected = document.createElement("script"); injected.type = "text/javascript";
+    injected.src = chrome.extension.getURL("js/injected.js");
+    document.getElementsByTagName("head")[0].appendChild(injected);
     window.addEventListener("message", onMessage);
-    
-    if (connectedIndicator) {
-      //inject icon with title to mark the tab as connected
-      $(".music-banner-icon")
-        .css({background: 'url(' + chrome.extension.getURL('img/icon-tabconnected.png') + ')', cursor: "pointer"})
-        .attr('title', chrome.i18n.getMessage('connected'))
-        .click(function() {
-          port.disconnect();
-          cleanup();
-        });
-    }
     
     var sendConnectedInterval;
     function sendConnected() {
@@ -232,7 +236,7 @@ $(function() {
     for (var i = 0; i < observers.length; i++) {
       observers[i].disconnect();
     }
-    $(".music-banner-icon").removeAttr("style").removeAttr("title").off("click");
+    hideConnectedIndicator();
     port = null;
   }
   
@@ -400,7 +404,11 @@ $(function() {
         });
         break;
       case "connected":
-        init(msg.connectedIndicator);
+        init();
+        break;
+      case "connectedIndicator":
+        if (msg.show) showConnectedIndicator()
+        else hideConnectedIndicator();
         break;
       case "alreadyConnected":
         port.disconnect();
