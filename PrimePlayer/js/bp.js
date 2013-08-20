@@ -72,6 +72,8 @@ var viewUpdateNotifier = localStorage["viewUpdateNotifier"] || false;
 var previousVersion = localStorage["previousVersion"];
 /** the volume before mute for restoring */
 var volumeBeforeMute;
+/** the link of navigation list to load when Google Music has just connected (if any) */
+var loadNavlistLink;
 
 /** the song currently loaded */
 var SONG_DEFAULTS = {
@@ -243,13 +245,23 @@ function postToGooglemusic(msg) {
   }
 }
 
+/** Load the navigation list identified by 'loadNavlistLink'. If not connected, open a Google Music tab and try again. */
+function loadNavlistIfConnected() {
+  if (!loadNavlistLink) return;
+  if (player.connected) {
+    postToGooglemusic({type: "getNavigationList", link: loadNavlistLink, omitUnknownAlbums: loadNavlistLink == "albums" && settings.omitUnknownAlbums});
+    loadNavlistLink = null;
+  } else openGoogleMusicTab(loadNavlistLink);//when connected, we get triggered again
+}
+
 function loadNavigationList(link) {
-  postToGooglemusic({type: "getNavigationList", link: link, omitUnknownAlbums: link == "albums" && settings.omitUnknownAlbums});
+  loadNavlistLink = link;
+  loadNavlistIfConnected();
 }
 
 function selectLink(link) {
   postToGooglemusic({type: "selectLink", link: link});
-  openGoogleMusicTab();
+  openGoogleMusicTab(link);
 }
 
 function startPlaylist(link) {
@@ -299,7 +311,7 @@ function getTextForQuicklink(link) {
   if (link == "myPlaylists") return chrome.i18n.getMessage("myPlaylists");
   var text;
   if (link && player.quicklinks) {//try to get text from Google site
-    text = player.quicklinks.texts[link] || player.quicklinks.autoPlaylists[link];
+    text = player.quicklinks[link];
   }
   //use default
   return text || chrome.i18n.getMessage("quicklink_" + link.replace(/-/g, "_").replace(/\//g, "_"));
@@ -746,11 +758,13 @@ function openOptions() {
   }
 }
 
-function openGoogleMusicTab() {
+function openGoogleMusicTab(link) {
   if (googlemusictabId) {
     chrome.tabs.update(googlemusictabId, {active: true});
   } else {
-    chrome.tabs.create({url: 'http://play.google.com/music/listen', pinned: settings.openGoogleMusicPinned});
+    var url = "http://play.google.com/music/listen";
+    if (typeof(link) == "string") url += "#/" + link;
+    chrome.tabs.create({url: url, pinned: settings.openGoogleMusicPinned});
   }
 }
 
@@ -806,6 +820,7 @@ localSettings.addListener("lastfmSessionName", calcScrobbleTime);
 
 player.addListener("playing", updateBrowserActionInfo);
 player.addListener("connected", updateBrowserActionInfo);
+player.addListener("connected", loadNavlistIfConnected);
 song.addListener("scrobbled", updateBrowserActionInfo);
 song.addListener("position", function(val) {
   var oldPos = song.positionSec;

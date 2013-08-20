@@ -375,7 +375,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
     $("#navHead").find(".close").attr("title", chrome.i18n.getMessage("close")).click(restorePlayer);
     
-    $(document).on("click", ".connected .nav", function(e) {
+    $("body").on("click", ".nav", function(e) {
       var link = $(this).data("link");
       if (link) {
         e.preventDefault();
@@ -460,17 +460,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
   
-  function renderQuicklinks(val) {
-    var apl = $("#qlAutoPlaylists").empty();
-    if (val) {
-      for (var link in val.autoPlaylists) {
-        $("<a href='#' class='nav'></a>").data("link", link).appendTo(apl);
-      }
-    }
+  function renderQuicklinks() {
     $("#quicklinks a.nav").each(function() {
       $(this).text(bp.getTextForQuicklink($(this).data("link")));
     });
-    
     updateCoverClickLink(bp.settings.coverClickLink);
     updateTitleClickLink(bp.settings.titleClickLink);
   }

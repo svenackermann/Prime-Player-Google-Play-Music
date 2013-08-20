@@ -38,23 +38,6 @@ $(function() {
     rating = parseInt(rating);
     return isNaN(rating) ? -1 : rating;
   }
-
-  function sendQuickLinks() {
-    var ql = {texts: {}};
-    var nav = $("#nav_collections");
-    ql.texts.now = $.trim(nav.children("li[data-type='now']").text());
-    ql.texts.rd = $.trim(nav.children("li[data-type='rd']").text());
-    var br = $("#browse-tabs");
-    ql.texts.artists = $.trim(br.children("div[data-type='artists']").text());
-    ql.texts.albums = $.trim(br.children("div[data-type='albums']").text());
-    ql.texts.genres = $.trim(br.children("div[data-type='genres']").text());
-    var apl = {};
-    $("#auto-playlists").children("li").each(function() {
-      apl[getLink($(this))] = $.trim($(this).find("div.tooltip").text());
-    });
-    ql.autoPlaylists = apl;
-    post("player-quicklinks", ql);
-  }
   
   /**
    * Execute a function after DOM manipulation on selected elements is finished.
@@ -90,6 +73,19 @@ $(function() {
     else if (ratingContainer.hasClass("stars")) ratingMode = "star";
     ratingContainer = null;
     post("player-ratingMode", ratingMode);
+    
+    var ql = {};
+    var nav = $("#nav_collections");
+    ql.now = $.trim(nav.children("li[data-type='now']").text());
+    ql.rd = $.trim(nav.children("li[data-type='rd']").text());
+    var br = $("#browse-tabs");
+    ql.artists = $.trim(br.children("div[data-type='artists']").text());
+    ql.albums = $.trim(br.children("div[data-type='albums']").text());
+    ql.genres = $.trim(br.children("div[data-type='genres']").text());
+    $("#auto-playlists").children("li").each(function() {
+      ql[getLink($(this))] = $.trim($(this).find("div.tooltip").text());
+    });
+    post("player-quicklinks", ql);
     
     function sendSong() {
       var hasSong = $("#playerSongInfo").find("div").length > 0;
@@ -197,8 +193,6 @@ $(function() {
           cleanup();
         });
     }
-    
-    sendQuickLinks();
     
     var sendConnectedInterval;
     function sendConnected() {
