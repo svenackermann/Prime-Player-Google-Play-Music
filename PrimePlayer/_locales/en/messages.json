@@ -153,13 +153,16 @@
     "message": "This tab is connected to Prime Player. Click to disconnect."
   },
   "lastfmSettings": {
-    "message": "last.fm Settings"
+    "message": "last.fm settings"
   },
   "toastingSettings": {
-    "message": "Toasting Settings"
+    "message": "Toasting settings"
+  },
+  "mpSettings": {
+    "message": "Miniplayer settings"
   },
   "lfSettings": {
-    "message": "Look and Feel"
+    "message": "Look and feel"
   },
   "setting_gaEnabled": {
     "message": "Enable Google Analytics"

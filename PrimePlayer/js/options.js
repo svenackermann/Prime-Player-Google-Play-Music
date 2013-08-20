@@ -161,11 +161,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
       });
     }
     
-    var optionsText = chrome.i18n.getMessage("options") + " - " + chrome.i18n.getMessage("extTitle");
-    $("head > title").first().text(optionsText);
-    $("div.settings").find("h1").first().text(optionsText);
+    $("head > title").text(chrome.i18n.getMessage("options") + " - " + chrome.i18n.getMessage("extTitle"));
     $("#legendLastfm").text(chrome.i18n.getMessage("lastfmSettings"));
     $("#legendToasting").text(chrome.i18n.getMessage("toastingSettings"));
+    $("#legendMp").text(chrome.i18n.getMessage("mpSettings"));
     $("#legendLf").text(chrome.i18n.getMessage("lfSettings"));
     $("#lastfmStatus").find("span").text(chrome.i18n.getMessage("lastfmUser"));
     var bugfeatureinfo = chrome.i18n.getMessage("bugfeatureinfo", "<a target='_blank' href='https://github.com/svenrecknagel/Prime-Player-Google-Play-Music/issues'>GitHub</a>");

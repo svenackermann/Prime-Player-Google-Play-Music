@@ -158,6 +158,9 @@
   "toastingSettings": {
     "message": "Toasting Einstellungen"
   },
+  "mpSettings": {
+    "message": "Miniplayer Einstellungen"
+  },
   "lfSettings": {
     "message": "Aussehen und Verhalten"
   },
