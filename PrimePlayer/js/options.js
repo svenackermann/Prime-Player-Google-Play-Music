@@ -148,10 +148,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("#welcome").children("div").text(chrome.i18n.getMessage("welcomeMessage"));
       $("#welcome .close").text(chrome.i18n.getMessage("close")).click(function() {
         chrome.tabs.remove(thisTabId);
+        bp.gaEvent("Settings-Action", "welcome-close");
       });
       $("#welcome .toOptions").text(chrome.i18n.getMessage("toOptions")).click(function() {
         $("body").children().toggle();
         location.hash = "";
+        bp.gaEvent("Settings-Action", "welcome-toOptions");
       });
     }
     
@@ -218,6 +220,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#resetSettings").click(function() {
       bp.settings.resetToDefaults();
       bp.localSettings.resetToDefaults();
+      bp.gaEvent("Settings-Action", "reset");
       location.reload();
     }).text(chrome.i18n.getMessage("resetSettings"));
     
