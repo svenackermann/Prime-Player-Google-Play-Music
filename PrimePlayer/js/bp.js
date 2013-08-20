@@ -131,7 +131,7 @@ function updateBrowserActionInfo() {
   if (viewUpdateNotifier) {
     path += "updated";
     title += " - " + chrome.i18n.getMessage("browserActionTitle_updated");
-  } else if (googlemusicport == null) {
+  } else if (!player.connected) {
     path += "notconnected";
   } else if (song.info) {
     title = song.info.artist + " - " + song.info.title
@@ -165,13 +165,12 @@ function removeParkedPort(port) {
 
 /** use the given port for the connection to Google Music */
 function connectPort(port) {
-  port.postMessage({type: "connected", connectedIndicator: settings.connectedIndicator});
   googlemusicport = port;
   googlemusictabId = port.sender.tab.id;
-  iconClickSettingsChanged();
   port.onMessage.addListener(onMessageListener);
   port.onDisconnect.addListener(onDisconnectListener);
-  updateBrowserActionInfo();
+  port.postMessage({type: "connected", connectedIndicator: settings.connectedIndicator});
+  iconClickSettingsChanged();
 }
 
 /** Check if the given port's tab is already connected */
@@ -223,8 +222,6 @@ function onDisconnectListener() {
       //seems to be disconnected, try next
     }
   }
-  
-  if (googlemusicport == null) updateBrowserActionInfo();//disconnected
 }
 
 /** handler for messages from connected port - set song or player state */
@@ -646,7 +643,7 @@ function iconClickSettingsChanged() {
   chrome.browserAction.setPopup({popup: ""});
   if (viewUpdateNotifier) {
     chrome.browserAction.setPopup({popup: "updateNotifier.html"});
-  } else if (settings.iconClickConnect && !googlemusicport) {
+  } else if (settings.iconClickConnect && !googlemusictabId) {
     chrome.browserAction.onClicked.addListener(openGoogleMusicTab);
   } else if (settings.iconClickMiniplayer) {
     chrome.browserAction.onClicked.addListener(openMiniplayer);
@@ -808,6 +805,7 @@ localSettings.watch("syncSettings", function(val) {
 localSettings.addListener("lastfmSessionName", calcScrobbleTime);
 
 player.addListener("playing", updateBrowserActionInfo);
+player.addListener("connected", updateBrowserActionInfo);
 song.addListener("scrobbled", updateBrowserActionInfo);
 song.addListener("position", function(val) {
   var oldPos = song.positionSec;
