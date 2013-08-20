@@ -15,7 +15,6 @@
     "notifications",
     "storage"
   ],
-  "optional_permissions": [ "https://*.googleusercontent.com/*", "*://ws.audioscrobbler.com/2.0/*" ],
   "browser_action": {
     "default_icon": "img/default/notconnected.png",
     "default_title": "__MSG_extTitle__",
