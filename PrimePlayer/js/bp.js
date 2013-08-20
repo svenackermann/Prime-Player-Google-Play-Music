@@ -40,14 +40,14 @@ var SETTINGS_DEFAULTS = {
   coverClickLink: "now",
   titleClickLink: "ap/queue",
   openLinksInMiniplayer: true,
+  hideRatings: false,
+  omitUnknownAlbums: false,
+  iconStyle: "default",
   iconClickMiniplayer: false,
   iconClickConnect: false,
   openGoogleMusicPinned: false,
-  hideRatings: false,
-  omitUnknownAlbums: false,
-  updateNotifier: true,
-  iconStyle: "default",
   connectedIndicator: true,
+  updateNotifier: true,
   gaEnabled: true
 };
 var settings = new Bean(SETTINGS_DEFAULTS, true);

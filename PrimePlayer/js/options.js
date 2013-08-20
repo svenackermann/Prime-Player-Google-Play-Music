@@ -79,9 +79,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     };
   }
 
-  function boolUpdater(prop) {
+  function boolUpdater(prop, settings) {
     return function() {
-      bp.settings[prop] = !bp.settings[prop];
+      settings[prop] = !settings[prop];
     };
   }
 
@@ -92,11 +92,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   /** the i18n key for the label for property "<prop>" is "setting_<prop>" */
-  function initCheckbox(prop) {
+  function initCheckbox(prop, settings) {
+    if (!settings) settings = bp.settings;
     var input = $("#" + prop);
     input
-      .prop("checked", bp.settings[prop])
-      .click(boolUpdater(prop))
+      .prop("checked", settings[prop])
+      .click(boolUpdater(prop, settings))
       .parent().find("label").text(chrome.i18n.getMessage("setting_" + prop));
     return input;
   }
@@ -124,13 +125,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
         $(this).text(getOptionText($(this).attr("value")));
       });
     return input;
-  }
-
-  function initSyncSettings() {
-    $("#syncSettings")
-      .prop("checked", bp.localSettings.syncSettings)
-      .click(function() { bp.localSettings.syncSettings = !bp.localSettings.syncSettings })
-      .parent().find("label").text(chrome.i18n.getMessage("setting_syncSettings"));
   }
   
   function initIconStyle() {
@@ -171,7 +165,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#bugfeatureinfo").html(bugfeatureinfo);
     
     initCheckbox("scrobble").click(scrobbleChanged);
-    
     var percentSpan = $("#scrobblePercent").parent().find("span");
     percentSpan.text(bp.settings.scrobblePercent);
     $("#scrobblePercent")
@@ -179,39 +172,41 @@ chrome.runtime.getBackgroundPage(function(bp) {
       .mouseup(numberUpdater("scrobblePercent"))
       .change(function(){ percentSpan.text($(this).val()); })
       .parent().find("label").text(chrome.i18n.getMessage("setting_scrobblePercent"));
-
     initNumberInput("scrobbleTime");
     initNumberInput("scrobbleMaxDuration");
     initCheckbox("disableScrobbleOnFf");
     initHint("disableScrobbleOnFf");
     initCheckbox("linkRatings");
     initHint("linkRatings");
+    
     initCheckbox("toast").click(toastChanged);
     initHint("toast");
     initCheckbox("toastUseMpStyle").click(toastChanged);
     initHint("toastUseMpStyle");
     initNumberInput("toastDuration");
-    initIconStyle();
+    
     initSelect("miniplayerType");
     initHint("miniplayerType");
     initSelect("layout");
-    initHint("layout")
+    initHint("layout");
     initSelect("color");
     initSelect("coverClickLink", bp.getTextForQuicklink);
-    var titleClickLink = initSelect("titleClickLink");
-    titleClickLink.append($("#coverClickLink").children().clone());
-    titleClickLink.val(bp.settings.titleClickLink);
+    initSelect("titleClickLink")
+      .append($("#coverClickLink").children().clone())
+      .val(bp.settings.titleClickLink);
     initCheckbox("openLinksInMiniplayer");
     initHint("openLinksInMiniplayer");
+    initCheckbox("hideRatings");
+    initCheckbox("omitUnknownAlbums");
+    initHint("omitUnknownAlbums");
+    
+    initIconStyle();
     initCheckbox("iconClickMiniplayer");
     initCheckbox("iconClickConnect");
     initCheckbox("openGoogleMusicPinned");
     initCheckbox("connectedIndicator");
-    initCheckbox("hideRatings");
-    initCheckbox("omitUnknownAlbums");
-    initHint("omitUnknownAlbums");
     initCheckbox("updateNotifier");
-    initSyncSettings();
+    initCheckbox("syncSettings", bp.localSettings);
     initCheckbox("gaEnabled");
     initHint("gaEnabled");
     
@@ -227,12 +222,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }).text(chrome.i18n.getMessage("resetSettings"));
     
     //tell the background page that we're open
-    if (bp.optionsTabId == null) {
-      chrome.tabs.getCurrent(function(tab) {
-        thisTabId = tab.id;
-        bp.optionsTabId = tab.id;
-      });
-    }
+    chrome.tabs.getCurrent(function(tab) {
+      thisTabId = tab.id;
+      if (bp.optionsTabId == null) bp.optionsTabId = tab.id;
+    });
     
     //get last.fm session if we are the callback page (query param "token" exists)
     var token;
