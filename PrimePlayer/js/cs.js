@@ -199,6 +199,15 @@ $(function() {
     }
     
     sendQuickLinks();
+    
+    var sendConnectedInterval;
+    function sendConnected() {
+      if (!$("#loading-progress").is(":visible")) {
+        clearInterval(sendConnectedInterval);
+        post("player-connected", true);
+      }
+    }
+    sendConnectedInterval = setInterval(sendConnected, 500);
   }
   
   function onMessage(event) {

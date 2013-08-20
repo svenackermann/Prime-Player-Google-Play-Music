@@ -172,7 +172,6 @@ function connectPort(port) {
   port.onMessage.addListener(onMessageListener);
   port.onDisconnect.addListener(onDisconnectListener);
   updateBrowserActionInfo();
-  player.connected = true;
 }
 
 /** Check if the given port's tab is already connected */
