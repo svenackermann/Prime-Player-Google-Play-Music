@@ -21,6 +21,15 @@ body {
   font-size: 10px;
 }
 
+#credits > div, #credits > a, #credits > form {
+  float: left;
+  margin-right: 2ex;
+}
+
+#credits > div#bugfeatureinfo {
+  clear: both;
+}
+
 .info h3 {
   font-size: 11px;
   margin-bottom: 0;
@@ -47,9 +56,15 @@ img.hint {
   vertical-align: text-bottom;
 }
 
+#changelog {
+  clear: both;
+  padding-top: 2ex;
+}
+
 #changelog h2 {
   display: inline-block;
   margin-right: 2ex;
+  margin-bottom: 0;
 }
 
 #changelog label {
