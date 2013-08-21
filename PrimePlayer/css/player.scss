@@ -328,6 +328,9 @@ a {
   }
   > div {
     white-space: nowrap;
+    span:not(.duration) {
+      color: #888;
+    }
   }
   &.playlistsList, &.playlist {
     > div {
@@ -343,9 +346,6 @@ a {
     }
   }
   &.playlistsList > div {
-    > span {
-      color: #888;
-    }
     > a, > span {
       display: inline-block;
       margin-left: 4px;
@@ -385,6 +385,7 @@ a {
         margin-right: 4px;
       }
       > span:first-child {
+        color: inherit;
         width: 40%;
       }
       > span.duration {

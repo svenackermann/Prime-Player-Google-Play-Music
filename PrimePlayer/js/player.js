@@ -220,6 +220,19 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
   
+  function toTimeString(sec) {
+    if (sec < 10) return "0:0" + sec;
+    if (sec < 60) return "0:" + sec;
+    var time = "";
+    while (true) {
+      var cur = sec % 60;
+      time = cur + time;
+      if (sec == cur) return time;
+      time = (cur < 10 ? ":0" : ":") + time;
+      sec = (sec - cur) / 60;
+    }
+  }
+  
   var renderNavList = {
     playlistsList: function(navlist, list) {
       for (var i = 0; i < list.length; i++) {
@@ -245,7 +258,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       }
       var noAlbum = true;
       var noRating = true;
-      var noDuration = true;
+      var duration = 0;
       for (var i = 0; i < list.length; i++) {
         var e = list[i];
         var row = $("<div data-index='" + i + (e.current ? "' class='current'>" : "'></div>"));
@@ -255,7 +268,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         var info = $("<div class='info'></div>");
         $("<span></span>").text(e.title).attr("title", e.title).appendTo(info);
         $("<span class='duration'></span>").text(e.duration).appendTo(info);
-        if (e.duration) noDuration = false;
+        duration += bp.parseSeconds(e.duration);
         if (e.artistLink) {
           $("<a href='#' class='nav'></a>").data("link", e.artistLink).text(e.artist).attr("title", e.artist).appendTo(info);
         } else {
@@ -275,7 +288,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
       }
       if (noAlbum) navlist.addClass("noalbum");
       if (noRating) navlist.addClass("norating");
-      if (noDuration) navlist.addClass("noduration");
+      if (duration == 0) navlist.addClass("noduration")
+      else $("#navHead").find("span").append(" (" + toTimeString(duration) + ")");
     },
     albumContainers: function(navlist, list) {
       for (var i = 0; i < list.length; i++) {

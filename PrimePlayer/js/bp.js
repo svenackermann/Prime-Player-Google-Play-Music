@@ -298,6 +298,7 @@ function calcScrobbleTime() {
 
 /** @return time in seconds that a time string represents (e.g. 4:23 - 263) */
 function parseSeconds(time) {
+  if (typeof(time) != "string") return 0;
   time = time.split(':');
   var sec = 0;
   var factor = 1;
