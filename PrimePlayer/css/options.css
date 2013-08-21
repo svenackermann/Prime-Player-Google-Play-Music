@@ -9,11 +9,6 @@ body {
   font-family: arial;
 }
 
-h1 {
-  color: black;
-  font-size: 20px;
-}
-
 .settings {
   float: left;
 }
@@ -24,6 +19,15 @@ h1 {
   min-width: 250px;
   max-width: 450px;
   font-size: 10px;
+}
+
+#credits > div, #credits > a, #credits > form {
+  float: left;
+  margin-right: 2ex;
+}
+
+#credits > div#bugfeatureinfo {
+  clear: both;
 }
 
 .info h3 {
@@ -52,8 +56,59 @@ img.hint {
   vertical-align: text-bottom;
 }
 
+#changelog {
+  clear: both;
+  padding-top: 2ex;
+}
+
+#changelog h2 {
+  display: inline-block;
+  margin-right: 2ex;
+  margin-bottom: 0;
+}
+
+#changelog label {
+  margin-right: 1ex;
+}
+
 #changelog img.hint {
   height: 12px;
+}
+
+#changelog li.B:before {
+  content: "B: ";
+}
+#changelog li.I:before {
+  content: "I: ";
+}
+#changelog li.F:before {
+  content: "F: ";
+}
+#changelog li.B.I:before {
+  content: "I/B: ";
+}
+#changelog li.F.I:before {
+  content: "F/I: ";
+}
+
+#changelog .F, #changelog .I, #changelog .B, #changelog h3 {
+  display: none;
+}
+
+#changelog.F .F {
+  display: list-item;
+}
+
+#changelog.I .I {
+  display: list-item;
+}
+
+#changelog.B .B {
+  display: list-item;
+}
+
+#changelog.V h3 {
+  display: block;
 }
 
 #lastfmStatus {
@@ -83,4 +138,22 @@ div {
 div.newFeature {
   color: #FF8F00;
   font-weight: bold;
+}
+
+#welcome {
+  padding: 50px;
+  max-width: 800px;
+  display: none;
+}
+
+#welcome div {
+  font-size: 18px;
+}
+
+#welcome img {
+  float: left;
+}
+
+#welcome .close, #welcome .toOptions {
+  float: right;
 }

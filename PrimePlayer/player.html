@@ -10,13 +10,14 @@
     <div id="top">
       <div id="rightbuttons">
         <a href="#" id="miniplayerlink"></a>
-        <a id="lastfmUser" href="#" target="_blank"></a>
+        <a href="#" id="quicklinksBtn" class="nav" data-link="quicklinks"></a>
+        <a href="#" id="lastfmUser" target="_blank"></a>
       </div>
       <div id="coverContainer">
         <img id="cover" src="img/cover.png"/>
       </div>
       <div id="nosong">
-        <span></span>
+        <a href="#"></a>
         <a href="#"></a>
       </div>
       <div id="song">
@@ -57,7 +58,6 @@
       <a href="#" id="repeat"></a>
       <a href="#" id="shuffle"></a>
       <a href="#" id="volume"></a>
-      <a href="#" id="playlistButton"></a>
       <div id="volumeBarContainer">
         <div id="volumeBarBorder">
           <div id="volumeBar"></div>
@@ -65,10 +65,33 @@
       </div>
     </div>
   </div>
-  <div id="playlists">
-    <div id="playlistContainer"></div>
+  <div id="nav">
+    <div id="navHead">
+      <a href="#" class="back"></a>
+      <a href="#" class="close"></a>
+      <span></span>
+    </div>
+    <div id="navlistContainer">
+      <div id="navlist"></div>
+    </div>
+    <div id="quicklinks">
+      <div>
+        <a href="#" class="nav" data-link="now"></a>
+        <a href="#" class="nav" data-link="artists"></a>
+        <a href="#" class="nav" data-link="albums"></a>
+        <a href="#" class="nav" data-link="genres"></a>
+        <a href="#" class="nav" data-link="rd"></a>
+        <a href="#" class="nav" data-link="myPlaylists"></a>
+      </div>
+      <div>
+        <a href="#" class="nav" data-link="ap/queue"></a>
+        <a href="#" class="nav" data-link="ap/auto-playlist-thumbs-up"></a>
+        <a href="#" class="nav" data-link="ap/auto-playlist-recent"></a>
+        <a href="#" class="nav" data-link="ap/auto-playlist-promo"></a>
+        <a href="#" class="nav" data-link="ap/shared-with-me"></a>
+        <a href="#" class="nav" data-link="ap/google-play-recommends"></a>
+      </div>
+    </div>
   </div>
-  <div id="listenNow"></div>
-  <div id="queue"></div>
 </body>
 </html>

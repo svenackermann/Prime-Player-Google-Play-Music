@@ -109,6 +109,21 @@ function Bean(defaults, useLocalStorage) {
   }
   
   /**
+   * Resets all values of this bean to their defaults.
+   * The values are also removed from localStorage/Chrome sync, if this bean uses it.
+   */
+  this.resetToDefaults = function() {
+    for (var prop in defaults) {
+      that[prop] = defaults[prop];
+      if (syncLocalStorage) localStorage.removeItem(prop);
+    }
+    if (useSyncStorage) {
+      clearTimeout(saveSyncStorageTimer);
+      chrome.storage.sync.clear();
+    }
+  }
+  
+  /**
    * Adds all properties from defaultValue to value that do not yet exist there.
    */
   function merge(value, defaultValue) {

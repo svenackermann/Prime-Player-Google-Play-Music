@@ -13,6 +13,8 @@ Features include:
 * support for thumbs and 5-star ratings
 * and more
 
+You can install it from [here] (https://chrome.google.com/webstore/detail/prime-player-for-google-p/npngaakpdgeaajbnidkkginekmnaejbi).
+
 ### Notes for contributers
 
 If you find any bugs or would like to see new features, please file an issue here on GitHub or - even better - send a pull request.

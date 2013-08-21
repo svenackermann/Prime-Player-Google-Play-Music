@@ -14,8 +14,8 @@
   "gotoGmusic": {
     "message": "\u00D6ffne Google Play Music"
   },
-  "playlists": {
-    "message": "Playlisten"
+  "myPlaylists": {
+    "message": "Meine Playlists"
   },
   "setting_scrobble": {
     "message": "Scrobbeln aktivieren"
@@ -40,9 +40,6 @@
   },
   "disconnected": {
     "message": "Nicht verbunden"
-  },
-  "showPlaylists": {
-    "message": "Playlisten anzeigen"
   },
   "repeat": {
     "message": "Wiederholen"
@@ -76,6 +73,9 @@
   },
   "lastfmError": {
     "message": "Fehler bei der Kommunkation mit last.fm, klicken zum neu laden: "
+  },
+  "lastfmUnavailable": {
+    "message": "Der last.fm Webservice ist nicht erreichbar."
   },
   "setting_toastUseMpStyle": {
     "message": "Benutze Stil des Miniplayers f\u00FCr Toasts"
@@ -150,13 +150,16 @@
     "message": "Beim Klick auf das Symbol immer erst Google Music \u00F6ffnen, wenn nicht bereits ge\u00F6ffnet"
   },
   "connected": {
-    "message": "Dieser Tab ist mit Prime Player verbunden."
+    "message": "Dieser Tab ist mit Prime Player verbunden. Zum Trennen klicken."
   },
   "lastfmSettings": {
     "message": "last.fm Einstellungen"
   },
   "toastingSettings": {
     "message": "Toasting Einstellungen"
+  },
+  "mpSettings": {
+    "message": "Miniplayer Einstellungen"
   },
   "lfSettings": {
     "message": "Aussehen und Verhalten"
@@ -222,6 +225,12 @@
   "setting_hideRatings": {
     "message": "Bewertungs-Symbole verstecken (last.fm und Daumen/Sterne)"
   },
+  "setting_omitUnknownAlbums": {
+    "message": "Verberge 'Unbekannte Alben' in der Alben-Liste des Miniplayers"
+  },
+  "setting_omitUnknownAlbumsHint": {
+    "message": "Google zeigt in der Alben-Liste die Songs eines Interpreten ohne Album als 'Unbekanntes Album' an. Mit dieser Option werden solche 'unechten' Alben in der Alben-Liste des Miniplayers verborgen."
+  },
   "updateNotifierTitle": {
     "message": "Prime Player wurde aktualisiert"
   },
@@ -234,16 +243,99 @@
   "browserActionTitle_paused": {
     "message": "Pausiert"
   },
+  "browserActionTitle_playing": {
+    "message": "Wiedergabe"
+  },
   "browserActionTitle_scrobbled": {
     "message": "Gescrobbelt"
   },
   "browserActionTitle_connected": {
     "message": "Verbunden mit Google Music"
   },
-  "showQueue": {
-    "message": "Wiedergabeliste anzeigen"
+  "showQuicklinks": {
+    "message": "Quick-Links anzeigen"
   },
-  "showListenNow": {
-    "message": "Bereich \u0022Jetzt anh\u00F6ren\u0022 anzeigen"
+  "emptyList": {
+    "message": "Die Liste ist leer."
+  },
+  "loadListError": {
+    "message": "Die Liste konnte nicht geladen werden."
+  },
+  "quicklinks": {
+    "message": "Quick-Links"
+  },
+  "welcomeMessage": {
+    "message": "Danke, dass du Prime Player installiert hast. Die Erweiterung bietet viele Optionen - bitte nimm dir die Zeit, sie alle auszuprobieren. Neben einigen Optionen findest du ein gr\u00FCnes Fragezeichen. Wenn du mit dem Mauszeiger dar\u00FCber f\u00E4hrst, erh\u00E4ltst du genauere Informationen. F\u00FCr weitere Informationen sieh auch in den FAQ auf der Homepage der Erweiterung im Chrome Store nach. Und nun viel Spa\u00DF mit Prime Player!"
+  },
+  "toOptions": {
+    "message": "Zu den Optionen"
+  },
+  "close": {
+    "message": "Schlie\u00DFen"
+  },
+  "setting_coverClickLink": {
+    "message": "Beim Klick auf das Album-Cover \u00F6ffnen"
+  },
+  "setting_titleClickLink": {
+    "message": "Beim Klick auf den Song-Titel \u00F6ffnen"
+  },
+  "quicklink_": {
+    "message": "Nichts"
+  },
+  "quicklink_now": {
+    "message": "Jetzt anh\u00F6ren"
+  },
+  "quicklink_artists": {
+    "message": "Interpreten"
+  },
+  "quicklink_albums": {
+    "message": "Alben"
+  },
+  "quicklink_genres": {
+    "message": "Genres"
+  },
+  "quicklink_rd": {
+    "message": "Schnellmixe"
+  },
+  "quicklink_ap_queue": {
+    "message": "Wiedergabeliste"
+  },
+  "quicklink_ap_auto_playlist_thumbs_up": {
+    "message": "Hoch bewertet"
+  },
+  "quicklink_ap_auto_playlist_recent": {
+    "message": "Zuletzt hinzugef\u00FCgt"
+  },
+  "quicklink_ap_auto_playlist_promo": {
+    "message": "Kostenlos \u0026 gekauft"
+  },
+  "quicklink_ap_shared_with_me": {
+    "message": "Mit mir geteilt"
+  },
+  "quicklink_ap_google_play_recommends": {
+    "message": "Empfehlungen auf Play"
+  },
+  "openLink": {
+    "message": "\u00D6ffne '$LINK$'",
+    "placeholders": { "LINK": { "content": "$1" } }
+  },
+  "backToLink": {
+    "message": "Zur\u00FCck zu '$LINK$'",
+    "placeholders": { "LINK": { "content": "$1" } }
+  },
+  "backToPlayer": {
+    "message": "Zur\u00FCck zum Miniplayer"
+  },
+  "setting_openLinksInMiniplayer": {
+    "message": "\u00D6ffne Links im Miniplayer"
+  },
+  "setting_openLinksInMiniplayerHint": {
+    "message": "Wenn aktiviert, werden Links zu Alben, Interpreten usw. direkt im Miniplayer ge\u00F6ffnet, ansonsten im Google Music Tab. Mit Umschalt+Klick auf den Link wird das Verhalten vor\u00FCbergehend umgekehrt."
+  },
+  "resetSettings": {
+    "message": "Einstellungen auf Standard zur\u00FCcksetzen"
+  },
+  "setting_connectedIndicator": {
+    "message": "Zeige 'P'-Symbol in dem verbundenen Google Music Tab an"
   }
 }

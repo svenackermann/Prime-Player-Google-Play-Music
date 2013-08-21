@@ -18,17 +18,17 @@ chrome.runtime.getBackgroundPage(function(bp) {
           bp.localSettings.lastfmSessionKey = response.session.key;
           bp.localSettings.lastfmSessionName = response.session.name;
           bp.lastfm.session = response.session;
-          status.find(".success").attr('title', chrome.i18n.getMessage('lastfmConnectSuccess')).show();
-          bp.gaEvent('LastFM', 'AuthorizeOK');
+          status.find(".success").attr("title", chrome.i18n.getMessage("lastfmConnectSuccess")).show();
+          bp.gaEvent("LastFM", "AuthorizeOK");
           bp.getLovedInfo();
           bp.scrobbleCachedSongs();
         },
         error: function(code, message) {
           status.find(".loader").hide();
-          var title = chrome.i18n.getMessage('lastfmConnectError');
+          var title = chrome.i18n.getMessage("lastfmConnectError");
           if (message) title += ": " + message;
-          status.find(".failure").attr('title', title).show();
-          bp.gaEvent('LastFM', 'AuthorizeError-' + code);
+          status.find(".failure").attr("title", title).show();
+          bp.gaEvent("LastFM", "AuthorizeError-" + code);
         }
       }
     );
@@ -36,33 +36,33 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function scrobbleChanged() {
     var disabled = !bp.isScrobblingEnabled();
-    $("#scrobblePercent").prop('disabled', disabled);
-    $("#scrobbleTime").prop('disabled', disabled);
-    $("#scrobbleMaxDuration").prop('disabled', disabled);
-    $("#disableScrobbleOnFf").prop('disabled', disabled);
+    $("#scrobblePercent").prop("disabled", disabled);
+    $("#scrobbleTime").prop("disabled", disabled);
+    $("#scrobbleMaxDuration").prop("disabled", disabled);
+    $("#disableScrobbleOnFf").prop("disabled", disabled);
   }
 
   function toastChanged() {
-    $("#toastUseMpStyle").prop('disabled', !bp.settings.toast);
-    $("#toastDuration").prop('disabled', !bp.settings.toast || !bp.settings.toastUseMpStyle);
+    $("#toastUseMpStyle").prop("disabled", !bp.settings.toast);
+    $("#toastDuration").prop("disabled", !bp.settings.toast || !bp.settings.toastUseMpStyle);
   }
   
   function lastfmUserChanged(user) {
     var action;
     var actionText;
-    $('#scrobble').prop('disabled', user == null);
-    $("#linkRatings").prop('disabled', user == null);
+    $("#scrobble").prop("disabled", user == null);
+    $("#linkRatings").prop("disabled", user == null);
     scrobbleChanged();
-    var links = $('#lastfmStatus').find("a");
+    var links = $("#lastfmStatus").find("a");
     var userLink = links.first();
     if (user) {
       action = bp.lastfmLogout;
-      actionText = chrome.i18n.getMessage('logout');
-      userLink.text(user).attr('href', "http://last.fm/user/" + user).removeClass("disconnected");
+      actionText = chrome.i18n.getMessage("logout");
+      userLink.text(user).attr("href", "http://last.fm/user/" + user).removeClass("disconnected");
     } else {
       action = bp.lastfmLogin;
-      actionText = chrome.i18n.getMessage('connect');
-      userLink.text(chrome.i18n.getMessage('disconnected')).attr('href', "javascript:return false;").addClass("disconnected");
+      actionText = chrome.i18n.getMessage("connect");
+      userLink.text(chrome.i18n.getMessage("disconnected")).attr("href", "javascript:return false;").addClass("disconnected");
     }
     links.last().text(actionText).unbind().click(action);
   }
@@ -79,24 +79,25 @@ chrome.runtime.getBackgroundPage(function(bp) {
     };
   }
 
-  function boolUpdater(prop) {
+  function boolUpdater(prop, settings) {
     return function() {
-      bp.settings[prop] = !bp.settings[prop];
+      settings[prop] = !settings[prop];
     };
   }
 
   /** the i18n key for the hint for property "<prop>" is "setting_<prop>Hint" */
   function initHint(prop) {
     $("#" + prop)
-      .parent().find("img.hint").attr('title', chrome.i18n.getMessage("setting_" + prop + 'Hint'));
+      .parent().find("img.hint").attr("title", chrome.i18n.getMessage("setting_" + prop + "Hint"));
   }
 
   /** the i18n key for the label for property "<prop>" is "setting_<prop>" */
-  function initCheckbox(prop) {
+  function initCheckbox(prop, settings) {
+    if (!settings) settings = bp.settings;
     var input = $("#" + prop);
     input
-      .prop('checked', bp.settings[prop])
-      .click(boolUpdater(prop))
+      .prop("checked", settings[prop])
+      .click(boolUpdater(prop, settings))
       .parent().find("label").text(chrome.i18n.getMessage("setting_" + prop));
     return input;
   }
@@ -111,23 +112,19 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   /** the i18n key for option "<opt>" for property "<prop>" is "setting_<prop>_<opt>" */
-  function initSelect(prop) {
+  function initSelect(prop, getOptionText) {
+    if (typeof(getOptionText) != "function") {
+      getOptionText = function(val) {return chrome.i18n.getMessage("setting_" + prop + "_" + val);};
+    }
     var input = $("#" + prop);
     input
       .val(bp.settings[prop])
       .change(stringUpdater(prop))
       .parent().find("label").text(chrome.i18n.getMessage("setting_" + prop));
     input.find("option").each(function() {
-        $(this).text(chrome.i18n.getMessage("setting_" + prop + "_" + $(this).attr('value')));
+        $(this).text(getOptionText($(this).attr("value")));
       });
     return input;
-  }
-
-  function initSyncSettings() {
-    $("#syncSettings")
-      .prop('checked', bp.localSettings.syncSettings)
-      .click(function() { bp.localSettings.syncSettings = !bp.localSettings.syncSettings })
-      .parent().find("label").text(chrome.i18n.getMessage("setting_syncSettings"));
   }
   
   function initIconStyle() {
@@ -146,49 +143,72 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   $(function() {
-    var optionsText = chrome.i18n.getMessage('options') + ' - ' + chrome.i18n.getMessage('extTitle');
-    $("head > title").first().text(optionsText);
-    $("div.settings").find("h1").first().text(optionsText);
-    $("#legendLastfm").text(chrome.i18n.getMessage('lastfmSettings'));
-    $("#legendToasting").text(chrome.i18n.getMessage('toastingSettings'));
-    $("#legendLf").text(chrome.i18n.getMessage('lfSettings'));
-    $("#lastfmStatus").find("span").text(chrome.i18n.getMessage('lastfmUser'));
+    if (location.hash == "#welcome") {
+      $("body").children().toggle();
+      $("#welcome").children("div").text(chrome.i18n.getMessage("welcomeMessage"));
+      $("#welcome .close").text(chrome.i18n.getMessage("close")).click(function() {
+        chrome.tabs.remove(thisTabId);
+        bp.gaEvent("Settings-Action", "welcome-close");
+      });
+      $("#welcome .toOptions").text(chrome.i18n.getMessage("toOptions")).click(function() {
+        $("body").children().toggle();
+        location.hash = "";
+        bp.gaEvent("Settings-Action", "welcome-toOptions");
+      });
+    }
+    
+    $("head > title").text(chrome.i18n.getMessage("options") + " - " + chrome.i18n.getMessage("extTitle"));
+    $("#legendLastfm").text(chrome.i18n.getMessage("lastfmSettings"));
+    $("#legendToasting").text(chrome.i18n.getMessage("toastingSettings"));
+    $("#legendMp").text(chrome.i18n.getMessage("mpSettings"));
+    $("#legendLf").text(chrome.i18n.getMessage("lfSettings"));
+    $("#lastfmStatus").find("span").text(chrome.i18n.getMessage("lastfmUser"));
     var bugfeatureinfo = chrome.i18n.getMessage("bugfeatureinfo", "<a target='_blank' href='https://github.com/svenrecknagel/Prime-Player-Google-Play-Music/issues'>GitHub</a>");
     $("#bugfeatureinfo").html(bugfeatureinfo);
     
     initCheckbox("scrobble").click(scrobbleChanged);
-    
     var percentSpan = $("#scrobblePercent").parent().find("span");
     percentSpan.text(bp.settings.scrobblePercent);
     $("#scrobblePercent")
       .val(bp.settings.scrobblePercent)
-      .mouseup(numberUpdater('scrobblePercent'))
+      .mouseup(numberUpdater("scrobblePercent"))
       .change(function(){ percentSpan.text($(this).val()); })
-      .parent().find("label").text(chrome.i18n.getMessage('setting_scrobblePercent'));
-
+      .parent().find("label").text(chrome.i18n.getMessage("setting_scrobblePercent"));
     initNumberInput("scrobbleTime");
     initNumberInput("scrobbleMaxDuration");
     initCheckbox("disableScrobbleOnFf");
     initHint("disableScrobbleOnFf");
     initCheckbox("linkRatings");
     initHint("linkRatings");
+    
     initCheckbox("toast").click(toastChanged);
     initHint("toast");
     initCheckbox("toastUseMpStyle").click(toastChanged);
     initHint("toastUseMpStyle");
     initNumberInput("toastDuration");
-    initIconStyle();
+    
     initSelect("miniplayerType");
     initHint("miniplayerType");
     initSelect("layout");
-    initHint("layout")
+    initHint("layout");
     initSelect("color");
+    initSelect("coverClickLink", bp.getTextForQuicklink);
+    initSelect("titleClickLink")
+      .append($("#coverClickLink").children().clone())
+      .val(bp.settings.titleClickLink);
+    initCheckbox("openLinksInMiniplayer");
+    initHint("openLinksInMiniplayer");
+    initCheckbox("hideRatings");
+    initCheckbox("omitUnknownAlbums");
+    initHint("omitUnknownAlbums");
+    
+    initIconStyle();
     initCheckbox("iconClickMiniplayer");
     initCheckbox("iconClickConnect");
     initCheckbox("openGoogleMusicPinned");
-    initCheckbox("hideRatings");
+    initCheckbox("connectedIndicator");
     initCheckbox("updateNotifier");
-    initSyncSettings();
+    initCheckbox("syncSettings", bp.localSettings);
     initCheckbox("gaEnabled");
     initHint("gaEnabled");
     
@@ -197,13 +217,18 @@ chrome.runtime.getBackgroundPage(function(bp) {
     //disable inputs if neccessary
     toastChanged();
     
+    $("#resetSettings").click(function() {
+      bp.settings.resetToDefaults();
+      bp.localSettings.resetToDefaults();
+      bp.gaEvent("Settings-Action", "reset");
+      location.reload();
+    }).text(chrome.i18n.getMessage("resetSettings"));
+    
     //tell the background page that we're open
-    if (bp.optionsTabId == null) {
-      chrome.tabs.getCurrent(function(tab) {
-        thisTabId = tab.id;
-        bp.optionsTabId = tab.id;
-      });
-    }
+    chrome.tabs.getCurrent(function(tab) {
+      thisTabId = tab.id;
+      if (bp.optionsTabId == null) bp.optionsTabId = tab.id;
+    });
     
     //get last.fm session if we are the callback page (query param "token" exists)
     var token;
@@ -224,6 +249,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#changelog > div[class*='v-']").each(function() {
       var version = extractVersionFromClass(this);
       $(this).prepend("<h3>Version " + version + "</h3>");
+    });
+    
+    $("#changelog").on("click", "input[type='checkbox']", function() {
+      $("#changelog").toggleClass(this.id.substr(3,1));
     });
   });
 

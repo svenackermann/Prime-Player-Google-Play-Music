@@ -10,10 +10,11 @@ function LastFM(options){
   /* Set default values for required options. */
   var apiKey    = options.apiKey    || '';
   var apiSecret = options.apiSecret || '';
-  var apiUrl    = options.apiUrl    || 'http://ws.audioscrobbler.com/2.0/';
+  var apiUrl    = options.apiUrl    || 'https://ws.audioscrobbler.com/2.0/';
 
   this.session = {};
   this.sessionTimeoutCallback;
+  this.unavailableMessage;
   var that = this;
 
   /* Internal call (POST, GET). */
@@ -22,7 +23,8 @@ function LastFM(options){
     $.ajax({
       type: requestMethod,
       url: apiUrl,
-      data: params
+      data: params,
+      timeout: 10000
     }).done(function(response) {
       if (response.error) {
         if (typeof(callbacks.error) == "function") {
@@ -36,7 +38,11 @@ function LastFM(options){
       }
     }).fail(function(jqXHR, textStatus, errorThrown) {
       if (typeof(callbacks.error) == "function") {
-        callbacks.error(-1, errorThrown || textStatus);
+        var msg = textStatus;
+        if (jqXHR.status) msg += " " + jqXHR.status;
+        if (errorThrown && errorThrown != textStatus) msg += " " + errorThrown;
+        if (that.unavailableMessage) msg = that.unavailableMessage + " (" + msg + ")";
+        callbacks.error(-1, msg);
       }
     });
   };
