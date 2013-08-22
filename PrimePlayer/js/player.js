@@ -90,15 +90,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function ratingWatcher(val, old) {
     $("#googleRating").removeClass("rating-" + old).addClass("rating-" + val);
-    var navlist = $("#navlist.playlist");
-    if (navlist.is(":visible") && currentNavList.list) {
-      var row = navlist.children("div.current");
-      index = row.data("index");
-      if (index) {
-        currentNavList.list[index].rating = val;
-        if (row.length > 0) {
-          row.find("div.rating").removeClass("r" + old).addClass("r" + val);
-        }
+    var playlist = $("#navlist.playlist");
+    if (playlist.is(":visible") && currentNavList.list) {
+      var row = playlist.children("div.current");
+      if (row.length > 0) {
+        row.find("div.rating").removeClass("r" + old).addClass("r" + val);
+        currentNavList.list[row.data("index")].rating = val;
       }
     }
   }
