@@ -221,6 +221,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function toTimeString(sec) {
+    if (sec > 60*60*24) return chrome.i18n.getMessage("moreThanOneDay");
     if (sec < 10) return "0:0" + sec;
     if (sec < 60) return "0:" + sec;
     var time = "";
