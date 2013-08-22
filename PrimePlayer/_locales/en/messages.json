@@ -337,5 +337,8 @@
   },
   "setting_connectedIndicator": {
     "message": "Show 'P'-icon on connected Google Music tab"
+  },
+  "moreThanOneDay": {
+    "message": "> 1 day"
   }
 }

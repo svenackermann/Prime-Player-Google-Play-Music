@@ -90,17 +90,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function ratingWatcher(val, old) {
     $("#googleRating").removeClass("rating-" + old).addClass("rating-" + val);
-    var navlist = $("#navlist.playlist");
-    if (navlist.is(":visible") && currentNavList.list) {
-      var row = navlist.children("div.current");
-      index = row.data("index");
-      if (index) {
-        currentNavList.list[index].rating = val;
-        if (row.length > 0) {
-          row.find("div.rating").removeClass("r" + old).addClass("r" + val);
-        }
-      }
-    }
   }
 
   function updateScrobblePosition(scrobbleTime) {
@@ -221,6 +210,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function toTimeString(sec) {
+    if (sec > 60*60*24) return chrome.i18n.getMessage("moreThanOneDay");
     if (sec < 10) return "0:0" + sec;
     if (sec < 60) return "0:" + sec;
     var time = "";
@@ -290,6 +280,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
       if (noRating) navlist.addClass("norating");
       if (duration == 0) navlist.addClass("noduration")
       else $("#navHead").find("span").append(" (" + toTimeString(duration) + ")");
+      var current = $("#navlist > div.current")[0];
+      if (current) current.scrollIntoView(true);
     },
     albumContainers: function(navlist, list) {
       for (var i = 0; i < list.length; i++) {
