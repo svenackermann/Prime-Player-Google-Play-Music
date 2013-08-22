@@ -90,14 +90,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function ratingWatcher(val, old) {
     $("#googleRating").removeClass("rating-" + old).addClass("rating-" + val);
-    var playlist = $("#navlist.playlist");
-    if (playlist.is(":visible") && currentNavList.list) {
-      var row = playlist.children("div.current");
-      if (row.length > 0) {
-        row.find("div.rating").removeClass("r" + old).addClass("r" + val);
-        currentNavList.list[row.data("index")].rating = val;
-      }
-    }
   }
 
   function updateScrobblePosition(scrobbleTime) {
@@ -288,6 +280,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
       if (noRating) navlist.addClass("norating");
       if (duration == 0) navlist.addClass("noduration")
       else $("#navHead").find("span").append(" (" + toTimeString(duration) + ")");
+      var current = $("#navlist > div.current")[0];
+      if (current) current.scrollIntoView(true);
     },
     albumContainers: function(navlist, list) {
       for (var i = 0; i < list.length; i++) {
