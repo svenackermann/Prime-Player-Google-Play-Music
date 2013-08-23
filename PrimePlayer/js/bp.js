@@ -100,7 +100,8 @@ var PLAYER_DEFAULTS = {
   navigationList: null,
   listrating: null,
   quicklinks: null,
-  connected: false
+  connected: false,
+  favicon: "img/default/notconnected.png"
 };
 var player = new Bean(PLAYER_DEFAULTS);
 
@@ -152,7 +153,8 @@ function updateBrowserActionInfo() {
     path += "connected";
     title += " - " + chrome.i18n.getMessage("browserActionTitle_connected");
   }
-  chrome.browserAction.setIcon({path: path + ".png"});
+  player.favicon = path + ".png";
+  chrome.browserAction.setIcon({path: player.favicon});
   chrome.browserAction.setTitle({title: title});
 }
 

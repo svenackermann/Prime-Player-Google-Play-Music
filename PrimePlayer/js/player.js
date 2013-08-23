@@ -18,12 +18,16 @@ chrome.runtime.getBackgroundPage(function(bp) {
   } else {
     $("html").addClass("layout-normal");
   }
-  
+
   function hideRatingsWatcher(val) {
     $("html").toggleClass("hideRatings", val);
   }
-  
   bp.settings.watch("hideRatings", hideRatingsWatcher);
+
+  function faviconWatcher(val) {
+    $("#favicon").attr("href", val);
+  }
+  bp.player.watch("favicon", faviconWatcher);
 
   function repeatWatcher(val) {
     $("#repeat").attr("class", val);
@@ -99,7 +103,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("#scrobblePosition").removeClass("songscrobble");
     }
   }
-  
+
   function scrobbledWatcher(val) {
     $("body").toggleClass("scrobbled", val);
   }
@@ -111,7 +115,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function colorWatcher(val, old) {
     $("html").removeClass("color-" + old).addClass("color-" + val);
   }
-  
+
   function updateClickLink(target, link) {
     target = $(target);
     target.toggleClass("nav", link != "");
@@ -122,11 +126,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
       target.removeData("link text").removeAttr("title");
     }
   }
-  
+
   function updateCoverClickLink(link) {
     updateClickLink("#coverContainer", link);
   }
-  
+
   function updateTitleClickLink(link) {
     updateClickLink("#track, #nosong a:first-child", link);
   }
@@ -155,7 +159,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         }
       }, 500);
     });
-    
+
     var oldX = window.screenX;
     var oldY = window.screenY;
     setInterval(function() {
@@ -195,20 +199,20 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("#volume").toggleClass("muted", val == "0");
     }
   }
-  
+
   function connectedWatcher(val) {
     $("body").toggleClass("connected", val);
     if (!val) {
       restorePlayer();
     }
   }
-  
+
   function resize(sizing) {
     if ((typeClass == "miniplayer" || typeClass == "toast") && sizing.width != null && sizing.height != null) {
       window.resizeTo(sizing.width, sizing.height);
     }
   }
-  
+
   function toTimeString(sec) {
     if (sec > 60*60*24) return chrome.i18n.getMessage("moreThanOneDay");
     if (sec < 10) return "0:0" + sec;
@@ -222,7 +226,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       sec = (sec - cur) / 60;
     }
   }
-  
+
   var renderNavList = {
     playlistsList: function(navlist, list) {
       for (var i = 0; i < list.length; i++) {
@@ -293,7 +297,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       }
     }
   };
-  
+
   function updateListrating(val) {
     if (val == null || val.controlLink != currentNavList.controlLink) return;
     var e = currentNavList.list[val.index];
@@ -302,7 +306,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       .children("div.rating").removeClass("r" + e.rating).addClass("r" + val.rating);
     e.rating = val.rating;
   }
-  
+
   function renderNavigationList(val) {
     if (!val || val.link != currentNavList.link) return;
     bp.player.navigationList = null;//free memory
@@ -320,7 +324,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       renderNavList[val.type](navlist.empty(), currentNavList.list);
     }
   }
-  
+
   function switchView(title, link) {
     if ($("#player").is(":visible") && (typeClass == "miniplayer" || typeClass == "toast")) {
       savedSizing = {
@@ -350,7 +354,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
     $("#nav").show();
   }
-  
+
   function restorePlayer() {
     $("#nav").hide();
     $("#navlist").empty();
@@ -369,7 +373,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#navHead").find(".back").attr("title", backHint);
     $("#navHead").find("span").text(title);
   }
-  
+
   function setupNavigationEvents() {
     $("#navHead").find(".back").click(function() {
       if (navHistory.length == 0) restorePlayer()
@@ -380,7 +384,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       }
     });
     $("#navHead").find(".close").attr("title", chrome.i18n.getMessage("close")).click(restorePlayer);
-    
+
     $("body").on("click", ".nav", function(e) {
       var link = $(this).data("link");
       if (link) {
@@ -389,7 +393,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         else switchView($(this).data("text") || $(this).text(), link);
       }
     });
-    
+
     $("#nav").on("click", "#navlist.playlistsList img", function() {
       bp.startPlaylist($(this).next("a").data("link"));
       restorePlayer();
@@ -416,13 +420,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
       }
     });
   }
-  
+
   function googleMusicExecutor(command) {
     return function() {
       if ($(this).css("opacity") == 1) bp.executeInGoogleMusic(command);
     };
   }
-  
+
   function renderPlayControls() {
     $(".playPause").click(googleMusicExecutor("playPause")).each(function() {
       $(this).attr("title", chrome.i18n.getMessage(this.id + "Song"));
@@ -465,7 +469,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("#volumeBarContainer").toggle();
     }
   }
-  
+
   function renderQuicklinks() {
     $("#quicklinks a.nav").each(function() {
       $(this).text(bp.getTextForQuicklink($(this).data("link")));
@@ -481,38 +485,38 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function setVolume(event) {
     bp.setVolume(event.offsetX / $(this).width());
   }
-  
+
   $(function() {
     $("html").addClass(typeClass);
     $("head > title").first().text(chrome.i18n.getMessage("extTitle"));
-    
+
     setupGoogleRating();
     renderPlayControls();
-    
+
     $("#miniplayerlink")
       .click(bp.openMiniplayer)
       .attr("title", chrome.i18n.getMessage("openMiniplayer"));
-      
+
     $("#nosong").children("a:first-child").text(chrome.i18n.getMessage("nothingPlaying"))
       .parent().children("a:last-child")
         .click(bp.openGoogleMusicTab)
         .text(chrome.i18n.getMessage("gotoGmusic"));
-    
+
     $("#scrobblePosition").attr("title", chrome.i18n.getMessage("scrobblePosition"));
     $("#timeBarHolder").click(setSongPosition);
-    
+
     $("#quicklinksBtn")
       .data("text", chrome.i18n.getMessage("quicklinks"))
       .attr("title", chrome.i18n.getMessage("showQuicklinks"));
-    
+
     setupNavigationEvents();
-    
+
     bp.localSettings.watch("lastfmSessionName", lastfmUserWatcher);
     bp.settings.watch("scrobble", scrobbleWatcher);
     bp.settings.watch("color", colorWatcher);
     bp.settings.watch("coverClickLink", updateCoverClickLink);
     bp.settings.watch("titleClickLink", updateTitleClickLink);
-    
+
     bp.player.watch("repeat", repeatWatcher);
     bp.player.watch("shuffle", shuffleWatcher);
     bp.player.watch("ratingMode", ratingModeWatcher);
@@ -522,17 +526,17 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.player.watch("quicklinks", renderQuicklinks);
     bp.player.addListener("navigationList", renderNavigationList);
     bp.player.addListener("listrating", updateListrating);
-    
+
     bp.song.watch("info", songInfoWatcher);
     bp.song.watch("positionSec", positionSecWatcher);
     bp.song.watch("rating", ratingWatcher);
     bp.song.watch("scrobbleTime", updateScrobblePosition);
     bp.song.watch("loved", songLovedWatcher);
     bp.song.watch("scrobbled", scrobbledWatcher);
-    
+
     if (typeClass == "miniplayer" || typeClass == "toast") setupResizeMoveListeners();
     if (typeClass == "toast") setToastAutocloseTimer();
-    
+
     $(window).unload(function() {
       bp.settings.removeListener("layout", layoutWatcher);
       bp.localSettings.removeListener("lastfmSessionName", lastfmUserWatcher);
@@ -541,7 +545,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       bp.settings.removeListener("coverClickLink", updateCoverClickLink);
       bp.settings.removeListener("titleClickLink", updateTitleClickLink);
       bp.settings.removeListener("hideRatings", hideRatingsWatcher);
-      
+
       bp.player.removeListener("repeat", repeatWatcher);
       bp.player.removeListener("shuffle", shuffleWatcher);
       bp.player.removeListener("ratingMode", ratingModeWatcher);
@@ -549,9 +553,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
       bp.player.removeListener("volume", volumeWatcher);
       bp.player.removeListener("connected", connectedWatcher);
       bp.player.removeListener("quicklinks", renderQuicklinks);
+      bp.player.removeListener("favicon", faviconWatcher);
       bp.player.removeListener("navigationList", renderNavigationList);
       bp.player.removeListener("listrating", updateListrating);
-      
+
       bp.song.removeListener("info", songInfoWatcher);
       bp.song.removeListener("positionSec", positionSecWatcher);
       bp.song.removeListener("rating", ratingWatcher);
