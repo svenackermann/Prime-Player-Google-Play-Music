@@ -94,8 +94,10 @@ a {
   }
 }
 
-.hideRatings .hasSong #rating {
-  display: none;
+.hideRatings {
+  .hasSong #rating, #navlist.playlist .rating {
+    display: none;
+  }
 }
 
 #nosong {
