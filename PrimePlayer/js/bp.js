@@ -19,7 +19,8 @@ var LOCAL_SETTINGS_DEFAULTS = {
   playlistsListSizing: {width: 350, height: 320},
   playlistSizing: {width: 500, height: 295},
   quicklinksSizing: {width: 280, height: 150},
-  albumContainersSizing: {width: 220, height: 320}
+  albumContainersSizing: {width: 220, height: 320},
+  searchresultSizing: {width: 350, height: 320}
 }
 var localSettings = new Bean(LOCAL_SETTINGS_DEFAULTS, true);
 
@@ -249,17 +250,17 @@ function postToGooglemusic(msg) {
 }
 
 /** Load the navigation list identified by 'loadNavlistLink'. If not connected, open a Google Music tab and try again. */
-function loadNavlistIfConnected() {
+function loadNavlistIfConnected(search) {
   if (!loadNavlistLink) return;
   if (player.connected) {
-    postToGooglemusic({type: "getNavigationList", link: loadNavlistLink, omitUnknownAlbums: loadNavlistLink == "albums" && settings.omitUnknownAlbums});
+    postToGooglemusic({type: "getNavigationList", link: loadNavlistLink, search: search, omitUnknownAlbums: loadNavlistLink == "albums" && settings.omitUnknownAlbums});
     loadNavlistLink = null;
   } else openGoogleMusicTab(loadNavlistLink);//when connected, we get triggered again
 }
 
-function loadNavigationList(link) {
+function loadNavigationList(link, search) {
   loadNavlistLink = link;
-  loadNavlistIfConnected();
+  loadNavlistIfConnected(search);
 }
 
 function selectLink(link) {

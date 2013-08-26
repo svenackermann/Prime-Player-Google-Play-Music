@@ -340,5 +340,11 @@
   },
   "moreThanOneDay": {
     "message": "> 1 Tag"
+  },
+  "searchPlaceholder": {
+    "message": "Musik suchen"
+  },
+  "searchResults": {
+    "message": "Suchergebnisse"
   }
 }

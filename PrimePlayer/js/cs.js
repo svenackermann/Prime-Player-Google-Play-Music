@@ -100,6 +100,7 @@ $(function() {
     $("#auto-playlists").children("li").each(function() {
       ql[getLink($(this))] = $.trim($(this).find("div.tooltip").text());
     });
+    ql.searchPlaceholder = $.trim($("#oneGoogleWrapper input[name='q']").attr("placeholder"));
     post("player-quicklinks", ql);
     
     function sendSong() {
@@ -280,9 +281,9 @@ $(function() {
   }
   
   var parseNavigationList = {
-    playlistsList: function(omitUnknownAlbums) {
+    playlistsList: function(parent, end, omitUnknownAlbums) {
       var playlists = [];
-      $(".card").each(function() {
+      parent.find(".card").slice(0, end).each(function() {
         var card = $(this);
         var item = {};
         var id = card.data("id");
@@ -297,10 +298,10 @@ $(function() {
       });
       return playlists;
     },
-    playlist: function() {
+    playlist: function(parent, end) {
       var playlist = [];
       listRatings = [];
-      $(".song-row").each(function() {
+      parent.find(".song-row").slice(0, end).each(function() {
         var song = $(this);
         var item = {};
         var title = song.find("td[data-col='title'] .content");
@@ -320,9 +321,9 @@ $(function() {
       });
       return playlist;
     },
-    albumContainers: function() {
+    albumContainers: function(parent, end) {
       var items = [];
-      $(".card").each(function() {
+      parent.find(".card").slice(0, end).each(function() {
         var card = $(this);
         var item = {};
         var img = card.find(".image-inner-wrapper img:first");
@@ -340,27 +341,7 @@ $(function() {
     $("#playlists").children("li").each(function() {
       playlists.push({title: $.trim($(this).find(".tooltip").text()), titleLink: getLink($(this))});
     });
-    post("player-navigationList", {type: "playlistsList", link: "myPlaylists", list: playlists});
-  }
-  
-  function sendNavigationList(link, omitUnknownAlbums) {
-    selectAndExecute(link, function(error) {
-      var response = {link: link, list: [], controlLink: location.hash};
-      if (error) {
-        response.error = true;
-      } else {
-        var type = getListType(link);
-        //check if we are on a page with correct type
-        //e.g. in recommendations list the album link might not work in which case we get redirected to albums page
-        if (type == getListType(location.hash.substr(2))) {
-          response.type = type;
-          response.list = parseNavigationList[type](omitUnknownAlbums);
-        } else {
-          response.error = true;
-        }
-      }
-      post("player-navigationList", response);
-    });
+    post("player-navigationList", {type: "playlistsList", link: "myPlaylists", list: playlists, empty: playlists.length == 0});
   }
   
   function getListType(hash) {
@@ -382,6 +363,46 @@ $(function() {
     }
   }
   
+  function sendNavigationList(link, omitUnknownAlbums) {
+    selectAndExecute(link, function(error) {
+      var response = {link: link, list: [], controlLink: location.hash};
+      if (error) {
+        response.error = true;
+      } else {
+        var type = getListType(link);
+        //check if we are on a page with correct type
+        //e.g. in recommendations list the album link might not work in which case we get redirected to albums page
+        if (type == getListType(location.hash.substr(2))) {
+          response.type = type;
+          response.list = parseNavigationList[type]($("#main"), undefined, omitUnknownAlbums);
+        } else {
+          response.error = true;
+        }
+      }
+      response.empty = response.list.length == 0;
+      post("player-navigationList", response);
+    });
+  }
+  
+  function sendSearchResult(search) {
+    selectAndExecute("sr/" + forHash(search), function() {
+      var response = {type: "searchresult", link: "search", search: search, lists: {}, headers: {}, controlLink: location.hash};
+      response.headers.main = $.trim($("#breadcrumbs").find(".tab-text").text());
+      var searchView = $("#main .search-view");
+      var artists = searchView.children("div[data-type='srar']");
+      response.lists.artists = parseNavigationList.albumContainers(artists, 5);
+      response.headers.artists = $.trim(artists.find(".header .title").text());
+      var albums = searchView.children("div[data-type='sral']");
+      response.lists.albums = parseNavigationList.playlistsList(albums, 5);
+      response.headers.albums = $.trim(albums.find(".header .title").text());
+      var titles = searchView.children("div[data-type='srs']");
+      response.lists.titles = parseNavigationList.playlist(titles, 10);
+      response.headers.titles = $.trim(titles.find(".header .title").text());
+      response.empty = response.lists.artists.length + response.lists.albums.length + response.lists.titles.length == 0;
+      post("player-navigationList", response);
+    });
+  }
+  
   port = chrome.runtime.connect({name: "googlemusic"});
   port.onDisconnect.addListener(cleanup);
   port.onMessage.addListener(function(msg) {
@@ -392,6 +413,8 @@ $(function() {
       case "getNavigationList":
         if (msg.link == "myPlaylists") {
           sendMyPlaylists();
+        } else if (msg.link == "search") {
+          sendSearchResult(msg.search);
         } else {
           sendNavigationList(msg.link, msg.omitUnknownAlbums);
         }
