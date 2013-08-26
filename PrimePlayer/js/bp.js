@@ -292,6 +292,8 @@ function calcScrobbleTime() {
     if (settings.scrobbleTime > 0 && scrobbleTime > settings.scrobbleTime) {
       scrobbleTime = settings.scrobbleTime;
     }
+    //leave 3s at the beginning and end to be sure the correct song will be scrobbled
+    scrobbleTime = Math.min(song.info.durationSec - 3, Math.max(3, scrobbleTime));
     song.scrobbleTime = scrobbleTime;
   } else {
     song.scrobbleTime = -1;
@@ -839,29 +841,28 @@ song.addListener("position", function(val) {
     song.ff = false;
     if (settings.disableScrobbleOnFf) calcScrobbleTime();
   }
-  if (song.positionSec == 0) {//when repeat-single is active, song.info does not change
+  if (song.positionSec == 0) {//new song, repeat single or rewinded
     song.nowPlayingSent = false;
     song.scrobbled = false;
+    calcScrobbleTime();
     song.timestamp = Math.round(new Date().getTime() / 1000);
   }
-  if (player.playing && song.info && isScrobblingEnabled()) {
-    if (!song.nowPlayingSent && song.positionSec >= 3) {
+  if (player.playing && song.info && song.positionSec >= 3 && isScrobblingEnabled()) {
+    if (!song.nowPlayingSent) {
       song.nowPlayingSent = true;
       sendNowPlaying();
-    } else if (!song.scrobbled && song.scrobbleTime >= 0 && song.positionSec >= song.scrobbleTime) {
+    }
+    if (!song.scrobbled && song.scrobbleTime >= 0 && song.positionSec >= song.scrobbleTime) {
       song.scrobbled = true;
       scrobble();
     }
   }
 });
 song.addListener("info", function(val, old) {
-  song.nowPlayingSent = false;
-  song.scrobbled = false;
   song.toasted = false;
   song.ff = false;
   if (val) {
     song.info.durationSec = parseSeconds(val.duration);
-    song.timestamp = Math.round(new Date().getTime() / 1000);
     if (player.playing) toastPopup();
     if (!settings.hideRatings) getLovedInfo();
   } else {
