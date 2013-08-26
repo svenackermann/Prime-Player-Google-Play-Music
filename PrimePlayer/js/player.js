@@ -115,6 +115,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function colorWatcher(val, old) {
     $("html").removeClass("color-" + old).addClass("color-" + val);
   }
+  
+  function hideSearchfieldWatcher(val) {
+    $("#nav").toggleClass("searchField", !val);
+  }
 
   function updateClickLink(target, link) {
     target = $(target);
@@ -202,6 +206,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function connectedWatcher(val) {
     $("body").toggleClass("connected", val);
+    $("#navHead > input").attr("disabled", !val);
     if (!val) {
       restorePlayer();
     }
@@ -544,6 +549,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.settings.watch("color", colorWatcher);
     bp.settings.watch("coverClickLink", updateCoverClickLink);
     bp.settings.watch("titleClickLink", updateTitleClickLink);
+    bp.settings.watch("hideSearchfield", hideSearchfieldWatcher);
 
     bp.player.watch("repeat", repeatWatcher);
     bp.player.watch("shuffle", shuffleWatcher);
@@ -572,6 +578,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       bp.settings.removeListener("color", colorWatcher);
       bp.settings.removeListener("coverClickLink", updateCoverClickLink);
       bp.settings.removeListener("titleClickLink", updateTitleClickLink);
+      bp.settings.removeListener("hideSearchfield", hideSearchfieldWatcher);
       bp.settings.removeListener("hideRatings", hideRatingsWatcher);
 
       bp.player.removeListener("repeat", repeatWatcher);

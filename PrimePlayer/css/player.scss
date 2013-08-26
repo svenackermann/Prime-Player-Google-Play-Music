@@ -321,14 +321,14 @@ a {
   }
 }
 
-.connected #navHead > input {
+#nav.searchField #navHead > input {
   display: block;
 }
 
 #navlistContainer {
   position: absolute;
   width: 100%;
-  top: 36px;
+  top: 18px;
   bottom: 0;
   .playlistsList, .playlist, .albumContainers {
     > div {
@@ -414,6 +414,10 @@ a {
       }
     }
   }
+}
+
+#nav.searchField #navlistContainer {
+  top: 36px;
 }
 
 #navlist {

@@ -198,6 +198,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       .val(bp.settings.titleClickLink);
     initCheckbox("openLinksInMiniplayer");
     initHint("openLinksInMiniplayer");
+    initCheckbox("hideSearchfield");
     initCheckbox("hideRatings");
     initCheckbox("omitUnknownAlbums");
     initHint("omitUnknownAlbums");

@@ -18,7 +18,7 @@ var LOCAL_SETTINGS_DEFAULTS = {
   },
   playlistsListSizing: {width: 350, height: 320},
   playlistSizing: {width: 500, height: 295},
-  quicklinksSizing: {width: 280, height: 150},
+  quicklinksSizing: {width: 280, height: 160},
   albumContainersSizing: {width: 220, height: 320},
   searchresultSizing: {width: 350, height: 320}
 }
@@ -41,6 +41,7 @@ var SETTINGS_DEFAULTS = {
   coverClickLink: "now",
   titleClickLink: "ap/queue",
   openLinksInMiniplayer: true,
+  hideSearchfield: false,
   hideRatings: false,
   omitUnknownAlbums: false,
   iconStyle: "default",
