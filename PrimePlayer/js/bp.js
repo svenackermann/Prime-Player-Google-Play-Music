@@ -746,8 +746,15 @@ function gaEnabledChanged(val) {
   if (val) {
     settings.removeListener("gaEnabled", gaEnabledChanged);//init/record only once
     initGA(currentVersion);
+    var i = 0;
+    function recorder(name) { return function() { recordSetting(name); }; };
     for (var prop in SETTINGS_DEFAULTS) {
-      if (prop != "gaEnabled") recordSetting(prop);
+      if (prop != "gaEnabled") {
+        //10 events can be sent immediately, thereafter only one per second
+        if (i < 10) recorder(prop)()
+        else setTimeout(recorder(prop), (i - 9) * 1250);
+        i++;
+      }
     }
   }
 }
