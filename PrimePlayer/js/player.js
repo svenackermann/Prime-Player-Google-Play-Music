@@ -118,16 +118,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
   
   function hideSearchfieldWatcher(val) {
     $("#nav").toggleClass("searchField", !val);
-    $(window).off("keyup");
-    if (!bp.settings.hideSearchfield) {
-      $(window).keyup(function(e) {
-        var inp = $("#navHead > input");
-        if (e.keyCode == 81 && !inp.is(":focus") && !inp.is(":disabled")) {
-          if (!inp.is(":visible")) switchView(chrome.i18n.getMessage("quicklinks"), "quicklinks");
-          $("#navHead > input").focus();
-        }
-      });
-    }
   }
 
   function updateClickLink(target, link) {
@@ -434,6 +424,18 @@ chrome.runtime.getBackgroundPage(function(bp) {
         e.preventDefault();
         if (bp.settings.openLinksInMiniplayer == e.shiftKey && link != "quicklinks") bp.selectLink(link)
         else switchView($(this).data("text") || $(this).text(), link, $(this).data("search"));
+      }
+    });
+    
+    $(window).keyup(function(e) {
+      if (e.keyCode == 27 && !$("#player").is(":visible")) {
+        restorePlayer();
+      } else if (e.keyCode == 81 && !bp.settings.hideSearchfield) {
+        var inp = $("#navHead > input");
+        if (!inp.is(":focus") && !inp.is(":disabled")) {
+          if (!inp.is(":visible")) switchView(chrome.i18n.getMessage("quicklinks"), "quicklinks");
+          $("#navHead > input").focus();
+        }
       }
     });
 
