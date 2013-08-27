@@ -393,7 +393,7 @@ $(function() {
     if (cont.length == 0) return null;
     var listType = getListType(type);
     var list = parseNavigationList[listType](cont, end);
-    if (list.length == null) return null;
+    if (list.length == 0) return null;
     return {
       list: list,
       type: listType,
