@@ -142,6 +142,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     return cl.substring(start, end < 0 ? cl.length : end);
   }
 
+  if (bp.settings.gaEnabled) initGA(bp.currentVersion);
+
   $(function() {
     if (location.hash == "#welcome") {
       $("body").children().toggle();
@@ -163,7 +165,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#legendMp").text(chrome.i18n.getMessage("mpSettings"));
     $("#legendLf").text(chrome.i18n.getMessage("lfSettings"));
     $("#lastfmStatus").find("span").text(chrome.i18n.getMessage("lastfmUser"));
-    var bugfeatureinfo = chrome.i18n.getMessage("bugfeatureinfo", "<a target='_blank' href='https://github.com/svenrecknagel/Prime-Player-Google-Play-Music/issues'>GitHub</a>");
+    var bugfeatureinfo = chrome.i18n.getMessage("bugfeatureinfo", "<a target='_blank' href='https://github.com/svenrecknagel/Prime-Player-Google-Play-Music/issues' data-network='github' data-action='issue'>GitHub</a>");
     $("#bugfeatureinfo").html(bugfeatureinfo);
     
     initCheckbox("scrobble").click(scrobbleChanged);
@@ -255,13 +257,15 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#changelog").on("click", "input[type='checkbox']", function() {
       $("#changelog").toggleClass(this.id.substr(3,1));
     });
+    
+    $("#credits").on("click", "a[data-network]", function() {
+      if (bp.settings.gaEnabled && _gaq) _gaq.push(["_trackSocial", $(this).data("network"), $(this).data("action") || "show"]);
+    });
   });
 
   $(window).unload(function() {
     bp.localSettings.removeListener("lastfmSessionName", lastfmUserChanged);
     if (bp.optionsTabId == thisTabId) bp.optionsTabId = null;
   });
-
-  if (bp.settings.gaEnabled) initGA(bp.currentVersion);
 
 });
