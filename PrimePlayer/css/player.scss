@@ -94,8 +94,10 @@ a {
   }
 }
 
-.hideRatings .hasSong #rating {
-  display: none;
+.hideRatings {
+  .hasSong #rating, #navlistContainer .playlist .rating {
+    display: none;
+  }
 }
 
 #nosong {
@@ -309,6 +311,17 @@ a {
     text-align: center;
     font-weight: bold;
   }
+  > input {
+    display: none;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    font-size: 11px;
+  }
+}
+
+#nav.searchField #navHead > input {
+  display: block;
 }
 
 #navlistContainer {
@@ -316,23 +329,15 @@ a {
   width: 100%;
   top: 18px;
   bottom: 0;
-}
-
-#navlist {
-  height: 98%;
-  padding: 2px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  &.loading {
-    background: url(../img/ajax-loader.gif) no-repeat center center;
-  }
-  > div {
-    white-space: nowrap;
-    span:not(.duration) {
-      color: #888;
+  .playlistsList, .playlist, .albumContainers {
+    > div {
+      white-space: nowrap;
+      span:not(.duration) {
+        color: #888;
+      }
     }
   }
-  &.playlistsList, &.playlist {
+  .playlistsList, .playlist {
     > div {
       > img {
         height: 16px;
@@ -345,7 +350,7 @@ a {
       }
     }
   }
-  &.playlistsList > div {
+  .playlistsList > div {
     > a, > span {
       display: inline-block;
       margin-left: 4px;
@@ -360,7 +365,7 @@ a {
       }
     }
   }
-  &.playlist > div {
+  .playlist > div {
     height: 18px;
     &.current {
       background: url(../img/paused.png) no-repeat;
@@ -410,7 +415,32 @@ a {
   }
 }
 
-#navlist.playlist.noalbum > div > div.info {
+#nav.searchField #navlistContainer {
+  top: 36px;
+}
+
+#navlist {
+  height: 98%;
+  padding: 2px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  &.loading {
+    background: url(../img/ajax-loader.gif) no-repeat center center;
+  }
+  > .empty, > .error {
+    text-align: center;
+    position: relative;
+    top: 40%;
+  }
+  > .empty:after {
+    content: "__MSG_emptyList__";
+  }
+  > .error:after {
+    content: "__MSG_loadListError__";
+  }
+}
+
+#navlistContainer .playlist.noalbum > div > div.info {
   > span:not(.duration), > a {
     width: 40%;
   }
@@ -419,11 +449,11 @@ a {
   }
 }
 
-#navlist.playlist.norating > div div.rating {
+#navlistContainer .playlist.norating > div div.rating {
   display: none;
 }
 
-#navlist.playlist.noduration > div > div.info {
+#navlistContainer .playlist.noduration > div > div.info {
   > span:first-child {
     width: 50%;
   }
@@ -432,11 +462,11 @@ a {
   }
 }
 
-.playing #navlist.playlist > div.current {
+.playing #navlistContainer .playlist > div.current {
   background-image: url(../img/playing.gif);
 }
 
-.thumbs-rating #navlist.playlist > div > div.rating {
+.thumbs-rating #navlistContainer .playlist > div > div.rating {
   a[data-rating] {
     background-size: 0;
   }
@@ -454,7 +484,7 @@ a {
   }
 }
 
-.star-rating #navlist.playlist > div > div.rating {
+.star-rating #navlistContainer .playlist > div > div.rating {
   position: relative;
   width: 60px;
   a[data-rating] {
@@ -483,7 +513,7 @@ a {
   }
 }
 
-#navlist.albumContainers > div {
+#navlistContainer .albumContainers > div {
   > img {
     height: 16px;
   }
@@ -494,18 +524,31 @@ a {
   }
 }
 
-#navlist > .empty, #navlist > .error {
-  text-align: center;
-  position: relative;
-  top: 40%;
-}
-
-#navlist > .empty:after {
-  content: "__MSG_emptyList__";
-}
-
-#navlist > .error:after {
-  content: "__MSG_loadListError__";
+#navlist.searchresult {
+  > h2 {
+    margin: 0;
+    padding: 2px;
+    font-size: 11px;
+    font-style: italic;
+    clear: both;
+    background-color: #ccc;
+    a {
+      float: right;
+      font-style: normal;
+      color: white;
+      font-weight: normal;
+      padding: 0 3px;
+      border-radius: 3px;
+      &:hover {
+        background-color: #13A6B3 !important;
+        text-decoration: none;
+      }
+    }
+  }
+  .albumContainers > div {
+    width: 45%;
+    float: left;
+  }
 }
 
 #quickLinks {

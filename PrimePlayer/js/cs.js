@@ -100,6 +100,7 @@ $(function() {
     $("#auto-playlists").children("li").each(function() {
       ql[getLink($(this))] = $.trim($(this).find("div.tooltip").text());
     });
+    ql.searchPlaceholder = $.trim($("#oneGoogleWrapper input[name='q']").attr("placeholder"));
     post("player-quicklinks", ql);
     
     function sendSong() {
@@ -208,6 +209,7 @@ $(function() {
       }
     }
     sendConnectedInterval = setInterval(sendConnected, 500);
+    sendConnected();
   }
   
   function onMessage(event) {
@@ -280,13 +282,13 @@ $(function() {
   }
   
   var parseNavigationList = {
-    playlistsList: function(omitUnknownAlbums) {
+    playlistsList: function(parent, end, omitUnknownAlbums) {
       var playlists = [];
-      $(".card").each(function() {
+      parent.find(".card").slice(0, end).each(function() {
         var card = $(this);
-        var item = {};
         var id = card.data("id");
         if (omitUnknownAlbums && id.charAt(id.length - 1) == "/") return;
+        var item = {};
         item.cover = parseCover(card.find(".image-wrapper img"));
         item.title = $.trim(card.find(".title").text());
         item.titleLink = getLink(card);
@@ -297,10 +299,10 @@ $(function() {
       });
       return playlists;
     },
-    playlist: function() {
+    playlist: function(parent, end) {
       var playlist = [];
       listRatings = [];
-      $(".song-row").each(function() {
+      parent.find(".song-row").slice(0, end).each(function() {
         var song = $(this);
         var item = {};
         var title = song.find("td[data-col='title'] .content");
@@ -311,7 +313,7 @@ $(function() {
         if (item.artist) item.artistLink = "ar/" + forHash(item.artist);
         var album = song.find("td[data-col='album']");
         item.album = $.trim(album.find(".content").text());
-        if (item.album) item.albumLink = "al/" + forHash(album.data("album-artist")) + "/" + forHash(item.album);
+        if (item.album) item.albumLink = "album//" + forHash(album.data("album-artist")) + "/" + forHash(item.album);
         var duration = $.trim(song.find("td[data-col='duration']").text());
         if (/^\d\d?(\:\d\d)*$/.test(duration)) item.duration = duration;//no real duration on recommandation page
         item.rating = parseRating(song.find("td[data-col='rating']").data("rating"));
@@ -320,9 +322,9 @@ $(function() {
       });
       return playlist;
     },
-    albumContainers: function() {
+    albumContainers: function(parent, end) {
       var items = [];
-      $(".card").each(function() {
+      parent.find(".card").slice(0, end).each(function() {
         var card = $(this);
         var item = {};
         var img = card.find(".image-inner-wrapper img:first");
@@ -340,10 +342,31 @@ $(function() {
     $("#playlists").children("li").each(function() {
       playlists.push({title: $.trim($(this).find(".tooltip").text()), titleLink: getLink($(this))});
     });
-    post("player-navigationList", {type: "playlistsList", link: "myPlaylists", list: playlists});
+    post("player-navigationList", {type: "playlistsList", link: "myPlaylists", list: playlists, empty: playlists.length == 0});
   }
   
-  function sendNavigationList(link, omitUnknownAlbums) {
+  function getListType(hash) {
+    var i = hash.indexOf("/");
+    if (i > 0) hash = hash.substring(0, i);
+    switch (hash) {
+      case "artists":
+      case "genres":
+      case "srar":
+        return "albumContainers";
+      case "now":
+      case "albums":
+      case "rd":
+      case "ar":
+      case "sar":
+      case "tg":
+      case "sral":
+        return "playlistsList";
+      default:
+        return "playlist";
+    }
+  }
+  
+  function sendNavigationList(link, omitUnknownAlbums, search) {
     selectAndExecute(link, function(error) {
       var response = {link: link, list: [], controlLink: location.hash};
       if (error) {
@@ -354,32 +377,43 @@ $(function() {
         //e.g. in recommendations list the album link might not work in which case we get redirected to albums page
         if (type == getListType(location.hash.substr(2))) {
           response.type = type;
-          response.list = parseNavigationList[type](omitUnknownAlbums);
+          response.list = parseNavigationList[type]($("#main"), undefined, omitUnknownAlbums);
+          response.search = search;
         } else {
           response.error = true;
         }
       }
+      response.empty = response.list.length == 0;
       post("player-navigationList", response);
     });
   }
   
-  function getListType(hash) {
-    var i = hash.indexOf("/");
-    if (i > 0) hash = hash.substring(0, i);
-    switch (hash) {
-      case "artists":
-      case "genres":
-        return "albumContainers";
-      case "now":
-      case "albums":
-      case "rd":
-      case "ar":
-      case "sar":
-      case "tg":
-        return "playlistsList";
-      default:
-        return "playlist";
-    }
+  function parseSublist(searchView, type, end) {
+    var cont = searchView.children("div[data-type='" + type + "']");
+    if (cont.length == 0) return null;
+    var listType = getListType(type);
+    var list = parseNavigationList[listType](cont, end);
+    if (list.length == 0) return null;
+    return {
+      list: list,
+      type: listType,
+      header: $.trim(cont.find(".header .title").text()),
+      moreLink: cont.hasClass("has-more") ? getLink(cont) : null
+    };
+  }
+  
+  function sendSearchResult(search) {
+    selectAndExecute("sr/" + forHash(search), function() {
+      var response = {type: "searchresult", link: "search", search: search, lists: [], controlLink: location.hash};
+      response.header = $.trim($("#breadcrumbs").find(".tab-text").text());
+      var searchView = $("#main .search-view");
+      response.moreText = $.trim(searchView.find("div .header .more").first().text());
+      response.lists.push(parseSublist(searchView, "srar", 5));
+      response.lists.push(parseSublist(searchView, "sral", 5));
+      response.lists.push(parseSublist(searchView, "srs", 10));
+      response.empty = response.lists[0] == null && response.lists[1] == null && response.lists[2] == null;
+      post("player-navigationList", response);
+    });
   }
   
   port = chrome.runtime.connect({name: "googlemusic"});
@@ -392,8 +426,10 @@ $(function() {
       case "getNavigationList":
         if (msg.link == "myPlaylists") {
           sendMyPlaylists();
+        } else if (msg.link == "search") {
+          sendSearchResult(msg.search);
         } else {
-          sendNavigationList(msg.link, msg.omitUnknownAlbums);
+          sendNavigationList(msg.link, msg.omitUnknownAlbums, msg.search);
         }
         break;
       case "selectLink":

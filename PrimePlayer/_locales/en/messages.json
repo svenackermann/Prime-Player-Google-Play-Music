@@ -332,6 +332,9 @@
   "setting_openLinksInMiniplayerHint": {
     "message": "If enabled, links to albums, artist etc. will be opened directly in the miniplayer, otherwise in the Google Music tab. With Shift+Click you can switch this behavior temporarily."
   },
+  "setting_hideSearchfield": {
+    "message": "Hide search box in miniplayer"
+  },
   "resetSettings": {
     "message": "Reset settings to default"
   },
@@ -340,5 +343,11 @@
   },
   "moreThanOneDay": {
     "message": "> 1 day"
+  },
+  "searchPlaceholder": {
+    "message": "Search music"
+  },
+  "searchResults": {
+    "message": "Search Results"
   }
 }

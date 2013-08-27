@@ -4,7 +4,7 @@
  * Licensed under the BSD license
  */
 @mixin colorScheme($color) {
-  #playControls, #time, #volumeBarContainer {
+  #playControls, #time, #volumeBarContainer, #navlist.searchresult > h2 a {
     background-color: $color;
   }
   #timeBar, #volumeBar {
@@ -20,7 +20,7 @@
     background-color: $color;
     border-top-color: lighten($color, 20%);
   }
-  #navHead {
+  #navHead, #navlist.searchresult > h2 {
     color: darken($color, 10%);
   }
 }

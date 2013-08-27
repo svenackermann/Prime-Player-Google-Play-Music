@@ -18,8 +18,9 @@ var LOCAL_SETTINGS_DEFAULTS = {
   },
   playlistsListSizing: {width: 350, height: 320},
   playlistSizing: {width: 500, height: 295},
-  quicklinksSizing: {width: 280, height: 150},
-  albumContainersSizing: {width: 220, height: 320}
+  quicklinksSizing: {width: 280, height: 160},
+  albumContainersSizing: {width: 220, height: 320},
+  searchresultSizing: {width: 350, height: 320}
 }
 var localSettings = new Bean(LOCAL_SETTINGS_DEFAULTS, true);
 
@@ -40,6 +41,7 @@ var SETTINGS_DEFAULTS = {
   coverClickLink: "now",
   titleClickLink: "ap/queue",
   openLinksInMiniplayer: true,
+  hideSearchfield: false,
   hideRatings: false,
   omitUnknownAlbums: false,
   iconStyle: "default",
@@ -100,7 +102,8 @@ var PLAYER_DEFAULTS = {
   navigationList: null,
   listrating: null,
   quicklinks: null,
-  connected: false
+  connected: false,
+  favicon: "img/default/notconnected.png"
 };
 var player = new Bean(PLAYER_DEFAULTS);
 
@@ -152,7 +155,8 @@ function updateBrowserActionInfo() {
     path += "connected";
     title += " - " + chrome.i18n.getMessage("browserActionTitle_connected");
   }
-  chrome.browserAction.setIcon({path: path + ".png"});
+  player.favicon = path + ".png";
+  chrome.browserAction.setIcon({path: player.favicon});
   chrome.browserAction.setTitle({title: title});
 }
 
@@ -247,17 +251,17 @@ function postToGooglemusic(msg) {
 }
 
 /** Load the navigation list identified by 'loadNavlistLink'. If not connected, open a Google Music tab and try again. */
-function loadNavlistIfConnected() {
+function loadNavlistIfConnected(search) {
   if (!loadNavlistLink) return;
   if (player.connected) {
-    postToGooglemusic({type: "getNavigationList", link: loadNavlistLink, omitUnknownAlbums: loadNavlistLink == "albums" && settings.omitUnknownAlbums});
+    postToGooglemusic({type: "getNavigationList", link: loadNavlistLink, search: search, omitUnknownAlbums: loadNavlistLink == "albums" && settings.omitUnknownAlbums});
     loadNavlistLink = null;
   } else openGoogleMusicTab(loadNavlistLink);//when connected, we get triggered again
 }
 
-function loadNavigationList(link) {
+function loadNavigationList(link, search) {
   loadNavlistLink = link;
-  loadNavlistIfConnected();
+  loadNavlistIfConnected(search);
 }
 
 function selectLink(link) {
@@ -290,6 +294,8 @@ function calcScrobbleTime() {
     if (settings.scrobbleTime > 0 && scrobbleTime > settings.scrobbleTime) {
       scrobbleTime = settings.scrobbleTime;
     }
+    //leave 3s at the beginning and end to be sure the correct song will be scrobbled
+    scrobbleTime = Math.min(song.info.durationSec - 3, Math.max(3, scrobbleTime));
     song.scrobbleTime = scrobbleTime;
   } else {
     song.scrobbleTime = -1;
@@ -740,8 +746,15 @@ function gaEnabledChanged(val) {
   if (val) {
     settings.removeListener("gaEnabled", gaEnabledChanged);//init/record only once
     initGA(currentVersion);
+    var i = 0;
+    function recorder(name) { return function() { recordSetting(name); }; };
     for (var prop in SETTINGS_DEFAULTS) {
-      if (prop != "gaEnabled") recordSetting(prop);
+      if (prop != "gaEnabled") {
+        //10 events can be sent immediately, thereafter only one per second
+        if (i < 10) recorder(prop)()
+        else setTimeout(recorder(prop), (i - 9) * 1250);
+        i++;
+      }
     }
   }
 }
@@ -837,29 +850,28 @@ song.addListener("position", function(val) {
     song.ff = false;
     if (settings.disableScrobbleOnFf) calcScrobbleTime();
   }
-  if (song.positionSec == 0) {//when repeat-single is active, song.info does not change
+  if (song.positionSec == 0) {//new song, repeat single or rewinded
     song.nowPlayingSent = false;
     song.scrobbled = false;
+    calcScrobbleTime();
     song.timestamp = Math.round(new Date().getTime() / 1000);
   }
-  if (player.playing && song.info && isScrobblingEnabled()) {
-    if (!song.nowPlayingSent && song.positionSec >= 3) {
+  if (player.playing && song.info && song.positionSec >= 3 && isScrobblingEnabled()) {
+    if (!song.nowPlayingSent) {
       song.nowPlayingSent = true;
       sendNowPlaying();
-    } else if (!song.scrobbled && song.scrobbleTime >= 0 && song.positionSec >= song.scrobbleTime) {
+    }
+    if (!song.scrobbled && song.scrobbleTime >= 0 && song.positionSec >= song.scrobbleTime) {
       song.scrobbled = true;
       scrobble();
     }
   }
 });
 song.addListener("info", function(val, old) {
-  song.nowPlayingSent = false;
-  song.scrobbled = false;
   song.toasted = false;
   song.ff = false;
   if (val) {
     song.info.durationSec = parseSeconds(val.duration);
-    song.timestamp = Math.round(new Date().getTime() / 1000);
     if (player.playing) toastPopup();
     if (!settings.hideRatings) getLovedInfo();
   } else {
