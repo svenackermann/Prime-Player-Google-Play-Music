@@ -532,6 +532,18 @@ a {
     font-style: italic;
     clear: both;
     background-color: #ccc;
+    a {
+      float: right;
+      font-style: normal;
+      color: white;
+      font-weight: normal;
+      padding: 0 3px;
+      border-radius: 3px;
+      &:hover {
+        background-color: #13A6B3 !important;
+        text-decoration: none;
+      }
+    }
   }
   .albumContainers > div {
     width: 45%;

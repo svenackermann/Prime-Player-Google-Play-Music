@@ -313,12 +313,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
     e.rating = val.rating;
   }
 
-  function renderSubNavigationList(subtype, type, val, navlist) {
-    if (val.lists[subtype].length > 0) {
-      $("<h2></h2>").text(val.headers[subtype]).appendTo(navlist);
-      var container = $("<div></div>").addClass(type).appendTo(navlist);
-      renderNavList[type](container, val.lists[subtype]);
-    }
+  function renderSubNavigationList(list, navlist) {
+    var header = $("<h2></h2>").text(list.header);
+    if (list.moreLink) $("<a href='#' class='nav'></a>").data("link", list.moreLink).appendTo(header);
+    navlist.append(header);
+    var container = $("<div></div>").addClass(list.type).appendTo(navlist);
+    renderNavList[list.type](container, list.list);
   }
   
   function renderNavigationList(val) {
@@ -335,10 +335,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
       navlist.empty().addClass(val.type);
       resize(bp.localSettings[val.type + "Sizing"]);
       if (val.type == "searchresult") {
-        $("#navHead").find("span").text(val.headers.main);
-        renderSubNavigationList("artists", "albumContainers", val, navlist);
-        renderSubNavigationList("albums", "playlistsList", val, navlist);
-        renderSubNavigationList("titles", "playlist", val, navlist);
+        $("#navHead").find("span").text(val.header);
+        for (var i = 0; i < val.lists.length; i++) {
+          var list = val.lists[i];
+          if (list) renderSubNavigationList(list, navlist);
+        }
+        navlist.find("h2 a.nav").data("text", val.header).data("search", val.search).text(val.moreText);
       } else {
         renderNavList[val.type](navlist, val.list);
       }
@@ -421,7 +423,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       if (link) {
         e.preventDefault();
         if (bp.settings.openLinksInMiniplayer == e.shiftKey && link != "quicklinks") bp.selectLink(link)
-        else switchView($(this).data("text") || $(this).text(), link);
+        else switchView($(this).data("text") || $(this).text(), link, $(this).data("search"));
       }
     });
 

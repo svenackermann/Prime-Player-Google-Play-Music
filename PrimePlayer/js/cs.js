@@ -286,9 +286,9 @@ $(function() {
       var playlists = [];
       parent.find(".card").slice(0, end).each(function() {
         var card = $(this);
-        var item = {};
         var id = card.data("id");
         if (omitUnknownAlbums && id.charAt(id.length - 1) == "/") return;
+        var item = {};
         item.cover = parseCover(card.find(".image-wrapper img"));
         item.title = $.trim(card.find(".title").text());
         item.titleLink = getLink(card);
@@ -351,6 +351,7 @@ $(function() {
     switch (hash) {
       case "artists":
       case "genres":
+      case "srar":
         return "albumContainers";
       case "now":
       case "albums":
@@ -358,13 +359,14 @@ $(function() {
       case "ar":
       case "sar":
       case "tg":
+      case "sral":
         return "playlistsList";
       default:
         return "playlist";
     }
   }
   
-  function sendNavigationList(link, omitUnknownAlbums) {
+  function sendNavigationList(link, omitUnknownAlbums, search) {
     selectAndExecute(link, function(error) {
       var response = {link: link, list: [], controlLink: location.hash};
       if (error) {
@@ -376,6 +378,7 @@ $(function() {
         if (type == getListType(location.hash.substr(2))) {
           response.type = type;
           response.list = parseNavigationList[type]($("#main"), undefined, omitUnknownAlbums);
+          response.search = search;
         } else {
           response.error = true;
         }
@@ -385,21 +388,30 @@ $(function() {
     });
   }
   
+  function parseSublist(searchView, type, end) {
+    var cont = searchView.children("div[data-type='" + type + "']");
+    if (cont.length == 0) return null;
+    var listType = getListType(type);
+    var list = parseNavigationList[listType](cont, end);
+    if (list.length == null) return null;
+    return {
+      list: list,
+      type: listType,
+      header: $.trim(cont.find(".header .title").text()),
+      moreLink: cont.hasClass("has-more") ? getLink(cont) : null
+    };
+  }
+  
   function sendSearchResult(search) {
     selectAndExecute("sr/" + forHash(search), function() {
-      var response = {type: "searchresult", link: "search", search: search, lists: {}, headers: {}, controlLink: location.hash};
-      response.headers.main = $.trim($("#breadcrumbs").find(".tab-text").text());
+      var response = {type: "searchresult", link: "search", search: search, lists: [], controlLink: location.hash};
+      response.header = $.trim($("#breadcrumbs").find(".tab-text").text());
       var searchView = $("#main .search-view");
-      var artists = searchView.children("div[data-type='srar']");
-      response.lists.artists = parseNavigationList.albumContainers(artists, 5);
-      response.headers.artists = $.trim(artists.find(".header .title").text());
-      var albums = searchView.children("div[data-type='sral']");
-      response.lists.albums = parseNavigationList.playlistsList(albums, 5);
-      response.headers.albums = $.trim(albums.find(".header .title").text());
-      var titles = searchView.children("div[data-type='srs']");
-      response.lists.titles = parseNavigationList.playlist(titles, 10);
-      response.headers.titles = $.trim(titles.find(".header .title").text());
-      response.empty = response.lists.artists.length + response.lists.albums.length + response.lists.titles.length == 0;
+      response.moreText = $.trim(searchView.find("div .header .more").first().text());
+      response.lists.push(parseSublist(searchView, "srar", 5));
+      response.lists.push(parseSublist(searchView, "sral", 5));
+      response.lists.push(parseSublist(searchView, "srs", 10));
+      response.empty = response.lists[0] == null && response.lists[1] == null && response.lists[2] == null;
       post("player-navigationList", response);
     });
   }
@@ -417,7 +429,7 @@ $(function() {
         } else if (msg.link == "search") {
           sendSearchResult(msg.search);
         } else {
-          sendNavigationList(msg.link, msg.omitUnknownAlbums);
+          sendNavigationList(msg.link, msg.omitUnknownAlbums, msg.search);
         }
         break;
       case "selectLink":

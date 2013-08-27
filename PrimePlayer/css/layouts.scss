@@ -4,7 +4,7 @@
  * Licensed under the BSD license
  */
 @mixin colorScheme($color) {
-  #playControls, #time, #volumeBarContainer {
+  #playControls, #time, #volumeBarContainer, #navlist.searchresult > h2 a {
     background-color: $color;
   }
   #timeBar, #volumeBar {
