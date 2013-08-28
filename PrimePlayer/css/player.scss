@@ -140,7 +140,7 @@ a {
   font-weight: bold;
 }
 
-#album {
+#album, .album {
   font-style: italic;
 }
 
@@ -362,7 +362,7 @@ a {
       white-space: nowrap;
       padding-top: 2px;
     }
-    > a.title {
+    > a.album {
       width: 50%;
       &:last-child {
         width: auto;
@@ -402,9 +402,6 @@ a {
       > span.duration {
         width: 6ex;
         text-align: right;
-      }
-      > .album {
-        font-style: italic;
       }
     }
     a[data-rating] {

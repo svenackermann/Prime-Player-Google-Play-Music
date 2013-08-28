@@ -238,7 +238,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         var e = list[i];
         var row = $("<div></div>");
         $("<img></img>").attr("src", e.cover || "img/cover.png").appendTo(row);
-        $("<a href='#' class='title nav'></a>").data("link", e.titleLink).text(e.title).attr("title", e.title).appendTo(row);
+        $("<a href='#' class='album nav'></a>").data("link", e.titleLink).text(e.title).attr("title", e.title).appendTo(row);
         if (e.subTitleLink) {
           $("<a href='#' class='nav'></a>").data("link", e.subTitleLink).text(e.subTitle).attr("title", e.subTitle).appendTo(row);
         } else if (e.subTitle) {
