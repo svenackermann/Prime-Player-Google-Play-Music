@@ -135,7 +135,9 @@ $(function() {
     function ratingGetter(el) {
       //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
       if (listRatings) $("#main .song-row td[data-col='rating']").trigger("DOMSubtreeModified");
-      return parseRating($(el.parentElement).find("li.selected").data("rating"));
+      var container = $(el.parentElement);
+      if (container.is(":visible")) return parseRating(container.children("li.selected").data("rating"));
+      return -1;
     }
     
     function mainLoaded() {
