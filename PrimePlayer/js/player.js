@@ -276,11 +276,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
         }
         if (e.albumLink) {
           if (e.albumLink != currentNavList.link) {
-            $("<a href='#' class='nav'></a>").data("link", e.albumLink).text(e.album).attr("title", e.album).appendTo(info);
+            $("<a href='#' class='album nav'></a>").data("link", e.albumLink).text(e.album).attr("title", e.album).appendTo(info);
             noAlbum = false;
           }
         } else if (e.album) {
-          $("<span></span>").text(e.album).attr("title", e.album).appendTo(info);
+          $("<span class='album'></span>").text(e.album).attr("title", e.album).appendTo(info);
           noAlbum = false;
         }
         row.append(info);
