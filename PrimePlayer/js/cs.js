@@ -409,7 +409,7 @@ $(function() {
       response.header = $.trim($("#breadcrumbs").find(".tab-text").text());
       var searchView = $("#main .search-view");
       response.moreText = $.trim(searchView.find("div .header .more").first().text());
-      response.lists.push(parseSublist(searchView, "srar", 5));
+      response.lists.push(parseSublist(searchView, "srar", 6));
       response.lists.push(parseSublist(searchView, "sral", 5));
       response.lists.push(parseSublist(searchView, "srs", 10));
       response.empty = response.lists[0] == null && response.lists[1] == null && response.lists[2] == null;
