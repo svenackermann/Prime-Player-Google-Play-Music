@@ -20,6 +20,10 @@ $(function() {
     }
   }
   
+  function forHash(text) {
+    return encodeURIComponent(text).replace(/%20/g, "+");
+  }
+  
   /** @return link (for hash) constructed from attributes data-type and data-id */
   function getLink(el) {
     if (el.data("id")) {
@@ -104,9 +108,8 @@ $(function() {
     post("player-quicklinks", ql);
     
     function sendSong() {
-      var hasSong = $("#playerSongInfo").find("div").length > 0;
       var info = null;
-      if (hasSong) {
+      if ($("#playerSongInfo").find("div").length > 0) {
         var artist = $("#player-artist");
         var album = $("#playerSongInfo").find(".player-album");
         var cover = parseCover($("#playingAlbumArt"));
@@ -114,7 +117,7 @@ $(function() {
           duration: $.trim($("#time_container_duration").text()),
           title: $.trim($("#playerSongTitle").text()),
           artist: $.trim(artist.text()),
-          artistLink: getLink(artist),
+          artistLink: getLink(artist) || "ar/" + forHash($.trim(artist.text())),
           album: $.trim(album.text()),
           albumLink: getLink(album),
           cover: cover
@@ -277,10 +280,6 @@ $(function() {
         location.hash = "/" + hash;
       }
     }
-  }
-  
-  function forHash(text) {
-    return encodeURIComponent(text).replace(/%20/g, "+");
   }
   
   var parseNavigationList = {
