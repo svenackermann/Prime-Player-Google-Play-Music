@@ -23,6 +23,12 @@
   #navHead, #navlist.searchresult > h2 {
     color: darken($color, 10%);
   }
+  #navlistContainer .playlist > div.current {
+    outline: 1px solid $color;
+  }
+  .playing #navlistContainer .playlist > div.current {
+    outline-color: lighten($color, 20%);
+  }
 }
 
 .color-turq {
