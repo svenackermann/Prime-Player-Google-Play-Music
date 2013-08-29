@@ -314,7 +314,8 @@ $(function() {
         if (item.artist) item.artistLink = "ar/" + forHash(item.artist);
         var album = song.find("td[data-col='album']");
         item.album = $.trim(album.find(".content").text());
-        if (item.album) item.albumLink = "album//" + forHash(album.data("album-artist")) + "/" + forHash(item.album);
+        var alAr = album.data("album-artist");
+        if (item.album && alAr) item.albumLink = "album//" + forHash(alAr) + "/" + forHash(item.album);
         var duration = $.trim(song.find("td[data-col='duration']").text());
         if (/^\d\d?(\:\d\d)*$/.test(duration)) item.duration = duration;//no real duration on recommandation page
         item.rating = parseRating(song.find("td[data-col='rating']").data("rating"));
