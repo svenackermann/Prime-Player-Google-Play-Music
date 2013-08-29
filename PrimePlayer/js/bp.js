@@ -856,7 +856,7 @@ song.addListener("position", function(val) {
     calcScrobbleTime();
     song.timestamp = Math.round(new Date().getTime() / 1000);
   }
-  if (player.playing && song.info && song.positionSec >= 3 && isScrobblingEnabled()) {
+  if (song.info && song.positionSec >= 3 && isScrobblingEnabled()) {
     if (!song.nowPlayingSent) {
       song.nowPlayingSent = true;
       sendNowPlaying();
@@ -869,7 +869,6 @@ song.addListener("position", function(val) {
 });
 song.addListener("info", function(val, old) {
   song.toasted = false;
-  song.ff = false;
   if (val) {
     song.info.durationSec = parseSeconds(val.duration);
     if (player.playing) toastPopup();
@@ -910,17 +909,16 @@ function reloadForUpdate() {
 if (localStorage["updateBackup"] != null) {
   var updateBackup = JSON.parse(localStorage["updateBackup"]);
   localStorage.removeItem("updateBackup");
+  song.nowPlayingSent = updateBackup.nowPlayingSent;
+  song.scrobbled = updateBackup.scrobbled;
+  song.timestamp = updateBackup.songTimestamp;
   song.positionSec = parseSeconds(updateBackup.songPosition);
   song.position = updateBackup.songPosition;
   song.ff = updateBackup.songFf;
   song.info = updateBackup.songInfo;
-  song.nowPlayingSent = updateBackup.nowPlayingSent;
-  song.scrobbled = updateBackup.scrobbled;
   song.toasted = updateBackup.toasted;
-  song.timestamp = updateBackup.songTimestamp;
   volumeBeforeMute = updateBackup.volumeBeforeMute;
   if (updateBackup.miniplayerOpen) openMiniplayer();
-  updateBackup = null;
 }
 
 function setVolume(percent) {

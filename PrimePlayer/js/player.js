@@ -118,16 +118,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
   
   function hideSearchfieldWatcher(val) {
     $("#nav").toggleClass("searchField", !val);
-    $(window).off("keyup");
-    if (!bp.settings.hideSearchfield) {
-      $(window).keyup(function(e) {
-        var inp = $("#navHead > input");
-        if (e.keyCode == 81 && !inp.is(":focus") && !inp.is(":disabled")) {
-          if (!inp.is(":visible")) switchView(chrome.i18n.getMessage("quicklinks"), "quicklinks");
-          $("#navHead > input").focus();
-        }
-      });
-    }
   }
 
   function updateClickLink(target, link) {
@@ -248,7 +238,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         var e = list[i];
         var row = $("<div></div>");
         $("<img></img>").attr("src", e.cover || "img/cover.png").appendTo(row);
-        $("<a href='#' class='title nav'></a>").data("link", e.titleLink).text(e.title).attr("title", e.title).appendTo(row);
+        $("<a href='#' class='album nav'></a>").data("link", e.titleLink).text(e.title).attr("title", e.title).appendTo(row);
         if (e.subTitleLink) {
           $("<a href='#' class='nav'></a>").data("link", e.subTitleLink).text(e.subTitle).attr("title", e.subTitle).appendTo(row);
         } else if (e.subTitle) {
@@ -286,11 +276,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
         }
         if (e.albumLink) {
           if (e.albumLink != currentNavList.link) {
-            $("<a href='#' class='nav'></a>").data("link", e.albumLink).text(e.album).attr("title", e.album).appendTo(info);
+            $("<a href='#' class='album nav'></a>").data("link", e.albumLink).text(e.album).attr("title", e.album).appendTo(info);
             noAlbum = false;
           }
         } else if (e.album) {
-          $("<span></span>").text(e.album).attr("title", e.album).appendTo(info);
+          $("<span class='album'></span>").text(e.album).attr("title", e.album).appendTo(info);
           noAlbum = false;
         }
         row.append(info);
@@ -434,6 +424,18 @@ chrome.runtime.getBackgroundPage(function(bp) {
         e.preventDefault();
         if (bp.settings.openLinksInMiniplayer == e.shiftKey && link != "quicklinks") bp.selectLink(link)
         else switchView($(this).data("text") || $(this).text(), link, $(this).data("search"));
+      }
+    });
+    
+    $(window).keyup(function(e) {
+      if (e.keyCode == 27 && !$("#player").is(":visible")) {
+        restorePlayer();
+      } else if (e.keyCode == 81 && !bp.settings.hideSearchfield) {
+        var inp = $("#navHead > input");
+        if (!inp.is(":focus") && !inp.is(":disabled")) {
+          if (!inp.is(":visible")) switchView(chrome.i18n.getMessage("quicklinks"), "quicklinks");
+          $("#navHead > input").focus();
+        }
       }
     });
 

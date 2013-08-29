@@ -23,6 +23,12 @@
   #navHead, #navlist.searchresult > h2 {
     color: darken($color, 10%);
   }
+  #navlistContainer .playlist > div.current {
+    outline: 1px solid $color;
+  }
+  .playing #navlistContainer .playlist > div.current {
+    outline-color: lighten($color, 20%);
+  }
 }
 
 .color-turq {
@@ -291,7 +297,7 @@
       left: 46px;
     }
     #song, #nosong {
-      top: 61px;
+      top: 57px;
       left: -44px;
       margin-right: -44px;
     }
@@ -304,7 +310,7 @@
   }
   #song, #nosong {
     position: relative;
-    top: 85px;
+    top: 81px;
     left: -68px;
     margin-right: -68px;
     overflow: visible;
@@ -314,9 +320,15 @@
     height: 13px;
     overflow: hidden;
   }
+  #time {
+    height: 11px;
+  }
   #currentTime, #songTime {
     font-size: 8px;
     min-width: 4ex;
+  }
+  #timeBarHolder {
+    margin-top: 2px;
   }
   #volumeBarContainer {
     top: 20px;

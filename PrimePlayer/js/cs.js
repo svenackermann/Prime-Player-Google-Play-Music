@@ -20,6 +20,10 @@ $(function() {
     }
   }
   
+  function forHash(text) {
+    return encodeURIComponent(text).replace(/%20/g, "+");
+  }
+  
   /** @return link (for hash) constructed from attributes data-type and data-id */
   function getLink(el) {
     if (el.data("id")) {
@@ -104,9 +108,8 @@ $(function() {
     post("player-quicklinks", ql);
     
     function sendSong() {
-      var hasSong = $("#playerSongInfo").find("div").length > 0;
       var info = null;
-      if (hasSong) {
+      if ($("#playerSongInfo").find("div").length > 0) {
         var artist = $("#player-artist");
         var album = $("#playerSongInfo").find(".player-album");
         var cover = parseCover($("#playingAlbumArt"));
@@ -114,7 +117,7 @@ $(function() {
           duration: $.trim($("#time_container_duration").text()),
           title: $.trim($("#playerSongTitle").text()),
           artist: $.trim(artist.text()),
-          artistLink: getLink(artist),
+          artistLink: getLink(artist) || "ar/" + forHash($.trim(artist.text())),
           album: $.trim(album.text()),
           albumLink: getLink(album),
           cover: cover
@@ -135,7 +138,9 @@ $(function() {
     function ratingGetter(el) {
       //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
       if (listRatings) $("#main .song-row td[data-col='rating']").trigger("DOMSubtreeModified");
-      return parseRating($(el.parentElement).find("li.selected").data("rating"));
+      var container = $(el.parentElement);
+      if (container.is(":visible")) return parseRating(container.children("li.selected").data("rating"));
+      return -1;
     }
     
     function mainLoaded() {
@@ -277,10 +282,6 @@ $(function() {
     }
   }
   
-  function forHash(text) {
-    return encodeURIComponent(text).replace(/%20/g, "+");
-  }
-  
   var parseNavigationList = {
     playlistsList: function(parent, end, omitUnknownAlbums) {
       var playlists = [];
@@ -313,7 +314,8 @@ $(function() {
         if (item.artist) item.artistLink = "ar/" + forHash(item.artist);
         var album = song.find("td[data-col='album']");
         item.album = $.trim(album.find(".content").text());
-        if (item.album) item.albumLink = "album//" + forHash(album.data("album-artist")) + "/" + forHash(item.album);
+        var alAr = album.data("album-artist");
+        if (item.album && alAr) item.albumLink = "album//" + forHash(alAr) + "/" + forHash(item.album);
         var duration = $.trim(song.find("td[data-col='duration']").text());
         if (/^\d\d?(\:\d\d)*$/.test(duration)) item.duration = duration;//no real duration on recommandation page
         item.rating = parseRating(song.find("td[data-col='rating']").data("rating"));
@@ -408,7 +410,7 @@ $(function() {
       response.header = $.trim($("#breadcrumbs").find(".tab-text").text());
       var searchView = $("#main .search-view");
       response.moreText = $.trim(searchView.find("div .header .more").first().text());
-      response.lists.push(parseSublist(searchView, "srar", 5));
+      response.lists.push(parseSublist(searchView, "srar", 6));
       response.lists.push(parseSublist(searchView, "sral", 5));
       response.lists.push(parseSublist(searchView, "srs", 10));
       response.empty = response.lists[0] == null && response.lists[1] == null && response.lists[2] == null;
