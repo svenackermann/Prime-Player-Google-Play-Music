@@ -76,6 +76,7 @@ var previousVersion = localStorage["previousVersion"];
 var volumeBeforeMute;
 /** the link of navigation list to load when Google Music has just connected (if any) */
 var loadNavlistLink;
+var loadNavlistSearch;
 
 /** the song currently loaded */
 var SONG_DEFAULTS = {
@@ -251,17 +252,19 @@ function postToGooglemusic(msg) {
 }
 
 /** Load the navigation list identified by 'loadNavlistLink'. If not connected, open a Google Music tab and try again. */
-function loadNavlistIfConnected(search) {
+function loadNavlistIfConnected() {
   if (!loadNavlistLink) return;
   if (player.connected) {
-    postToGooglemusic({type: "getNavigationList", link: loadNavlistLink, search: search, omitUnknownAlbums: loadNavlistLink == "albums" && settings.omitUnknownAlbums});
+    postToGooglemusic({type: "getNavigationList", link: loadNavlistLink, search: loadNavlistSearch, omitUnknownAlbums: loadNavlistLink == "albums" && settings.omitUnknownAlbums});
     loadNavlistLink = null;
+    loadNavlistSearch = null;
   } else openGoogleMusicTab(loadNavlistLink);//when connected, we get triggered again
 }
 
 function loadNavigationList(link, search) {
   loadNavlistLink = link;
-  loadNavlistIfConnected(search);
+  loadNavlistSearch = search;
+  loadNavlistIfConnected();
 }
 
 function selectLink(link) {
