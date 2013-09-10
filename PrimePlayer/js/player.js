@@ -206,7 +206,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function connectedWatcher(val) {
     $("body").toggleClass("connected", val);
-    $("#navHead > input").attr("disabled", !val);
     if (!val) {
       restorePlayer();
     }
