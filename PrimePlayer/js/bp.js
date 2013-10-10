@@ -89,7 +89,7 @@ var SONG_DEFAULTS = {
   scrobbled: false,
   toasted: false,
   scrobbleTime: -1,
-  timestamp: 0,
+  timestamp: null,
   ff: false
 };
 var song = new Bean(SONG_DEFAULTS);
@@ -853,20 +853,22 @@ song.addListener("position", function(val) {
     song.ff = false;
     if (settings.disableScrobbleOnFf) calcScrobbleTime();
   }
-  if (song.positionSec == 0) {//new song, repeat single or rewinded
-    song.nowPlayingSent = false;
-    song.scrobbled = false;
-    calcScrobbleTime();
-    song.timestamp = Math.round(new Date().getTime() / 1000);
-  }
-  if (song.info && song.positionSec >= 3 && isScrobblingEnabled()) {
-    if (!song.nowPlayingSent) {
-      song.nowPlayingSent = true;
-      sendNowPlaying();
+  if (song.info) {
+    if (song.positionSec == 2) {//new song, repeat single or rewinded
+      song.nowPlayingSent = false;
+      song.scrobbled = false;
+      calcScrobbleTime();
+      song.timestamp = Math.round(new Date().getTime() / 1000) - 2;
     }
-    if (!song.scrobbled && song.scrobbleTime >= 0 && song.positionSec >= song.scrobbleTime) {
-      song.scrobbled = true;
-      scrobble();
+    if (song.positionSec >= 3 && isScrobblingEnabled()) {
+      if (!song.nowPlayingSent) {
+        song.nowPlayingSent = true;
+        sendNowPlaying();
+      }
+      if (!song.scrobbled && song.scrobbleTime >= 0 && song.positionSec >= song.scrobbleTime) {
+        song.scrobbled = true;
+        scrobble();
+      }
     }
   }
 });
@@ -877,10 +879,12 @@ song.addListener("info", function(val, old) {
     if (player.playing) toastPopup();
     if (!settings.hideRatings) getLovedInfo();
   } else {
-    song.timestamp = 0;
+    song.timestamp = null;
     closeToast();
     song.loved = null;
   }
+  song.nowPlayingSent = false;
+  song.scrobbled = false;
   updateBrowserActionInfo();
   calcScrobbleTime();
 });
@@ -891,10 +895,10 @@ function reloadForUpdate() {
   backup.nowPlayingSent = song.nowPlayingSent;
   backup.scrobbled = song.scrobbled;
   backup.toasted = song.toasted;
-  backup.songTimestamp = song.timestamp;
   backup.songFf = song.ff;
   backup.songPosition = song.position;
   backup.songInfo = song.info;
+  backup.songTimestamp = song.timestamp;
   backup.volumeBeforeMute = volumeBeforeMute;
   localStorage["updateBackup"] = JSON.stringify(backup);
   //sometimes the onDisconnect listener in the content script is not triggered on reload(), so explicitely disconnect here
