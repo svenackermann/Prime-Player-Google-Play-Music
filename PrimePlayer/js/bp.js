@@ -390,7 +390,7 @@ function scrobble() {
       },
       error: function(code) {
         console.debug("Error on scrobbling '" + params.track + "': " + code);
-        if (code == 16 || code == 9 || code == -1) cacheForLaterScrobbling(cloned);
+        if (code == 16 || code == 11 || code == 9 || code == -1) cacheForLaterScrobbling(cloned);
         gaEvent("LastFM", "ScrobbleError-" + code);
       }
     }
