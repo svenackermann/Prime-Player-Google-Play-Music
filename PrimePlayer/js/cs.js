@@ -358,10 +358,11 @@ $(function() {
       case "now":
       case "albums":
       case "rd":
-      case "ar":
+      case "artist":
       case "sar":
       case "tg":
       case "sral":
+      case "ar":
         return "playlistsList";
       default:
         return "playlist";
