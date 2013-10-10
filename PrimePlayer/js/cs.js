@@ -358,10 +358,11 @@ $(function() {
       case "now":
       case "albums":
       case "rd":
-      case "ar":
+      case "artist":
       case "sar":
       case "tg":
       case "sral":
+      case "ar":
         return "playlistsList";
       default:
         return "playlist";
@@ -409,7 +410,7 @@ $(function() {
       var response = {type: "searchresult", link: "search", search: search, lists: [], controlLink: location.hash};
       response.header = $.trim($("#breadcrumbs").find(".tab-text").text());
       var searchView = $("#main .search-view");
-      response.moreText = $.trim(searchView.find("div .header .more").first().text());
+      response.moreText = $.trim(searchView.find("div .header .more:visible").first().text());
       response.lists.push(parseSublist(searchView, "srar", 6));
       response.lists.push(parseSublist(searchView, "sral", 5));
       response.lists.push(parseSublist(searchView, "srs", 10));

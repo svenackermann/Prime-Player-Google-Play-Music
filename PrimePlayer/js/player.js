@@ -392,8 +392,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function updateNavHead(title) {
     var backHint = navHistory.length > 0 ? chrome.i18n.getMessage("backToLink", navHistory[navHistory.length - 1].title) : chrome.i18n.getMessage("backToPlayer");
-    $("#navHead").find(".back").attr("title", backHint);
-    $("#navHead").find("span").text(title);
+    $("#navHead").find(".back").attr("title", backHint).end().find("span").text(title);
   }
   
   function setupNavigationEvents() {
@@ -492,19 +491,17 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function songLovedWatcher(loved) {
-    $("#lastfmRating").removeClass("loved notloved error");
+    var rat = $("#lastfmRating").removeClass("loved notloved error");
+    var a = rat.find("a").unbind();
     if (typeof(loved) == "string") {
-      $("#lastfmRating").addClass("error")
-        .find("a").attr("title", chrome.i18n.getMessage("lastfmError") + loved)
-        .unbind().click(bp.getLovedInfo);
+      rat.addClass("error");
+      a.attr("title", chrome.i18n.getMessage("lastfmError") + loved).click(bp.getLovedInfo);
     } else if (loved === true) {
-      $("#lastfmRating").addClass("loved")
-        .find("a").attr("title", chrome.i18n.getMessage("lastfmUnlove"))
-        .unbind().click(bp.unloveTrack);
+      rat.addClass("loved");
+      a.attr("title", chrome.i18n.getMessage("lastfmUnlove")).click(bp.unloveTrack);
     } else if (loved === false) {
-      $("#lastfmRating").addClass("notloved")
-        .find("a").attr("title", chrome.i18n.getMessage("lastfmLove"))
-        .unbind().click(bp.loveTrack);
+      rat.addClass("notloved");
+      a.attr("title", chrome.i18n.getMessage("lastfmLove")).click(bp.loveTrack);
     }
   }
 
@@ -544,7 +541,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       .attr("title", chrome.i18n.getMessage("openMiniplayer"));
 
     $("#nosong").children("a:first-child").text(chrome.i18n.getMessage("nothingPlaying"))
-      .parent().children("a:last-child")
+      .end().children("a:last-child")
         .click(bp.openGoogleMusicTab)
         .text(chrome.i18n.getMessage("gotoGmusic"));
 
