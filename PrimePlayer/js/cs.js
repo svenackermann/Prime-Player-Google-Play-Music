@@ -290,9 +290,10 @@ $(function() {
         var id = card.data("id");
         if (omitUnknownAlbums && id.charAt(id.length - 1) == "/") return;
         var item = {};
+        item.titleLink = getLink(card);
+        if (item.titleLink == null) return;
         item.cover = parseCover(card.find(".image-wrapper img"));
         item.title = $.trim(card.find(".title").text());
-        item.titleLink = getLink(card);
         var subTitle = card.find(".sub-title");
         item.subTitle = $.trim(subTitle.text());
         item.subTitleLink = getLink(subTitle);
