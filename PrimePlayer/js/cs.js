@@ -191,7 +191,7 @@ $(function() {
     $("#main").on("DOMSubtreeModified", ".song-row td[data-col='rating']", function() {
       if (listRatings) {
         var rating = parseRating(this.dataset.rating);
-        var index = $.inArray(this.parentNode, this.parentNode.parentNode.children);
+        var index = $(this.parentNode).data("index");
         if (listRatings[index] != rating) {
           listRatings[index] = rating;
           post("player-listrating", {index: index, rating: rating, controlLink: location.hash});
