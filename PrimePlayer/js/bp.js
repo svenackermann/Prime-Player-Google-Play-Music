@@ -44,6 +44,8 @@ var SETTINGS_DEFAULTS = {
   hideSearchfield: false,
   hideRatings: false,
   omitUnknownAlbums: false,
+  mpAutoOpen: false,
+  mpAutoClose: false,
   iconStyle: "default",
   iconClickMiniplayer: false,
   iconClickConnect: false,
@@ -798,6 +800,14 @@ function connectGoogleMusicTabs() {
   });
 }
 
+function openMpOnPlaying(playing) {
+  if (playing && miniplayer == null) openMiniplayer();
+}
+
+function closeMpOnDisconnect(connected) {
+  if (!connected && miniplayer) chrome.windows.remove(miniplayer.id);
+}
+
 settings.watch("updateNotifier", function(val) {
   if (val) chrome.runtime.onInstalled.addListener(updatedListener)
   else chrome.runtime.onInstalled.removeListener(updatedListener);
@@ -832,6 +842,14 @@ settings.addListener("disableScrobbleOnFf", calcScrobbleTime);
 settings.watch("iconStyle", updateBrowserActionInfo);
 settings.addListener("connectedIndicator", function(val) {
   postToGooglemusic({type: "connectedIndicator", show: val});
+});
+settings.watch("mpAutoOpen", function(val) {
+  if (val) player.watch("playing", openMpOnPlaying);
+  else player.removeListener("playing", openMpOnPlaying);
+});
+settings.watch("mpAutoClose", function(val) {
+  if (val) player.addListener("connected", closeMpOnDisconnect);
+  else player.removeListener("connected", closeMpOnDisconnect);
 });
 
 localSettings.watch("syncSettings", function(val) {

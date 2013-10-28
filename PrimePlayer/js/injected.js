@@ -29,36 +29,52 @@
     }
   }
   
-  function getPlaylistCols(controlLink, index) {
-    if (location.hash != controlLink) return [];
-    var row = document.getElementsByClassName("song-row")[index];
-    if (row) return row.getElementsByTagName("td");
-    return [];
+  function withPlaylistCols(controlLink, index, callback) {
+    if (location.hash != controlLink) return;
+    var tbody = document.getElementsByClassName("song-table")[0];
+    if (tbody == null) return;
+    tbody = tbody.getElementsByTagName("tbody")[0];
+    if (index > tbody.dataset.count - 1) return;
+    function callForRow() {
+      var rows = document.getElementsByClassName("song-row");
+      var scrollToRow;
+      if (tbody.dataset.startIndex > index) scrollToRow = rows[0];
+      else if (tbody.dataset.endIndex - 1 < index) scrollToRow = rows[rows.length - 1];
+      if (scrollToRow) {
+        scrollToRow.scrollIntoView(true);
+        setTimeout(callForRow, 150);
+      } else {
+        callback(rows[index - tbody.dataset.startIndex].getElementsByTagName("td"));
+      }
+    }
+    callForRow();
   }
   
   function startPlaylistSong(controlLink, index) {
-    var col = getPlaylistCols(controlLink, index)[0];
-    if (col) {
-      var span = col.getElementsByClassName("content")[0];
-      dispatchMouseEvent(span, "mouseover");
-      setTimeout(function() {
-        simClick(span.getElementsByClassName("hover-button")[0]);
-      }, 250);
-    }
+    withPlaylistCols(controlLink, index, function(cols) {
+      if (cols[0]) {
+        var span = cols[0].getElementsByClassName("content")[0];
+        dispatchMouseEvent(span, "mouseover");
+        setTimeout(function() {
+          simClick(span.getElementsByClassName("hover-button")[0]);
+        }, 250);
+      }
+    });
   }
   
   function ratePlaylistSong(controlLink, index, rating) {
-    var cols = getPlaylistCols(controlLink, index);
-    for (var i = cols.length - 1; i >= 0; i--) {
-      if (cols[i].dataset.col == "rating") {
-        dispatchMouseEvent(cols[i], "mouseover");
-        setTimeout(function() {
-          rate(cols[i], rating);
-          window.postMessage({ type: "FROM_PRIMEPLAYER_INJECTED", msg: "playlistSongRated", index: index }, location.href);
-        }, 250);
-        return;
+    withPlaylistCols(controlLink, index, function(cols) {
+      for (var i = cols.length - 1; i >= 0; i--) {
+        if (cols[i].dataset.col == "rating") {
+          dispatchMouseEvent(cols[i], "mouseover");
+          setTimeout(function() {
+            rate(cols[i], rating);
+            window.postMessage({ type: "FROM_PRIMEPLAYER_INJECTED", msg: "playlistSongRated", index: index }, location.href);
+          }, 250);
+          return;
+        }
       }
-    }
+    });
   }
   
   function rate(parent, rating) {
