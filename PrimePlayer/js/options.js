@@ -204,6 +204,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("hideRatings");
     initCheckbox("omitUnknownAlbums");
     initHint("omitUnknownAlbums");
+    initCheckbox("mpAutoOpen");
+    initCheckbox("mpAutoClose");
     
     initIconStyle();
     initCheckbox("iconClickMiniplayer");

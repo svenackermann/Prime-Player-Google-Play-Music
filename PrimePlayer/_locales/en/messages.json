@@ -231,6 +231,12 @@
   "setting_omitUnknownAlbumsHint": {
     "message": "Google shows songs of an artist without album as 'Unknown Album' in the albums list. With this option enabled, those 'pseudo' albums will be hidden in the album list of the miniplayer."
   },
+  "setting_mpAutoOpen": {
+    "message": "Automatically open miniplayer, when music starts playing"
+  },
+  "setting_mpAutoClose": {
+    "message": "Automatically close miniplayer, when Google Music is closed"
+  },
   "updateNotifierTitle": {
     "message": "Prime Player Updated"
   },
