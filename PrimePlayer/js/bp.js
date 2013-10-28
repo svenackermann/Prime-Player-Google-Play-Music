@@ -74,6 +74,8 @@ var viewUpdateNotifier = localStorage["viewUpdateNotifier"] || false;
 var previousVersion = localStorage["previousVersion"];
 /** the volume before mute for restoring */
 var volumeBeforeMute;
+/** true, if the position came from update backup data, needed to not set ff by mistake */
+var positionFromBackup = false;
 /** the link of navigation list to load when Google Music has just connected (if any) */
 var loadNavlistLink;
 var loadNavlistSearch;
@@ -842,17 +844,62 @@ localSettings.addListener("lastfmSessionName", calcScrobbleTime);
 player.addListener("playing", updateBrowserActionInfo);
 player.addListener("connected", updateBrowserActionInfo);
 player.addListener("connected", loadNavlistIfConnected);
+
+function reloadForUpdate() {
+  var backup = {};
+  backup.miniplayerOpen = miniplayer != null;
+  backup.nowPlayingSent = song.nowPlayingSent;
+  backup.scrobbled = song.scrobbled;
+  backup.toasted = song.toasted;
+  backup.songFf = song.ff;
+  backup.songPosition = song.position;
+  backup.songInfo = song.info;
+  backup.songTimestamp = song.timestamp;
+  backup.loved = song.loved;
+  backup.volumeBeforeMute = volumeBeforeMute;
+  localStorage["updateBackup"] = JSON.stringify(backup);
+  //sometimes the onDisconnect listener in the content script is not triggered on reload(), so explicitely disconnect here
+  if (googlemusicport) {
+    googlemusicport.onDisconnect.removeListener(onDisconnectListener);
+    googlemusicport.disconnect();
+  }
+  for (var i = 0; i < parkedPorts.length; i++) {
+    parkedPorts[i].onDisconnect.removeListener(removeParkedPort);
+    parkedPorts[i].disconnect();
+  }
+  setTimeout(function() { chrome.runtime.reload(); }, 1000);//wait a second til port cleanup is finished
+}
+
+if (localStorage["updateBackup"] != null) {
+  var updateBackup = JSON.parse(localStorage["updateBackup"]);
+  localStorage.removeItem("updateBackup");
+  song.timestamp = updateBackup.songTimestamp;
+  song.toasted = updateBackup.toasted;
+  song.info = updateBackup.songInfo;
+  song.positionSec = parseSeconds(updateBackup.songPosition);
+  song.position = updateBackup.songPosition;
+  song.nowPlayingSent = updateBackup.nowPlayingSent;
+  song.scrobbled = updateBackup.scrobbled;
+  song.ff = updateBackup.songFf;
+  song.loved = updateBackup.loved;
+  positionFromBackup = true;
+  calcScrobbleTime();
+  volumeBeforeMute = updateBackup.volumeBeforeMute;
+  if (updateBackup.miniplayerOpen) openMiniplayer();
+}
+
 song.addListener("scrobbled", updateBrowserActionInfo);
 song.addListener("position", function(val) {
   var oldPos = song.positionSec;
   song.positionSec = parseSeconds(val);
-  if (!song.ff && song.positionSec > oldPos + 5) {
+  if (!positionFromBackup && !song.ff && song.positionSec > oldPos + 5) {
     song.ff = true;
     if (settings.disableScrobbleOnFf && !song.scrobbled) song.scrobbleTime = -1;
   } else if (song.ff && song.positionSec <= 5) {//prev pressed or gone back
     song.ff = false;
     if (settings.disableScrobbleOnFf) calcScrobbleTime();
   }
+  positionFromBackup = false;
   if (song.info) {
     if (song.positionSec == 2) {//new song, repeat single or rewinded
       song.nowPlayingSent = false;
@@ -874,6 +921,9 @@ song.addListener("position", function(val) {
 });
 song.addListener("info", function(val, old) {
   song.toasted = false;
+  song.nowPlayingSent = false;
+  song.scrobbled = false;
+  positionFromBackup = false;
   if (val) {
     song.info.durationSec = parseSeconds(val.duration);
     if (player.playing) toastPopup();
@@ -883,50 +933,9 @@ song.addListener("info", function(val, old) {
     closeToast();
     song.loved = null;
   }
-  song.nowPlayingSent = false;
-  song.scrobbled = false;
   updateBrowserActionInfo();
   calcScrobbleTime();
 });
-
-function reloadForUpdate() {
-  var backup = {};
-  backup.miniplayerOpen = miniplayer != null;
-  backup.nowPlayingSent = song.nowPlayingSent;
-  backup.scrobbled = song.scrobbled;
-  backup.toasted = song.toasted;
-  backup.songFf = song.ff;
-  backup.songPosition = song.position;
-  backup.songInfo = song.info;
-  backup.songTimestamp = song.timestamp;
-  backup.volumeBeforeMute = volumeBeforeMute;
-  localStorage["updateBackup"] = JSON.stringify(backup);
-  //sometimes the onDisconnect listener in the content script is not triggered on reload(), so explicitely disconnect here
-  if (googlemusicport) {
-    googlemusicport.onDisconnect.removeListener(onDisconnectListener);
-    googlemusicport.disconnect();
-  }
-  for (var i = 0; i < parkedPorts.length; i++) {
-    parkedPorts[i].onDisconnect.removeListener(removeParkedPort);
-    parkedPorts[i].disconnect();
-  }
-  setTimeout(function() { chrome.runtime.reload(); }, 1000);//wait a second til port cleanup is finished
-}
-
-if (localStorage["updateBackup"] != null) {
-  var updateBackup = JSON.parse(localStorage["updateBackup"]);
-  localStorage.removeItem("updateBackup");
-  song.nowPlayingSent = updateBackup.nowPlayingSent;
-  song.scrobbled = updateBackup.scrobbled;
-  song.timestamp = updateBackup.songTimestamp;
-  song.positionSec = parseSeconds(updateBackup.songPosition);
-  song.position = updateBackup.songPosition;
-  song.ff = updateBackup.songFf;
-  song.info = updateBackup.songInfo;
-  song.toasted = updateBackup.toasted;
-  volumeBeforeMute = updateBackup.volumeBeforeMute;
-  if (updateBackup.miniplayerOpen) openMiniplayer();
-}
 
 function setVolume(percent) {
   executeInGoogleMusic("setVolume", {percent: percent});
