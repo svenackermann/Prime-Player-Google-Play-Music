@@ -222,8 +222,7 @@ $(function() {
     if (event.source != window || event.data.type != "FROM_PRIMEPLAYER_INJECTED") return;
     switch (event.data.msg) {
       case "playlistSongRated":
-        var row = $("#main .song-row").get(event.data.index);
-        $(row).find("td[data-col='rating']").trigger("DOMSubtreeModified");
+        $("#main .song-row[data-index='" + event.data.index + "']").find("td[data-col='rating']").trigger("DOMSubtreeModified");
         break;
     }
   }
@@ -283,7 +282,7 @@ $(function() {
   }
   
   var parseNavigationList = {
-    playlistsList: function(parent, end, omitUnknownAlbums) {
+    playlistsList: function(parent, end, callback, omitUnknownAlbums) {
       var playlists = [];
       parent.find(".card").slice(0, end).each(function() {
         var card = $(this);
@@ -299,33 +298,47 @@ $(function() {
         item.subTitleLink = getLink(subTitle);
         playlists.push(item);
       });
-      return playlists;
+      callback(playlists);
     },
-    playlist: function(parent, end) {
+    playlist: function(parent, end, callback) {
       var playlist = [];
       listRatings = [];
-      parent.find(".song-row").slice(0, end).each(function() {
-        var song = $(this);
-        var item = {};
-        var title = song.find("td[data-col='title'] .content");
-        item.cover = parseCover(title.find("img"));
-        item.title = $.trim(title.text());
-        if (song.find(".song-indicator").length > 0) item.current = true;
-        item.artist = $.trim(song.find("td[data-col='artist'] .content").text());
-        if (item.artist) item.artistLink = "ar/" + forHash(item.artist);
-        var album = song.find("td[data-col='album']");
-        item.album = $.trim(album.find(".content").text());
-        var alAr = album.data("album-artist");
-        if (item.album && alAr) item.albumLink = "album//" + forHash(alAr) + "/" + forHash(item.album);
-        var duration = $.trim(song.find("td[data-col='duration']").text());
-        if (/^\d\d?(\:\d\d)*$/.test(duration)) item.duration = duration;//no real duration on recommandation page
-        item.rating = parseRating(song.find("td[data-col='rating']").data("rating"));
-        listRatings.push(item.rating);
-        playlist.push(item);
-      });
-      return playlist;
+      var count = parent.find(".song-row").parent().data("count");
+      function loadNextSongs() {
+        //scroll to last needed song row to trigger lazy loading
+        var lastLoaded = null;
+        parent.find(".song-row").slice(0, end).each(function() {
+          var song = $(this);
+          if (song.data("index") < playlist.length) return;
+          lastLoaded = this;
+          var item = {};
+          var title = song.find("td[data-col='title'] .content");
+          item.cover = parseCover(title.find("img"));
+          item.title = $.trim(title.text());
+          if (song.find(".song-indicator").length > 0) item.current = true;
+          item.artist = $.trim(song.find("td[data-col='artist'] .content").text());
+          if (item.artist) item.artistLink = "ar/" + forHash(item.artist);
+          var album = song.find("td[data-col='album']");
+          item.album = $.trim(album.find(".content").text());
+          var alAr = album.data("album-artist");
+          if (item.album && alAr) item.albumLink = "album//" + forHash(alAr) + "/" + forHash(item.album);
+          var duration = $.trim(song.find("td[data-col='duration']").text());
+          if (/^\d\d?(\:\d\d)*$/.test(duration)) item.duration = duration;//no real duration on recommandation page
+          item.rating = parseRating(song.find("td[data-col='rating']").data("rating"));
+          listRatings.push(item.rating);
+          playlist.push(item);
+        });
+        if (count == null || playlist.length >= count || (end != undefined && playlist.length >= end)) {
+          //we got all songs we need
+          callback(playlist);
+        } else {
+          if (lastLoaded) lastLoaded.scrollIntoView(true);
+          setTimeout(loadNextSongs, 150);
+        }
+      }
+      loadNextSongs();
     },
-    albumContainers: function(parent, end) {
+    albumContainers: function(parent, end, callback) {
       var items = [];
       parent.find(".card").slice(0, end).each(function() {
         var card = $(this);
@@ -336,7 +349,7 @@ $(function() {
         item.link = getLink(card);
         items.push(item);
       });
-      return items;
+      callback(items);
     }
   };
   
@@ -381,29 +394,39 @@ $(function() {
         //e.g. in recommendations list the album link might not work in which case we get redirected to albums page
         if (type == getListType(location.hash.substr(2))) {
           response.type = type;
-          response.list = parseNavigationList[type]($("#main"), undefined, omitUnknownAlbums);
           response.search = search;
+          parseNavigationList[type]($("#main"), undefined, function(list) {
+            response.list = list;
+            response.empty = response.list.length == 0;
+            post("player-navigationList", response);
+          }, omitUnknownAlbums);
         } else {
           response.error = true;
+          post("player-navigationList", response);
         }
       }
-      response.empty = response.list.length == 0;
-      post("player-navigationList", response);
     });
   }
   
-  function parseSublist(searchView, type, end) {
+  function parseSublist(searchView, type, end, callback) {
     var cont = searchView.children("div[data-type='" + type + "']");
-    if (cont.length == 0) return null;
+    if (cont.length == 0) {
+      callback(null);
+      return;
+    }
     var listType = getListType(type);
-    var list = parseNavigationList[listType](cont, end);
-    if (list.length == 0) return null;
-    return {
-      list: list,
-      type: listType,
-      header: $.trim(cont.find(".header .title").text()),
-      moreLink: cont.hasClass("has-more") ? getLink(cont) : null
-    };
+    parseNavigationList[listType](cont, end, function(list) {
+      if (list.length == 0) {
+        callback(null);
+        return;
+      }
+      callback({
+        list: list,
+        type: listType,
+        header: $.trim(cont.find(".header .title").text()),
+        moreLink: cont.hasClass("has-more") ? getLink(cont) : null
+      });
+    });
   }
   
   function sendSearchResult(search) {
@@ -412,11 +435,17 @@ $(function() {
       response.header = $.trim($("#breadcrumbs").find(".tab-text").text());
       var searchView = $("#main .search-view");
       response.moreText = $.trim(searchView.find("div .header .more:visible").first().text());
-      response.lists.push(parseSublist(searchView, "srar", 6));
-      response.lists.push(parseSublist(searchView, "sral", 5));
-      response.lists.push(parseSublist(searchView, "srs", 10));
-      response.empty = response.lists[0] == null && response.lists[1] == null && response.lists[2] == null;
-      post("player-navigationList", response);
+      parseSublist(searchView, "srar", 6, function(result) {
+        response.lists.push(result);
+        parseSublist(searchView, "sral", 5, function(result) {
+          response.lists.push(result);
+          parseSublist(searchView, "srs", 10, function(result) {
+            response.lists.push(result);
+            response.empty = response.lists[0] == null && response.lists[1] == null && response.lists[2] == null;
+            post("player-navigationList", response);
+          });
+        });
+      });
     });
   }
   

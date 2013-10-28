@@ -94,6 +94,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function ratingWatcher(val, old) {
     $("#googleRating").removeClass("rating-" + old).addClass("rating-" + val);
+    var cur = $("#navlist.playlist .current");
+    if (cur.length > 0) {
+      cur.find(".rating").removeClass("r" + old).addClass("r" + val);
+      currentNavList.titleList[cur.data("index")].rating = val;
+    }
   }
 
   function updateScrobblePosition(scrobbleTime) {
