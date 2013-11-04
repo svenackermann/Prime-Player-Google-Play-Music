@@ -38,9 +38,10 @@ $(function() {
     return cover;
   }
   
-  function parseRating(rating) {
-    rating = parseInt(rating);
-    return isNaN(rating) ? -1 : rating;
+  function parseRating(ratingContainer) {
+    if (ratingContainer == null) return -1;
+    var rating = parseInt(ratingContainer.dataset.rating);
+    return isNaN(rating) ? 0 : rating;
   }
   
   /**
@@ -139,7 +140,7 @@ $(function() {
       //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
       if (listRatings) $("#main .song-row td[data-col='rating']").trigger("DOMSubtreeModified");
       var container = $(el.parentElement);
-      if (container.is(":visible")) return parseRating(container.children("li.selected").data("rating"));
+      if (container.is(":visible")) return parseRating(container.children("li.selected").get(0));
       return -1;
     }
     
@@ -190,7 +191,7 @@ $(function() {
     
     $("#main").on("DOMSubtreeModified", ".song-row td[data-col='rating']", function() {
       if (listRatings) {
-        var rating = parseRating(this.dataset.rating);
+        var rating = parseRating(this);
         var index = $(this.parentNode).data("index");
         if (listRatings[index] != rating) {
           listRatings[index] = rating;
@@ -324,7 +325,7 @@ $(function() {
           if (item.album && alAr) item.albumLink = "album//" + forHash(alAr) + "/" + forHash(item.album);
           var duration = $.trim(song.find("td[data-col='duration']").text());
           if (/^\d\d?(\:\d\d)*$/.test(duration)) item.duration = duration;//no real duration on recommandation page
-          item.rating = parseRating(song.find("td[data-col='rating']").data("rating"));
+          item.rating = parseRating(song.find("td[data-col='rating']").get(0));
           listRatings.push(item.rating);
           playlist.push(item);
         });
@@ -336,7 +337,8 @@ $(function() {
           setTimeout(loadNextSongs, 150);
         }
       }
-      loadNextSongs();
+      parent.scrollTop(0);
+      setTimeout(loadNextSongs, 150);
     },
     albumContainers: function(parent, end, callback) {
       var items = [];
