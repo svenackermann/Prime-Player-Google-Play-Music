@@ -9,6 +9,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   var savedSizing;
   var navHistory = [];
   var currentNavList = {};
+  var listRatingTimer;
 
   function layoutWatcher(val, old) {
     $("html").removeClass("layout-" + old).addClass("layout-" + val);
@@ -43,6 +44,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function songInfoWatcher(val) {
+    clearTimeout(listRatingTimer);
     $("body").toggleClass("hasSong", val != null);
     if (val) {
       $("#songTime").text(val.duration);
@@ -94,11 +96,15 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function ratingWatcher(val, old) {
     $("#googleRating").removeClass("rating-" + old).addClass("rating-" + val);
-    var cur = $("#navlist.playlist .current");
-    if (cur.length > 0) {
-      cur.find(".rating").removeClass("r" + old).addClass("r" + val);
-      currentNavList.titleList[cur.data("index")].rating = val;
-    }
+    //if song info does not change within 1s, also update list rating (otherwise the rating changed because of a new song)
+    clearTimeout(listRatingTimer);
+    listRatingTimer = setTimeout(function() {
+      var cur = $("#navlist.playlist .current");
+      if (cur.length > 0) {
+        cur.find(".rating").removeClass("r" + old).addClass("r" + val);
+        currentNavList.titleList[cur.data("index")].rating = val;
+      }
+    }, 1000);
   }
 
   function updateScrobblePosition(scrobbleTime) {
