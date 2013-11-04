@@ -337,7 +337,8 @@ $(function() {
           setTimeout(loadNextSongs, 150);
         }
       }
-      loadNextSongs();
+      parent.scrollTop(0);
+      setTimeout(loadNextSongs, 150);
     },
     albumContainers: function(parent, end, callback) {
       var items = [];
