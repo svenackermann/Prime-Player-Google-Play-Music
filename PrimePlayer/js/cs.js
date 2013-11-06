@@ -136,6 +136,10 @@ $(function() {
       return play.is(":disabled") ? null : play.hasClass("playing");
     }
     
+    function shuffleGetter(el) {
+      return $(el).is(":disabled") ? null : el.value;
+    }
+
     function ratingGetter(el) {
       //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
       if (listRatings) $("#main .song-row td[data-col='rating']").trigger("DOMSubtreeModified");
@@ -185,7 +189,7 @@ $(function() {
     executeAfterContentLoad(mainLoaded, "#main", 500);
     watchAttr("class disabled", "#player > div.player-middle > button[data-id='play-pause']", "player-playing", playingGetter);
     watchAttr("value", "#player > div.player-middle > button[data-id='repeat']", "player-repeat");
-    watchAttr("value", "#player > div.player-middle > button[data-id='shuffle']", "player-shuffle");
+    watchAttr("value", "#player > div.player-middle > button[data-id='shuffle']", "player-shuffle", shuffleGetter);
     watchAttr("class", "#player-right-wrapper > .player-rating-container ul.rating-container li", "song-rating", ratingGetter);
     watchAttr("aria-valuenow", "#vslider", "player-volume");
     
