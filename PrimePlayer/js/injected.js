@@ -30,11 +30,11 @@
   }
   
   function withPlaylistCols(controlLink, index, callback) {
-    if (location.hash != controlLink) return;
+    if (location.hash != controlLink) return callback([]);
     var tbody = document.getElementsByClassName("song-table")[0];
-    if (tbody == null) return;
+    if (tbody == null) return callback([]);
     tbody = tbody.getElementsByTagName("tbody")[0];
-    if (index > tbody.dataset.count - 1) return;
+    if (index > tbody.dataset.count - 1) return callback([]);
     function callForRow() {
       var rows = document.getElementsByClassName("song-row");
       var scrollToRow;
@@ -42,7 +42,7 @@
       else if (tbody.dataset.endIndex - 1 < index) scrollToRow = rows[rows.length - 1];
       if (scrollToRow) {
         scrollToRow.scrollIntoView(true);
-        setTimeout(callForRow, 150);
+        setTimeout(callForRow, 50);
       } else {
         callback(rows[index - tbody.dataset.startIndex].getElementsByTagName("td"));
       }
@@ -50,15 +50,24 @@
     callForRow();
   }
   
+  function sendPlaylistSongResult(msg, index) {
+    window.postMessage({ type: "FROM_PRIMEPLAYER_INJECTED", msg: msg, index: index }, location.href);
+  }
+  
   function startPlaylistSong(controlLink, index) {
     withPlaylistCols(controlLink, index, function(cols) {
       if (cols[0]) {
         var span = cols[0].getElementsByClassName("content")[0];
-        dispatchMouseEvent(span, "mouseover");
-        setTimeout(function() {
-          simClick(span.getElementsByClassName("hover-button")[0]);
-        }, 250);
+        if (span) {
+          dispatchMouseEvent(span, "mouseover");
+          setTimeout(function() {
+            simClick(span.getElementsByClassName("hover-button")[0]);
+            sendPlaylistSongResult("playlistSongStarted", index);
+          }, 250);
+          return;
+        }
       }
+      sendPlaylistSongResult("playlistSongError", index);
     });
   }
   
@@ -69,11 +78,12 @@
           dispatchMouseEvent(cols[i], "mouseover");
           setTimeout(function() {
             rate(cols[i], rating);
-            window.postMessage({ type: "FROM_PRIMEPLAYER_INJECTED", msg: "playlistSongRated", index: index }, location.href);
+            sendPlaylistSongResult("playlistSongRated", index);
           }, 250);
           return;
         }
       }
+      sendPlaylistSongResult("playlistSongError", index);
     });
   }
   

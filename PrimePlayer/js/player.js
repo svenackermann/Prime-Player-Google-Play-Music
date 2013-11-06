@@ -10,6 +10,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   var navHistory = [];
   var currentNavList = {};
   var listRatingTimer;
+  var ratingHtml;
 
   function layoutWatcher(val, old) {
     $("html").removeClass("layout-" + old).addClass("layout-" + val);
@@ -67,7 +68,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("#cover").attr("src", "img/cover.png");
     }
     var playlist = $("#navlistContainer").find(".playlist");
-    if (playlist.length > 0 && currentNavList.titleList) {
+    if (playlist.is(":visible") && currentNavList.titleList) {
       var pl = currentNavList.titleList;
       var cur = playlist.children("div.current");
       if (cur.length > 0) {
@@ -100,6 +101,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
     body.removeClass("star-rating thumbs-rating");
     if (val) {
       body.addClass(val + "-rating");
+    }
+    ratingHtml = "";
+    if (val == "star") {
+      ratingHtml = "<div></div>";
+      for (var i = 1; i <= 5; i++) ratingHtml += "<a href='#' data-rating='" + i + "'></a>";
+    } else if (val == "thumbs") {
+      ratingHtml = "<a href='#' data-rating='5'></a><a href='#' data-rating='1'></a>";
     }
   }
 
@@ -266,28 +274,26 @@ chrome.runtime.getBackgroundPage(function(bp) {
         navlist.append(row);
       }
     },
-    playlist: function(navlist, list) {
-      currentNavList.titleList = list;
-      var ratingHtml = "";
-      if (bp.player.ratingMode == "star") {
-        ratingHtml += "<div></div>";
-        for (var i = 1; i <= 5; i++) ratingHtml += "<a href='#' data-rating='" + i + "'></a>";
-      } else if (bp.player.ratingMode == "thumbs") {
-        ratingHtml = "<a href='#' data-rating='5'></a><a href='#' data-rating='1'></a>";
+    playlist: function(navlist, list, update) {
+      if (!update) {
+        currentNavList.titleList = [];
+        currentNavList.noAlbum = true;
+        currentNavList.noRating = true;
+        currentNavList.duration = 0;
+        $("#navHead").children("span").append("<span class='duration'></span>");
       }
-      var noAlbum = true;
-      var noRating = true;
-      var duration = 0;
+      var current;
       for (var i = 0; i < list.length; i++) {
         var e = list[i];
-        var row = $("<div data-index='" + i + (e.current ? "' class='current'>" : "'></div>"));
+        if (currentNavList.titleList.length > e.index) continue;
+        var row = $("<div data-index='" + e.index + (e.current ? "' class='current'>" : "'></div>"));
         $("<img></img>").attr("src", e.cover || "img/cover.png").appendTo(row);
         $("<div class='rating r" + e.rating + "'>" + ratingHtml + "</div>").appendTo(row);
-        if (e.rating >= 0) noRating = false;
+        if (e.rating >= 0) currentNavList.noRating = false;
         var info = $("<div class='info'></div>");
         $("<span></span>").text(e.title).attr("title", e.title).appendTo(info);
         $("<span class='duration'></span>").text(e.duration).appendTo(info);
-        duration += bp.parseSeconds(e.duration);
+        currentNavList.duration += bp.parseSeconds(e.duration);
         if (e.artistLink) {
           $("<a href='#' class='nav'></a>").data("link", e.artistLink).text(e.artist).attr("title", e.artist).appendTo(info);
         } else {
@@ -296,20 +302,21 @@ chrome.runtime.getBackgroundPage(function(bp) {
         if (e.albumLink) {
           if (e.albumLink != currentNavList.link) {
             $("<a href='#' class='album nav'></a>").data("link", e.albumLink).text(e.album).attr("title", e.album).appendTo(info);
-            noAlbum = false;
+            currentNavList.noAlbum = false;
           }
         } else if (e.album) {
           $("<span class='album'></span>").text(e.album).attr("title", e.album).appendTo(info);
-          noAlbum = false;
+          currentNavList.noAlbum = false;
         }
         row.append(info);
         navlist.append(row);
+        currentNavList.titleList.push(e);
+        if (e.current) current = row.get(0);
       }
-      if (noAlbum) navlist.addClass("noalbum");
-      if (noRating) navlist.addClass("norating");
-      if (duration == 0) navlist.addClass("noduration")
-      else $("#navHead").find("span").append(" (" + toTimeString(duration) + ")");
-      var current = navlist.find("div.current")[0];
+      navlist.toggleClass("noalbum", currentNavList.noAlbum);
+      navlist.toggleClass("norating", currentNavList.noRating);
+      navlist.toggleClass("noduration", currentNavList.duration == 0);
+      if (currentNavList.duration > 0) $("#navHead").find("span.duration").text("(" + toTimeString(currentNavList.duration) + ")");
       if (current) current.scrollIntoView(true);
     },
     albumContainers: function(navlist, list) {
@@ -332,12 +339,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
     e.rating = val.rating;
   }
 
-  function renderSubNavigationList(list, navlist) {
+  function renderSubNavigationList(list, navlist, update) {
     var header = $("<h2></h2>").text(list.header);
     if (list.moreLink) $("<a href='#' class='nav'></a>").data("link", list.moreLink).appendTo(header);
     navlist.append(header);
     var container = $("<div></div>").addClass(list.type).appendTo(navlist);
-    renderNavList[list.type](container, list.list);
+    renderNavList[list.type](container, list.list, update);
   }
   
   function renderNavigationList(val) {
@@ -345,23 +352,24 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.player.navigationList = null;//free memory
     currentNavList.controlLink = val.controlLink;
     var navlist = $("#navlist");
-    navlist.removeClass();
     if (val.error) {
-      navlist.html("<div class='error'></div>");
+      navlist.removeClass().html("<div class='error'></div>");
     } else if (val.empty) {
-      navlist.html("<div class='empty'></div>");
+      navlist.removeClass().html("<div class='empty'></div>");
     } else {
-      navlist.empty().addClass(val.type);
-      resize(bp.localSettings[val.type + "Sizing"]);
+      if (!val.update) {
+        navlist.empty().removeClass().addClass(val.type);
+        resize(bp.localSettings[val.type + "Sizing"]);
+      }
       if (val.type == "searchresult") {
-        $("#navHead").find("span").text(val.header);
+        $("#navHead").children("span").text(val.header);
         for (var i = 0; i < val.lists.length; i++) {
           var list = val.lists[i];
-          if (list) renderSubNavigationList(list, navlist);
+          if (list) renderSubNavigationList(list, navlist, val.update);
         }
         navlist.find("h2 a.nav").data("text", val.header).data("search", val.search).text(val.moreText);
       } else {
-        renderNavList[val.type](navlist, val.list);
+        renderNavList[val.type](navlist, val.list, val.update);
       }
     }
   }
@@ -412,7 +420,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function updateNavHead(title) {
     var backHint = navHistory.length > 0 ? chrome.i18n.getMessage("backToLink", navHistory[navHistory.length - 1].title) : chrome.i18n.getMessage("backToPlayer");
-    $("#navHead").find(".back").attr("title", backHint).end().find("span").text(title);
+    $("#navHead").children(".back").attr("title", backHint).end().children("span").text(title);
   }
   
   function setupNavigationEvents() {

@@ -310,6 +310,9 @@ a {
     display: block;
     text-align: center;
     font-weight: bold;
+    > span.duration {
+      margin-left: 0.5ex;
+    }
   }
   > input {
     display: none;
