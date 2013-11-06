@@ -12,6 +12,9 @@ $(function() {
   var executeOnContentLoad;
   var contentLoadDestination;
   var listRatings;
+  var asyncListTimer;
+  var pausePlaylistParsing = false;
+  var resumePlaylistParsingFn;
   
   /** send update to background page */
   function post(type, value) {
@@ -136,6 +139,10 @@ $(function() {
       return play.is(":disabled") ? null : play.hasClass("playing");
     }
     
+    function shuffleGetter(el) {
+      return $(el).is(":disabled") ? null : el.value;
+    }
+    
     function ratingGetter(el) {
       //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
       if (listRatings) $("#main .song-row td[data-col='rating']").trigger("DOMSubtreeModified");
@@ -185,7 +192,7 @@ $(function() {
     executeAfterContentLoad(mainLoaded, "#main", 500);
     watchAttr("class disabled", "#player > div.player-middle > button[data-id='play-pause']", "player-playing", playingGetter);
     watchAttr("value", "#player > div.player-middle > button[data-id='repeat']", "player-repeat");
-    watchAttr("value", "#player > div.player-middle > button[data-id='shuffle']", "player-shuffle");
+    watchAttr("value", "#player > div.player-middle > button[data-id='shuffle']", "player-shuffle", shuffleGetter);
     watchAttr("class", "#player-right-wrapper > .player-rating-container ul.rating-container li", "song-rating", ratingGetter);
     watchAttr("aria-valuenow", "#vslider", "player-volume");
     
@@ -199,7 +206,12 @@ $(function() {
         }
       }
     });
-    $(window).on("hashchange", function() { listRatings = null; });
+    $(window).on("hashchange", function() {
+      listRatings = null;
+      resumePlaylistParsingFn = null;
+      pausePlaylistParsing = false;
+      clearTimeout(asyncListTimer);
+    });
     
     //we must add this script to the DOM for the code to be executed in the correct context
     var injected = document.createElement("script"); injected.type = "text/javascript";
@@ -224,12 +236,18 @@ $(function() {
     switch (event.data.msg) {
       case "playlistSongRated":
         $("#main .song-row[data-index='" + event.data.index + "']").find("td[data-col='rating']").trigger("DOMSubtreeModified");
+      case "playlistSongStarted":
+      case "playlistSongError":
+        pausePlaylistParsing = false;
+        if (typeof(resumePlaylistParsingFn) == "function") resumePlaylistParsingFn();
+        resumePlaylistParsingFn = null;
         break;
     }
   }
   
   /** Send a command to the injected script. */
   function sendCommand(command, options) {
+    if (command == "startPlaylistSong" || command == "ratePlaylistSong") pausePlaylistParsing = true;
     window.postMessage({ type: "FROM_PRIMEPLAYER", command: command, options: options }, location.href);
   }
   
@@ -299,20 +317,25 @@ $(function() {
         item.subTitleLink = getLink(subTitle);
         playlists.push(item);
       });
+      if (callback == false) return playlists;
       callback(playlists);
     },
     playlist: function(parent, end, callback) {
-      var playlist = [];
       listRatings = [];
       var count = parent.find(".song-row").parent().data("count");
+      var update = false;
+      var lastIndex = -1;
       function loadNextSongs() {
         //scroll to last needed song row to trigger lazy loading
+        var playlist = [];
         var lastLoaded = null;
         parent.find(".song-row").slice(0, end).each(function() {
           var song = $(this);
-          if (song.data("index") < playlist.length) return;
           lastLoaded = this;
+          if (song.data("index") <= lastIndex) return;
+          lastIndex = song.data("index");
           var item = {};
+          item.index = lastIndex;
           var title = song.find("td[data-col='title'] .content");
           item.cover = parseCover(title.find("img"));
           item.title = $.trim(title.text());
@@ -329,16 +352,24 @@ $(function() {
           listRatings.push(item.rating);
           playlist.push(item);
         });
-        if (count == null || playlist.length >= count || (end != undefined && playlist.length >= end)) {
-          //we got all songs we need
-          callback(playlist);
-        } else {
-          if (lastLoaded) lastLoaded.scrollIntoView(true);
-          setTimeout(loadNextSongs, 150);
+        if (callback == false) return playlist;
+        if (!update || playlist.length > 0) {
+          callback(playlist, update);
+          update = true;
+        }
+        if (count != null && lastIndex + 1 < count && (end == undefined || lastIndex + 1 < end)) {
+          if (pausePlaylistParsing) {
+            resumePlaylistParsingFn = loadNextSongs;
+          } else {
+            if (lastLoaded) lastLoaded.scrollIntoView(true);
+            asyncListTimer = setTimeout(loadNextSongs, 150);
+          }
         }
       }
+      if (callback == false) return loadNextSongs();
+      pausePlaylistParsing = false;
       parent.scrollTop(0);
-      setTimeout(loadNextSongs, 150);
+      asyncListTimer = setTimeout(loadNextSongs, 150);
     },
     albumContainers: function(parent, end, callback) {
       var items = [];
@@ -351,6 +382,7 @@ $(function() {
         item.link = getLink(card);
         items.push(item);
       });
+      if (callback == false) return items;
       callback(items);
     }
   };
@@ -397,8 +429,9 @@ $(function() {
         if (type == getListType(location.hash.substr(2))) {
           response.type = type;
           response.search = search;
-          parseNavigationList[type]($("#main"), undefined, function(list) {
+          parseNavigationList[type]($("#main"), undefined, function(list, update) {
             response.list = list;
+            response.update = update;
             response.empty = response.list.length == 0;
             post("player-navigationList", response);
           }, omitUnknownAlbums);
@@ -410,25 +443,18 @@ $(function() {
     });
   }
   
-  function parseSublist(searchView, type, end, callback) {
+  function parseSublist(searchView, type, end) {
     var cont = searchView.children("div[data-type='" + type + "']");
-    if (cont.length == 0) {
-      callback(null);
-      return;
-    }
+    if (cont.length == 0) return null;
     var listType = getListType(type);
-    parseNavigationList[listType](cont, end, function(list) {
-      if (list.length == 0) {
-        callback(null);
-        return;
-      }
-      callback({
-        list: list,
-        type: listType,
-        header: $.trim(cont.find(".header .title").text()),
-        moreLink: cont.hasClass("has-more") ? getLink(cont) : null
-      });
-    });
+    var list = parseNavigationList[listType](cont, end, false);
+    if (list.length == 0) return null;
+    return {
+      list: list,
+      type: listType,
+      header: $.trim(cont.find(".header .title").text()),
+      moreLink: cont.hasClass("has-more") ? getLink(cont) : null
+    };
   }
   
   function sendSearchResult(search) {
@@ -437,17 +463,11 @@ $(function() {
       response.header = $.trim($("#breadcrumbs").find(".tab-text").text());
       var searchView = $("#main .search-view");
       response.moreText = $.trim(searchView.find("div .header .more:visible").first().text());
-      parseSublist(searchView, "srar", 6, function(result) {
-        response.lists.push(result);
-        parseSublist(searchView, "sral", 5, function(result) {
-          response.lists.push(result);
-          parseSublist(searchView, "srs", 10, function(result) {
-            response.lists.push(result);
-            response.empty = response.lists[0] == null && response.lists[1] == null && response.lists[2] == null;
-            post("player-navigationList", response);
-          });
-        });
-      });
+      response.lists.push(parseSublist(searchView, "srar", 6));
+      response.lists.push(parseSublist(searchView, "sral", 5));
+      response.lists.push(parseSublist(searchView, "srs", 10));
+      response.empty = response.lists[0] == null && response.lists[1] == null && response.lists[2] == null;
+      post("player-navigationList", response);
     });
   }
   

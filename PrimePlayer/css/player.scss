@@ -310,6 +310,9 @@ a {
     display: block;
     text-align: center;
     font-weight: bold;
+    > span.duration {
+      margin-left: 0.5ex;
+    }
   }
   > input {
     display: none;
@@ -724,11 +727,7 @@ a {
 
 #shuffle {
   opacity: 0.2;
-  &.NO_SHUFFLE {
-    opacity: 1;
-    cursor: pointer;
-  }
-  &.ALL_SHUFFLE {
+  &.NO_SHUFFLE, &.ALL_SHUFFLE {
     opacity: 1;
     cursor: pointer;
   }
@@ -736,15 +735,7 @@ a {
 
 #repeat {
   opacity: 0.2;
-  &.NO_REPEAT {
-    opacity: 1;
-    cursor: pointer;
-  }
-  &.LIST_REPEAT {
-    opacity: 1;
-    cursor: pointer;
-  }
-  &.SINGLE_REPEAT {
+  &.NO_REPEAT, &.LIST_REPEAT, &.SINGLE_REPEAT {
     opacity: 1;
     cursor: pointer;
   }
