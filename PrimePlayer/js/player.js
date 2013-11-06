@@ -36,6 +36,15 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function shuffleWatcher(val) {
     $("#shuffle").attr("class", val);
+    //reload list on shuffle if visible
+    if (val == "ALL_SHUFFLE"
+    && currentNavList.controlLink == "#/ap/queue"
+    && currentNavList.titleList
+    && currentNavList.titleList.length > 0
+    && $("#navlistContainer").children(".playlist").is(":visible")) {
+      currentNavList.link = "ap/queue";//avoid history entry
+      switchView(currentNavList.title, currentNavList.link);
+    }
   }
 
   function playingWatcher(val) {
