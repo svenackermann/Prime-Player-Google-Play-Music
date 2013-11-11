@@ -29,6 +29,22 @@
     }
   }
   
+  function clickPlayerButton(id) {
+    var player = document.getElementById("player");
+    if (player) {
+      var btns = player.getElementsByClassName("player-middle")[0];
+      if (btns) {
+        btns = btns.childNodes;
+        for (var i = 0; i < btns.length; i++) {
+          if (btns[i].dataset.id == id) {
+            simClick(btns[i]);
+            break;
+          }
+        }
+      }
+    }
+  }
+  
   function withPlaylistCols(controlLink, index, callback) {
     if (location.hash != controlLink) return callback([]);
     var tbody = document.getElementsByClassName("song-table")[0];
@@ -113,11 +129,13 @@
     if (event.source != window || event.data.type != "FROM_PRIMEPLAYER") return;
     switch (event.data.command) {
       case "playPause":
-      case "prevSong":
       case "nextSong":
       case "toggleRepeat":
       case "toggleShuffle":
         SJBpost(event.data.command);
+        break;
+      case "prevSong":
+        clickPlayerButton("rewind");
         break;
       case "rate":
         rate(document.getElementById("player-right-wrapper"), event.data.options.rating);
