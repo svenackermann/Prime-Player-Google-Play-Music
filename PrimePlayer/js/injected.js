@@ -129,10 +129,12 @@
     if (event.source != window || event.data.type != "FROM_PRIMEPLAYER") return;
     switch (event.data.command) {
       case "playPause":
-      case "nextSong":
       case "toggleRepeat":
       case "toggleShuffle":
         SJBpost(event.data.command);
+        break;
+      case "nextSong":
+        clickPlayerButton("forward");
         break;
       case "prevSong":
         clickPlayerButton("rewind");
