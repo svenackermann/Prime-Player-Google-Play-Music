@@ -355,5 +355,44 @@
   },
   "searchResults": {
     "message": "Suchergebnisse"
+  },
+  "command_loveUnloveSong": {
+    "message": "Laufenden Titel lieben/nicht mehr lieben"
+  },
+  "command_volumeUp": {
+    "message": "Lauter"
+  },
+  "command_volumeDown": {
+    "message": "Leiser"
+  },
+  "command_volumeMute": {
+    "message": "Stumm schalten"
+  },
+  "command_toggleRepeat": {
+    "message": "Wiederholen umschalten"
+  },
+  "command_toggleShuffle": {
+    "message": "Zufallsmix umschalten"
+  },
+  "command_ff": {
+    "message": "15 Sekunden vorspulen"
+  },
+  "command_rate1": {
+    "message": "Bewerte 1 Stern/Daumen runter"
+  },
+  "command_rate2": {
+    "message": "Bewerte 2 Sterne"
+  },
+  "command_rate3": {
+    "message": "Bewerte 3 Sterne"
+  },
+  "command_rate4": {
+    "message": "Bewerte 4 Sterne"
+  },
+  "command_rate5": {
+    "message": "Bewerte 5 Sterne/Daumen hoch"
+  },
+  "command_showToast": {
+    "message": "Zeige Toast-Benachrichtigung (erneut)"
   }
 }

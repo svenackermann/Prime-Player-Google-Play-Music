@@ -355,5 +355,44 @@
   },
   "searchResults": {
     "message": "Search Results"
+  },
+  "command_loveUnloveSong": {
+    "message": "Love or unlove current song"
+  },
+  "command_volumeUp": {
+    "message": "Volume up"
+  },
+  "command_volumeDown": {
+    "message": "Volume down"
+  },
+  "command_volumeMute": {
+    "message": "Volume mute"
+  },
+  "command_toggleRepeat": {
+    "message": "Toggle repeat"
+  },
+  "command_toggleShuffle": {
+    "message": "Toggle shuffle"
+  },
+  "command_ff": {
+    "message": "Fast forward 15 seconds"
+  },
+  "command_rate1": {
+    "message": "Rate 1 star/thumbs down"
+  },
+  "command_rate2": {
+    "message": "Rate 2 stars"
+  },
+  "command_rate3": {
+    "message": "Rate 3 stars"
+  },
+  "command_rate4": {
+    "message": "Rate 4 stars"
+  },
+  "command_rate5": {
+    "message": "Rate 5 stars/thumbs up"
+  },
+  "command_showToast": {
+    "message": "Show toast (again)"
   }
 }
