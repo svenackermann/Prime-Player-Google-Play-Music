@@ -988,6 +988,9 @@ chrome.commands.onCommand.addListener(function(command) {
     case "openMiniplayer":
       openMiniplayer();
       break;
+    case "showToast":
+      if (song.info) closeToast(openToast);
+      break;
     case "loveUnloveSong":
       if (song.loved === true) unloveTrack()
       else loveTrack(true);

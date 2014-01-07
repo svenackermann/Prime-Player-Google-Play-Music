@@ -85,6 +85,9 @@
     },
     "rate-5": {
       "description": "Rate 5 stars/thumbs up"
+    },
+    "showToast": {
+      "description": "Show toast (again)"
     }
   }
 }
