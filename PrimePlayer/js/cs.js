@@ -306,7 +306,7 @@ $(function() {
       parent.find(".card").slice(0, end).each(function() {
         var card = $(this);
         var id = card.data("id");
-        if (omitUnknownAlbums && id.charAt(id.length - 1) == "/") return;
+        if (omitUnknownAlbums && id.substr(1).indexOf("/") < 0) return;
         var item = {};
         item.titleLink = getLink(card);
         if (item.titleLink == null) return;
