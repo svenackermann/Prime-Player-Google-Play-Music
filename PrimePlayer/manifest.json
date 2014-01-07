@@ -2,8 +2,8 @@
   "manifest_version": 2,
   "name": "Prime Player for Google Play Music\u2122",
   "description": "__MSG_extDesc__",
-  "version": "2.3.2",
-  "minimum_chrome_version": "28",
+  "version": "2.4",
+  "minimum_chrome_version": "31.0.1650.48",
   "default_locale": "en",
   "icons": {
     "128": "img/icon-128x128.png",
@@ -36,55 +36,58 @@
   "commands": {
     "playPause": {
       "suggested_key": { "default": "Alt+S" },
-      "description": "Play/Pause"
+      "description": "__MSG_playPause__"
     },
     "loveUnloveSong": {
       "suggested_key": { "default": "Alt+L" },
-      "description": "Love or unlove current song"
+      "description": "__MSG_command_loveUnloveSong__"
     },
     "nextSong": {
       "suggested_key": { "default": "Alt+D" },
-      "description": "Next song"
+      "description": "__MSG_nextSong__"
     },
     "openMiniplayer": {
       "suggested_key": { "default": "Alt+W" },
-      "description": "Open miniplayer"
+      "description": "__MSG_openMiniplayer__"
     },
     "volumeUp": {
-      "description": "Volume up"
+      "description": "__MSG_command_volumeUp__"
     },
     "volumeDown": {
-      "description": "Volume down"
+      "description": "__MSG_command_volumeDown__"
     },
     "volumeMute": {
-      "description": "Volume mute"
+      "description": "__MSG_command_volumeMute__"
     },
     "prevSong": {
-      "description": "Previous song"
+      "description": "__MSG_prevSong__"
     },
     "toggleRepeat": {
-      "description": "Toggle repeat"
+      "description": "__MSG_command_toggleRepeat__"
     },
     "toggleShuffle": {
-      "description": "Toggle shuffle"
+      "description": "__MSG_command_toggleShuffle__"
     },
     "ff": {
-      "description": "Fast forward 15 seconds"
+      "description": "__MSG_command_ff__"
     },
     "rate-1": {
-      "description": "Rate 1 star/thumbs down"
+      "description": "__MSG_command_rate1__"
     },
     "rate-2": {
-      "description": "Rate 2 stars"
+      "description": "__MSG_command_rate2__"
     },
     "rate-3": {
-      "description": "Rate 3 stars"
+      "description": "__MSG_command_rate3__"
     },
     "rate-4": {
-      "description": "Rate 4 stars"
+      "description": "__MSG_command_rate4__"
     },
     "rate-5": {
-      "description": "Rate 5 stars/thumbs up"
+      "description": "__MSG_command_rate5__"
+    },
+    "showToast": {
+      "description": "__MSG_command_showToast__"
     }
   }
 }
