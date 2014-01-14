@@ -208,7 +208,18 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("mpAutoClose");
     
     initIconStyle();
-    initCheckbox("iconClickMiniplayer");
+    initCheckbox("iconClickMiniplayer").click(function() {
+      if (bp.settings.iconClickMiniplayer) {
+        bp.settings.iconClickPlayPause = false;
+        $("#iconClickPlayPause").prop("checked", false);
+      }
+    });
+    initCheckbox("iconClickPlayPause").click(function() {
+      if (bp.settings.iconClickPlayPause) {
+        bp.settings.iconClickMiniplayer = false;
+        $("#iconClickMiniplayer").prop("checked", false);
+      }
+    });
     initCheckbox("iconClickConnect");
     initCheckbox("openGoogleMusicPinned");
     initCheckbox("connectedIndicator");

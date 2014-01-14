@@ -88,7 +88,7 @@ $(function() {
     $(".music-banner-icon").removeAttr("style title").off("click");
   }
   
-  function init(connectedIndicator) {
+  function init() {
     //when rating is changed, the page gets reloaded, so no need for event listening here
     var ratingMode;
     var ratingContainer = $("#player-right-wrapper > div.player-rating-container > ul.rating-container");

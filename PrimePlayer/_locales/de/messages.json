@@ -146,6 +146,9 @@
   "setting_iconClickMiniplayer": {
     "message": "Beim Klick auf das Symbol Miniplayer direkt \u00F6ffnen"
   },
+  "setting_iconClickPlayPause": {
+    "message": "Beim Klick auf das Symbol Wiedergabe pausieren/fortsetzen"
+  },
   "setting_iconClickConnect": {
     "message": "Beim Klick auf das Symbol immer erst Google Music \u00F6ffnen, wenn nicht bereits ge\u00F6ffnet"
   },
