@@ -146,6 +146,9 @@
   "setting_iconClickMiniplayer": {
     "message": "Open miniplayer directly on icon click"
   },
+  "setting_iconClickPlayPause": {
+    "message": "Play/pause current song on icon click"
+  },
   "setting_iconClickConnect": {
     "message": "Always open Google Music first on icon click, if not opened yet"
   },

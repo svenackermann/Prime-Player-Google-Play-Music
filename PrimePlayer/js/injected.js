@@ -94,7 +94,9 @@
           dispatchMouseEvent(cols[i], "mouseover");
           setTimeout(function() {
             rate(cols[i], rating);
-            sendPlaylistSongResult("playlistSongRated", index);
+            setTimeout(function() {
+              sendPlaylistSongResult("playlistSongRated", index);
+            }, 250);
           }, 250);
           return;
         }

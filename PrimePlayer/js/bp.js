@@ -49,6 +49,7 @@ var SETTINGS_DEFAULTS = {
   iconStyle: "default",
   iconClickMiniplayer: false,
   iconClickConnect: false,
+  iconClickPlayPause: false,
   openGoogleMusicPinned: false,
   connectedIndicator: true,
   updateNotifier: true,
@@ -283,6 +284,10 @@ function startPlaylist(link) {
 /** send a command to the connected Google Music port */
 function executeInGoogleMusic(command, options) {
   postToGooglemusic({type: "execute", command: command, options: options || {}});
+}
+
+function executePlayPause() {
+  executeInGoogleMusic("playPause");
 }
 
 function isScrobblingEnabled() {
@@ -546,7 +551,7 @@ function toastButtonClicked(notificationId, buttonIndex) {
         executeInGoogleMusic("nextSong");
         break;
       case 1:
-        executeInGoogleMusic("playPause");
+        executePlayPause();
         break;
     }
   }
@@ -667,6 +672,7 @@ function openMiniplayer() {
 function iconClickSettingsChanged() {
   chrome.browserAction.onClicked.removeListener(openGoogleMusicTab);
   chrome.browserAction.onClicked.removeListener(openMiniplayer);
+  chrome.browserAction.onClicked.removeListener(executePlayPause);
   chrome.browserAction.setPopup({popup: ""});
   if (viewUpdateNotifier) {
     chrome.browserAction.setPopup({popup: "updateNotifier.html"});
@@ -674,6 +680,8 @@ function iconClickSettingsChanged() {
     chrome.browserAction.onClicked.addListener(openGoogleMusicTab);
   } else if (settings.iconClickMiniplayer) {
     chrome.browserAction.onClicked.addListener(openMiniplayer);
+  } else if (settings.iconClickPlayPause && player.playing != null) {
+    chrome.browserAction.onClicked.addListener(executePlayPause);
   } else {
     chrome.browserAction.setPopup({popup: "player.html"});
   }
@@ -814,6 +822,7 @@ settings.watch("updateNotifier", function(val) {
 });
 settings.watch("gaEnabled", gaEnabledChanged);
 settings.watch("iconClickMiniplayer", iconClickSettingsChanged);
+settings.watch("iconClickPlayPause", iconClickSettingsChanged);
 settings.addListener("iconClickConnect", iconClickSettingsChanged);
 settings.watch("miniplayerType", function(val) {
   if (val == "notification") {//migrate (notification type is no longer supported)
@@ -860,6 +869,7 @@ localSettings.watch("syncSettings", function(val) {
 localSettings.addListener("lastfmSessionName", calcScrobbleTime);
 
 player.addListener("playing", updateBrowserActionInfo);
+player.addListener("playing", iconClickSettingsChanged);
 player.addListener("connected", updateBrowserActionInfo);
 player.addListener("connected", loadNavlistIfConnected);
 
