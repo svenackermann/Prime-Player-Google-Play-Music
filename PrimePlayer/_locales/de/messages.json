@@ -86,6 +86,9 @@
   "setting_toastDuration": {
     "message": "Toast Dauer (Sekunden)"
   },
+  "setting_toastIfMpOpen": {
+    "message": "Toast auch zeigen, wenn der Miniplayer ge\u00F6ffnet ist"
+  },
   "setting_scrobblePercent": {
     "message": "Prozentsatz zum Scrobbeln"
   },
@@ -281,6 +284,9 @@
   },
   "close": {
     "message": "Schlie\u00DFen"
+  },
+  "feelingLucky": {
+    "message": "Mix auf gut Gl\u00FCck"
   },
   "setting_coverClickLink": {
     "message": "Beim Klick auf das Album-Cover \u00F6ffnen"

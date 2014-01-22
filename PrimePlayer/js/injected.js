@@ -29,6 +29,16 @@
     }
   }
   
+  function clickFeelingLucky() {
+    var buttons = document.getElementsByTagName("button");
+    for (var i = 0; i < buttons.length; i++) {
+      if (buttons[i].dataset.id == "im-feeling-lucky") {
+        simClick(buttons[i]);
+        break;
+      }
+    }
+  }
+  
   function clickPlayerButton(id) {
     var player = document.getElementById("player");
     if (player) {
@@ -155,6 +165,9 @@
         break;
       case "clickCard":
         clickCard(event.data.options.id);
+        break;
+      case "feelingLucky":
+        clickFeelingLucky();
         break;
       case "startPlaylistSong":
         startPlaylistSong(event.data.options.link, event.data.options.index);

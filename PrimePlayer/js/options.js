@@ -45,6 +45,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function toastChanged() {
     $("#toastUseMpStyle").prop("disabled", !bp.settings.toast);
     $("#toastDuration").prop("disabled", !bp.settings.toast || !bp.settings.toastUseMpStyle);
+    $("#toastIfMpOpen").prop("disabled", !bp.settings.toast);
   }
   
   function lastfmUserChanged(user) {
@@ -188,6 +189,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("toastUseMpStyle").click(toastChanged);
     initHint("toastUseMpStyle");
     initNumberInput("toastDuration");
+    initCheckbox("toastIfMpOpen");
     
     initSelect("miniplayerType");
     initHint("miniplayerType");

@@ -16,7 +16,7 @@
   .playing #timeBarHolder {
     border-color: lighten($color, 50%);
   }
-  #quickLinksBtn, #miniplayerlink, .scrobbleEnabled #lastfmUser {
+  #quickLinksBtn, #miniplayerlink, .scrobbleEnabled #lastfmUser, #feelingLucky {
     background-color: $color;
     border-top-color: lighten($color, 20%);
   }
@@ -150,6 +150,22 @@
     #top {
       height: 46px;
     }
+  }
+  #rightbuttons > a {
+    height: 14px;
+    width: 15px;
+  }
+  #miniplayerlink {
+    @include sprite(9, 0, 15);
+  }
+  #quickLinksBtn {
+    @include sprite(12, 0, 15);
+  }
+  #lastfmUser {
+    @include sprite(10, 0, 15);
+  }
+  #feelingLucky {
+    @include sprite(15, 0, 15);
   }
 }
 
@@ -391,16 +407,11 @@
     left: $height + 316px;
   }
   #rightbuttons {
-    margin: 0;
+    margin-top: 1px;
   }
-  #quickLinksBtn, #lastfmUser {
-    height: 12px;
-    width: 13px;
-  }
-  #quickLinksBtn {
-    @include sprite(12, 0, 13);
-  }
-  #lastfmUser {
-    @include sprite(10, 0, 13);
+  .lastfm #feelingLucky {
+    position: relative;
+    top: -28px;
+    left: 14px;
   }
 }
