@@ -86,6 +86,9 @@
   "setting_toastDuration": {
     "message": "Toast Dauer (Sekunden)"
   },
+  "setting_toastIfMpOpen": {
+    "message": "Toast auch zeigen, wenn der Miniplayer ge\u00F6ffnet ist"
+  },
   "setting_scrobblePercent": {
     "message": "Prozentsatz zum Scrobbeln"
   },

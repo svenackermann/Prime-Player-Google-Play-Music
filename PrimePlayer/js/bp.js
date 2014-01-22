@@ -35,6 +35,7 @@ var SETTINGS_DEFAULTS = {
   toast: true,
   toastUseMpStyle: false,
   toastDuration: 5,
+  toastIfMpOpen: false,
   miniplayerType: "popup",
   layout: "normal",
   color: "turq",
@@ -624,7 +625,7 @@ function closeToast(callback) {
 
 /** open toast notification */
 function toastPopup() {
-  if (!song.toasted && settings.toast && !miniplayer) {
+  if (!song.toasted && settings.toast && (settings.toastIfMpOpen || !miniplayer)) {
     song.toasted = true;
     closeToast(openToast);
   }
