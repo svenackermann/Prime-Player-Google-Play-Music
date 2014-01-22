@@ -41,7 +41,7 @@ a {
 
 #top {
   position: relative;
-  padding: 3px;
+  padding: 2px;
 }
 
 #coverContainer {
@@ -206,11 +206,12 @@ a {
 #rightbuttons {
   float: right;
   margin-left: 1ex;
+  margin-top: -1px;
   > a {
     clear: both;
     border-radius: 3px;
-    height: 13px;
-    width: 14px;
+    height: 12px;
+    width: 13px;
     border-top-width: 1px;
     border-top-style: solid;
     margin-bottom: 1px;
@@ -223,9 +224,7 @@ a {
 
 #miniplayerlink {
   display: block;
-  height: 15px;
-  width: 15px;
-  @include sprite(9, 0, 14);
+  @include sprite(9, 0, 13);
 }
 
 .miniplayer #miniplayerlink {
@@ -234,7 +233,7 @@ a {
 
 #quickLinksBtn {
   display: block;
-  @include sprite(12, 0, 14);
+  @include sprite(12, 0, 13);
 }
 
 .toast #quickLinksBtn {
@@ -257,9 +256,7 @@ a {
 
 #lastfmUser {
   display: none;
-  height: 15px;
-  width: 15px;
-  @include sprite(10, 0, 14);
+  @include sprite(10, 0, 13);
   background-color: gray;
   border-top-color: lighten(gray, 20%);
 }
@@ -268,6 +265,11 @@ a {
   #lastfmUser, #lastfmRating {
     display: block;
   }
+}
+
+#feelingLucky {
+  display: block;
+  @include sprite(15, 0, 13);
 }
 
 ::-webkit-scrollbar {

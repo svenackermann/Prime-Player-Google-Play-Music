@@ -82,6 +82,8 @@ var positionFromBackup = false;
 /** the link of navigation list to load when Google Music has just connected (if any) */
 var loadNavlistLink;
 var loadNavlistSearch;
+/** whether feelingLucky is requested */
+var feelingLucky = false;
 
 /** the song currently loaded */
 var SONG_DEFAULTS = {
@@ -279,6 +281,19 @@ function selectLink(link) {
 
 function startPlaylist(link) {
   postToGooglemusic({type: "startPlaylist", link: link});
+}
+
+function executeFeelingLuckyIfConnected() {
+  if (!feelingLucky) return;
+  if (player.connected) {
+    executeInGoogleMusic("feelingLucky");
+    feelingLucky = false;
+  } else openGoogleMusicTab();//when connected, we get triggered again
+}
+
+function executeFeelingLucky() {
+  feelingLucky = true;
+  executeFeelingLuckyIfConnected();
 }
 
 /** send a command to the connected Google Music port */
@@ -872,6 +887,7 @@ player.addListener("playing", updateBrowserActionInfo);
 player.addListener("playing", iconClickSettingsChanged);
 player.addListener("connected", updateBrowserActionInfo);
 player.addListener("connected", loadNavlistIfConnected);
+player.addListener("connected", executeFeelingLuckyIfConnected);
 
 function reloadForUpdate() {
   var backup = {};
@@ -997,6 +1013,9 @@ chrome.commands.onCommand.addListener(function(command) {
       break;
     case "openMiniplayer":
       openMiniplayer();
+      break;
+    case "feelingLucky":
+      executeFeelingLucky();
       break;
     case "showToast":
       if (song.info) closeToast(openToast);

@@ -282,6 +282,9 @@
   "close": {
     "message": "Close"
   },
+  "feelingLucky": {
+    "message": "I'm feeling lucky mix"
+  },
   "setting_coverClickLink": {
     "message": "Open on click on album cover"
   },

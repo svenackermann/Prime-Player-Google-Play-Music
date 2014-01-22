@@ -53,6 +53,9 @@
     "volumeUp": {
       "description": "__MSG_command_volumeUp__"
     },
+    "feelingLucky": {
+      "description": "__MSG_feelingLucky__"
+    },
     "volumeDown": {
       "description": "__MSG_command_volumeDown__"
     },

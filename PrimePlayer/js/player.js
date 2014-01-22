@@ -568,6 +568,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
       .click(bp.openMiniplayer)
       .attr("title", chrome.i18n.getMessage("openMiniplayer"));
 
+    $("#feelingLucky")
+      .click(bp.executeFeelingLucky)
+      .attr("title", chrome.i18n.getMessage("feelingLucky"));
+
     $("#nosong").children("a:first-child").text(chrome.i18n.getMessage("nothingPlaying"))
       .end().children("a:last-child")
         .click(bp.openGoogleMusicTab)

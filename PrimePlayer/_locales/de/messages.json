@@ -282,6 +282,9 @@
   "close": {
     "message": "Schlie\u00DFen"
   },
+  "feelingLucky": {
+    "message": "Mix auf gut Gl\u00FCck"
+  },
   "setting_coverClickLink": {
     "message": "Beim Klick auf das Album-Cover \u00F6ffnen"
   },
