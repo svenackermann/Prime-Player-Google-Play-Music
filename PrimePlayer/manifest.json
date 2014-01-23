@@ -35,16 +35,19 @@
   "web_accessible_resources": ["js/injected.js", "img/icon-tabconnected.png", "img/icon-48x48.png", "options.html", "css/player.scss", "css/layouts.scss", "css/player.css.map"],
   "commands": {
     "playPause": {
-      "suggested_key": { "default": "Alt+S" },
+      "suggested_key": { "default": "MediaPlayPause" },
       "description": "__MSG_playPause__"
     },
-    "loveUnloveSong": {
-      "suggested_key": { "default": "Alt+L" },
-      "description": "__MSG_command_loveUnloveSong__"
+    "prevSong": {
+      "suggested_key": { "default": "MediaPrevTrack" },
+      "description": "__MSG_prevSong__"
     },
     "nextSong": {
-      "suggested_key": { "default": "Alt+D" },
+      "suggested_key": { "default": "MediaNextTrack" },
       "description": "__MSG_nextSong__"
+    },
+    "ff": {
+      "description": "__MSG_command_ff__"
     },
     "openMiniplayer": {
       "suggested_key": { "default": "Alt+W" },
@@ -53,17 +56,11 @@
     "volumeUp": {
       "description": "__MSG_command_volumeUp__"
     },
-    "feelingLucky": {
-      "description": "__MSG_feelingLucky__"
-    },
     "volumeDown": {
       "description": "__MSG_command_volumeDown__"
     },
     "volumeMute": {
       "description": "__MSG_command_volumeMute__"
-    },
-    "prevSong": {
-      "description": "__MSG_prevSong__"
     },
     "toggleRepeat": {
       "description": "__MSG_command_toggleRepeat__"
@@ -71,8 +68,8 @@
     "toggleShuffle": {
       "description": "__MSG_command_toggleShuffle__"
     },
-    "ff": {
-      "description": "__MSG_command_ff__"
+    "loveUnloveSong": {
+      "description": "__MSG_command_loveUnloveSong__"
     },
     "rate-1": {
       "description": "__MSG_command_rate1__"
@@ -88,6 +85,9 @@
     },
     "rate-5": {
       "description": "__MSG_command_rate5__"
+    },
+    "feelingLucky": {
+      "description": "__MSG_feelingLucky__"
     },
     "showToast": {
       "description": "__MSG_command_showToast__"
