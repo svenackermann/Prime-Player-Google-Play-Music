@@ -89,6 +89,15 @@
   "setting_toastIfMpOpen": {
     "message": "Toast auch zeigen, wenn der Miniplayer ge\u00F6ffnet ist"
   },
+  "setting_toastClick": {
+    "message": "Aktion beim Klick auf die Toast-Nachricht"
+  },
+  "setting_toastButton1": {
+    "message": "Aktion Toast Button 1"
+  },
+  "setting_toastButton2": {
+    "message": "Aktion Toast Button 2"
+  },
   "setting_scrobblePercent": {
     "message": "Prozentsatz zum Scrobbeln"
   },
@@ -365,6 +374,9 @@
   "searchResults": {
     "message": "Suchergebnisse"
   },
+  "command_": {
+    "message": "Keine Aktion"
+  },
   "command_loveUnloveSong": {
     "message": "Laufenden Titel lieben/nicht mehr lieben"
   },
@@ -403,5 +415,17 @@
   },
   "command_showToast": {
     "message": "Zeige Toast-Benachrichtigung (erneut)"
+  },
+  "command_thumbsUp": {
+    "message": "Daumen hoch"
+  },
+  "command_thumbsDown": {
+    "message": "Daumen runter"
+  },
+  "command_star1": {
+    "message": "Bewerte 1 Stern"
+  },
+  "command_star5": {
+    "message": "Bewerte 5 Sterne"
   }
 }

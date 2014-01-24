@@ -36,6 +36,9 @@ var SETTINGS_DEFAULTS = {
   toastUseMpStyle: false,
   toastDuration: 5,
   toastIfMpOpen: false,
+  toastClick: "",
+  toastButton1: "nextSong",
+  toastButton2: "playPause",
   miniplayerType: "popup",
   layout: "normal",
   color: "turq",
@@ -353,6 +356,32 @@ function getTextForQuicklink(link) {
   return text || chrome.i18n.getMessage("quicklink_" + link.replace(/-/g, "_").replace(/\//g, "_"));
 }
 
+function getTextForToastBtn(cmd) {
+  var key;
+  switch (cmd) {
+    case "playPause":
+    case "prevSong":
+    case "nextSong":
+    case "openMiniplayer":
+    case "feelingLucky":
+      key = cmd;
+      break;
+    case "rate-1":
+      if (player.ratingMode == "star") key = "command_star1"
+      else if (player.ratingMode == "thumbs") key = "command_thumbsDown"
+      else key = "command_rate1";
+      break;
+    case "rate-5":
+      if (player.ratingMode == "star") key = "command_star5"
+      else if (player.ratingMode == "thumbs") key = "command_thumbsUp"
+      else key = "command_rate5";
+      break;
+    default:
+      key = "command_" + cmd.replace(/-/g, "");
+  }
+  return chrome.i18n.getMessage(key);
+}
+
 function cacheForLaterScrobbling(songInfo) {
   var scrobbleCache = localStorage["scrobbleCache"];
   scrobbleCache = scrobbleCache ? JSON.parse(scrobbleCache) : {};
@@ -552,6 +581,7 @@ function toastClosed(notificationOrWinId) {
       toastCoverXhr = null;
     }
     chrome.notifications.onClosed.removeListener(toastClosed);
+    chrome.notifications.onClicked.removeListener(toastClicked);
     chrome.notifications.onButtonClicked.removeListener(toastButtonClicked);
   }
   if (toast && notificationOrWinId == toast.id) {
@@ -560,17 +590,53 @@ function toastClosed(notificationOrWinId) {
   }
 }
 
+function toastClicked(notificationId) {
+  if (notificationId == toastId && settings.toastClick) executeCommand(settings.toastClick);
+}
+
 function toastButtonClicked(notificationId, buttonIndex) {
   if (notificationId == toastId) {
-    switch (buttonIndex) {
-      case 0:
-        executeInGoogleMusic("nextSong");
-        break;
-      case 1:
-        executePlayPause();
-        break;
+    //check which button was clicked that the button is valid (otherwise it is not displayed and we would execute the wrong command)
+    var cmd = settings.toastButton1;
+    var btn = getToastBtn(cmd);
+    if (!btn || buttonIndex == 1) {
+      cmd = settings.toastButton2;
+      btn = getToastBtn(cmd);
     }
+    if (btn) executeCommand(cmd);
   }
+}
+
+function getToastBtn(cmd) {
+  if (!cmd) return null;
+  var icon = cmd;
+  switch (cmd) {
+    case "loveUnloveSong":
+      if (!localSettings.lastfmSessionName) return null;
+      break;
+    case "toggleRepeat":
+      if (!player.repeat) return null;
+      break;
+    case "toggleShuffle":
+      if (!player.shuffle) return null;
+      break;
+    case "rate-1":
+      if (player.ratingMode == "star") icon = cmd
+      else if (player.ratingMode == "thumbs") icon = "thumbsDown"
+      else return null;
+      break;
+    case "rate-5":
+      if (player.ratingMode == "star") icon = cmd
+      else if (player.ratingMode == "thumbs") icon = "thumbsUp"
+      else return null;
+      break;
+    case "rate-2":
+    case "rate-3":
+    case "rate-4":
+      if (player.ratingMode == "thumbs") return null;
+      break;
+  }
+  return {title: getTextForToastBtn(cmd), iconUrl: chrome.extension.getURL("img/toast/" + icon + ".png")};
 }
 
 function openToast() {
@@ -580,17 +646,22 @@ function openToast() {
       chrome.windows.onRemoved.addListener(toastClosed);
     });
   } else {
+    var btns = [];
+    var btn = getToastBtn(settings.toastButton1);
+    if (btn) btns.push(btn);
+    btn = getToastBtn(settings.toastButton2);
+    if (btn) btns.push(btn);
     var options = {
       type: "basic",
       title: song.info.title,
       message: song.info.artist + "\n" + song.info.album,
       iconUrl: chrome.extension.getURL("img/cover.png"),
-      buttons: [{title: chrome.i18n.getMessage("nextSong"), iconUrl: chrome.extension.getURL("img/toast-nextSong.png") },
-                {title: chrome.i18n.getMessage("playPause"), iconUrl: chrome.extension.getURL("img/toast-playPause.png") }]
+      buttons: btns
     };
     chrome.notifications.create("", options, function(notificationId) {
       toastId = notificationId;
       chrome.notifications.onClosed.addListener(toastClosed);
+      chrome.notifications.onClicked.addListener(toastClicked);
       chrome.notifications.onButtonClicked.addListener(toastButtonClicked);
       if (song.info.cover) {
         //we need a Cross-origin XMLHttpRequest
@@ -602,12 +673,6 @@ function openToast() {
           options.iconUrl = webkitURL.createObjectURL(this.response);
           chrome.notifications.update(notificationId, options, function(wasUpdated) {
             webkitURL.revokeObjectURL(options.iconUrl);
-            if (wasUpdated) {
-              //update calls onClosed listeners, so restore
-              toastId = notificationId;
-              chrome.notifications.onClosed.addListener(toastClosed);
-              chrome.notifications.onButtonClicked.addListener(toastButtonClicked);
-            }
           });
         };
         toastCoverXhr.send();
@@ -859,6 +924,8 @@ settings.addListener("hideRatings", function(val) {
   if (!val && song.info) getLovedInfo();
 });
 settings.addListener("toastUseMpStyle", closeToast);
+settings.addListener("toastButton1", closeToast);
+settings.addListener("toastButton2", closeToast);
 settings.addListener("scrobble", calcScrobbleTime);
 settings.addListener("scrobbleMaxDuration", calcScrobbleTime);
 settings.addListener("scrobblePercent", calcScrobbleTime);
@@ -1003,7 +1070,7 @@ function rate(rating) {
   executeInGoogleMusic("rate", {rating: rating});
 }
 
-chrome.commands.onCommand.addListener(function(command) {
+function executeCommand(command) {
   switch (command) {
     case "playPause":
     case "nextSong":
@@ -1050,7 +1117,9 @@ chrome.commands.onCommand.addListener(function(command) {
         rate(parseInt(command.substr(5, 1)));
       }
   }
-});
+}
+
+chrome.commands.onCommand.addListener(executeCommand);
 
 chrome.runtime.onConnect.addListener(onConnectListener);
 chrome.runtime.onUpdateAvailable.addListener(reloadForUpdate);
