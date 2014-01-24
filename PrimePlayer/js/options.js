@@ -35,24 +35,19 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function scrobbleChanged() {
-    var disabled = !bp.isScrobblingEnabled();
-    $("#scrobblePercent").prop("disabled", disabled);
-    $("#scrobbleTime").prop("disabled", disabled);
-    $("#scrobbleMaxDuration").prop("disabled", disabled);
-    $("#disableScrobbleOnFf").prop("disabled", disabled);
+    $("#scrobblePercent, #scrobbleTime, #scrobbleMaxDuration, #disableScrobbleOnFf").prop("disabled", !bp.isScrobblingEnabled());
   }
 
   function toastChanged() {
-    $("#toastUseMpStyle").prop("disabled", !bp.settings.toast);
+    $("#toastUseMpStyle, #toastIfMpOpen").prop("disabled", !bp.settings.toast);
     $("#toastDuration").prop("disabled", !bp.settings.toast || !bp.settings.toastUseMpStyle);
-    $("#toastIfMpOpen").prop("disabled", !bp.settings.toast);
+    $("#toastClick, #toastButton1, #toastButton2").prop("disabled", !bp.settings.toast || bp.settings.toastUseMpStyle);
   }
   
   function lastfmUserChanged(user) {
     var action;
     var actionText;
-    $("#scrobble").prop("disabled", user == null);
-    $("#linkRatings").prop("disabled", user == null);
+    $("#scrobble, #linkRatings").prop("disabled", user == null);
     scrobbleChanged();
     var links = $("#lastfmStatus").find("a");
     var userLink = links.first();
@@ -190,6 +185,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initHint("toastUseMpStyle");
     initNumberInput("toastDuration");
     initCheckbox("toastIfMpOpen");
+    initSelect("toastClick", bp.getTextForToastBtn);
+    initSelect("toastButton1")
+      .append($("#toastClick").children().clone())
+      .val(bp.settings.toastButton1);
+    initSelect("toastButton2")
+      .append($("#toastClick").children().clone())
+      .val(bp.settings.toastButton2);
     
     initSelect("miniplayerType");
     initHint("miniplayerType");
