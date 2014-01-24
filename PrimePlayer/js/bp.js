@@ -602,12 +602,6 @@ function openToast() {
           options.iconUrl = webkitURL.createObjectURL(this.response);
           chrome.notifications.update(notificationId, options, function(wasUpdated) {
             webkitURL.revokeObjectURL(options.iconUrl);
-            if (wasUpdated) {
-              //update calls onClosed listeners, so restore
-              toastId = notificationId;
-              chrome.notifications.onClosed.addListener(toastClosed);
-              chrome.notifications.onButtonClicked.addListener(toastButtonClicked);
-            }
           });
         };
         toastCoverXhr.send();
