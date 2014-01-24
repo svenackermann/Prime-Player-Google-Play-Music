@@ -621,14 +621,10 @@ function getToastBtn(cmd) {
       if (!player.shuffle) return null;
       break;
     case "rate-1":
-      if (player.ratingMode == "star") icon = cmd
-      else if (player.ratingMode == "thumbs") icon = "thumbsDown"
-      else return null;
+      if (player.ratingMode == "thumbs") icon = "thumbsDown"
       break;
     case "rate-5":
-      if (player.ratingMode == "star") icon = cmd
-      else if (player.ratingMode == "thumbs") icon = "thumbsUp"
-      else return null;
+      if (player.ratingMode == "thumbs") icon = "thumbsUp"
       break;
     case "rate-2":
     case "rate-3":
@@ -991,11 +987,11 @@ if (localStorage["updateBackup"] != null) {
   song.positionSec = parseSeconds(updateBackup.songPosition);
   song.position = updateBackup.songPosition;
   song.nowPlayingSent = updateBackup.nowPlayingSent;
-  song.scrobbled = updateBackup.scrobbled;
   song.ff = updateBackup.songFf;
+  calcScrobbleTime();
+  song.scrobbled = updateBackup.scrobbled;
   song.loved = updateBackup.loved;
   positionFromBackup = true;
-  calcScrobbleTime();
   volumeBeforeMute = updateBackup.volumeBeforeMute;
   if (updateBackup.miniplayerOpen) openMiniplayer();
 }
