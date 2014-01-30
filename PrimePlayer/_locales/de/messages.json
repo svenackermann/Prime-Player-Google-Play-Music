@@ -231,6 +231,12 @@
   "setting_syncSettings": {
     "message": "Einstellungen mit Chrome sync synchronisieren"
   },
+  "setting_preventCommandRatingReset": {
+    "message": "Setze Bewertungen niemals zur\u00FCck, wenn mittels Tastaturk\u00FCrzel bewertet wird"
+  },
+  "setting_preventCommandRatingResetHint": {
+    "message": "Normalerweise wird die Bewertung f\u00FCr einen Titel entfernt, wenn du ihn mit der aktuellen Bewertung erneut bewertest. Wenn du Tastaturk\u00FCrzel oder die Aktionen in der Toast-Benachrichtigung zum Bewerten verwendest, ist das \u00FCblicherweise nicht erw\u00FCnscht, weil man die aktuelle Bewertung nicht sieht. Deaktiviere diese Option, um in dem Fall trotzdem die Bewertung zu entfernen."
+  },
   "setting_updateNotifier": {
     "message": "Bei Aktualisierungen benachrichtigen (Symbol wird orange)"
   },
