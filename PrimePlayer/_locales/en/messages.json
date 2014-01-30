@@ -231,6 +231,12 @@
   "setting_syncSettings": {
     "message": "Sync settings with Chrome sync"
   },
+  "setting_preventCommandRatingReset": {
+    "message": "Prevent rating resets for keyboard shortcut"
+  },
+  "setting_preventCommandRatingResetHint": {
+    "message": "Normally, when you rate a song with the rating it already has, its rating is reset to unrated. When you use keyboard shortcuts or the notification actions for rating, you typically don't want this, because you can't see the current rating. Deactivate this option to reset the rating in that case anyway."
+  },
   "setting_updateNotifier": {
     "message": "Notify on updates (icon becomes orange)"
   },
