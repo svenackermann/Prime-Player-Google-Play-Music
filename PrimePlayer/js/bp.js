@@ -397,6 +397,10 @@ function cacheForLaterScrobbling(songInfo) {
   localStorage["scrobbleCache"] = JSON.stringify(scrobbleCache);
 }
 
+function isScrobbleRetriable(errorCode) {
+  return code == 16 || code == 11 || code == 9 || code == -1;
+}
+
 function scrobbleCachedSongs() {
   var scrobbleCache = localStorage["scrobbleCache"];
   if (scrobbleCache) {
@@ -405,7 +409,7 @@ function scrobbleCachedSongs() {
       localStorage.removeItem("scrobbleCache");
       return;
     }
-    params = {};
+    var params = {};
     for (var i = 0; i < scrobbleCache.songs.length; i++) {
       var curSong = scrobbleCache.songs[i];
       for (var prop in curSong) {
@@ -420,6 +424,7 @@ function scrobbleCachedSongs() {
         },
         error: function(code) {
           console.debug("Error on cached scrobbling: " + code);
+          if (!isScrobbleRetriable(code)) localStorage.removeItem("scrobbleCache");
           gaEvent("LastFM", "ScrobbleCachedError-" + code);
         }
       }
@@ -444,7 +449,7 @@ function scrobble() {
       },
       error: function(code) {
         console.debug("Error on scrobbling '" + params.track + "': " + code);
-        if (code == 16 || code == 11 || code == 9 || code == -1) cacheForLaterScrobbling(cloned);
+        if (isScrobbleRetriable(code)) cacheForLaterScrobbling(cloned);
         gaEvent("LastFM", "ScrobbleError-" + code);
       }
     }
