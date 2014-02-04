@@ -56,6 +56,7 @@ var SETTINGS_DEFAULTS = {
   iconClickPlayPause: false,
   openGoogleMusicPinned: false,
   connectedIndicator: true,
+  preventCommandRatingReset: true,
   updateNotifier: true,
   gaEnabled: true
 };
@@ -1115,7 +1116,8 @@ function executeCommand(command) {
       break;
     default:
       if (command.indexOf("rate-") == 0 && song.info) {
-        rate(parseInt(command.substr(5, 1)));
+        var rating = parseInt(command.substr(5, 1));
+        if (!settings.preventCommandRatingReset || !isRatingReset(song.rating, rating)) rate(rating);
       }
   }
 }

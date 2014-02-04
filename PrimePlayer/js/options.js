@@ -227,6 +227,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("iconClickConnect");
     initCheckbox("openGoogleMusicPinned");
     initCheckbox("connectedIndicator");
+    initCheckbox("preventCommandRatingReset");
+    initHint("preventCommandRatingReset");
     initCheckbox("updateNotifier");
     initCheckbox("syncSettings", bp.localSettings);
     initCheckbox("gaEnabled");
