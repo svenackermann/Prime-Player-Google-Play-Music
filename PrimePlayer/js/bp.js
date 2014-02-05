@@ -145,6 +145,7 @@ song.setEqualsFn("info", songsEqual);
 /** handler for all events that need to update the browser action icon/title */
 function updateBrowserActionInfo() {
   var path = "img/" + settings.iconStyle + "/";
+  var faviconPath;
   var title = chrome.i18n.getMessage("extTitle");
   if (viewUpdateNotifier) {
     path += "updated";
@@ -154,22 +155,26 @@ function updateBrowserActionInfo() {
   } else if (song.info) {
     title = song.info.artist + " - " + song.info.title
     if (player.playing) {
+      faviconPath = path + "playing";
       path += settings.iconClickPlayPause ? "pause" : "playing";
       title = chrome.i18n.getMessage("browserActionTitle_playing") + ": " + title;
     } else {
+      faviconPath = path + "paused";
       path += settings.iconClickPlayPause ? "play" : "paused";
       title = chrome.i18n.getMessage("browserActionTitle_paused") + ": " + title;
     }
     if (song.scrobbled) {
       path += "-scrobbled";
+      faviconPath += "-scrobbled";
       title += " (" + chrome.i18n.getMessage("browserActionTitle_scrobbled") + ")";
     }
   } else {
     path += "connected";
     title += " - " + chrome.i18n.getMessage("browserActionTitle_connected");
   }
-  player.favicon = path + ".png";
-  chrome.browserAction.setIcon({path: player.favicon});
+  faviconPath = faviconPath || path;
+  player.favicon = faviconPath + ".png";
+  chrome.browserAction.setIcon({path: path + ".png"});
   chrome.browserAction.setTitle({title: title});
 }
 
