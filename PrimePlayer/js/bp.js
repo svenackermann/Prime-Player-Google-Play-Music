@@ -154,10 +154,10 @@ function updateBrowserActionInfo() {
   } else if (song.info) {
     title = song.info.artist + " - " + song.info.title
     if (player.playing) {
-      path += "play";
+      path += settings.iconClickPlayPause ? "pause" : "playing";
       title = chrome.i18n.getMessage("browserActionTitle_playing") + ": " + title;
     } else {
-      path += "pause";
+      path += settings.iconClickPlayPause ? "play" : "paused";
       title = chrome.i18n.getMessage("browserActionTitle_paused") + ": " + title;
     }
     if (song.scrobbled) {
@@ -905,7 +905,7 @@ settings.watch("updateNotifier", function(val) {
 });
 settings.watch("gaEnabled", gaEnabledChanged);
 settings.watch("iconClickMiniplayer", iconClickSettingsChanged);
-settings.watch("iconClickPlayPause", iconClickSettingsChanged);
+settings.addListener("iconClickPlayPause", iconClickSettingsChanged);
 settings.addListener("iconClickConnect", iconClickSettingsChanged);
 settings.watch("miniplayerType", function(val) {
   if (val == "notification") {//migrate (notification type is no longer supported)
@@ -934,6 +934,7 @@ settings.addListener("scrobblePercent", calcScrobbleTime);
 settings.addListener("scrobbleTime", calcScrobbleTime);
 settings.addListener("disableScrobbleOnFf", calcScrobbleTime);
 settings.watch("iconStyle", updateBrowserActionInfo);
+settings.addListener("iconClickPlayPause", updateBrowserActionInfo);
 settings.addListener("connectedIndicator", function(val) {
   postToGooglemusic({type: "connectedIndicator", show: val});
 });
