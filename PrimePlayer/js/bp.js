@@ -154,10 +154,10 @@ function updateBrowserActionInfo() {
   } else if (song.info) {
     title = song.info.artist + " - " + song.info.title
     if (player.playing) {
-      path += "play";
+      path += settings.iconClickPlayPause ? "pause" : "playing";
       title = chrome.i18n.getMessage("browserActionTitle_playing") + ": " + title;
     } else {
-      path += "pause";
+      path += settings.iconClickPlayPause ? "play" : "paused";
       title = chrome.i18n.getMessage("browserActionTitle_paused") + ": " + title;
     }
     if (song.scrobbled) {
@@ -398,6 +398,10 @@ function cacheForLaterScrobbling(songInfo) {
   localStorage["scrobbleCache"] = JSON.stringify(scrobbleCache);
 }
 
+function isScrobbleRetriable(errorCode) {
+  return code == 16 || code == 11 || code == 9 || code == -1;
+}
+
 function scrobbleCachedSongs() {
   var scrobbleCache = localStorage["scrobbleCache"];
   if (scrobbleCache) {
@@ -406,7 +410,7 @@ function scrobbleCachedSongs() {
       localStorage.removeItem("scrobbleCache");
       return;
     }
-    params = {};
+    var params = {};
     for (var i = 0; i < scrobbleCache.songs.length; i++) {
       var curSong = scrobbleCache.songs[i];
       for (var prop in curSong) {
@@ -421,6 +425,7 @@ function scrobbleCachedSongs() {
         },
         error: function(code) {
           console.debug("Error on cached scrobbling: " + code);
+          if (!isScrobbleRetriable(code)) localStorage.removeItem("scrobbleCache");
           gaEvent("LastFM", "ScrobbleCachedError-" + code);
         }
       }
@@ -445,7 +450,7 @@ function scrobble() {
       },
       error: function(code) {
         console.debug("Error on scrobbling '" + params.track + "': " + code);
-        if (code == 16 || code == 11 || code == 9 || code == -1) cacheForLaterScrobbling(cloned);
+        if (isScrobbleRetriable(code)) cacheForLaterScrobbling(cloned);
         gaEvent("LastFM", "ScrobbleError-" + code);
       }
     }
@@ -900,7 +905,7 @@ settings.watch("updateNotifier", function(val) {
 });
 settings.watch("gaEnabled", gaEnabledChanged);
 settings.watch("iconClickMiniplayer", iconClickSettingsChanged);
-settings.watch("iconClickPlayPause", iconClickSettingsChanged);
+settings.addListener("iconClickPlayPause", iconClickSettingsChanged);
 settings.addListener("iconClickConnect", iconClickSettingsChanged);
 settings.watch("miniplayerType", function(val) {
   if (val == "notification") {//migrate (notification type is no longer supported)
@@ -929,6 +934,7 @@ settings.addListener("scrobblePercent", calcScrobbleTime);
 settings.addListener("scrobbleTime", calcScrobbleTime);
 settings.addListener("disableScrobbleOnFf", calcScrobbleTime);
 settings.watch("iconStyle", updateBrowserActionInfo);
+settings.addListener("iconClickPlayPause", updateBrowserActionInfo);
 settings.addListener("connectedIndicator", function(val) {
   postToGooglemusic({type: "connectedIndicator", show: val});
 });
