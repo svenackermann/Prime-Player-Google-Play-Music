@@ -1,8 +1,10 @@
 {
   "manifest_version": 2,
   "name": "Prime Player for Google Play Music\u2122",
+  "short_name": "__MSG_extTitle__",
   "description": "__MSG_extDesc__",
   "version": "2.7.2",
+  "author": "Sven Recknagel",
   "minimum_chrome_version": "31.0.1650.48",
   "default_locale": "en",
   "icons": {
@@ -36,15 +38,18 @@
   "commands": {
     "playPause": {
       "suggested_key": { "default": "MediaPlayPause" },
-      "description": "__MSG_playPause__"
+      "description": "__MSG_playPause__",
+      "global": true
     },
     "prevSong": {
       "suggested_key": { "default": "MediaPrevTrack" },
-      "description": "__MSG_prevSong__"
+      "description": "__MSG_prevSong__",
+      "global": true
     },
     "nextSong": {
       "suggested_key": { "default": "MediaNextTrack" },
-      "description": "__MSG_nextSong__"
+      "description": "__MSG_nextSong__",
+      "global": true
     },
     "ff": {
       "description": "__MSG_command_ff__"
