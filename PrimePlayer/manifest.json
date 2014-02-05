@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Prime Player for Google Play Music\u2122",
   "description": "__MSG_extDesc__",
-  "version": "2.7.1",
+  "version": "2.7.2",
   "minimum_chrome_version": "31.0.1650.48",
   "default_locale": "en",
   "icons": {
