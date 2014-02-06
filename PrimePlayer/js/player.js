@@ -159,13 +159,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
 
-  function updateCoverClickLink(link) {
-    updateClickLink("#coverContainer", link);
-  }
-
-  function updateTitleClickLink(link) {
-    updateClickLink("#track, #nosong a:first-child", link);
-  }
+  var updateCoverClickLink = updateClickLink.bind(window, "#coverContainer");
+  
+  var updateTitleClickLink = updateClickLink.bind(window, "#track, #nosong a:first-child");
 
   /** listen for resize events and poll for position changes to update the settings */
   function setupResizeMoveListeners() {

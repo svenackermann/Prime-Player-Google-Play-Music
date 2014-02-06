@@ -5,15 +5,13 @@
  * Licensed under the BSD license
  */
 (function() {
-  function dispatchMouseEvent(element, eventname, clientX, clientY) {
+  function dispatchMouseEvent(eventname, element, clientX, clientY) {
     var event = document.createEvent("MouseEvents");
     event.initMouseEvent(eventname, true, true, window, 1, 0, 0, clientX || 0, clientY || 0, false, false, false, false, 0, element);
     element.dispatchEvent(event);
   }
   
-  function simClick(element) {
-    dispatchMouseEvent(element, "click");
-  }
+  var simClick = dispatchMouseEvent.bind(window, "click");
   
   function startPlaylist() {
     simClick(document.getElementsByClassName("overlay-icon")[0]);
@@ -85,7 +83,7 @@
       if (cols[0]) {
         var span = cols[0].getElementsByClassName("content")[0];
         if (span) {
-          dispatchMouseEvent(span, "mouseover");
+          dispatchMouseEvent("mouseover", span);
           setTimeout(function() {
             simClick(span.getElementsByClassName("hover-button")[0]);
             sendPlaylistSongResult("playlistSongStarted", index);
@@ -101,7 +99,7 @@
     withPlaylistCols(controlLink, index, function(cols) {
       for (var i = cols.length - 1; i >= 0; i--) {
         if (cols[i].dataset.col == "rating") {
-          dispatchMouseEvent(cols[i], "mouseover");
+          dispatchMouseEvent("mouseover", cols[i]);
           setTimeout(function() {
             rate(cols[i], rating);
             setTimeout(function() {
@@ -128,7 +126,7 @@
   function setPositionPercent(elementId, percent) {
     var slider = document.getElementById(elementId);
     var rect = slider.getBoundingClientRect();
-    dispatchMouseEvent(slider, "mousedown", rect.left + (percent * rect.width), rect.top + 1);
+    dispatchMouseEvent("mousedown", slider, rect.left + (percent * rect.width), rect.top + 1);
   }
   
   function cleanup() {
