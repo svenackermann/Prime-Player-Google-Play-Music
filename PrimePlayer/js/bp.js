@@ -10,6 +10,7 @@ var LOCAL_SETTINGS_DEFAULTS = {
   lastfmSessionKey: null,
   lastfmSessionName: null,
   syncSettings: false,
+  lyrics: false,
   miniplayerSizing: {
     normal:   { width: 270, height: 115, left: 0, top: 0 },
     compact1: { width: 250, height: 83, left: 0, top: 0 },

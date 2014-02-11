@@ -413,8 +413,7 @@ a {
         margin-right: 1ex;
         padding-top: 2px;
       }
-      > span:first-child {
-        color: inherit;
+      > :first-child {
         width: 40%;
       }
       > span.duration {
@@ -465,7 +464,7 @@ a {
   > span:not(.duration), > a {
     width: 40%;
   }
-  > span:first-child {
+  > :first-child {
     width: 50%;
   }
 }
@@ -475,7 +474,7 @@ a {
 }
 
 #navlistContainer .playlist.noduration > div > div.info {
-  > span:first-child {
+  > :first-child {
     width: 50%;
   }
   > span.duration {

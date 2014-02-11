@@ -223,6 +223,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
         .attr("href", "http://last.fm/user/" + user);
     }
   }
+  
+  function lyricsWatcher(val) {
+    $("body").toggleClass("lyrics", val);
+  }
 
   function volumeWatcher(val) {
     if (val == null) {
@@ -292,7 +296,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
         $("<div class='rating r" + e.rating + "'>" + ratingHtml + "</div>").appendTo(row);
         if (e.rating >= 0) currentNavList.noRating = false;
         var info = $("<div class='info'></div>");
-        $("<span></span>").text(e.title).attr("title", e.title).appendTo(info);
+        var title;
+        if (bp.localSettings.lyrics) {
+          title = $("<a href='#' class='nav' data-link='lyrics'></a>").data("options", {artist: e.artist, title: e.title});
+        } else {
+          title = $("<span></span>");
+        }
+        title.text(e.title).attr("title", e.title).appendTo(info);
         $("<span class='duration'></span>").text(e.duration).appendTo(info);
         currentNavList.duration += bp.parseSeconds(e.duration);
         if (e.artistLink) {
@@ -617,6 +627,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     setupNavigationEvents();
 
     bp.localSettings.watch("lastfmSessionName", lastfmUserWatcher);
+    bp.localSettings.watch("lyrics", lyricsWatcher);
     bp.settings.watch("scrobble", scrobbleWatcher);
     bp.settings.watch("color", colorWatcher);
     bp.settings.watch("coverClickLink", updateCoverClickLink);
@@ -646,6 +657,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $(window).unload(function() {
       bp.settings.removeListener("layout", layoutWatcher);
       bp.localSettings.removeListener("lastfmSessionName", lastfmUserWatcher);
+      bp.localSettings.removeListener("lyrics", lyricsWatcher);
       bp.settings.removeListener("scrobble", scrobbleWatcher);
       bp.settings.removeListener("color", colorWatcher);
       bp.settings.removeListener("coverClickLink", updateCoverClickLink);
