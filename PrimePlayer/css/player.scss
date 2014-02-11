@@ -75,8 +75,6 @@ a {
   }
   #rating {
     display: block;
-    padding-top: 3px;
-    overflow-x: hidden;
   }
   #time > div {
     visibility: visible;
@@ -250,6 +248,17 @@ a {
     height: 96px;
     body {
       height: 96px;
+    }
+    .lastfm {
+      #rightbuttons {
+        height: 48px;
+        margin-left: 18px;
+      }
+      #feelingLucky {
+        position: relative;
+        top: -16px;
+        left: -16px;
+      }
     }
   }
 }
@@ -589,6 +598,8 @@ a {
 
 #rating {
   display: none;
+  padding-top: 1px;
+  overflow-x: hidden;
 }
 
 #lastfmRating {

@@ -151,6 +151,9 @@
       height: 46px;
     }
   }
+  #song {
+    margin-bottom: 2px;
+  }
   #rightbuttons > a {
     height: 14px;
     width: 15px;
@@ -320,6 +323,7 @@
   }
   #rating {
     margin-top: 3px;
+    padding-top: 3px;
   }
   #lastfmRating {
     margin-left: 5px;
@@ -405,6 +409,7 @@
     position: absolute;
     top: 10px;
     left: $height + 316px;
+    padding-top: 2px;
   }
   #rightbuttons {
     margin-top: 1px;
