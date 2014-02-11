@@ -184,6 +184,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
             sizing.height = window.outerHeight;
             bp.localSettings[sizingSetting] = sizing;//trigger listener notification
           }
+        } else if ($("#lyrics").is(":visible")) {
+          var sizing = bp.localSettings.lyricsSizing;
+          sizing.width = window.outerWidth;
+          sizing.height = window.outerHeight;
+          bp.localSettings.lyricsSizing = sizing;//trigger listener notification
         }
       }, 500);
     });
@@ -370,7 +375,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
 
-  function switchView(title, link, search) {
+  function switchView(title, link, search, options) {
     if ($("#player").is(":visible") && (typeClass == "miniplayer" || typeClass == "toast")) {
       savedSizing = {
         height: window.outerHeight,
@@ -384,16 +389,34 @@ chrome.runtime.getBackgroundPage(function(bp) {
       currentNavList.titleList = null;//free memory
       navHistory.push(currentNavList);
     }
-    currentNavList = {link: link, title: title, search: search};
+    currentNavList = {link: link, title: title, search: search, options: options};
     updateNavHead(title);
     $("#navlist").empty().removeClass();
+    $("#lyrics").removeClass().children().empty();
     if (!search) $("#navHead > input").val("");
+    $("#navlistContainer").hide();
+    $("#quicklinks").hide();
+    $("#lyrics").hide();
     if (link == "quicklinks") {
-      $("#navlistContainer").hide();
-      resize(bp.localSettings["quicklinksSizing"]);
+      resize(bp.localSettings.quicklinksSizing);
       $("#quicklinks").show();
+    } else if (link == "lyrics") {
+      var lyrics = $("#lyrics");
+      lyrics.addClass("loading");
+      resize(bp.localSettings.lyricsSizing);
+      lyrics.show();
+      fetchLyrics(options, function(result) {
+        lyrics.removeClass("loading");
+        //TODO check error/no result
+        $("#navHead").children("span").text(result.title.text().trim());
+        lyrics.children(".content").html(result.lyrics.html());
+        if (result.credits) lyrics.children(".credits").html(result.credits.html() + "<br/>");
+        lyrics.children(".credits")
+          .append($("<a target='_blank'></a>").attr("href", result.src).text(chrome.i18n.getMessage("lyricsSrc")))
+          .append($("<br/>"))
+          .append($("<a target='_blank'></a>").attr("href", result.searchSrc).text(chrome.i18n.getMessage("lyricsSearchResult")));
+      });
     } else {
-      $("#quicklinks").hide();
       $("#navlist").addClass("loading");
       $("#navlistContainer").show();
       bp.loadNavigationList(link, search);
@@ -444,8 +467,19 @@ chrome.runtime.getBackgroundPage(function(bp) {
       var link = $(this).data("link");
       if (link) {
         e.preventDefault();
-        if (bp.settings.openLinksInMiniplayer == e.shiftKey && link != "quicklinks") bp.selectLink(link)
-        else switchView($(this).data("text") || $(this).text(), link, $(this).data("search"));
+        var options = $(this).data("options");
+        var title;
+        if (link == "lyrics") {
+          if (!options) {
+            if (!bp.song.info) return;
+            options = {artist: bp.song.info.artist, title: bp.song.info.title};
+          }
+          var song = options.title;
+          if (options.artist) song = options.artist + " - " + song;
+          title = chrome.i18n.getMessage("lyricsFor", song);
+        } else title = $(this).data("text") || $(this).text();
+        if (bp.settings.openLinksInMiniplayer == e.shiftKey && link != "quicklinks" && link != "lyrics") bp.selectLink(link)
+        else switchView(title, link, $(this).data("search"), options);
       }
     });
     

@@ -433,5 +433,15 @@
   },
   "command_star5": {
     "message": "Bewerte 5 Sterne"
+  },
+  "lyricsFor": {
+    "message": "$SONG$ Lyrics",
+    "placeholders": { "SONG": { "content": "$1" } }
+  },
+  "lyricsSrc": {
+    "message": "Songtext-Quelle"
+  },
+  "lyricsSearchResult": {
+    "message": "Suchergebnis"
   }
 }

@@ -5,6 +5,7 @@
 <link rel="stylesheet" type="text/css" href="css/player.css"/>
 <script type="text/javascript" src="js/jquery-2.0.2.min.js"></script>
 <script type="text/javascript" src="js/player.js"></script>
+<script type="text/javascript" src="js/lyrics.js"></script>
 </head>
 <body>
   <div id="player">
@@ -59,6 +60,7 @@
       <a href="#" id="next"></a>
       <a href="#" id="repeat"></a>
       <a href="#" id="shuffle"></a>
+      <a href="#" id="showlyrics" class="nav" data-link="lyrics"></a>
       <a href="#" id="volume"></a>
       <div id="volumeBarContainer">
         <div id="volumeBarBorder">
@@ -94,6 +96,10 @@
         <a href="#" class="nav" data-link="ap/shared-with-me"></a>
         <a href="#" class="nav" data-link="ap/google-play-recommends"></a>
       </div>
+    </div>
+    <div id="lyrics">
+      <div class="content"></div>
+      <div class="credits"></div>
     </div>
   </div>
 </body>

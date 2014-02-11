@@ -20,7 +20,8 @@ var LOCAL_SETTINGS_DEFAULTS = {
   playlistSizing: {width: 500, height: 295},
   quicklinksSizing: {width: 280, height: 160},
   albumContainersSizing: {width: 220, height: 320},
-  searchresultSizing: {width: 350, height: 320}
+  searchresultSizing: {width: 350, height: 320},
+  lyricsSizing: {width: 400, height: 400}
 }
 var localSettings = new Bean(LOCAL_SETTINGS_DEFAULTS, true);
 

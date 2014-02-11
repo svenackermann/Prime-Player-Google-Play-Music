@@ -82,11 +82,7 @@ a {
   #pause {
     cursor: pointer;
   }
-  #prev {
-    opacity: 1;
-    cursor: pointer;
-  }
-  #next {
+  #prev, #next, #showlyrics {
     opacity: 1;
     cursor: pointer;
   }
@@ -334,15 +330,23 @@ a {
   }
 }
 
-#nav.searchField #navHead > input {
-  display: block;
+#nav.searchField {
+  #navHead > input {
+    display: block;
+  }
+  #navlistContainer, #lyrics {
+    top: 36px;
+  }
 }
 
-#navlistContainer {
+#navlistContainer, #lyrics {
   position: absolute;
   width: 100%;
   top: 18px;
   bottom: 0;
+}
+
+#navlistContainer {
   .playlistsList, .playlist, .albumContainers {
     > div {
       white-space: nowrap;
@@ -434,10 +438,6 @@ a {
       }
     }
   }
-}
-
-#nav.searchField #navlistContainer {
-  top: 36px;
 }
 
 #navlist {
@@ -596,6 +596,29 @@ a {
   }
 }
 
+#lyrics {
+  display: none;
+  overflow-y: auto;
+  &.loading .content {
+    height: 90%;
+    overflow-y: hidden;
+    background: url(../img/ajax-loader.gif) no-repeat center center;
+  }
+  a {
+    text-decoration: underline;
+    color: blue;
+  }
+  div {
+    margin: 2px;
+  }
+  .credits {
+    border-top: 1px solid grey;
+    margin-top: 1ex;
+    padding-top: 1ex;
+    text-align: center;
+  }
+}
+
 #rating {
   display: none;
   padding-top: 1px;
@@ -730,12 +753,16 @@ a {
   }
 }
 
-#prev {
+#prev, #next, #showlyrics {
   opacity: 0.2;
 }
 
-#next {
-  opacity: 0.2;
+#showlyrics {
+  display: none;
+}
+
+.lyrics #showlyrics {
+  display: block;
 }
 
 #shuffle {
