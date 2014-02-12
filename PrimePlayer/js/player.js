@@ -431,7 +431,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       lyrics.addClass("loading");
       resize(bp.localSettings.lyricsSizing);
       lyrics.show();
-      fetchLyrics(options, renderLyrics.bind(window, lyrics));
+      bp.fetchLyrics(options, renderLyrics.bind(window, lyrics));
     } else {
       $("#navlist").addClass("loading");
       $("#navlistContainer").show();
@@ -486,16 +486,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
         var options = $(this).data("options");
         var title;
         if (link == "lyrics") {
+          if (bp.settings.openLyricsInMiniplayer == e.shiftKey) {
+            bp.openLyrics(options);
+            return;
+          }
           if (!options) {
             if (!bp.song.info) return;
             options = {artist: bp.song.info.artist, title: bp.song.info.title};
-          }
-          if (bp.settings.openLyricsInMiniplayer == e.shiftKey) {
-            var url = buildSearchUrl(options);
-            if (url) chrome.tabs.create({url: url}, function(tab) {
-              chrome.tabs.executeScript(tab.id, {file: "js/cs-songlyrics.js", runAt: "document_end"});
-            });
-            return;
           }
           var song = options.title;
           if (options.artist) song = options.artist + " - " + song;

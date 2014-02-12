@@ -906,6 +906,17 @@ function closeMpOnDisconnect(connected) {
   if (!connected && miniplayer) chrome.windows.remove(miniplayer.id);
 }
 
+function openLyrics(aSong) {
+  if (!aSong) {
+    if (!song.info) return;
+    aSong = {artist: song.info.artist, title: song.info.title};
+  }
+  var url = buildSearchUrl(aSong);
+  if (url) chrome.tabs.create({url: url}, function(tab) {
+    chrome.tabs.executeScript(tab.id, {file: "js/cs-songlyrics.js", runAt: "document_end"});
+  });
+}
+
 settings.watch("updateNotifier", function(val) {
   if (val) chrome.runtime.onInstalled.addListener(updatedListener)
   else chrome.runtime.onInstalled.removeListener(updatedListener);
@@ -1121,6 +1132,9 @@ function executeCommand(command) {
       break;
     case "ff":
       if (song.info && song.info.durationSec > 0) setSongPosition(Math.min(1, (song.positionSec + 15) / song.info.durationSec));
+      break;
+    case "openLyrics":
+      if (localSettings.lyrics) openLyrics();
       break;
     default:
       if (command.indexOf("rate-") == 0 && song.info) {

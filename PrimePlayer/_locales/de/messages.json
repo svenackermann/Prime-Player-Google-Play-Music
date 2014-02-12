@@ -455,6 +455,9 @@
   "command_star5": {
     "message": "Bewerte 5 Sterne"
   },
+  "command_openLyrics": {
+    "message": "\u00D6ffne Song-Text"
+  },
   "lyricsFor": {
     "message": "Song-Text f\u00FCr '$SONG$'",
     "placeholders": { "SONG": { "content": "$1" } }
