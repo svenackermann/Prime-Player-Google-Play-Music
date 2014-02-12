@@ -75,8 +75,6 @@ a {
   }
   #rating {
     display: block;
-    padding-top: 3px;
-    overflow-x: hidden;
   }
   #time > div {
     visibility: visible;
@@ -84,11 +82,7 @@ a {
   #pause {
     cursor: pointer;
   }
-  #prev {
-    opacity: 1;
-    cursor: pointer;
-  }
-  #next {
+  #prev, #next, #showlyrics {
     opacity: 1;
     cursor: pointer;
   }
@@ -251,6 +245,17 @@ a {
     body {
       height: 96px;
     }
+    .lastfm {
+      #rightbuttons {
+        height: 48px;
+        margin-left: 18px;
+      }
+      #feelingLucky {
+        position: relative;
+        top: -16px;
+        left: -16px;
+      }
+    }
   }
 }
 
@@ -325,15 +330,23 @@ a {
   }
 }
 
-#nav.searchField #navHead > input {
-  display: block;
+#nav.searchField {
+  #navHead > input {
+    display: block;
+  }
+  #navlistContainer, #lyrics {
+    top: 36px;
+  }
 }
 
-#navlistContainer {
+#navlistContainer, #lyrics {
   position: absolute;
   width: 100%;
   top: 18px;
   bottom: 0;
+}
+
+#navlistContainer {
   .playlistsList, .playlist, .albumContainers {
     > div {
       white-space: nowrap;
@@ -400,8 +413,7 @@ a {
         margin-right: 1ex;
         padding-top: 2px;
       }
-      > span:first-child {
-        color: inherit;
+      > :first-child {
         width: 40%;
       }
       > span.duration {
@@ -427,10 +439,6 @@ a {
   }
 }
 
-#nav.searchField #navlistContainer {
-  top: 36px;
-}
-
 #navlist {
   height: 98%;
   padding: 2px;
@@ -438,11 +446,6 @@ a {
   overflow-x: hidden;
   &.loading {
     background: url(../img/ajax-loader.gif) no-repeat center center;
-  }
-  > .empty, > .error {
-    text-align: center;
-    position: relative;
-    top: 40%;
   }
   > .empty:after {
     content: "__MSG_emptyList__";
@@ -452,11 +455,19 @@ a {
   }
 }
 
+#navlist, #lyrics .content {
+  > .empty, > .error {
+    text-align: center;
+    position: relative;
+    top: 40%;
+  }
+}
+
 #navlistContainer .playlist.noalbum > div > div.info {
   > span:not(.duration), > a {
     width: 40%;
   }
-  > span:first-child {
+  > :first-child {
     width: 50%;
   }
 }
@@ -466,7 +477,7 @@ a {
 }
 
 #navlistContainer .playlist.noduration > div > div.info {
-  > span:first-child {
+  > :first-child {
     width: 50%;
   }
   > span.duration {
@@ -587,8 +598,41 @@ a {
   }
 }
 
+#lyrics {
+  display: none;
+  overflow-y: auto;
+  &.loading .content {
+    height: 90%;
+    overflow-y: hidden;
+    background: url(../img/ajax-loader.gif) no-repeat center center;
+  }
+  a {
+    text-decoration: underline;
+    color: blue;
+  }
+  div {
+    margin: 2px;
+  }
+  .content {
+    > .empty:after {
+      content: "__MSG_noLyricsFound__";
+    }
+    > .error:after {
+      content: "__MSG_loadLyricsError__";
+    }
+  }
+  .credits {
+    border-top: 1px solid grey;
+    margin-top: 1ex;
+    padding-top: 1ex;
+    text-align: center;
+  }
+}
+
 #rating {
   display: none;
+  padding-top: 1px;
+  overflow-x: hidden;
 }
 
 #lastfmRating {
@@ -719,12 +763,16 @@ a {
   }
 }
 
-#prev {
+#prev, #next, #showlyrics {
   opacity: 0.2;
 }
 
-#next {
-  opacity: 0.2;
+#showlyrics {
+  display: none;
+}
+
+.lyrics #showlyrics {
+  display: block;
 }
 
 #shuffle {

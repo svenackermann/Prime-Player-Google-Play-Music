@@ -59,6 +59,9 @@
   "resumeSong": {
     "message": "Resume song"
   },
+  "showLyrics": {
+    "message": "Show lyrics"
+  },
   "volumeControl": {
     "message": "Control volume"
   },
@@ -288,6 +291,12 @@
   "loadListError": {
     "message": "The list could not be loaded."
   },
+  "noLyricsFound": {
+    "message": "No matching lyrics found."
+  },
+  "loadLyricsError": {
+    "message": "The lyrics could not be loaded."
+  },
   "quicklinks": {
     "message": "quick-links"
   },
@@ -360,7 +369,19 @@
     "message": "Open links in miniplayer"
   },
   "setting_openLinksInMiniplayerHint": {
-    "message": "If enabled, links to albums, artist etc. will be opened directly in the miniplayer, otherwise in the Google Music tab. With Shift+Click you can switch this behavior temporarily."
+    "message": "If enabled, links to albums, artist etc. will be opened directly in the miniplayer, otherwise in the Google Music tab. Using Shift+Click you can switch this behavior temporarily."
+  },
+  "setting_lyrics": {
+    "message": "Activate lyrics"
+  },
+  "setting_openLyricsInMiniplayer": {
+    "message": "Open lyrics in miniplayer"
+  },
+  "setting_openLyricsInMiniplayerHint": {
+    "message": "If enabled, lyrics will be shown in the miniplayer, otherwise a new tab will be opened. Using Shift+Click you can switch this behavior temporarily."
+  },
+  "lyricsAlert": {
+    "message": "This feature requires access to songlyrics.com to load the lyrics.\nPlease note that not Prime Player but songlyrics.com is responsible for the quality of the search results. Prime Player always shows the first search result from songlyrics.com. So it is possible that the shown lyrics don't match the song. You can check the search results with the links at the bottom of the lyrics page in the miniplayer."
   },
   "setting_hideSearchfield": {
     "message": "Hide search box in miniplayer"
@@ -433,5 +454,22 @@
   },
   "command_star5": {
     "message": "Rate 5 stars"
+  },
+  "command_openLyrics": {
+    "message": "Open lyrics"
+  },
+  "lyricsFor": {
+    "message": "Lyrics for '$SONG$'",
+    "placeholders": { "SONG": { "content": "$1" } }
+  },
+  "lyricsTitle": {
+    "message": "$SONG$ Lyrics",
+    "placeholders": { "SONG": { "content": "$1" } }
+  },
+  "lyricsSrc": {
+    "message": "lyrics source"
+  },
+  "lyricsSearchResult": {
+    "message": "search result"
   }
 }

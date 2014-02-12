@@ -125,12 +125,19 @@
     margin: 0 5px 0 #{$size + 10}px;
   }
   
+  #showlyrics {
+    @include sprite(16, 0, $size);
+  }
+  
   .hasSong {
     #prev {
       @include hoversprite(5, 0, 1, $size);
     }
     #next {
       @include hoversprite(6, 0, 1, $size);
+    }
+    #showlyrics {
+      @include hoversprite(16, 0, 1, $size);
     }
   }
 }
@@ -150,6 +157,9 @@
     #top {
       height: 46px;
     }
+  }
+  #song {
+    margin-bottom: 2px;
   }
   #rightbuttons > a {
     height: 14px;
@@ -320,6 +330,7 @@
   }
   #rating {
     margin-top: 3px;
+    padding-top: 3px;
   }
   #lastfmRating {
     margin-left: 5px;
@@ -380,6 +391,14 @@
     #player {
       width: 359px;
     }
+    .lyrics {
+      #time {
+        width: 168px;
+      }
+      #player {
+        width: 383px;
+      }
+    }
   }
   #playControls {
     position: absolute;
@@ -394,6 +413,14 @@
     height: 10px;
     padding: 0;
   }
+  .lyrics {
+    #time {
+      width: 285px;
+    }
+    #player {
+      width: 500px;
+    }
+  }
   #currentTime, #songTime {
     font-size: 8px;
     min-width: 4ex;
@@ -405,6 +432,10 @@
     position: absolute;
     top: 10px;
     left: $height + 316px;
+    padding-top: 2px;
+  }
+  .lyrics #rating {
+    left: $height + 336px;
   }
   #rightbuttons {
     margin-top: 1px;

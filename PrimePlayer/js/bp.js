@@ -10,17 +10,19 @@ var LOCAL_SETTINGS_DEFAULTS = {
   lastfmSessionKey: null,
   lastfmSessionName: null,
   syncSettings: false,
+  lyrics: false,
   miniplayerSizing: {
     normal:   { width: 270, height: 115, left: 0, top: 0 },
-    compact1: { width: 250, height: 83, left: 0, top: 0 },
-    compact2: { width: 180, height: 128, left: 0, top: 0 },
-    hbar:     { width: 480, height: 30,  left: 0, top: 0 }
+    compact1: { width: 265, height: 80, left: 0, top: 0 },
+    compact2: { width: 195, height: 125, left: 0, top: 0 },
+    hbar:     { width: 515, height: 30,  left: 0, top: 0 }
   },
   playlistsListSizing: {width: 350, height: 320},
   playlistSizing: {width: 500, height: 295},
   quicklinksSizing: {width: 280, height: 160},
   albumContainersSizing: {width: 220, height: 320},
-  searchresultSizing: {width: 350, height: 320}
+  searchresultSizing: {width: 350, height: 320},
+  lyricsSizing: {width: 400, height: 400}
 }
 var localSettings = new Bean(LOCAL_SETTINGS_DEFAULTS, true);
 
@@ -45,6 +47,7 @@ var SETTINGS_DEFAULTS = {
   coverClickLink: "now",
   titleClickLink: "ap/queue",
   openLinksInMiniplayer: true,
+  openLyricsInMiniplayer: true,
   hideSearchfield: false,
   hideRatings: false,
   omitUnknownAlbums: false,
@@ -145,6 +148,7 @@ song.setEqualsFn("info", songsEqual);
 /** handler for all events that need to update the browser action icon/title */
 function updateBrowserActionInfo() {
   var path = "img/" + settings.iconStyle + "/";
+  var faviconPath;
   var title = chrome.i18n.getMessage("extTitle");
   if (viewUpdateNotifier) {
     path += "updated";
@@ -154,22 +158,26 @@ function updateBrowserActionInfo() {
   } else if (song.info) {
     title = song.info.artist + " - " + song.info.title
     if (player.playing) {
+      faviconPath = path + "playing";
       path += settings.iconClickPlayPause ? "pause" : "playing";
       title = chrome.i18n.getMessage("browserActionTitle_playing") + ": " + title;
     } else {
+      faviconPath = path + "paused";
       path += settings.iconClickPlayPause ? "play" : "paused";
       title = chrome.i18n.getMessage("browserActionTitle_paused") + ": " + title;
     }
     if (song.scrobbled) {
       path += "-scrobbled";
+      faviconPath += "-scrobbled";
       title += " (" + chrome.i18n.getMessage("browserActionTitle_scrobbled") + ")";
     }
   } else {
     path += "connected";
     title += " - " + chrome.i18n.getMessage("browserActionTitle_connected");
   }
-  player.favicon = path + ".png";
-  chrome.browserAction.setIcon({path: player.favicon});
+  faviconPath = faviconPath || path;
+  player.favicon = faviconPath + ".png";
+  chrome.browserAction.setIcon({path: path + ".png"});
   chrome.browserAction.setTitle({title: title});
 }
 
@@ -845,12 +853,11 @@ function gaEnabledChanged(val) {
     settings.removeListener("gaEnabled", gaEnabledChanged);//init/record only once
     initGA(currentVersion);
     var i = 0;
-    function recorder(name) { return function() { recordSetting(name); }; };
     for (var prop in SETTINGS_DEFAULTS) {
       if (prop != "gaEnabled") {
         //10 events can be sent immediately, thereafter only one per second
-        if (i < 10) recorder(prop)()
-        else setTimeout(recorder(prop), (i - 9) * 1250);
+        if (i < 10) recordSetting(prop)
+        else setTimeout(recordSetting.bind(window, prop), (i - 9) * 1250);
         i++;
       }
     }
@@ -897,6 +904,17 @@ function openMpOnPlaying(playing) {
 
 function closeMpOnDisconnect(connected) {
   if (!connected && miniplayer) chrome.windows.remove(miniplayer.id);
+}
+
+function openLyrics(aSong) {
+  if (!aSong) {
+    if (!song.info) return;
+    aSong = {artist: song.info.artist, title: song.info.title};
+  }
+  var url = buildSearchUrl(aSong);
+  if (url) chrome.tabs.create({url: url}, function(tab) {
+    chrome.tabs.executeScript(tab.id, {file: "js/cs-songlyrics.js", runAt: "document_end"});
+  });
 }
 
 settings.watch("updateNotifier", function(val) {
@@ -1114,6 +1132,9 @@ function executeCommand(command) {
       break;
     case "ff":
       if (song.info && song.info.durationSec > 0) setSongPosition(Math.min(1, (song.positionSec + 15) / song.info.durationSec));
+      break;
+    case "openLyrics":
+      if (localSettings.lyrics) openLyrics();
       break;
     default:
       if (command.indexOf("rate-") == 0 && song.info) {

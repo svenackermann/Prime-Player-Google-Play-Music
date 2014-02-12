@@ -159,13 +159,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
 
-  function updateCoverClickLink(link) {
-    updateClickLink("#coverContainer", link);
-  }
-
-  function updateTitleClickLink(link) {
-    updateClickLink("#track, #nosong a:first-child", link);
-  }
+  var updateCoverClickLink = updateClickLink.bind(window, "#coverContainer");
+  
+  var updateTitleClickLink = updateClickLink.bind(window, "#track, #nosong a:first-child");
 
   /** listen for resize events and poll for position changes to update the settings */
   function setupResizeMoveListeners() {
@@ -188,6 +184,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
             sizing.height = window.outerHeight;
             bp.localSettings[sizingSetting] = sizing;//trigger listener notification
           }
+        } else if ($("#lyrics").is(":visible")) {
+          var sizing = bp.localSettings.lyricsSizing;
+          sizing.width = window.outerWidth;
+          sizing.height = window.outerHeight;
+          bp.localSettings.lyricsSizing = sizing;//trigger listener notification
         }
       }, 500);
     });
@@ -221,6 +222,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
         .attr("title", chrome.i18n.getMessage("lastfmUser") + user)
         .attr("href", "http://last.fm/user/" + user);
     }
+  }
+  
+  function lyricsWatcher(val) {
+    $("body").toggleClass("lyrics", val);
   }
 
   function volumeWatcher(val) {
@@ -291,7 +296,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
         $("<div class='rating r" + e.rating + "'>" + ratingHtml + "</div>").appendTo(row);
         if (e.rating >= 0) currentNavList.noRating = false;
         var info = $("<div class='info'></div>");
-        $("<span></span>").text(e.title).attr("title", e.title).appendTo(info);
+        var title;
+        if (bp.localSettings.lyrics) {
+          title = $("<a href='#' class='nav' data-link='lyrics'></a>").data("options", {artist: e.artist, title: e.title}).attr("title", chrome.i18n.getMessage("lyricsFor", e.title));
+        } else {
+          title = $("<span></span>").attr("title", e.title);
+        }
+        title.text(e.title).appendTo(info);
         $("<span class='duration'></span>").text(e.duration).appendTo(info);
         currentNavList.duration += bp.parseSeconds(e.duration);
         if (e.artistLink) {
@@ -374,7 +385,23 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
 
-  function switchView(title, link, search) {
+  function renderLyrics(lyrics, result) {
+    lyrics.removeClass("loading");
+    var credits = lyrics.children(".credits");
+    if (result.error) {
+      lyrics.children(".content").html("<div class='error'></div>");
+    } else if (result.noresults) {
+      lyrics.children(".content").html("<div class='empty'></div>");
+    } else {
+      $("#navHead").children("span").text(result.title.text().trim());
+      lyrics.children(".content").html(result.lyrics.html());
+      if (result.credits) credits.html(result.credits.html() + "<br/>");
+    }
+    if (result.src) credits.append($("<a target='_blank'></a>").attr("href", result.src).text(chrome.i18n.getMessage("lyricsSrc"))).append($("<br/>"));
+    if (result.searchSrc) credits.append($("<a target='_blank'></a>").attr("href", result.searchSrc).text(chrome.i18n.getMessage("lyricsSearchResult")));
+  }
+  
+  function switchView(title, link, search, options) {
     if ($("#player").is(":visible") && (typeClass == "miniplayer" || typeClass == "toast")) {
       savedSizing = {
         height: window.outerHeight,
@@ -388,16 +415,24 @@ chrome.runtime.getBackgroundPage(function(bp) {
       currentNavList.titleList = null;//free memory
       navHistory.push(currentNavList);
     }
-    currentNavList = {link: link, title: title, search: search};
+    currentNavList = {link: link, title: title, search: search, options: options};
     updateNavHead(title);
     $("#navlist").empty().removeClass();
+    $("#lyrics").removeClass().children().empty();
     if (!search) $("#navHead > input").val("");
+    $("#navlistContainer").hide();
+    $("#quicklinks").hide();
+    $("#lyrics").hide();
     if (link == "quicklinks") {
-      $("#navlistContainer").hide();
-      resize(bp.localSettings["quicklinksSizing"]);
+      resize(bp.localSettings.quicklinksSizing);
       $("#quicklinks").show();
+    } else if (link == "lyrics") {
+      var lyrics = $("#lyrics");
+      lyrics.addClass("loading");
+      resize(bp.localSettings.lyricsSizing);
+      lyrics.show();
+      bp.fetchLyrics(options, renderLyrics.bind(window, lyrics));
     } else {
-      $("#quicklinks").hide();
       $("#navlist").addClass("loading");
       $("#navlistContainer").show();
       bp.loadNavigationList(link, search);
@@ -448,8 +483,24 @@ chrome.runtime.getBackgroundPage(function(bp) {
       var link = $(this).data("link");
       if (link) {
         e.preventDefault();
-        if (bp.settings.openLinksInMiniplayer == e.shiftKey && link != "quicklinks") bp.selectLink(link)
-        else switchView($(this).data("text") || $(this).text(), link, $(this).data("search"));
+        var options = $(this).data("options");
+        var title;
+        if (link == "lyrics") {
+          if (bp.settings.openLyricsInMiniplayer == e.shiftKey) {
+            bp.openLyrics(options);
+            return;
+          }
+          if (!options) {
+            if (!bp.song.info) return;
+            options = {artist: bp.song.info.artist, title: bp.song.info.title};
+          }
+          var song = options.title;
+          if (options.artist) song = options.artist + " - " + song;
+          title = chrome.i18n.getMessage("lyricsTitle", song);
+        } else title = $(this).data("text") || $(this).text();
+        
+        if (bp.settings.openLinksInMiniplayer == e.shiftKey && link != "quicklinks" && link != "lyrics") bp.selectLink(link)
+        else switchView(title, link, $(this).data("search"), options);
       }
     });
     
@@ -507,6 +558,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#repeat").click(googleMusicExecutor("toggleRepeat")).attr("title", chrome.i18n.getMessage("repeat"));
     $("#shuffle").click(googleMusicExecutor("toggleShuffle")).attr("title", chrome.i18n.getMessage("shuffle"));
     $("#volume").click(toggleVolumeControl).attr("title", chrome.i18n.getMessage("volumeControl"));
+    $("#showlyrics").attr("title", chrome.i18n.getMessage("showLyrics"));
     $("#volumeBarBorder").click(setVolume);
   }
 
@@ -587,6 +639,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     setupNavigationEvents();
 
     bp.localSettings.watch("lastfmSessionName", lastfmUserWatcher);
+    bp.localSettings.watch("lyrics", lyricsWatcher);
     bp.settings.watch("scrobble", scrobbleWatcher);
     bp.settings.watch("color", colorWatcher);
     bp.settings.watch("coverClickLink", updateCoverClickLink);
@@ -616,6 +669,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $(window).unload(function() {
       bp.settings.removeListener("layout", layoutWatcher);
       bp.localSettings.removeListener("lastfmSessionName", lastfmUserWatcher);
+      bp.localSettings.removeListener("lyrics", lyricsWatcher);
       bp.settings.removeListener("scrobble", scrobbleWatcher);
       bp.settings.removeListener("color", colorWatcher);
       bp.settings.removeListener("coverClickLink", updateCoverClickLink);
