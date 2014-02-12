@@ -298,11 +298,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
         var info = $("<div class='info'></div>");
         var title;
         if (bp.localSettings.lyrics) {
-          title = $("<a href='#' class='nav' data-link='lyrics'></a>").data("options", {artist: e.artist, title: e.title});
+          title = $("<a href='#' class='nav' data-link='lyrics'></a>").data("options", {artist: e.artist, title: e.title}).attr("title", chrome.i18n.getMessage("lyricsFor", e.title));
         } else {
-          title = $("<span></span>");
+          title = $("<span></span>").attr("title", e.title);
         }
-        title.text(e.title).attr("title", e.title).appendTo(info);
+        title.text(e.title).appendTo(info);
         $("<span class='duration'></span>").text(e.duration).appendTo(info);
         currentNavList.duration += bp.parseSeconds(e.duration);
         if (e.artistLink) {
@@ -385,6 +385,22 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
 
+  function renderLyrics(lyrics, result) {
+    lyrics.removeClass("loading");
+    var credits = lyrics.children(".credits");
+    if (result.error) {
+      lyrics.children(".content").html("<div class='error'></div>");
+    } else if (result.noresults) {
+      lyrics.children(".content").html("<div class='empty'></div>");
+    } else {
+      $("#navHead").children("span").text(result.title.text().trim());
+      lyrics.children(".content").html(result.lyrics.html());
+      if (result.credits) credits.html(result.credits.html() + "<br/>");
+    }
+    if (result.src) credits.append($("<a target='_blank'></a>").attr("href", result.src).text(chrome.i18n.getMessage("lyricsSrc"))).append($("<br/>"));
+    if (result.searchSrc) credits.append($("<a target='_blank'></a>").attr("href", result.searchSrc).text(chrome.i18n.getMessage("lyricsSearchResult")));
+  }
+  
   function switchView(title, link, search, options) {
     if ($("#player").is(":visible") && (typeClass == "miniplayer" || typeClass == "toast")) {
       savedSizing = {
@@ -415,17 +431,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       lyrics.addClass("loading");
       resize(bp.localSettings.lyricsSizing);
       lyrics.show();
-      fetchLyrics(options, function(result) {
-        lyrics.removeClass("loading");
-        //TODO check error/no result
-        $("#navHead").children("span").text(result.title.text().trim());
-        lyrics.children(".content").html(result.lyrics.html());
-        if (result.credits) lyrics.children(".credits").html(result.credits.html() + "<br/>");
-        lyrics.children(".credits")
-          .append($("<a target='_blank'></a>").attr("href", result.src).text(chrome.i18n.getMessage("lyricsSrc")))
-          .append($("<br/>"))
-          .append($("<a target='_blank'></a>").attr("href", result.searchSrc).text(chrome.i18n.getMessage("lyricsSearchResult")));
-      });
+      fetchLyrics(options, renderLyrics.bind(window, lyrics));
     } else {
       $("#navlist").addClass("loading");
       $("#navlistContainer").show();
@@ -484,10 +490,18 @@ chrome.runtime.getBackgroundPage(function(bp) {
             if (!bp.song.info) return;
             options = {artist: bp.song.info.artist, title: bp.song.info.title};
           }
+          if (bp.settings.openLyricsInMiniplayer == e.shiftKey) {
+            var url = buildSearchUrl(options);
+            if (url) chrome.tabs.create({url: url}, function(tab) {
+              chrome.tabs.executeScript(tab.id, {file: "js/cs-songlyrics.js", runAt: "document_end"});
+            });
+            return;
+          }
           var song = options.title;
           if (options.artist) song = options.artist + " - " + song;
-          title = chrome.i18n.getMessage("lyricsFor", song);
+          title = chrome.i18n.getMessage("lyricsTitle", song);
         } else title = $(this).data("text") || $(this).text();
+        
         if (bp.settings.openLinksInMiniplayer == e.shiftKey && link != "quicklinks" && link != "lyrics") bp.selectLink(link)
         else switchView(title, link, $(this).data("search"), options);
       }
@@ -547,6 +561,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#repeat").click(googleMusicExecutor("toggleRepeat")).attr("title", chrome.i18n.getMessage("repeat"));
     $("#shuffle").click(googleMusicExecutor("toggleShuffle")).attr("title", chrome.i18n.getMessage("shuffle"));
     $("#volume").click(toggleVolumeControl).attr("title", chrome.i18n.getMessage("volumeControl"));
+    $("#showlyrics").attr("title", chrome.i18n.getMessage("showLyrics"));
     $("#volumeBarBorder").click(setVolume);
   }
 

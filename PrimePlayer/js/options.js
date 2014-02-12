@@ -44,6 +44,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#toastClick, #toastButton1, #toastButton2").prop("disabled", !bp.settings.toast || bp.settings.toastUseMpStyle);
   }
   
+  function lyricsChanged() {
+    $("#openLyricsInMiniplayer").prop("disabled", !bp.localSettings.lyrics);
+  }
+  
   function lastfmUserChanged(user) {
     var action;
     var actionText;
@@ -128,6 +132,32 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#iconStyle").find("input[value='" + bp.settings.iconStyle + "']").prop("checked", true);
     $("#iconStyle").find("input").click(stringUpdater("iconStyle"));
   }
+  
+  function initLyrics() {
+    var lyrics = initCheckbox("lyrics", bp.localSettings).unbind();
+    function enableCheckBox() {
+      lyrics.unbind().click(boolUpdater("lyrics", bp.localSettings)).click(lyricsChanged);
+    }
+    var perm = { origins: ["http://www.songlyrics.com/*"] };
+    chrome.permissions.contains(perm, function(result) {
+      if (result) {
+        enableCheckBox();
+      } else {
+        lyrics.click(function() {
+          alert(chrome.i18n.getMessage("lyricsAlert"));
+          chrome.permissions.request(perm, function(granted) {
+            if (granted) {
+              bp.localSettings.lyrics = true;
+              lyricsChanged();
+              enableCheckBox();
+            } else {
+              lyrics.prop("checked", false);
+            }
+          });
+        });
+      }
+    });
+  }
 
   /** @return version from a class attribute (e.g. for an element with class "abc v-1.2.3 def" this returns "1.2.3") */
   function extractVersionFromClass(el) {
@@ -204,6 +234,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
       .val(bp.settings.titleClickLink);
     initCheckbox("openLinksInMiniplayer");
     initHint("openLinksInMiniplayer");
+    initLyrics();
+    initCheckbox("openLyricsInMiniplayer");
+    initHint("openLyricsInMiniplayer");
     initCheckbox("hideSearchfield");
     initCheckbox("hideRatings");
     initCheckbox("omitUnknownAlbums");
@@ -238,6 +271,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.localSettings.watch("lastfmSessionName", lastfmUserChanged);
     //disable inputs if neccessary
     toastChanged();
+    lyricsChanged();
     
     $("#resetSettings").click(function() {
       bp.settings.resetToDefaults();

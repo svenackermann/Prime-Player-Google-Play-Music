@@ -13,9 +13,9 @@ var LOCAL_SETTINGS_DEFAULTS = {
   lyrics: false,
   miniplayerSizing: {
     normal:   { width: 270, height: 115, left: 0, top: 0 },
-    compact1: { width: 250, height: 83, left: 0, top: 0 },
-    compact2: { width: 180, height: 128, left: 0, top: 0 },
-    hbar:     { width: 480, height: 30,  left: 0, top: 0 }
+    compact1: { width: 265, height: 80, left: 0, top: 0 },
+    compact2: { width: 195, height: 125, left: 0, top: 0 },
+    hbar:     { width: 515, height: 30,  left: 0, top: 0 }
   },
   playlistsListSizing: {width: 350, height: 320},
   playlistSizing: {width: 500, height: 295},
@@ -47,6 +47,7 @@ var SETTINGS_DEFAULTS = {
   coverClickLink: "now",
   titleClickLink: "ap/queue",
   openLinksInMiniplayer: true,
+  openLyricsInMiniplayer: true,
   hideSearchfield: false,
   hideRatings: false,
   omitUnknownAlbums: false,

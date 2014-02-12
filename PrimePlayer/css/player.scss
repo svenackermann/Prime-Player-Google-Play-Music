@@ -447,16 +447,19 @@ a {
   &.loading {
     background: url(../img/ajax-loader.gif) no-repeat center center;
   }
-  > .empty, > .error {
-    text-align: center;
-    position: relative;
-    top: 40%;
-  }
   > .empty:after {
     content: "__MSG_emptyList__";
   }
   > .error:after {
     content: "__MSG_loadListError__";
+  }
+}
+
+#navlist, #lyrics .content {
+  > .empty, > .error {
+    text-align: center;
+    position: relative;
+    top: 40%;
   }
 }
 
@@ -609,6 +612,14 @@ a {
   }
   div {
     margin: 2px;
+  }
+  .content {
+    > .empty:after {
+      content: "__MSG_noLyricsFound__";
+    }
+    > .error:after {
+      content: "__MSG_loadLyricsError__";
+    }
   }
   .credits {
     border-top: 1px solid grey;

@@ -59,6 +59,9 @@
   "resumeSong": {
     "message": "Wiedergabe fortsetzen"
   },
+  "showLyrics": {
+    "message": "Song-Text anzeigen"
+  },
   "volumeControl": {
     "message": "Lautst\u00E4rke einstellen"
   },
@@ -288,6 +291,12 @@
   "loadListError": {
     "message": "Die Liste konnte nicht geladen werden."
   },
+  "noLyricsFound": {
+    "message": "Es wurde kein passender Song-Text gefunden."
+  },
+  "loadLyricsError": {
+    "message": "Es konnte kein Song-Text geladen werden."
+  },
   "quicklinks": {
     "message": "Quick-Links"
   },
@@ -362,6 +371,18 @@
   "setting_openLinksInMiniplayerHint": {
     "message": "Wenn aktiviert, werden Links zu Alben, Interpreten usw. direkt im Miniplayer ge\u00F6ffnet, ansonsten im Google Music Tab. Mit Umschalt+Klick auf den Link wird das Verhalten vor\u00FCbergehend umgekehrt."
   },
+  "setting_lyrics": {
+    "message": "Aktiviere Song-Texte"
+  },
+  "setting_openLyricsInMiniplayer": {
+    "message": "\u00D6ffne Song-Texte im Miniplayer"
+  },
+  "setting_openLyricsInMiniplayerHint": {
+    "message": "Wenn aktiviert, werden Song-Texte direkt im Miniplayer angezeigt, ansonsten wird ein neuer Tab ge\u00F6ffnet. Mit Umschalt+Klick auf den Link wird das Verhalten vor\u00FCbergehend umgekehrt."
+  },
+  "lyricsAlert": {
+    "message": "Diese Funktion ben\u00F6tigt Zugriff auf songlyrics.com, um die Texte zu laden.\nBitte beachte, dass f\u00FCr die Qualit\u00E4t der Suchergebnisse nicht Prime Player, sondern songlyrics.com verantwortlich ist. Prime Player zeigt immer das erste Suchergebnis auf songlyrics.com an. Es kann daher vorkommen, dass der angezeigte Text nicht zum Titel passt. Mit den Links am Ende des angezeigten Textes im Miniplayer kannst du die Suchergebnisse kontrollieren."
+  },
   "setting_hideSearchfield": {
     "message": "Verstecke Suchfeld im Miniplayer"
   },
@@ -435,6 +456,10 @@
     "message": "Bewerte 5 Sterne"
   },
   "lyricsFor": {
+    "message": "Song-Text f\u00FCr '$SONG$'",
+    "placeholders": { "SONG": { "content": "$1" } }
+  },
+  "lyricsTitle": {
     "message": "$SONG$ Lyrics",
     "placeholders": { "SONG": { "content": "$1" } }
   },
