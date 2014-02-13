@@ -465,7 +465,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         var current = navHistory.pop();
         currentNavList = {};
         if (current.search) $("#navHead > input").val(current.search);
-        switchView(current.title, current.link, current.search);
+        switchView(current.title, current.link, current.search, current.options);
       }
     });
     $("#navHead").find(".close").attr("title", chrome.i18n.getMessage("close")).click(restorePlayer);
