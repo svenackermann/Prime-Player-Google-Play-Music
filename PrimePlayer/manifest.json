@@ -3,7 +3,7 @@
   "name": "Prime Player for Google Play Music\u2122",
   "short_name": "__MSG_extTitle__",
   "description": "__MSG_extDesc__",
-  "version": "2.8",
+  "version": "2.9",
   "author": "Sven Recknagel",
   "minimum_chrome_version": "31.0.1650.48",
   "default_locale": "en",
@@ -31,11 +31,12 @@
   "content_scripts": [ 
     {
       "js": ["js/jquery-2.0.2.min.js", "js/cs.js"],
+      "css": ["css/gpm.css"],
       "matches": ["*://play.google.com/music/listen*"]
     }
   ],
   "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
-  "web_accessible_resources": ["js/injected.js", "img/icon-tabconnected.png", "img/icon-48x48.png", "options.html", "css/player.scss", "css/layouts.scss", "css/player.css.map"],
+  "web_accessible_resources": ["js/injected.js", "img/icon-tabconnected.png", "img/toast/openLyrics.png", "img/icon-48x48.png", "img/ajax-loader.gif", "img/reload.png", "options.html", "css/player.scss", "css/layouts.scss", "css/player.css.map"],
   "commands": {
     "playPause": {
       "suggested_key": { "default": "MediaPlayPause" },

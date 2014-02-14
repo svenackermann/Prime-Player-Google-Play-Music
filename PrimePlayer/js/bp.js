@@ -59,6 +59,7 @@ var SETTINGS_DEFAULTS = {
   iconClickPlayPause: false,
   openGoogleMusicPinned: false,
   connectedIndicator: true,
+  lyricsInGpm: false,
   preventCommandRatingReset: true,
   updateNotifier: true,
   gaEnabled: true
@@ -198,6 +199,7 @@ function connectPort(port) {
   port.onDisconnect.addListener(onDisconnectListener);
   port.postMessage({type: "connected"});
   if (settings.connectedIndicator) port.postMessage({type: "connectedIndicator", show: true});
+  postLyricsState();
   iconClickSettingsChanged();
 }
 
@@ -256,12 +258,19 @@ function onDisconnectListener() {
 function onMessageListener(message) {
   var val = message.value;
   var type = message.type;
-  
   if (type.indexOf("song-") == 0) {
     if (type == "song-position" && val == "") val = SONG_DEFAULTS.position;
     song[type.substring(5)] = val;
   } else if (type.indexOf("player-") == 0) {
     player[type.substring(7)] = val;
+  } else if (type == "loadLyrics") {
+    if (song.info) fetchLyrics(song.info, function(result) {
+      //we cannot send jQuery objects with a post, so send plain html
+      if (result.lyrics) result.lyrics = result.lyrics.html();
+      if (result.credits) result.credits = result.credits.html();
+      if (result.title) result.title = result.title.text().trim();
+      postToGooglemusic({type: "lyrics", result: result});
+    });
   }
 }
 
@@ -269,6 +278,10 @@ function postToGooglemusic(msg) {
   if (googlemusicport) {
     googlemusicport.postMessage(msg);
   }
+}
+
+function postLyricsState() {
+  postToGooglemusic({type: "lyricsEnabled", enabled: localSettings.lyrics && settings.lyricsInGpm});
 }
 
 /** Load the navigation list identified by 'loadNavlistLink'. If not connected, open a Google Music tab and try again. */
@@ -892,6 +905,7 @@ function connectGoogleMusicTabs() {
   chrome.tabs.query({url:"*://play.google.com/music/listen*"}, function(tabs) {
     for (var i = 0; i < tabs.length; i++) {
       var tabId = tabs[i].id;
+      chrome.tabs.insertCSS(tabId, {file: "css/gpm.css"});
       chrome.tabs.executeScript(tabId, {file: "js/jquery-2.0.2.min.js"});
       chrome.tabs.executeScript(tabId, {file: "js/cs.js"});
     }
@@ -964,6 +978,7 @@ settings.watch("mpAutoClose", function(val) {
   if (val) player.addListener("connected", closeMpOnDisconnect);
   else player.removeListener("connected", closeMpOnDisconnect);
 });
+settings.addListener("lyricsInGpm", postLyricsState);
 
 localSettings.watch("syncSettings", function(val) {
   settings.setSyncStorage(val, function() {
@@ -971,6 +986,7 @@ localSettings.watch("syncSettings", function(val) {
   });
 });
 localSettings.addListener("lastfmSessionName", calcScrobbleTime);
+localSettings.addListener("lyrics", postLyricsState);
 
 player.addListener("playing", updateBrowserActionInfo);
 player.addListener("playing", iconClickSettingsChanged);

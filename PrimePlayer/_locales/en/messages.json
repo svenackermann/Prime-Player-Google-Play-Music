@@ -392,6 +392,9 @@
   "setting_connectedIndicator": {
     "message": "Show 'P'-icon on connected Google Music tab"
   },
+  "setting_lyricsInGpm": {
+    "message": "Enable lyrics in Google Music tab"
+  },
   "moreThanOneDay": {
     "message": "> 1 day"
   },
@@ -471,5 +474,8 @@
   },
   "lyricsSearchResult": {
     "message": "search result"
+  },
+  "loadLyrics": {
+    "message": "Loading lyrics..."
   }
 }
