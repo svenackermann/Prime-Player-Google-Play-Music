@@ -21,18 +21,17 @@
   font-weight: bold;
   text-align: center;
   margin-bottom: 1ex;
+  a.reloadLyrics {
+    float: right;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    background-image: url(chrome-extension://__MSG_@@extension_id__/img/reload.png);
+  }
 }
 
 .loading #ppLyricsTitle:after  {
   content: "__MSG_loadLyrics__";
-}
-
-#ppLyricsTitle a.reloadLyrics {
-  float: right;
-  cursor: pointer;
-  width: 20px;
-  height: 20px;
-  background-image: url(chrome-extension://__MSG_@@extension_id__/img/reload.png);
 }
 
 #ppLyricsContent {
@@ -40,26 +39,23 @@
   border-style: solid none;
   padding: 3px;
   min-height: 10ex;
+  > .empty:after {
+    content: "__MSG_noLyricsFound__";
+  }
+  > .error:after {
+    content: "__MSG_loadLyricsError__";
+  }
+  > .empty, > .error {
+    text-align: center;
+    position: relative;
+    top: 4ex;
+  }
 }
 
 .loading #ppLyricsContent {
   height: 90%;
   overflow-y: hidden;
   background: url(chrome-extension://__MSG_@@extension_id__/img/ajax-loader.gif) no-repeat center center;
-}
-
-#ppLyricsContent > .empty:after {
-  content: "__MSG_noLyricsFound__";
-}
-
-#ppLyricsContent > .error:after {
-  content: "__MSG_loadLyricsError__";
-}
-
-#ppLyricsContent > .empty, #ppLyricsContent > .error {
-  text-align: center;
-  position: relative;
-  top: 4ex;
 }
 
 #ppLyricsCredits {
@@ -73,11 +69,10 @@
   margin-right: 5px;
   opacity: 0.2;
   cursor: default;
-}
-
-#ppLyricsButton.active {
-  opacity: 1;
-  cursor: pointer;
+  &.active {
+    opacity: 1;
+    cursor: pointer;
+  }
 }
 
 .music-banner-icon.ppconnected {
