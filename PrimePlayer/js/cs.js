@@ -76,7 +76,7 @@ $(function() {
   function showConnectedIndicator() {
     //inject icon with title to mark the tab as connected
     $(".music-banner-icon")
-      .css({background: "url(" + chrome.extension.getURL("img/icon-tabconnected.png") + ")", cursor: "pointer"})
+      .addClass("ppconnected")
       .attr("title", chrome.i18n.getMessage("connected"))
       .unbind().click(function() {
         port.disconnect();
@@ -85,7 +85,62 @@ $(function() {
   }
   
   function hideConnectedIndicator() {
-    $(".music-banner-icon").removeAttr("style title").off("click");
+    $(".music-banner-icon").removeAttr("title").removeClass("ppconnected").off("click");
+  }
+  
+  function renderLyrics(result) {
+    var lyrics = $("#ppLyricsContainer");
+    if (lyrics.is(":visible")) {
+      lyrics.removeClass("loading");
+      var content = lyrics.children("#ppLyricsContent");
+      var credits = lyrics.children("#ppLyricsCredits");
+      if (result.error) {
+        content.html("<div class='error'></div>");
+      } else if (result.noresults) {
+        content.html("<div class='empty'></div>");
+      } else {
+        lyrics.children("#ppLyricsTitle").text(result.title);
+        content.html(result.lyrics);
+        if (result.credits) credits.html(result.credits + "<br/>");
+      }
+      lyrics.children("#ppLyricsTitle").append("<a class='reloadLyrics'></a>");
+      if (result.src) credits.append($("<a target='_blank'></a>").attr("href", result.src).text(chrome.i18n.getMessage("lyricsSrc"))).append($("<br/>"));
+      if (result.searchSrc) credits.append($("<a target='_blank'></a>").attr("href", result.searchSrc).text(chrome.i18n.getMessage("lyricsSearchResult")));
+    }
+  }
+  
+  function loadLyrics() {
+    $("#ppLyricsContainer").addClass("loading").show().children().empty();
+    post("loadLyrics");
+  }
+  
+  function toggleLyrics() {
+    if ($(this).hasClass("active")) {
+      var lyrics = $("#ppLyricsContainer");
+      if (lyrics.is(":visible")) {
+        lyrics.removeClass().hide().children().empty();
+      } else {
+        loadLyrics();
+      }
+    }
+  }
+  
+  function disableLyrics() {
+    $("#ppLyricsButton, #ppLyricsContainer").remove();
+  }
+  
+  function enableLyrics() {
+    disableLyrics();
+    $("<img id='ppLyricsButton'/>")
+      .attr("src", chrome.extension.getURL("img/toast/openLyrics.png"))
+      .attr("title", chrome.i18n.getMessage("showLyrics"))
+      .toggleClass("active", $("#playerSongInfo").find("div").length > 0)
+      .click(toggleLyrics)
+      .appendTo("#player-right-wrapper");
+    $("<div id='ppLyricsContainer'><div id='ppLyricsTitle'></div><div id='ppLyricsContent'></div><div id='ppLyricsCredits'></div></div>")
+      .css("bottom", $("#player").outerHeight(true) + "px")
+      .on("click", ".reloadLyrics", loadLyrics)
+      .appendTo("#doc");
   }
   
   function init() {
@@ -127,6 +182,7 @@ $(function() {
           cover: cover
         };
       }
+      $("#ppLyricsButton").toggleClass("active", info != null);
       post("song-info", info);
     }
     
@@ -264,6 +320,7 @@ $(function() {
       observers[i].disconnect();
     }
     hideConnectedIndicator();
+    disableLyrics();
     port = null;
   }
   
@@ -496,12 +553,19 @@ $(function() {
           if (!error && msg.link.indexOf("im/") != 0 && msg.link.indexOf("st/") != 0) sendCommand("startPlaylist");
         });
         break;
+      case "lyrics":
+        renderLyrics(msg.result);
+        break;
       case "connected":
         init();
         break;
       case "connectedIndicator":
         if (msg.show) showConnectedIndicator()
         else hideConnectedIndicator();
+        break;
+      case "lyricsEnabled":
+        if (msg.enabled) enableLyrics()
+        else disableLyrics();
         break;
       case "alreadyConnected":
         port.disconnect();

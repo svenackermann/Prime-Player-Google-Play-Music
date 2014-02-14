@@ -45,7 +45,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function lyricsChanged() {
-    $("#openLyricsInMiniplayer").prop("disabled", !bp.localSettings.lyrics);
+    $("#openLyricsInMiniplayer, #lyricsInGpm").prop("disabled", !bp.localSettings.lyrics);
   }
   
   function lastfmUserChanged(user) {
@@ -260,6 +260,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("iconClickConnect");
     initCheckbox("openGoogleMusicPinned");
     initCheckbox("connectedIndicator");
+    initCheckbox("lyricsInGpm");
     initCheckbox("preventCommandRatingReset");
     initHint("preventCommandRatingReset");
     initCheckbox("updateNotifier");

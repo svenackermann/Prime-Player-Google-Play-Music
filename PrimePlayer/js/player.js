@@ -387,14 +387,15 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function renderLyrics(lyrics, result) {
     lyrics.removeClass("loading");
+    var content = lyrics.children(".content");
     var credits = lyrics.children(".credits");
     if (result.error) {
-      lyrics.children(".content").html("<div class='error'></div>");
+      content.html("<div class='error'></div>");
     } else if (result.noresults) {
-      lyrics.children(".content").html("<div class='empty'></div>");
+      content.html("<div class='empty'></div>");
     } else {
       $("#navHead").children("span").text(result.title.text().trim());
-      lyrics.children(".content").html(result.lyrics.html());
+      content.html(result.lyrics.html());
       if (result.credits) credits.html(result.credits.html() + "<br/>");
     }
     if (result.src) credits.append($("<a target='_blank'></a>").attr("href", result.src).text(chrome.i18n.getMessage("lyricsSrc"))).append($("<br/>"));
