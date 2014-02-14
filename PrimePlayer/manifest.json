@@ -36,7 +36,24 @@
     }
   ],
   "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
-  "web_accessible_resources": ["js/injected.js", "img/icon-tabconnected.png", "img/toast/openLyrics.png", "img/icon-48x48.png", "img/ajax-loader.gif", "img/reload.png", "options.html", "css/player.scss", "css/layouts.scss", "css/player.css.map"],
+  "web_accessible_resources": [
+    "js/injected.js",
+    "img/icon-tabconnected.png",
+    "img/toast/openLyrics.png",
+    "img/icon-48x48.png",
+    "img/ajax-loader.gif",
+    "img/reload.png",
+    "options.html",
+    "css/player.scss",
+    "css/layouts.scss",
+    "css/player.css.map",
+    "css/gpm.scss",
+    "css/gpm.css.map",
+    "css/options.scss",
+    "css/options.css.map",
+    "css/updateNotifier.scss",
+    "css/updateNotifier.css.map"
+  ],
   "commands": {
     "playPause": {
       "suggested_key": { "default": "MediaPlayPause" },

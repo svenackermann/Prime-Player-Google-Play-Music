@@ -18,9 +18,10 @@ then
 fi
 
 echo "Building from tag/branch $tag"
-sass --style compressed PrimePlayer/css/player.scss PrimePlayer/css/player.css
-rm PrimePlayer.zip
-cd PrimePlayer
+cd PrimePlayer/css
+sass -f --style compressed --update player.scss:player.css gpm.scss:gpm.css options.scss:options.css updateNotifier.scss:updateNotifier.css
+cd ..
+rm -f ../PrimePlayer.zip
 7za a -xr@../exclude.lst -tzip ../PrimePlayer.zip *
 cd ..
 
