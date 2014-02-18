@@ -62,7 +62,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     } else {
       action = bp.lastfmLogin;
       actionText = chrome.i18n.getMessage("connect");
-      userLink.text(chrome.i18n.getMessage("disconnected")).attr("href", "javascript:return false;").addClass("disconnected");
+      userLink.text(chrome.i18n.getMessage("disconnected")).removeAttr("href").addClass("disconnected");
     }
     links.last().text(actionText).unbind().click(action);
   }

@@ -105,6 +105,9 @@ img.hint {
   height: 16px;
   a {
     margin-left: 1ex;
+    text-decoration: underline;
+    color: -webkit-link;
+    cursor: pointer;
     &.disconnected {
       text-decoration: none;
       color: black;
