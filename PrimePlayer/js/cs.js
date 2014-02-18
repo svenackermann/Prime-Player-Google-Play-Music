@@ -92,41 +92,54 @@ $(function() {
     var lyrics = $("#ppLyricsContainer");
     if (lyrics.is(":visible")) {
       lyrics.removeClass("loading");
-      var content = lyrics.children("#ppLyricsContent");
-      var credits = lyrics.children("#ppLyricsCredits");
+      var content = lyrics.find("#ppLyricsContent");
+      var credits = lyrics.find("#ppLyricsCredits");
       if (result.error) {
         content.html("<div class='error'></div>");
       } else if (result.noresults) {
         content.html("<div class='empty'></div>");
       } else {
-        lyrics.children("#ppLyricsTitle").text(result.title);
+        lyrics.children("#ppLyricsTitle").children("div").text(result.title).attr("title", result.title);
         content.html(result.lyrics);
         if (result.credits) credits.html(result.credits + "<br/>");
       }
-      lyrics.children("#ppLyricsTitle").append("<a class='reloadLyrics'></a>");
       if (result.src) credits.append($("<a target='_blank'></a>").attr("href", result.src).text(chrome.i18n.getMessage("lyricsSrc"))).append($("<br/>"));
       if (result.searchSrc) credits.append($("<a target='_blank'></a>").attr("href", result.searchSrc).text(chrome.i18n.getMessage("lyricsSearchResult")));
     }
   }
   
   function loadLyrics() {
-    $("#ppLyricsContainer").addClass("loading").show().children().empty();
+    $("#ppLyricsTitle").children("div").removeAttr("title").empty();
+    $("#ppLyricsContent").empty();
+    $("#ppLyricsCredits").empty();
+    $("#ppLyricsContainer").addClass("loading").show();
     post("loadLyrics");
   }
   
+  function contentResize() {
+    $("#content").css("width", ($("#content-container").width() - $("#ppLyricsContainer").width() - 10) + "px");
+  }
+  
+  function resetContentResize() {
+    $(window).off("resize", contentResize);
+    $("#content").removeAttr("style");
+  }
+  
   function toggleLyrics() {
-    if ($(this).hasClass("active")) {
-      var lyrics = $("#ppLyricsContainer");
-      if (lyrics.is(":visible")) {
-        lyrics.removeClass().hide().children().empty();
-      } else {
-        loadLyrics();
-      }
+    var lyrics = $("#ppLyricsContainer");
+    if (lyrics.is(":visible")) {
+      lyrics.removeClass().hide();
+      resetContentResize();
+    } else if ($(this).hasClass("active")) {
+      loadLyrics();
+      $(window).on("resize", contentResize);
+      contentResize();
     }
   }
   
   function disableLyrics() {
     $("#ppLyricsButton, #ppLyricsContainer").remove();
+    resetContentResize();
   }
   
   function enableLyrics() {
@@ -137,10 +150,9 @@ $(function() {
       .toggleClass("active", $("#playerSongInfo").find("div").length > 0)
       .click(toggleLyrics)
       .appendTo("#player-right-wrapper");
-    $("<div id='ppLyricsContainer'><div id='ppLyricsTitle'></div><div id='ppLyricsContent'></div><div id='ppLyricsCredits'></div></div>")
-      .css("bottom", $("#player").outerHeight(true) + "px")
+    $("<div id='ppLyricsContainer'><div id='ppLyricsTitle'><a class='reloadLyrics'></a><div></div></div><div id='ppLyricsScroller'><div id='ppLyricsContent'></div><div id='ppLyricsCredits'></div></div></div>")
       .on("click", ".reloadLyrics", loadLyrics)
-      .appendTo("#doc");
+      .insertAfter("#content");
   }
   
   function init() {

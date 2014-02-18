@@ -1,0 +1,145 @@
+/*!
+ * CSS for the options page
+ * @author Sven Recknagel (svenrecknagel@googlemail.com)
+ * Licensed under the BSD license
+ */
+body {
+  background: #F9F9F9;
+  font-size: 12px;
+  font-family: arial;
+}
+
+.settings {
+  float: left;
+}
+
+.info {
+  padding-left: 15px;
+  overflow-x: hidden;
+  min-width: 250px;
+  max-width: 450px;
+  font-size: 10px;
+  h3 {
+    font-size: 11px;
+    margin-bottom: 0;
+  }
+  ul {
+    margin: 0.3em 0;
+    padding-left: 25px;
+  }
+}
+
+#credits {
+  > div, > a, > form {
+    float: left;
+    margin-right: 2ex;
+  }
+  > div#bugfeatureinfo {
+    clear: both;
+  }
+}
+
+fieldset {
+  margin-bottom: 1ex;
+}
+
+input[type='number'] {
+  width: 7ex;
+  margin: 2px 3px;
+  text-align: right;
+  padding-right: 0.5ex;
+}
+
+select {
+  min-width: 200px;
+}
+
+img.hint {
+  margin-left: 0.5ex;
+  vertical-align: text-bottom;
+}
+
+#changelog {
+  clear: both;
+  padding-top: 2ex;
+  h2 {
+    display: inline-block;
+    margin-right: 2ex;
+    margin-bottom: 0;
+  }
+  label {
+    margin-right: 1ex;
+  }
+  img.hint {
+    height: 12px;
+  }
+  li {
+    &.B:before {
+      content: "B: ";
+    }
+    &.I:before {
+      content: "I: ";
+    }
+    &.F:before {
+      content: "F: ";
+    }
+    &.B.I:before {
+      content: "I/B: ";
+    }
+    &.F.I:before {
+      content: "F/I: ";
+    }
+  }
+  .F, .I, .B, h3 {
+    display: none;
+  }
+  &.F .F, &.I .I, &.B .B {
+    display: list-item;
+  }
+  &.V h3 {
+    display: block;
+  }
+}
+
+#lastfmStatus {
+  height: 16px;
+  a {
+    margin-left: 1ex;
+    text-decoration: underline;
+    color: -webkit-link;
+    cursor: pointer;
+    &.disconnected {
+      text-decoration: none;
+      color: black;
+      cursor: text;
+    }
+  }
+  img {
+    display: none;
+    margin-left: 0.5ex;
+    vertical-align: top;
+  }
+}
+
+div {
+  margin-bottom: 0.5ex;
+  &.newFeature {
+    color: #FF8F00;
+    font-weight: bold;
+  }
+}
+
+#welcome {
+  padding: 50px;
+  max-width: 800px;
+  display: none;
+  div {
+    font-size: 18px;
+  }
+  img {
+    float: left;
+  }
+  .close, .toOptions {
+    float: right;
+  }
+}

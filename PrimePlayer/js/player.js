@@ -105,9 +105,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     ratingHtml = "";
     if (val == "star") {
       ratingHtml = "<div></div>";
-      for (var i = 1; i <= 5; i++) ratingHtml += "<a href='#' data-rating='" + i + "'></a>";
+      for (var i = 1; i <= 5; i++) ratingHtml += "<a tabindex='0' data-rating='" + i + "'></a>";
     } else if (val == "thumbs") {
-      ratingHtml = "<a href='#' data-rating='5'></a><a href='#' data-rating='1'></a>";
+      ratingHtml = "<a tabindex='0' data-rating='5'></a><a tabindex='0' data-rating='1'></a>";
     }
   }
 
@@ -270,9 +270,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
         var e = list[i];
         var row = $("<div></div>");
         $("<img></img>").attr("src", e.cover || "img/cover.png").appendTo(row);
-        $("<a href='#' class='album nav'></a>").data("link", e.titleLink).text(e.title).attr("title", e.title).appendTo(row);
+        $("<a tabindex='0' class='album nav'></a>").data("link", e.titleLink).text(e.title).attr("title", e.title).appendTo(row);
         if (e.subTitleLink) {
-          $("<a href='#' class='nav'></a>").data("link", e.subTitleLink).text(e.subTitle).attr("title", e.subTitle).appendTo(row);
+          $("<a tabindex='0' class='nav'></a>").data("link", e.subTitleLink).text(e.subTitle).attr("title", e.subTitle).appendTo(row);
         } else if (e.subTitle) {
           $("<span></span>").text(e.subTitle).attr("title", e.subTitle).appendTo(row);
         }
@@ -298,7 +298,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         var info = $("<div class='info'></div>");
         var title;
         if (bp.localSettings.lyrics) {
-          title = $("<a href='#' class='nav' data-link='lyrics'></a>").data("options", {artist: e.artist, title: e.title}).attr("title", chrome.i18n.getMessage("lyricsFor", e.title));
+          title = $("<a tabindex='0' class='nav' data-link='lyrics'></a>").data("options", {artist: e.artist, title: e.title}).attr("title", chrome.i18n.getMessage("lyricsFor", e.title));
         } else {
           title = $("<span></span>").attr("title", e.title);
         }
@@ -306,13 +306,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
         $("<span class='duration'></span>").text(e.duration).appendTo(info);
         currentNavList.duration += bp.parseSeconds(e.duration);
         if (e.artistLink) {
-          $("<a href='#' class='nav'></a>").data("link", e.artistLink).text(e.artist).attr("title", e.artist).appendTo(info);
+          $("<a tabindex='0' class='nav'></a>").data("link", e.artistLink).text(e.artist).attr("title", e.artist).appendTo(info);
         } else {
           $("<span></span>").text(e.artist).attr("title", e.artist).appendTo(info);
         }
         if (e.albumLink) {
           if (e.albumLink != currentNavList.link) {
-            $("<a href='#' class='album nav'></a>").data("link", e.albumLink).text(e.album).attr("title", e.album).appendTo(info);
+            $("<a tabindex='0' class='album nav'></a>").data("link", e.albumLink).text(e.album).attr("title", e.album).appendTo(info);
             currentNavList.noAlbum = false;
           }
         } else if (e.album) {
@@ -335,7 +335,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         var e = list[i];
         var row = $("<div></div>");
         $("<img></img>").attr("src", e.cover || "img/cover.png").appendTo(row);
-        $("<a href='#' class='nav'></a>").data("link", e.link).text(e.title).attr("title", e.title).appendTo(row);
+        $("<a tabindex='0' class='nav'></a>").data("link", e.link).text(e.title).attr("title", e.title).appendTo(row);
         navlist.append(row);
       }
     }
@@ -352,7 +352,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function renderSubNavigationList(list, navlist, update) {
     var header = $("<h2></h2>").text(list.header);
-    if (list.moreLink) $("<a href='#' class='nav'></a>").data("link", list.moreLink).appendTo(header);
+    if (list.moreLink) $("<a tabindex='0' class='nav'></a>").data("link", list.moreLink).appendTo(header);
     navlist.append(header);
     var container = $("<div></div>").addClass(list.type).appendTo(navlist);
     renderNavList[list.type](container, list.list, update);

@@ -1,0 +1,105 @@
+/*!
+ * CSS to be injected into Google Music
+ * @author Sven Recknagel (svenrecknagel@googlemail.com)
+ * Licensed under the BSD license
+ */
+#ppLyricsContainer {
+  font-family: arial;
+  font-size: 11px;
+  width: 250px;
+  position: absolute;
+  right: 0;
+  bottom: 3px;
+  top: 50px;
+  background-color: #fafafa;
+  border: 1px solid #d1d1d1;
+  padding: 3px;
+  display: none;
+}
+
+#ppLyricsTitle {
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 1ex;
+  padding-top: 2px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid grey;
+  height: 14px;
+  > a.reloadLyrics {
+    float: right;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    background-image: url(chrome-extension://__MSG_@@extension_id__/img/reload.png);
+    margin-top: -3px;
+    margin-left: 3px;
+  }
+  > div {
+    white-space: nowrap;
+    overflow: hidden;
+  }
+}
+
+.loading #ppLyricsTitle {
+  > a.reloadLyrics {
+    display: none;
+  }
+  > div:after  {
+    content: "__MSG_loadLyrics__";
+  }
+}
+
+#ppLyricsScroller {
+  position: absolute;
+  top: 25px;
+  bottom: 0;
+  overflow: auto;
+  width: 100%;
+}
+
+#ppLyricsContent {
+  border-bottom: 1px solid grey;
+  padding: 3px;
+  min-height: 10ex;
+  > .empty:after {
+    content: "__MSG_noLyricsFound__";
+  }
+  > .error:after {
+    content: "__MSG_loadLyricsError__";
+  }
+  > .empty, > .error {
+    text-align: center;
+    position: relative;
+    top: 4ex;
+  }
+}
+
+.loading #ppLyricsContent {
+  border-bottom: none;
+  height: 90%;
+  overflow-y: hidden;
+  background: url(chrome-extension://__MSG_@@extension_id__/img/ajax-loader.gif) no-repeat center center;
+}
+
+#ppLyricsCredits {
+  text-align: center;
+  margin-top: 1ex;
+  padding-top: 1ex;
+  padding-bottom: 10px;
+}
+
+#ppLyricsButton {
+  vertical-align: middle;
+  margin-right: 5px;
+  opacity: 0.2;
+  cursor: default;
+  &.active {
+    opacity: 1;
+    cursor: pointer;
+  }
+}
+
+.music-banner-icon.ppconnected {
+  background: url(chrome-extension://__MSG_@@extension_id__/img/icon-tabconnected.png);
+  cursor: pointer;
+}
