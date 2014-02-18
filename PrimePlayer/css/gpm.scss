@@ -6,14 +6,14 @@
 #ppLyricsContainer {
   font-family: arial;
   font-size: 11px;
+  width: 250px;
   position: absolute;
-  top: 0;
-  width: 350px;
   right: 0;
+  bottom: 3px;
+  top: 50px;
   background-color: #fafafa;
   border: 1px solid #d1d1d1;
   padding: 3px;
-  overflow: auto;
   display: none;
 }
 
@@ -21,22 +21,44 @@
   font-weight: bold;
   text-align: center;
   margin-bottom: 1ex;
-  a.reloadLyrics {
+  padding-top: 2px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid grey;
+  height: 14px;
+  > a.reloadLyrics {
     float: right;
     cursor: pointer;
     width: 20px;
     height: 20px;
     background-image: url(chrome-extension://__MSG_@@extension_id__/img/reload.png);
+    margin-top: -3px;
+    margin-left: 3px;
+  }
+  > div {
+    white-space: nowrap;
+    overflow: hidden;
   }
 }
 
-.loading #ppLyricsTitle:after  {
-  content: "__MSG_loadLyrics__";
+.loading #ppLyricsTitle {
+  > a.reloadLyrics {
+    display: none;
+  }
+  > div:after  {
+    content: "__MSG_loadLyrics__";
+  }
+}
+
+#ppLyricsScroller {
+  position: absolute;
+  top: 25px;
+  bottom: 0;
+  overflow: auto;
+  width: 100%;
 }
 
 #ppLyricsContent {
-  border: 1px solid grey;
-  border-style: solid none;
+  border-bottom: 1px solid grey;
   padding: 3px;
   min-height: 10ex;
   > .empty:after {
@@ -53,6 +75,7 @@
 }
 
 .loading #ppLyricsContent {
+  border-bottom: none;
   height: 90%;
   overflow-y: hidden;
   background: url(chrome-extension://__MSG_@@extension_id__/img/ajax-loader.gif) no-repeat center center;
@@ -62,6 +85,7 @@
   text-align: center;
   margin-top: 1ex;
   padding-top: 1ex;
+  padding-bottom: 10px;
 }
 
 #ppLyricsButton {
