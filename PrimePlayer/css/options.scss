@@ -30,7 +30,7 @@ body {
 }
 
 #credits {
-   > div, > a, > form {
+  > div, > a, > form {
     float: left;
     margin-right: 2ex;
   }
@@ -60,6 +60,8 @@ img.hint {
 }
 
 #changelog {
+  clear: both;
+  padding-top: 2ex;
   h2 {
     display: inline-block;
     margin-right: 2ex;
