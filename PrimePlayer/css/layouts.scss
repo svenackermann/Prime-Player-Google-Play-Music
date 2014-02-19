@@ -180,13 +180,12 @@
 }
 
 .layout-compact1 {
-  $height: 73px;
   #top {
     height: 40px;
   }
   #cover {
-    width: $height;
-    height: $height;
+    width: 74px;
+    height: 74px;
   }
   #song > a {
     font-size: 10px;
@@ -203,9 +202,9 @@
   #rating {
     position: absolute;
     top: 3px;
-    left: $height + 9px;
+    left: 82px;
     width: $rate-size-px;
-    height: $height + 4px;
+    height: 77px;
     padding: 0;
   }
   #lastfmRating, #googleRating .rating-container > a {
@@ -282,6 +281,9 @@
       width: $rate-size-px;
       height: $rate-size-px;
     }
+  }
+  #time {
+    margin-top: 2px;
   }
 }
 
