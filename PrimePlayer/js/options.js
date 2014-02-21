@@ -45,7 +45,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function lyricsChanged() {
-    $("#openLyricsInMiniplayer, #lyricsInGpm").prop("disabled", !bp.localSettings.lyrics);
+    $("#openLyricsInMiniplayer, #lyricsInGpm, #lyricsAutoReload").prop("disabled", !bp.localSettings.lyrics);
     $("#lyricsFontSize, #lyricsWidth").prop("disabled", !bp.localSettings.lyrics || !bp.settings.lyricsInGpm);
   }
   
@@ -247,6 +247,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initLyrics();
     initCheckbox("openLyricsInMiniplayer");
     initHint("openLyricsInMiniplayer");
+    initCheckbox("lyricsAutoReload");
     initCheckbox("lyricsInGpm").click(lyricsChanged);
     initNumberInput("lyricsFontSize", bp.localSettings);
     initNumberInput("lyricsWidth", bp.localSettings);

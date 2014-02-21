@@ -65,6 +65,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("#showlyrics").attr("title", chrome.i18n.getMessage("lyricsFor", val.title)).addClass("nav");
       //although the value of scrobbleTime might have not changed, the relative position might have
       updateScrobblePosition(bp.song.scrobbleTime);
+      if (bp.settings.lyricsAutoReload && $("#lyrics").is(":visible")) {
+        var song = val.title;
+        if (val.artist) song = val.artist + " - " + song;
+        switchView(chrome.i18n.getMessage("lyricsTitle", song), "lyrics", null, {artist: val.artist, title: val.title});
+      }
     } else {
       $("#cover").attr("src", "img/cover.png");
       $("#showlyrics").removeAttr("title").removeClass("nav");
@@ -425,16 +430,15 @@ chrome.runtime.getBackgroundPage(function(bp) {
     currentNavList = {link: link, title: title, search: search, options: options};
     updateNavHead(title);
     $("#navlist").empty().removeClass();
-    $("#lyrics").removeClass().children().empty();
+    var lyrics = $("#lyrics");
+    lyrics.removeClass().hide().children().empty();
     if (!search) $("#navHead > input").val("");
     $("#navlistContainer").hide();
     $("#quicklinks").hide();
-    $("#lyrics").hide();
     if (link == "quicklinks") {
       resize(bp.localSettings.quicklinksSizing);
       $("#quicklinks").show();
     } else if (link == "lyrics") {
-      var lyrics = $("#lyrics");
       lyrics.addClass("loading");
       resize(bp.localSettings.lyricsSizing);
       lyrics.show();

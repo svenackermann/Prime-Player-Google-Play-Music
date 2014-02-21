@@ -56,6 +56,7 @@ var SETTINGS_DEFAULTS = {
   mpAutoClose: false,
   openLyricsInMiniplayer: true,
   lyricsInGpm: false,
+  lyricsAutoReload: false,
   iconStyle: "default",
   iconClickMiniplayer: false,
   iconClickConnect: false,
@@ -286,7 +287,8 @@ function postLyricsState() {
   postToGooglemusic({type: "lyricsState",
     enabled: localSettings.lyrics && settings.lyricsInGpm,
     fontSize: localSettings.lyricsFontSize,
-    width: localSettings.lyricsWidth
+    width: localSettings.lyricsWidth,
+    autoReload: settings.lyricsAutoReload
   });
 }
 
@@ -985,6 +987,7 @@ settings.watch("mpAutoClose", function(val) {
   else player.removeListener("connected", closeMpOnDisconnect);
 });
 settings.addListener("lyricsInGpm", postLyricsState);
+settings.addListener("lyricsAutoReload", postLyricsState);
 
 localSettings.watch("syncSettings", function(val) {
   settings.setSyncStorage(val, function() {

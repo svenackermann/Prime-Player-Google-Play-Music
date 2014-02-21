@@ -386,6 +386,9 @@
   "setting_connectedIndicator": {
     "message": "Zeige 'P'-Symbol in dem verbundenen Google Music Tab an"
   },
+  "setting_lyricsAutoReload": {
+    "message": "Lade Songtext automatisch neu bei neuem Titel"
+  },
   "setting_lyricsInGpm": {
     "message": "Aktiviere Songtexte im Google Music Tab"
   },

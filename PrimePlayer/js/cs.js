@@ -15,6 +15,8 @@ $(function() {
   var asyncListTimer;
   var pausePlaylistParsing = false;
   var resumePlaylistParsingFn;
+  var lyricsAutoReload;
+  var lyricsAutoReloadTimer;
   
   /** send update to background page */
   function post(type, value) {
@@ -198,6 +200,10 @@ $(function() {
           albumLink: getLink(album),
           cover: cover
         };
+        if (lyricsAutoReload && $("#ppLyricsContainer").is(":visible")) {
+          clearTimeout(lyricsAutoReloadTimer);
+          lyricsAutoReloadTimer = setTimeout(loadLyrics, 1000);
+        }
       }
       $("#ppLyricsButton").toggleClass("active", info != null);
       post("song-info", info);
@@ -583,6 +589,7 @@ $(function() {
       case "lyricsState":
         if (msg.enabled) enableLyrics(msg.fontSize, msg.width)
         else disableLyrics();
+        lyricsAutoReload = msg.autoReload;
         break;
       case "alreadyConnected":
         port.disconnect();

@@ -514,6 +514,10 @@
     "message": "Show 'P'-icon on connected Google Music tab",
     "description": "label for option to show the Prime Player icon in Google Music"
   },
+  "setting_lyricsAutoReload": {
+    "message": "Auto-reload lyrics when song changes",
+    "description": "label for option to auto reload lyrics"
+  },
   "setting_lyricsInGpm": {
     "message": "Enable lyrics in Google Music tab",
     "description": "label for option to enable lyrics in Google Music"
