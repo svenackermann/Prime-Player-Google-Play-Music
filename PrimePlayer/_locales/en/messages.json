@@ -231,6 +231,10 @@
     "message": "Look and feel",
     "description": "title for the look and feel settings on options page"
   },
+  "lyricsSettings": {
+    "message": "Lyrics settings",
+    "description": "title for the lyrics settings on options page"
+  },
   "setting_gaEnabled": {
     "message": "Enable Google Analytics",
     "description": "label for option to enable Google Analytics"
@@ -513,6 +517,14 @@
   "setting_lyricsInGpm": {
     "message": "Enable lyrics in Google Music tab",
     "description": "label for option to enable lyrics in Google Music"
+  },
+  "setting_lyricsFontSize": {
+    "message": "Font size (in pixels) for lyrics in miniplayer and Google Music",
+    "description": "label for option to change the font size for lyrics"
+  },
+  "setting_lyricsWidth": {
+    "message": "Width (in pixels) of lyrics panel in Google Music",
+    "description": "label for option to change the width for the lyrics panel"
   },
   "moreThanOneDay": {
     "message": "> 1 day",

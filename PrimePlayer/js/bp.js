@@ -11,6 +11,8 @@ var LOCAL_SETTINGS_DEFAULTS = {
   lastfmSessionName: null,
   syncSettings: false,
   lyrics: false,
+  lyricsFontSize: 11,
+  lyricsWidth: 250,
   miniplayerSizing: {
     normal:   { width: 270, height: 115, left: 0, top: 0 },
     compact1: { width: 265, height: 80, left: 0, top: 0 },
@@ -47,19 +49,19 @@ var SETTINGS_DEFAULTS = {
   coverClickLink: "now",
   titleClickLink: "ap/queue",
   openLinksInMiniplayer: true,
-  openLyricsInMiniplayer: true,
   hideSearchfield: false,
   hideRatings: false,
   omitUnknownAlbums: false,
   mpAutoOpen: false,
   mpAutoClose: false,
+  openLyricsInMiniplayer: true,
+  lyricsInGpm: false,
   iconStyle: "default",
   iconClickMiniplayer: false,
   iconClickConnect: false,
   iconClickPlayPause: false,
   openGoogleMusicPinned: false,
   connectedIndicator: true,
-  lyricsInGpm: false,
   preventCommandRatingReset: true,
   updateNotifier: true,
   gaEnabled: true
@@ -281,7 +283,11 @@ function postToGooglemusic(msg) {
 }
 
 function postLyricsState() {
-  postToGooglemusic({type: "lyricsEnabled", enabled: localSettings.lyrics && settings.lyricsInGpm});
+  postToGooglemusic({type: "lyricsState",
+    enabled: localSettings.lyrics && settings.lyricsInGpm,
+    fontSize: localSettings.lyricsFontSize,
+    width: localSettings.lyricsWidth
+  });
 }
 
 /** Load the navigation list identified by 'loadNavlistLink'. If not connected, open a Google Music tab and try again. */
@@ -987,6 +993,8 @@ localSettings.watch("syncSettings", function(val) {
 });
 localSettings.addListener("lastfmSessionName", calcScrobbleTime);
 localSettings.addListener("lyrics", postLyricsState);
+localSettings.addListener("lyricsFontSize", postLyricsState);
+localSettings.addListener("lyricsWidth", postLyricsState);
 
 player.addListener("playing", updateBrowserActionInfo);
 player.addListener("playing", iconClickSettingsChanged);

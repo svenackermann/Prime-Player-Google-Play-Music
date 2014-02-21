@@ -46,6 +46,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   
   function lyricsChanged() {
     $("#openLyricsInMiniplayer, #lyricsInGpm").prop("disabled", !bp.localSettings.lyrics);
+    $("#lyricsFontSize, #lyricsWidth").prop("disabled", !bp.localSettings.lyrics || !bp.settings.lyricsInGpm);
   }
   
   function lastfmUserChanged(user) {
@@ -73,9 +74,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     };
   }
 
-  function numberUpdater(prop) {
+  function numberUpdater(prop, settings) {
     return function() {
-      bp.settings[prop] = parseFloat($(this).val());
+      settings[prop] = parseFloat($(this).val());
     };
   }
 
@@ -102,11 +103,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
     return input;
   }
 
-  function initNumberInput(prop) {
+  function initNumberInput(prop, settings) {
+    if (!settings) settings = bp.settings;
     var input = $("#" + prop);
     input
-      .val(bp.settings[prop])
-      .blur(numberUpdater(prop))
+      .val(settings[prop])
+      .blur(numberUpdater(prop, settings))
       .parent().find("label").text(chrome.i18n.getMessage("setting_" + prop));
     return input;
   }
@@ -190,6 +192,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#legendToasting").text(chrome.i18n.getMessage("toastingSettings"));
     $("#legendMp").text(chrome.i18n.getMessage("mpSettings"));
     $("#legendLf").text(chrome.i18n.getMessage("lfSettings"));
+    $("#legendLyrics").text(chrome.i18n.getMessage("lyricsSettings"));
     $("#lastfmStatus").find("span").text(chrome.i18n.getMessage("lastfmUser"));
     var bugfeatureinfo = chrome.i18n.getMessage("bugfeatureinfo", "<a target='_blank' href='https://github.com/svenrecknagel/Prime-Player-Google-Play-Music/issues' data-network='github' data-action='issue'>GitHub</a>");
     $("#bugfeatureinfo").html(bugfeatureinfo);
@@ -199,7 +202,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     percentSpan.text(bp.settings.scrobblePercent);
     $("#scrobblePercent")
       .val(bp.settings.scrobblePercent)
-      .mouseup(numberUpdater("scrobblePercent"))
+      .mouseup(numberUpdater("scrobblePercent", bp.settings))
       .change(function(){ percentSpan.text($(this).val()); })
       .parent().find("label").text(chrome.i18n.getMessage("setting_scrobblePercent"));
     initNumberInput("scrobbleTime");
@@ -234,15 +237,19 @@ chrome.runtime.getBackgroundPage(function(bp) {
       .val(bp.settings.titleClickLink);
     initCheckbox("openLinksInMiniplayer");
     initHint("openLinksInMiniplayer");
-    initLyrics();
-    initCheckbox("openLyricsInMiniplayer");
-    initHint("openLyricsInMiniplayer");
     initCheckbox("hideSearchfield");
     initCheckbox("hideRatings");
     initCheckbox("omitUnknownAlbums");
     initHint("omitUnknownAlbums");
     initCheckbox("mpAutoOpen");
     initCheckbox("mpAutoClose");
+    
+    initLyrics();
+    initCheckbox("openLyricsInMiniplayer");
+    initHint("openLyricsInMiniplayer");
+    initCheckbox("lyricsInGpm").click(lyricsChanged);
+    initNumberInput("lyricsFontSize", bp.localSettings);
+    initNumberInput("lyricsWidth", bp.localSettings);
     
     initIconStyle();
     initCheckbox("iconClickMiniplayer").click(function() {
@@ -260,7 +267,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("iconClickConnect");
     initCheckbox("openGoogleMusicPinned");
     initCheckbox("connectedIndicator");
-    initCheckbox("lyricsInGpm");
     initCheckbox("preventCommandRatingReset");
     initHint("preventCommandRatingReset");
     initCheckbox("updateNotifier");

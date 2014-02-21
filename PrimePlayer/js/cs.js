@@ -142,17 +142,22 @@ $(function() {
     resetContentResize();
   }
   
-  function enableLyrics() {
-    disableLyrics();
-    $("<img id='ppLyricsButton'/>")
-      .attr("src", chrome.extension.getURL("img/toast/openLyrics.png"))
-      .attr("title", chrome.i18n.getMessage("command_openLyrics"))
-      .toggleClass("active", $("#playerSongInfo").find("div").length > 0)
-      .click(toggleLyrics)
-      .appendTo("#player-right-wrapper");
-    $("<div id='ppLyricsContainer'><div id='ppLyricsTitle'><a class='reloadLyrics'></a><div></div></div><div id='ppLyricsScroller'><div id='ppLyricsContent'></div><div id='ppLyricsCredits'></div></div></div>")
-      .on("click", ".reloadLyrics", loadLyrics)
-      .insertAfter("#content");
+  function enableLyrics(fontSize, width) {
+    if ($("#ppLyricsButton").length == 0) {
+      $("<img id='ppLyricsButton'/>")
+        .attr("src", chrome.extension.getURL("img/toast/openLyrics.png"))
+        .attr("title", chrome.i18n.getMessage("command_openLyrics"))
+        .toggleClass("active", $("#playerSongInfo").find("div").length > 0)
+        .click(toggleLyrics)
+        .appendTo("#player-right-wrapper");
+      $("<div id='ppLyricsContainer'><div id='ppLyricsTitle'><a class='reloadLyrics'></a><div></div></div><div id='ppLyricsScroller'><div id='ppLyricsContent'></div><div id='ppLyricsCredits'></div></div></div>")
+        .on("click", ".reloadLyrics", loadLyrics)
+        .insertAfter("#content");
+    }
+    $("#ppLyricsContainer").css({"font-size": fontSize + "px", width: width});
+    if ($("#ppLyricsContainer").is(":visible")) {
+      contentResize();
+    }
   }
   
   function init() {
@@ -575,8 +580,8 @@ $(function() {
         if (msg.show) showConnectedIndicator()
         else hideConnectedIndicator();
         break;
-      case "lyricsEnabled":
-        if (msg.enabled) enableLyrics()
+      case "lyricsState":
+        if (msg.enabled) enableLyrics(msg.fontSize, msg.width)
         else disableLyrics();
         break;
       case "alreadyConnected":

@@ -173,6 +173,9 @@
   "lfSettings": {
     "message": "Aussehen und Verhalten"
   },
+  "lyricsSettings": {
+    "message": "Songtexte Einstellungen"
+  },
   "setting_gaEnabled": {
     "message": "Google Analytics aktivieren"
   },
@@ -385,6 +388,12 @@
   },
   "setting_lyricsInGpm": {
     "message": "Aktiviere Songtexte im Google Music Tab"
+  },
+  "setting_lyricsFontSize": {
+    "message": "Schriftgr\u00F6\u00DFe (in Pixeln) f\u00FCr Songtexte in Miniplayer und Google Music"
+  },
+  "setting_lyricsWidth": {
+    "message": "Breite (in Pixeln) der Songtext-Anzeige in Google Music"
   },
   "moreThanOneDay": {
     "message": "> 1 Tag"

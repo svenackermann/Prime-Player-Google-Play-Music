@@ -229,6 +229,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function lyricsWatcher(val) {
     $("body").toggleClass("lyrics", val);
   }
+  
+  function lyricsFontSizeWatcher(val) {
+    $("#lyrics").css("font-size", val + "px");
+  }
 
   function volumeWatcher(val) {
     if (val == null) {
@@ -642,6 +646,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
     bp.localSettings.watch("lastfmSessionName", lastfmUserWatcher);
     bp.localSettings.watch("lyrics", lyricsWatcher);
+    bp.localSettings.watch("lyricsFontSize", lyricsFontSizeWatcher);
     bp.settings.watch("scrobble", scrobbleWatcher);
     bp.settings.watch("color", colorWatcher);
     bp.settings.watch("coverClickLink", updateCoverClickLink);
@@ -672,6 +677,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       bp.settings.removeListener("layout", layoutWatcher);
       bp.localSettings.removeListener("lastfmSessionName", lastfmUserWatcher);
       bp.localSettings.removeListener("lyrics", lyricsWatcher);
+      bp.localSettings.removeListener("lyricsFontSize", lyricsFontSizeWatcher);
       bp.settings.removeListener("scrobble", scrobbleWatcher);
       bp.settings.removeListener("color", colorWatcher);
       bp.settings.removeListener("coverClickLink", updateCoverClickLink);
