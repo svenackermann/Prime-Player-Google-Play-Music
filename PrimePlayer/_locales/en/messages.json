@@ -1,481 +1,627 @@
 {
   "extDesc": {
-    "message": "Extends Google Music with last.fm integration, toast notifications, a powerful miniplayer, keyboard shortcuts and more."
+    "message": "Extends Google Music with last.fm integration, toast notifications, a powerful miniplayer, keyboard shortcuts and more.",
+    "description": "short description of the extension (no more than 132 characters)"
   },
   "extTitle": {
-    "message": "Prime Player"
+    "message": "Prime Player",
+    "description": "short name of the extension"
   },
   "options": {
-    "message": "Options"
+    "message": "Options",
+    "description": "title for the options page"
   },
   "nothingPlaying": {
-    "message": "Nothing is playing"
+    "message": "Nothing is playing",
+    "description": "message in miniplayer when no song is loaded"
   },
   "gotoGmusic": {
-    "message": "Open Google Play Music"
+    "message": "Open Google Play Music",
+    "description": "link text in miniplayer when not connected to Google music"
   },
   "myPlaylists": {
-    "message": "My Playlists"
+    "message": "My Playlists",
+    "description": "text for quicklink 'my playlists'"
   },
   "setting_scrobble": {
-    "message": "Enable scrobbling"
+    "message": "Enable scrobbling",
+    "description": "label for option to enable scrobbling"
   },
   "setting_toast": {
-    "message": "Enable toast notifications"
+    "message": "Enable toast notifications",
+    "description": "label for option to enable toasts"
   },
   "setting_toastHint": {
-    "message": "Toast notifications will not show up as long as the miniplayer is active."
+    "message": "Toast notifications will not show up as long as the miniplayer is active.",
+    "description": "enable toast option hint text"
   },
   "openMiniplayer": {
-    "message": "Open miniplayer"
+    "message": "Open miniplayer",
+    "description": "text for button tooltip, keyboard shortcut and toast action to open the miniplayer"
   },
   "lastfmUser": {
-    "message": "last.fm User: "
+    "message": "last.fm User: ",
+    "description": "label prefix for logged in lastfm user on options page and in lastfm link tooltip in miniplayer (user name will be appended)"
   },
   "logout": {
-    "message": "Logout"
+    "message": "Logout",
+    "description": "text for logout link (lastfm) on options page"
   },
   "connect": {
-    "message": "Connect"
+    "message": "Connect",
+    "description": "text for connect link (lastfm) on options page"
   },
   "disconnected": {
-    "message": "Not connected"
-  },
-  "repeat": {
-    "message": "Repeat songs"
-  },
-  "shuffle": {
-    "message": "Shuffle songs"
+    "message": "Not connected",
+    "description": "text when not connected to lastfm on options page"
   },
   "prevSong": {
-    "message": "Previous song"
+    "message": "Previous song",
+    "description": "tooltip for previous song button and toast action"
   },
   "nextSong": {
-    "message": "Next song"
+    "message": "Next song",
+    "description": "tooltip for next song button and toast action"
   },
   "pauseSong": {
-    "message": "Pause song"
+    "message": "Pause song",
+    "description": "tooltip for pause button in miniplayer"
   },
   "resumeSong": {
-    "message": "Resume song"
-  },
-  "showLyrics": {
-    "message": "Show lyrics"
+    "message": "Resume song",
+    "description": "tooltip for play button in miniplayer"
   },
   "volumeControl": {
-    "message": "Control volume"
+    "message": "Control volume",
+    "description": "tooltip for volume button in miniplayer"
   },
   "playPause": {
-    "message": "Pause/Resume song"
+    "message": "Pause/Resume song",
+    "description": "text for toast button and keyboard shortcut to play/pause the current song"
   },
   "lastfmUnlove": {
-    "message": "Unlove"
+    "message": "Unlove",
+    "description": "tooltip for unlove button in miniplayer"
   },
   "lastfmLove": {
-    "message": "Love this song"
+    "message": "Love this song",
+    "description": "tooltip for love button in miniplayer"
   },
   "lastfmError": {
-    "message": "Error on last.fm communication, click to reload: "
+    "message": "Error on last.fm communication, click to reload: ",
+    "description": "tooltip for love button in miniplayer on error (error message will be appended)"
   },
   "lastfmUnavailable": {
-    "message": "The last.fm webservice is unavailable."
+    "message": "The last.fm webservice is unavailable.",
+    "description": "tooltip for love button in miniplayer when lastfm is not available (error message will be appended)"
   },
   "setting_toastUseMpStyle": {
-    "message": "Use miniplayer style for toasts"
+    "message": "Use miniplayer style for toasts",
+    "description": "label for option to use miniplayer style for toasts"
   },
   "setting_toastUseMpStyleHint": {
-    "message": "Make toasts look like the miniplayer. Otherwise toasts will appear as Chrome notifications with less functionality."
+    "message": "Make toasts look like the miniplayer. Otherwise toasts will appear as Chrome notifications with less functionality.",
+    "description": "hint for option to use miniplayer style for toasts"
   },
   "setting_toastDuration": {
-    "message": "Toast duration (seconds)"
+    "message": "Toast duration (seconds)",
+    "description": "label for option to change the toast duration"
   },
   "setting_toastIfMpOpen": {
-    "message": "Show toast even if the miniplayer is opened"
+    "message": "Show toast even if the miniplayer is opened",
+    "description": "label for option to show toasts while miniplayer is opened"
   },
   "setting_toastClick": {
-    "message": "Action when clicked anywhere on the toast"
+    "message": "Action when clicked anywhere on the toast",
+    "description": "label for option to set the action when toast is clicked"
   },
   "setting_toastButton1": {
-    "message": "Action toast button 1"
+    "message": "Action toast button 1",
+    "description": "label for option to set the action when toast button 1 is clicked"
   },
   "setting_toastButton2": {
-    "message": "Action toast button 2"
+    "message": "Action toast button 2",
+    "description": "label for option to set the action when toast button 2 is clicked"
   },
   "setting_scrobblePercent": {
-    "message": "Percentage for scrobbling"
+    "message": "Percentage for scrobbling",
+    "description": "label for option to set the scrobble percentage"
   },
   "setting_scrobbleTime": {
-    "message": "Maximum time (seconds) after that will be scrobbled (0=inactive)"
+    "message": "Maximum time (seconds) after that will be scrobbled (0=inactive)",
+    "description": "label for option to set the latest scrobble time"
   },
   "setting_scrobbleMaxDuration": {
-    "message": "Maximum duration (minutes) of a title to be scrobbled (0=inactive)"
+    "message": "Maximum duration (minutes) of a title to be scrobbled (0=inactive)",
+    "description": "label for option to set the maximum song duration for scrobbling"
   },
   "setting_disableScrobbleOnFf": {
-    "message": "Disable scrobbling after fast forward"
+    "message": "Disable scrobbling after fast forward",
+    "description": "label for option to disable scrobbling after fast forward"
   },
   "setting_disableScrobbleOnFfHint": {
-    "message": "Does not scrobble the current song after it has been fast forwarded (at least five seconds). Useful if you only search a particaluar part of a song. Otherwise, the title will be scrobbled as soon as it passes the red scrobbling marker."
+    "message": "Does not scrobble the current song after it has been fast forwarded (at least five seconds). Useful if you only search a particaluar part of a song. Otherwise, the title will be scrobbled as soon as it passes the red scrobbling marker.",
+    "description": "hint for option to disable scrobbling after fast forward"
   },
   "setting_linkRatings": {
-    "message": "Link ratings"
+    "message": "Link ratings",
+    "description": "label for option to link ratings"
   },
   "setting_linkRatingsHint": {
-    "message": "Love a song in last.fm if you give thumbs up/five stars in Google Music and vice versa. Does not override existing ratings."
+    "message": "Love a song in last.fm if you give thumbs up/five stars in Google Music and vice versa. Does not override existing ratings.",
+    "description": "hint for option to link ratings"
   },
   "setting_miniplayerType": {
-    "message": "Type for the miniplayer"
+    "message": "Type for the miniplayer",
+    "description": "label for option to change the miniplayer type"
   },
   "setting_miniplayerTypeHint": {
-    "message": "Hint: Go to chrome://flags and activate 'Panels' to enable 'real' panels that can stay always on top."
+    "message": "Hint: Go to chrome://flags and activate 'Panels' to enable 'real' panels that can stay always on top.",
+    "description": "hint for option to change the miniplayer type"
   },
   "setting_miniplayerType_normal": {
-    "message": "Window"
+    "message": "Window",
+    "description": "text for miniplayer type option 'normal'"
   },
   "setting_miniplayerType_popup": {
-    "message": "Popup window"
+    "message": "Popup window",
+    "description": "text for miniplayer type option 'popup'"
   },
   "setting_miniplayerType_panel": {
-    "message": "Panel"
+    "message": "Panel",
+    "description": "text for miniplayer type option 'panel'"
   },
   "setting_miniplayerType_detached_panel": {
-    "message": "Detached panel"
+    "message": "Detached panel",
+    "description": "text for miniplayer type option 'detached panel'"
   },
   "setting_layout": {
-    "message": "Layout for the miniplayer"
+    "message": "Layout for the miniplayer",
+    "description": "label for option to change the miniplayer layout"
   },
   "setting_layoutHint": {
-    "message": "Panels have an initial maximum width ad therefor do not work well with layout 'horizontal bar'."
+    "message": "Panels have an initial maximum width ad therefor do not work well with layout 'horizontal bar'.",
+    "description": "hint for option to change the miniplayer layout"
   },
   "setting_layout_normal": {
-    "message": "Normal"
+    "message": "Normal",
+    "description": "text for miniplayer layout option 'normal'"
   },
   "setting_layout_compact1": {
-    "message": "Compact (low)"
+    "message": "Compact (low)",
+    "description": "text for miniplayer layout option 'compact low'"
   },
   "setting_layout_compact2": {
-    "message": "Compact (slim)"
+    "message": "Compact (slim)",
+    "description": "text for miniplayer layout option 'compact slim'"
   },
   "setting_layout_hbar": {
-    "message": "Horizontal bar"
+    "message": "Horizontal bar",
+    "description": "text for miniplayer layout option 'horizontal bar'"
   },
   "setting_iconClickMiniplayer": {
-    "message": "Open miniplayer directly on icon click"
+    "message": "Open miniplayer directly on icon click",
+    "description": "label for option to open miniplayer on browser icon click"
   },
   "setting_iconClickPlayPause": {
-    "message": "Play/pause current song on icon click"
+    "message": "Play/pause current song on icon click",
+    "description": "label for option to play/pause current song on browser icon click"
   },
   "setting_iconClickConnect": {
-    "message": "Always open Google Music first on icon click, if not opened yet"
+    "message": "Always open Google Music first on icon click, if not opened yet",
+    "description": "label for option to open Google Music on browser icon click"
   },
   "connected": {
-    "message": "This tab is connected to Prime Player. Click to disconnect."
+    "message": "This tab is connected to Prime Player. Click to disconnect.",
+    "description": "tooltip for the 'P'-icon on Google Music page"
   },
   "lastfmSettings": {
-    "message": "last.fm settings"
+    "message": "last.fm settings",
+    "description": "title for the lastfm settings on options page"
   },
   "toastingSettings": {
-    "message": "Toasting settings"
+    "message": "Toasting settings",
+    "description": "title for the toast settings on options page"
   },
   "mpSettings": {
-    "message": "Miniplayer settings"
+    "message": "Miniplayer settings",
+    "description": "title for the miniplayer settings on options page"
   },
   "lfSettings": {
-    "message": "Look and feel"
+    "message": "Look and feel",
+    "description": "title for the look and feel settings on options page"
   },
   "setting_gaEnabled": {
-    "message": "Enable Google Analytics"
+    "message": "Enable Google Analytics",
+    "description": "label for option to enable Google Analytics"
   },
   "setting_gaEnabledHint": {
-    "message": "No personal data (e.g. played songs) will be collected. This is only to analyse commonly used features and settings."
+    "message": "No personal data (e.g. played songs) will be collected. This is only to analyse commonly used features and settings.",
+    "description": "hint for option to enable Google Analytics"
   },
   "scrobblePosition": {
-    "message": "Here will be scrobbled"
+    "message": "Here will be scrobbled",
+    "description": "tooltip for scrobble position indicator in miniplayer"
   },
   "setting_color": {
-    "message": "Color scheme"
+    "message": "Color scheme",
+    "description": "label for option to select the miniplayer color scheme"
   },
   "setting_color_turq": {
-    "message": "Turquois"
+    "message": "Turquois",
+    "description": "text for color option 'turquois'"
   },
   "setting_color_green": {
-    "message": "Green"
+    "message": "Green",
+    "description": "text for color option 'green'"
   },
   "setting_color_red": {
-    "message": "Red"
+    "message": "Red",
+    "description": "text for color option 'red'"
   },
   "setting_color_blue": {
-    "message": "Blue"
+    "message": "Blue",
+    "description": "text for color option 'blue'"
   },
   "setting_color_black": {
-    "message": "Black"
+    "message": "Black",
+    "description": "text for color option 'black'"
   },
   "setting_color_orange": {
-    "message": "Orange"
+    "message": "Orange",
+    "description": "text for color option 'orange'"
   },
   "lastfmConnectSuccess": {
-    "message": "Successfully connected"
+    "message": "Successfully connected",
+    "description": "tooltip for lastfm connection success icon"
   },
   "lastfmConnectError": {
-    "message": "Error connecting"
+    "message": "Error connecting",
+    "description": "tooltip for lastfm connection failure icon (error message will be appended)"
   },
   "lastfmSessionTimeout": {
-    "message": "Last.fm disconnect"
+    "message": "Last.fm disconnect",
+    "description": "title for lastfm disconnected notification"
   },
   "lastfmRelogin": {
-    "message": "Click here to reconnect."
+    "message": "Click here to reconnect.",
+    "description": "message for lastfm disconnected notification"
   },
   "bugfeatureinfo": {
     "message": "If you find any bugs or would like to see new features, please file an issue on $GITHUB$ or - even better - send a pull request.",
-    "placeholders": { "GITHUB": { "content": "$1" } }
+    "description": "text for github info on options page",
+    "placeholders": { "GITHUB": { "content": "$1", "example": "<a target='_blank' href='https://github.com/svenrecknagel/Prime-Player-Google-Play-Music/issues' data-network='github' data-action='issue'>GitHub</a>" } }
   },
   "setting_openGoogleMusicPinned": {
-    "message": "Open Google Music in a pinned tab"
+    "message": "Open Google Music in a pinned tab",
+    "description": "label for option to open Google Music in a pinned tab"
   },
   "setting_syncSettings": {
-    "message": "Sync settings with Chrome sync"
+    "message": "Sync settings with Chrome sync",
+    "description": "label for option to sync settings"
   },
   "setting_preventCommandRatingReset": {
-    "message": "Prevent rating resets for keyboard shortcut"
+    "message": "Prevent rating resets for keyboard shortcut",
+    "description": "label for option to prevent rating resets"
   },
   "setting_preventCommandRatingResetHint": {
-    "message": "Normally, when you rate a song with the rating it already has, its rating is reset to unrated. When you use keyboard shortcuts or the notification actions for rating, you typically don't want this, because you can't see the current rating. Deactivate this option to reset the rating in that case anyway."
+    "message": "Normally, when you rate a song with the rating it already has, its rating is reset to unrated. When you use keyboard shortcuts or the notification actions for rating, you typically don't want this, because you can't see the current rating. Deactivate this option to reset the rating in that case anyway.",
+    "description": "hint for option to prevent rating resets"
   },
   "setting_updateNotifier": {
-    "message": "Notify on updates (icon becomes orange)"
+    "message": "Notify on updates (icon becomes orange)",
+    "description": "label for option to be notified on extension updates"
   },
   "setting_iconStyle": {
-    "message": "Style of the browser icon"
+    "message": "Style of the browser icon",
+    "description": "label for option to select the browser icon"
   },
   "setting_hideRatings": {
-    "message": "Hide rating icons (last.fm and thumbs/stars)"
+    "message": "Hide rating icons (last.fm and thumbs/stars)",
+    "description": "label for option to hide ratings"
   },
   "setting_omitUnknownAlbums": {
-    "message": "Omit 'unknown albums' in the album list of the miniplayer"
+    "message": "Omit 'unknown albums' in the album list of the miniplayer",
+    "description": "label for option to omit unknown albums"
   },
   "setting_omitUnknownAlbumsHint": {
-    "message": "Google shows songs of an artist without album as 'Unknown Album' in the albums list. With this option enabled, those 'pseudo' albums will be hidden in the album list of the miniplayer."
+    "message": "Google shows songs of an artist without album as 'Unknown Album' in the albums list. With this option enabled, those 'pseudo' albums will be hidden in the album list of the miniplayer.",
+    "description": "hint for option to omit unknown albums"
   },
   "setting_mpAutoOpen": {
-    "message": "Automatically open miniplayer, when music starts playing"
+    "message": "Automatically open miniplayer, when music starts playing",
+    "description": "label for option to open miniplayer on play"
   },
   "setting_mpAutoClose": {
-    "message": "Automatically close miniplayer, when Google Music is closed"
+    "message": "Automatically close miniplayer, when Google Music is closed",
+    "description": "label for option to close miniplayer on Google Music close"
   },
   "updateNotifierTitle": {
-    "message": "Prime Player Updated"
+    "message": "Prime Player Updated",
+    "description": "title for update notification"
   },
   "updateNotifierText": {
-    "message": "The extension just updated. Go to the options page to see what's new."
+    "message": "The extension just updated. Go to the options page to see what's new.",
+    "description": "message for update notification"
   },
   "browserActionTitle_updated": {
-    "message": "just updated"
+    "message": "just updated",
+    "description": "browser icon tooltip when extension was updated"
   },
   "browserActionTitle_paused": {
-    "message": "Paused"
+    "message": "Paused",
+    "description": "browser icon tooltip when song is paused (song title will be appended)"
   },
   "browserActionTitle_playing": {
-    "message": "Playing"
+    "message": "Playing",
+    "description": "browser icon tooltip when song is playing (song title will be appended)"
   },
   "browserActionTitle_scrobbled": {
-    "message": "scrobbled"
+    "message": "scrobbled",
+    "description": "browser icon tooltip when song is scrobbled (will be appended to the paused/playing message)"
   },
   "browserActionTitle_connected": {
-    "message": "connected to Google Music"
+    "message": "connected to Google Music",
+    "description": "browser icon tooltip when connected to Google Music but no song is loaded"
   },
   "showQuicklinks": {
-    "message": "Show quick-links"
+    "message": "Show quick-links",
+    "description": "tooltip for quicklinks button"
   },
   "emptyList": {
-    "message": "The list is empty."
+    "message": "The list is empty.",
+    "description": "message for empty lists in miniplayer"
   },
   "loadListError": {
-    "message": "The list could not be loaded."
+    "message": "The list could not be loaded.",
+    "description": "message when a list could not be loaded in miniplayer"
   },
   "noLyricsFound": {
-    "message": "No matching lyrics found."
+    "message": "No matching lyrics found.",
+    "description": "message when no matching lyrics have been found (in miniplayer and Google Music)"
   },
   "loadLyricsError": {
-    "message": "The lyrics could not be loaded."
+    "message": "The lyrics could not be loaded.",
+    "description": "message when no lyrics could be loaded (in miniplayer and Google Music)"
   },
   "quicklinks": {
-    "message": "quick-links"
+    "message": "quick-links",
+    "description": "title for quicklinks view in miniplayer"
   },
   "welcomeMessage": {
-    "message": "Thank you for installing Prime Player. The extension has a bunch of options - please take your time to try them all out. Next to some options you see a green question mark. If you hover over it with your mouse, you'll get more detailed informations. For more info please take a look at the FAQ on the extension's homepage at the Chrome Store. And now have fun with Prime Player!"
+    "message": "Thank you for installing Prime Player. The extension has a bunch of options - please take your time to try them all out. Next to some options you see a green question mark. If you hover over it with your mouse, you'll get more detailed informations. For more info please take a look at the FAQ on the extension's homepage at the Chrome Store. And now have fun with Prime Player!",
+    "description": "welcome message that is shown on options page directly after install"
   },
   "toOptions": {
-    "message": "To the options"
+    "message": "To the options",
+    "description": "text for 'to options' button below welcome message"
   },
   "close": {
-    "message": "Close"
+    "message": "Close",
+    "description": "text for 'close' button, used in various locations"
   },
   "feelingLucky": {
-    "message": "I'm feeling lucky mix"
+    "message": "I'm feeling lucky mix",
+    "description": "tooltip for feeling lucky button in miniplayer, keyboard shortcut and toast action"
   },
   "setting_coverClickLink": {
-    "message": "Open on click on album cover"
+    "message": "Open on click on album cover",
+    "description": "label for option to select action on album cover click"
   },
   "setting_titleClickLink": {
-    "message": "Open on click on song title"
+    "message": "Open on click on song title",
+    "description": "label for option to select action on song title click"
   },
   "quicklink_": {
-    "message": "Nothing"
+    "message": "Nothing",
+    "description": "text for click action option 'nothing'"
   },
   "quicklink_now": {
-    "message": "Listen Now"
+    "message": "Listen Now",
+    "description": "text for click action option 'listen now' (will be replaced with text from Google Music if connected)"
   },
   "quicklink_artists": {
-    "message": "Artists"
+    "message": "Artists",
+    "description": "text for click action option 'artists' (will be replaced with text from Google Music if connected)"
   },
   "quicklink_albums": {
-    "message": "Albums"
+    "message": "Albums",
+    "description": "text for click action option 'albums' (will be replaced with text from Google Music if connected)"
   },
   "quicklink_genres": {
-    "message": "Genres"
+    "message": "Genres",
+    "description": "text for click action option 'genres' (will be replaced with text from Google Music if connected)"
   },
   "quicklink_rd": {
-    "message": "Instant Mixes"
+    "message": "Instant Mixes",
+    "description": "text for click action option 'instant mixes' (will be replaced with text from Google Music if connected)"
   },
   "quicklink_ap_queue": {
-    "message": "Queue"
+    "message": "Queue",
+    "description": "text for click action option 'queue' (will be replaced with text from Google Music if connected)"
   },
   "quicklink_ap_auto_playlist_thumbs_up": {
-    "message": "Highly rated"
+    "message": "Highly rated",
+    "description": "text for click action option 'higly rated' (will be replaced with text from Google Music if connected)"
   },
   "quicklink_ap_auto_playlist_recent": {
-    "message": "Last added"
+    "message": "Last added",
+    "description": "text for click action option 'last added' (will be replaced with text from Google Music if connected)"
   },
   "quicklink_ap_auto_playlist_promo": {
-    "message": "Free and purchased"
+    "message": "Free and purchased",
+    "description": "text for click action option 'free and purchased' (will be replaced with text from Google Music if connected)"
   },
   "quicklink_ap_shared_with_me": {
-    "message": "Shared with me"
+    "message": "Shared with me",
+    "description": "text for click action option 'shared with me' (will be replaced with text from Google Music if connected)"
   },
   "quicklink_ap_google_play_recommends": {
-    "message": "Google Play recommends"
+    "message": "Google Play recommends",
+    "description": "text for click action option 'recommendations' (will be replaced with text from Google Music if connected)"
   },
   "openLink": {
     "message": "Open '$LINK$'",
-    "placeholders": { "LINK": { "content": "$1" } }
+    "description": "tooltip for cover/title link in miniplayer",
+    "placeholders": { "LINK": { "content": "$1", "example": "Listen Now" } }
   },
   "backToLink": {
     "message": "Back to '$LINK$'",
-    "placeholders": { "LINK": { "content": "$1" } }
+    "description": "tooltip for back button in miniplayer",
+    "placeholders": { "LINK": { "content": "$1", "example": "Queue" } }
   },
   "backToPlayer": {
-    "message": "Back to miniplayer"
+    "message": "Back to miniplayer",
+    "description": "tooltip for back button in miniplayer when on 'first page'"
   },
   "setting_openLinksInMiniplayer": {
-    "message": "Open links in miniplayer"
+    "message": "Open links in miniplayer",
+    "description": "label for option to open links in miniplayer"
   },
   "setting_openLinksInMiniplayerHint": {
-    "message": "If enabled, links to albums, artist etc. will be opened directly in the miniplayer, otherwise in the Google Music tab. Using Shift+Click you can switch this behavior temporarily."
+    "message": "If enabled, links to albums, artist etc. will be opened directly in the miniplayer, otherwise in the Google Music tab. Using Shift+Click you can switch this behavior temporarily.",
+    "description": "hint for option to open links in miniplayer"
   },
   "setting_lyrics": {
-    "message": "Activate lyrics"
+    "message": "Activate lyrics",
+    "description": "label for option to activate lyrics"
   },
   "setting_openLyricsInMiniplayer": {
-    "message": "Open lyrics in miniplayer"
+    "message": "Open lyrics in miniplayer",
+    "description": "label for option to open lyrics in miniplayer"
   },
   "setting_openLyricsInMiniplayerHint": {
-    "message": "If enabled, lyrics will be shown in the miniplayer, otherwise a new tab will be opened. Using Shift+Click you can switch this behavior temporarily."
+    "message": "If enabled, lyrics will be shown in the miniplayer, otherwise a new tab will be opened. Using Shift+Click you can switch this behavior temporarily.",
+    "description": "hint for option to open lyrics in miniplayer"
   },
   "lyricsAlert": {
-    "message": "This feature requires access to songlyrics.com to load the lyrics.\nPlease note that not Prime Player but songlyrics.com is responsible for the quality of the search results. Prime Player always shows the first search result from songlyrics.com. So it is possible that the shown lyrics don't match the song. You can check the search results with the links at the bottom of the lyrics page in the miniplayer."
+    "message": "This feature requires access to songlyrics.com to load the lyrics.\nPlease note that not Prime Player but songlyrics.com is responsible for the quality of the search results. Prime Player always shows the first search result from songlyrics.com. So it is possible that the shown lyrics don't match the song. You can check the search results with the links at the bottom of the lyrics page in the miniplayer.",
+    "description": "warning message on first lyrics feature activation"
   },
   "setting_hideSearchfield": {
-    "message": "Hide search box in miniplayer"
+    "message": "Hide search box in miniplayer",
+    "description": "label for option to hide search field"
   },
   "resetSettings": {
-    "message": "Reset settings to default"
+    "message": "Reset settings to default",
+    "description": "text for reset settings button"
   },
   "setting_connectedIndicator": {
-    "message": "Show 'P'-icon on connected Google Music tab"
+    "message": "Show 'P'-icon on connected Google Music tab",
+    "description": "label for option to show the Prime Player icon in Google Music"
   },
   "setting_lyricsInGpm": {
-    "message": "Enable lyrics in Google Music tab"
+    "message": "Enable lyrics in Google Music tab",
+    "description": "label for option to enable lyrics in Google Music"
   },
   "moreThanOneDay": {
-    "message": "> 1 day"
+    "message": "> 1 day",
+    "description": "playlist duration info if list is longer than 1 day (will be appended to list name)"
   },
   "searchPlaceholder": {
-    "message": "Search music"
+    "message": "Search music",
+    "description": "placeholder text for search box in miniplayer"
   },
   "searchResults": {
-    "message": "Search Results"
+    "message": "Search Results",
+    "description": "title for search results view in miniplayer"
   },
   "command_": {
-    "message": "No action"
+    "message": "No action",
+    "description": "text for no toast action (on options page)"
   },
   "command_loveUnloveSong": {
-    "message": "Love or unlove current song"
+    "message": "Love or unlove current song",
+    "description": "text for love/unlove current song in toast action and keyboard shortcut"
   },
   "command_volumeUp": {
-    "message": "Volume up"
+    "message": "Volume up",
+    "description": "text for volume up in toast action and keyboard shortcut"
   },
   "command_volumeDown": {
-    "message": "Volume down"
+    "message": "Volume down",
+    "description": "text for volume down in toast action and keyboard shortcut"
   },
   "command_volumeMute": {
-    "message": "Volume mute"
+    "message": "Volume mute",
+    "description": "text for volume mute in toast action and keyboard shortcut"
   },
   "command_toggleRepeat": {
-    "message": "Toggle repeat"
+    "message": "Toggle repeat",
+    "description": "text for toggle repeat in toast action and keyboard shortcut and button tooltip in miniplayer"
   },
   "command_toggleShuffle": {
-    "message": "Toggle shuffle"
+    "message": "Toggle shuffle",
+    "description": "text for toggle shuffle in toast action and keyboard shortcut and button tooltip in miniplayer"
   },
   "command_ff": {
-    "message": "Fast forward 15 seconds"
+    "message": "Fast forward 15 seconds",
+    "description": "text for fast forward in toast action and keyboard shortcut"
   },
   "command_rate1": {
-    "message": "Rate 1 star/thumbs down"
+    "message": "Rate 1 star/thumbs down",
+    "description": "text for rate 1 in toast action (if not connected to Google Music) and keyboard shortcut"
   },
   "command_rate2": {
-    "message": "Rate 2 stars"
+    "message": "Rate 2 stars",
+    "description": "text for rate 2 in toast action and keyboard shortcut"
   },
   "command_rate3": {
-    "message": "Rate 3 stars"
+    "message": "Rate 3 stars",
+    "description": "text for rate 3 in toast action and keyboard shortcut"
   },
   "command_rate4": {
-    "message": "Rate 4 stars"
+    "message": "Rate 4 stars",
+    "description": "text for rate 4 in toast action and keyboard shortcut"
   },
   "command_rate5": {
-    "message": "Rate 5 stars/thumbs up"
+    "message": "Rate 5 stars/thumbs up",
+    "description": "text for rate 5 in toast action (if not connected to Google Music) and keyboard shortcut"
   },
   "command_showToast": {
-    "message": "Show toast (again)"
+    "message": "Show toast (again)",
+    "description": "text for keyboard shortcut to show toast"
   },
   "command_thumbsUp": {
-    "message": "Thumbs up"
+    "message": "Thumbs up",
+    "description": "text for thumbs up toast action (if connected to Google Music)"
   },
   "command_thumbsDown": {
-    "message": "Thumbs down"
+    "message": "Thumbs down",
+    "description": "text for thumbs down toast action (if connected to Google Music)"
   },
   "command_star1": {
-    "message": "Rate 1 star"
+    "message": "Rate 1 star",
+    "description": "text for rate 1 star toast action (if connected to Google Music)"
   },
   "command_star5": {
-    "message": "Rate 5 stars"
+    "message": "Rate 5 stars",
+    "description": "text for rate 5 star toast action (if connected to Google Music)"
   },
   "command_openLyrics": {
-    "message": "Open lyrics"
+    "message": "Open lyrics",
+    "description": "text for open lyrics in toast action, keyboard shortcut and tooltip of lyrics button in Google Music"
   },
   "lyricsFor": {
     "message": "Lyrics for '$SONG$'",
-    "placeholders": { "SONG": { "content": "$1" } }
+    "description": "tooltip for song title link in miniplayer lists and lyrics button",
+    "placeholders": { "SONG": { "content": "$1", "example": "Like a Prayer" } }
   },
   "lyricsTitle": {
     "message": "$SONG$ Lyrics",
-    "placeholders": { "SONG": { "content": "$1" } }
+    "description": "title for lyrics in miniplayer while loading (will be replaced with title from songlyrics.com after load)",
+    "placeholders": { "SONG": { "content": "$1", "example": "Madonna - Like a Prayer" } }
   },
   "lyricsSrc": {
-    "message": "lyrics source"
+    "message": "lyrics source",
+    "description": "text for the lyrics source link at the bottom of the lyrics in miniplayer and Google Music"
   },
   "lyricsSearchResult": {
-    "message": "search result"
+    "message": "search result",
+    "description": "text for the lyrics search result link at the bottom of the lyrics in miniplayer and Google Music"
   },
   "loadLyrics": {
-    "message": "Loading lyrics..."
+    "message": "Loading lyrics...",
+    "description": "title for lyrics panel in Google Music while loading"
   }
 }

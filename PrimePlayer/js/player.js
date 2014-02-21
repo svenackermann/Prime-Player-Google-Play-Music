@@ -62,10 +62,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("#artist").text(val.artist).attr("title", val.artist).data("link", val.artistLink).toggleClass("nav", val.artistLink != null);
       $("#album").text(val.album).attr("title", val.album).data("link", val.albumLink).toggleClass("nav", val.albumLink != null);
       $("#cover").attr("src", val.cover || "img/cover.png");
+      $("#showlyrics").attr("title", chrome.i18n.getMessage("lyricsFor", val.title)).addClass("nav");
       //although the value of scrobbleTime might have not changed, the relative position might have
       updateScrobblePosition(bp.song.scrobbleTime);
     } else {
       $("#cover").attr("src", "img/cover.png");
+      $("#showlyrics").removeAttr("title").removeClass("nav");
     }
     var playlist = $("#navlistContainer").find(".playlist");
     if (playlist.is(":visible") && currentNavList.titleList) {
@@ -556,10 +558,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
     $("#prev").click(googleMusicExecutor("prevSong")).attr("title", chrome.i18n.getMessage("prevSong"));
     $("#next").click(googleMusicExecutor("nextSong")).attr("title", chrome.i18n.getMessage("nextSong"));
-    $("#repeat").click(googleMusicExecutor("toggleRepeat")).attr("title", chrome.i18n.getMessage("repeat"));
-    $("#shuffle").click(googleMusicExecutor("toggleShuffle")).attr("title", chrome.i18n.getMessage("shuffle"));
+    $("#repeat").click(googleMusicExecutor("toggleRepeat")).attr("title", chrome.i18n.getMessage("command_toggleRepeat"));
+    $("#shuffle").click(googleMusicExecutor("toggleShuffle")).attr("title", chrome.i18n.getMessage("command_toggleShuffle"));
     $("#volume").click(toggleVolumeControl).attr("title", chrome.i18n.getMessage("volumeControl"));
-    $("#showlyrics").attr("title", chrome.i18n.getMessage("showLyrics"));
     $("#volumeBarBorder").click(setVolume);
   }
 

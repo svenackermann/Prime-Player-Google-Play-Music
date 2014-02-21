@@ -41,12 +41,6 @@
   "disconnected": {
     "message": "Nicht verbunden"
   },
-  "repeat": {
-    "message": "Wiederholen"
-  },
-  "shuffle": {
-    "message": "Zufallsmix"
-  },
   "prevSong": {
     "message": "Vorheriger Titel"
   },
@@ -58,9 +52,6 @@
   },
   "resumeSong": {
     "message": "Wiedergabe fortsetzen"
-  },
-  "showLyrics": {
-    "message": "Songtext anzeigen"
   },
   "volumeControl": {
     "message": "Lautst\u00E4rke einstellen"

@@ -146,7 +146,7 @@ $(function() {
     disableLyrics();
     $("<img id='ppLyricsButton'/>")
       .attr("src", chrome.extension.getURL("img/toast/openLyrics.png"))
-      .attr("title", chrome.i18n.getMessage("showLyrics"))
+      .attr("title", chrome.i18n.getMessage("command_openLyrics"))
       .toggleClass("active", $("#playerSongInfo").find("div").length > 0)
       .click(toggleLyrics)
       .appendTo("#player-right-wrapper");
