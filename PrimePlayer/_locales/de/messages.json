@@ -41,12 +41,6 @@
   "disconnected": {
     "message": "Nicht verbunden"
   },
-  "repeat": {
-    "message": "Wiederholen"
-  },
-  "shuffle": {
-    "message": "Zufallsmix"
-  },
   "prevSong": {
     "message": "Vorheriger Titel"
   },
@@ -58,9 +52,6 @@
   },
   "resumeSong": {
     "message": "Wiedergabe fortsetzen"
-  },
-  "showLyrics": {
-    "message": "Songtext anzeigen"
   },
   "volumeControl": {
     "message": "Lautst\u00E4rke einstellen"
@@ -181,6 +172,9 @@
   },
   "lfSettings": {
     "message": "Aussehen und Verhalten"
+  },
+  "lyricsSettings": {
+    "message": "Songtexte Einstellungen"
   },
   "setting_gaEnabled": {
     "message": "Google Analytics aktivieren"
@@ -392,8 +386,17 @@
   "setting_connectedIndicator": {
     "message": "Zeige 'P'-Symbol in dem verbundenen Google Music Tab an"
   },
+  "setting_lyricsAutoReload": {
+    "message": "Lade Songtext automatisch neu bei neuem Titel"
+  },
   "setting_lyricsInGpm": {
     "message": "Aktiviere Songtexte im Google Music Tab"
+  },
+  "setting_lyricsFontSize": {
+    "message": "Schriftgr\u00F6\u00DFe (in Pixeln) f\u00FCr Songtexte in Miniplayer und Google Music"
+  },
+  "setting_lyricsWidth": {
+    "message": "Breite (in Pixeln) der Songtext-Anzeige in Google Music"
   },
   "moreThanOneDay": {
     "message": "> 1 Tag"

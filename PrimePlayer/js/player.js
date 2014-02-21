@@ -62,10 +62,17 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("#artist").text(val.artist).attr("title", val.artist).data("link", val.artistLink).toggleClass("nav", val.artistLink != null);
       $("#album").text(val.album).attr("title", val.album).data("link", val.albumLink).toggleClass("nav", val.albumLink != null);
       $("#cover").attr("src", val.cover || "img/cover.png");
+      $("#showlyrics").attr("title", chrome.i18n.getMessage("lyricsFor", val.title)).addClass("nav");
       //although the value of scrobbleTime might have not changed, the relative position might have
       updateScrobblePosition(bp.song.scrobbleTime);
+      if (bp.settings.lyricsAutoReload && $("#lyrics").is(":visible")) {
+        var song = val.title;
+        if (val.artist) song = val.artist + " - " + song;
+        switchView(chrome.i18n.getMessage("lyricsTitle", song), "lyrics", null, {artist: val.artist, title: val.title});
+      }
     } else {
       $("#cover").attr("src", "img/cover.png");
+      $("#showlyrics").removeAttr("title").removeClass("nav");
     }
     var playlist = $("#navlistContainer").find(".playlist");
     if (playlist.is(":visible") && currentNavList.titleList) {
@@ -226,6 +233,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
   
   function lyricsWatcher(val) {
     $("body").toggleClass("lyrics", val);
+  }
+  
+  function lyricsFontSizeWatcher(val) {
+    $("#lyrics").css("font-size", val + "px");
   }
 
   function volumeWatcher(val) {
@@ -419,16 +430,15 @@ chrome.runtime.getBackgroundPage(function(bp) {
     currentNavList = {link: link, title: title, search: search, options: options};
     updateNavHead(title);
     $("#navlist").empty().removeClass();
-    $("#lyrics").removeClass().children().empty();
+    var lyrics = $("#lyrics");
+    lyrics.removeClass().hide().children().empty();
     if (!search) $("#navHead > input").val("");
     $("#navlistContainer").hide();
     $("#quicklinks").hide();
-    $("#lyrics").hide();
     if (link == "quicklinks") {
       resize(bp.localSettings.quicklinksSizing);
       $("#quicklinks").show();
     } else if (link == "lyrics") {
-      var lyrics = $("#lyrics");
       lyrics.addClass("loading");
       resize(bp.localSettings.lyricsSizing);
       lyrics.show();
@@ -556,10 +566,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
     $("#prev").click(googleMusicExecutor("prevSong")).attr("title", chrome.i18n.getMessage("prevSong"));
     $("#next").click(googleMusicExecutor("nextSong")).attr("title", chrome.i18n.getMessage("nextSong"));
-    $("#repeat").click(googleMusicExecutor("toggleRepeat")).attr("title", chrome.i18n.getMessage("repeat"));
-    $("#shuffle").click(googleMusicExecutor("toggleShuffle")).attr("title", chrome.i18n.getMessage("shuffle"));
+    $("#repeat").click(googleMusicExecutor("toggleRepeat")).attr("title", chrome.i18n.getMessage("command_toggleRepeat"));
+    $("#shuffle").click(googleMusicExecutor("toggleShuffle")).attr("title", chrome.i18n.getMessage("command_toggleShuffle"));
     $("#volume").click(toggleVolumeControl).attr("title", chrome.i18n.getMessage("volumeControl"));
-    $("#showlyrics").attr("title", chrome.i18n.getMessage("showLyrics"));
     $("#volumeBarBorder").click(setVolume);
   }
 
@@ -641,6 +650,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
     bp.localSettings.watch("lastfmSessionName", lastfmUserWatcher);
     bp.localSettings.watch("lyrics", lyricsWatcher);
+    bp.localSettings.watch("lyricsFontSize", lyricsFontSizeWatcher);
     bp.settings.watch("scrobble", scrobbleWatcher);
     bp.settings.watch("color", colorWatcher);
     bp.settings.watch("coverClickLink", updateCoverClickLink);
@@ -671,6 +681,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       bp.settings.removeListener("layout", layoutWatcher);
       bp.localSettings.removeListener("lastfmSessionName", lastfmUserWatcher);
       bp.localSettings.removeListener("lyrics", lyricsWatcher);
+      bp.localSettings.removeListener("lyricsFontSize", lyricsFontSizeWatcher);
       bp.settings.removeListener("scrobble", scrobbleWatcher);
       bp.settings.removeListener("color", colorWatcher);
       bp.settings.removeListener("coverClickLink", updateCoverClickLink);
