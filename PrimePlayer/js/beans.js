@@ -159,29 +159,31 @@ function Bean(defaults, useLocalStorage) {
     cache[name] = parse(name, defaultValue);
     listeners[name] = [];
     
-    that.__defineGetter__(name, function() {
-      return cache[name];
-    });
-    
-    that.__defineSetter__(name, function(val) {
-      var old = cache[name];
-      var equals = equalsFn[name];
-      if (equals == null) equals = defaultEquals;
-      if (equals(val, old)) {
-        return;
-      }
-      if (syncLocalStorage) {
-        if (val == null) {
-          localStorage.removeItem(name);
-        } else {
-          var type = typeof(val);
-          if (type == "function") throw "cannot store a function in localstorage";
-          localStorage[name] = type.substr(0, 1) + ((type == 'object') ? JSON.stringify(val) : val);
+    Object.defineProperty(that, name, {
+      get: function() {
+        return cache[name];
+      },
+      set: function(val) {
+        var old = cache[name];
+        var equals = equalsFn[name];
+        if (equals == null) equals = defaultEquals;
+        if (equals(val, old)) {
+          return;
         }
-      }
-      cache[name] = val;
-      if (useSyncStorage) saveSyncStorage();
-      notify(name, old, val);
+        if (syncLocalStorage) {
+          if (val == null) {
+            localStorage.removeItem(name);
+          } else {
+            var type = typeof(val);
+            if (type == "function") throw "cannot store a function in localstorage";
+            localStorage[name] = type.substr(0, 1) + ((type == 'object') ? JSON.stringify(val) : val);
+          }
+        }
+        cache[name] = val;
+        if (useSyncStorage) saveSyncStorage();
+        notify(name, old, val);
+      },
+      enumerable: true
     });
   }
   
