@@ -180,7 +180,7 @@
     "message": "Google Analytics aktivieren"
   },
   "setting_gaEnabledHint": {
-    "message": "Es werden keine pers\u00F6nlichen Daten (z.B. gespielte Songs) gesammelt. Die Daten dienen nur zur Analyse h\u00E4ufig genutzer Funktionen und Einstellungen."
+    "message": "Es werden keine pers\u00F6nlichen Daten (z.B. gespielte Songs) gesammelt. Die Daten dienen nur zur Fehler-Analyse."
   },
   "scrobblePosition": {
     "message": "Hier wird gescrobbelt"

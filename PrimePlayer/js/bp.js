@@ -847,41 +847,16 @@ function updateNotifierDone() {
 }
 
 /** Google Analytics stuff */
-function gaEvent(category, eventName, value) {
-  if (settings.gaEnabled) {
-    if (value == undefined) {
-      _gaq.push(['_trackEvent', category, eventName, currentVersion]);
-    } else {
-      _gaq.push(['_trackEvent', category, eventName, currentVersion, value]);
-    }
-  }
+function gaEvent(category, eventName) {
+  if (settings.gaEnabled) _gaq.push(['_trackEvent', category, eventName, currentVersion]);
 }
-function recordSetting(prop) {
-  var value = settings[prop];
-  switch (typeof(value)) {
-    case "boolean":
-      gaEvent("Settings", prop, (value ? 1 : 0));
-      break;
-    case "number":
-      gaEvent("Settings", prop, value);
-      break;
-    default:
-      gaEvent("Settings", prop + "-" + value);
-  }
+function gaSocial(network, action) {
+  if (settings.gaEnabled) _gaq.push(["_trackSocial", network, action]);
 }
 function gaEnabledChanged(val) {
   if (val) {
-    settings.removeListener("gaEnabled", gaEnabledChanged);//init/record only once
+    settings.removeListener("gaEnabled", gaEnabledChanged);//init only once
     initGA(currentVersion);
-    var i = 0;
-    for (var prop in SETTINGS_DEFAULTS) {
-      if (prop != "gaEnabled") {
-        //10 events can be sent immediately, thereafter only one per second
-        if (i < 10) recordSetting(prop)
-        else setTimeout(recordSetting.bind(window, prop), (i - 9) * 1250);
-        i++;
-      }
-    }
   }
 }
 
@@ -933,10 +908,15 @@ function openLyrics(aSong) {
     if (!song.info) return;
     aSong = {artist: song.info.artist, title: song.info.title};
   }
-  var url = buildSearchUrl(aSong);
-  if (url) chrome.tabs.create({url: url}, function(tab) {
-    chrome.tabs.executeScript(tab.id, {file: "js/cs-songlyrics.js", runAt: "document_end"});
-  });
+  var url = buildLyricsSearchUrl(aSong);
+  if (url) {
+    chrome.tabs.create({url: url}, function(tab) {
+      chrome.tabs.executeScript(tab.id, {file: "js/cs-songlyrics.js", runAt: "document_end"});
+    });
+    gaEvent("Lyrics", "Open");
+  } else {
+    gaEvent("Lyrics", "Error-noURL");
+  }
 }
 
 settings.watch("updateNotifier", function(val) {
