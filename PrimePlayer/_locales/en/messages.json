@@ -240,7 +240,7 @@
     "description": "label for option to enable Google Analytics"
   },
   "setting_gaEnabledHint": {
-    "message": "No personal data (e.g. played songs) will be collected. This is only to analyse errors.",
+    "message": "No personal data (e.g. played songs) will be collected. This is only to analyse commonly used features and settings.",
     "description": "hint for option to enable Google Analytics"
   },
   "scrobblePosition": {

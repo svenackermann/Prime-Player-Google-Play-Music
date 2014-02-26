@@ -848,15 +848,25 @@ function updateNotifierDone() {
 
 /** Google Analytics stuff */
 function gaEvent(category, eventName) {
-  if (settings.gaEnabled) _gaq.push(['_trackEvent', category, eventName, currentVersion]);
+  if (settings.gaEnabled) ga('send', 'event', category, eventName, currentVersion);
 }
 function gaSocial(network, action) {
-  if (settings.gaEnabled) _gaq.push(["_trackSocial", network, action]);
+  if (settings.gaEnabled) ga('send', 'social', network, action);
 }
 function gaEnabledChanged(val) {
   if (val) {
     settings.removeListener("gaEnabled", gaEnabledChanged);//init only once
-    initGA(currentVersion);
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){ (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o), m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m) })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-41499181-1');
+    ga('set', 'dimension1', currentVersion);
+    ga('set', 'dimension2', localSettings.lyrics.toString());
+    ga('set', 'dimension3', settings.scrobble.toString());
+    ga('set', 'dimension4', settings.toast.toString());
+    ga('set', 'dimension5', settings.layout);
+    ga('send', 'pageview', {
+      'metric1': settings.scrobblePercent,
+      'metric2': settings.toastDuration
+    });
   }
 }
 
