@@ -18,7 +18,7 @@ body {
   overflow-x: hidden;
   min-width: 250px;
   max-width: 450px;
-  font-size: 10px;
+  font-size: 11px;
   h3 {
     font-size: 11px;
     margin-bottom: 0;
@@ -30,12 +30,24 @@ body {
 }
 
 #credits {
-  > div, > a, > form {
+  > div {
     float: left;
-    margin-right: 2ex;
+    clear: left;
+    font-weight: bold;
+    margin-right: 10px;
+    margin-bottom: 8px;
+    > a, > form {
+      float: left;
+      margin-right: 2ex;
+      margin-bottom: 0;
+    }
   }
   > div#bugfeatureinfo {
     clear: both;
+    > a {
+      margin: initial;
+      float: none;
+    }
   }
 }
 
@@ -61,7 +73,6 @@ img.hint {
 
 #changelog {
   clear: both;
-  padding-top: 2ex;
   h2 {
     display: inline-block;
     margin-right: 2ex;
