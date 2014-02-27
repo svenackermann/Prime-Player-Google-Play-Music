@@ -274,7 +274,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initHint("gaEnabled");
     
     //we must watch this as the session could be expired
-    bp.localSettings.watch("lastfmSessionName", lastfmUserChanged);
+    bp.localSettings.watch("lastfmSessionName", lastfmUserChanged, "options");
     //disable inputs if neccessary
     toastChanged();
     lyricsChanged();

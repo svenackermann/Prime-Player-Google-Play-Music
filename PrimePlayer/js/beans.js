@@ -18,7 +18,7 @@ function Bean(defaults, useLocalStorage) {
   function notify(prop, old, val) {
     var ls = listeners[prop];
     for (var i = 0; i < ls.length; i++) {
-      ls[i](val, old, prop);
+      ls[i].listener(val, old, prop);
     }
   }
   
@@ -30,9 +30,9 @@ function Bean(defaults, useLocalStorage) {
    * 3. the name of the property
    * If the value has been set but did not actually change, the listeners won't be notified.
    */
-  this.addListener = function(prop, listener) {
+  this.addListener = function(prop, listener, src) {
     var ls = listeners[prop];
-    if (ls) ls.push(listener);
+    if (ls) ls.push({listener: listener, src: src || null});
   }
   
   /**
@@ -42,7 +42,7 @@ function Bean(defaults, useLocalStorage) {
     var ls = listeners[prop];
     if (ls) {
       for (var i = 0; i < ls.length; i++) {
-        if (listener == ls[i]) {
+        if (listener == ls[i].listener) {
           ls.splice(i, 1);
           return;
         }
@@ -51,11 +51,26 @@ function Bean(defaults, useLocalStorage) {
   }
   
   /**
+   * Removes all listeners for the given source.
+   */
+  this.removeAllListeners = function(src) {
+    src = src || null;
+    for (var prop in listeners) {
+      var ls = listeners[prop];
+      for (var i = 0; i < ls.length; i++) {
+        if (src === ls[i].src) {
+          ls.splice(i, 1);
+        }
+      }
+    }
+  }
+  
+  /**
    * Same as addListener, except that the listener will be called immediately with the current value for old and new value.
    */
-  this.watch = function(prop, listener) {
+  this.watch = function(prop, listener, src) {
     listener(cache[prop], cache[prop], prop);
-    that.addListener(prop, listener);
+    that.addListener(prop, listener, src);
   }
   
   /**
