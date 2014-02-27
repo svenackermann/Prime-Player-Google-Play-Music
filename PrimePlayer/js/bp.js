@@ -675,7 +675,7 @@ function openToast() {
     createPlayer("toast", function(win) {
       toast = win;
       chrome.windows.onRemoved.addListener(toastClosed);
-    });
+    }, false);
   } else {
     var btns = [];
     var btn = getToastBtn(settings.toastButton1);
@@ -752,7 +752,7 @@ function getMiniplayerSizing() {
   };
 }
 
-function createPlayer(type, callback) {
+function createPlayer(type, callback, focused) {
   var sizing = getMiniplayerSizing();
   chrome.windows.create({
       url: chrome.extension.getURL("player.html") + "?type=" + type,
@@ -760,7 +760,8 @@ function createPlayer(type, callback) {
       width: sizing.width,
       top: sizing.top,
       left: sizing.left,
-      type: settings.miniplayerType
+      type: settings.miniplayerType,
+      focused: focused
     }, callback
   );
 }
@@ -777,7 +778,7 @@ function openMiniplayer() {
   createPlayer("miniplayer", function(win) {
     miniplayer = win;
     chrome.windows.onRemoved.addListener(miniplayerClosed);
-  });
+  }, true);
 }
 
 /** handler for all settings changes that need to update the browser action */
