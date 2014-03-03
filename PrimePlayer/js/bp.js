@@ -427,7 +427,7 @@ function cacheForLaterScrobbling(songInfo) {
   localStorage["scrobbleCache"] = JSON.stringify(scrobbleCache);
 }
 
-function isScrobbleRetriable(errorCode) {
+function isScrobbleRetriable(code) {
   return code == 16 || code == 11 || code == 9 || code == -1;
 }
 
