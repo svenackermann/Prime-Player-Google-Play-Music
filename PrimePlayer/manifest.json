@@ -35,7 +35,7 @@
       "matches": ["*://play.google.com/music/listen*"]
     }
   ],
-  "content_security_policy": "script-src 'self' https://www.google-analytics.com/analytics.js; object-src 'self'",
+  "content_security_policy": "script-src 'self' https://www.google-analytics.com; object-src 'self'",
   "web_accessible_resources": [
     "js/injected.js",
     "img/icon-tabconnected.png",
