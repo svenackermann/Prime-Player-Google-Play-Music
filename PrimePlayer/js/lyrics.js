@@ -3,7 +3,7 @@
  * @author Sven Recknagel (svenrecknagel@googlemail.com)
  * Licensed under the BSD license
  */
-function buildSearchUrl(song) {
+function buildLyricsSearchUrl(song) {
   var artist = "";
   var title = "";
   var search = "";
@@ -29,7 +29,7 @@ function buildSearchUrl(song) {
 }
 
 function fetchLyrics(song, callback) {
-  var url = buildSearchUrl(song);
+  var url = buildLyricsSearchUrl(song);
   if (url) {
     $.get(url)
       .done(function(data) {
@@ -39,26 +39,31 @@ function fetchLyrics(song, callback) {
             .done(function(data) {
               var page = $(data);
               var lyrics = page.find("#songLyricsDiv");
-              if (lyrics.text().trim().indexOf("We do not have the lyrics for") == 0) callback({noresults: true, src: href, searchSrc: url})
-              else {
+              if (lyrics.text().trim().indexOf("We do not have the lyrics for") == 0) {
+                gaEvent("Lyrics", "NoLyrics");
+                callback({noresults: true, src: href, searchSrc: url})
+              } else {
                 var credits = page.find(".albuminfo > li > p");
                 if (credits.length == 0) credits = null;
+                gaEvent("Lyrics", "OK");
                 callback({title: page.find(".pagetitle h1"), lyrics: lyrics, credits: credits, src: href, searchSrc: url});
               }
             })
-            .fail(function(jqXHR, textStatus, errorThrown) {
-              console.error(textStatus, errorThrown);
+            .fail(function() {
+              gaEvent("Lyrics", "Error-GET-Result");
               callback({error: true, src: href, searchSrc: url});
             });
         } else {
+          gaEvent("Lyrics", "NoResult");
           callback({noresults: true, searchSrc: url});
         }
       })
-      .fail(function(jqXHR, textStatus, errorThrown) {
-        console.error(textStatus, errorThrown);
+      .fail(function() {
+        gaEvent("Lyrics", "Error-GET-Search");
         callback({error: true, searchSrc: url});
       });
   } else {
+    gaEvent("Lyrics", "Error-noURL");
     callback({error: true});
   }
 }

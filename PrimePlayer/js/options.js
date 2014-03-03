@@ -170,20 +170,18 @@ chrome.runtime.getBackgroundPage(function(bp) {
     return cl.substring(start, end < 0 ? cl.length : end);
   }
 
-  if (bp.settings.gaEnabled) initGA(bp.currentVersion);
-
   $(function() {
     if (location.hash == "#welcome") {
       $("body").children().toggle();
       $("#welcome").children("div").text(chrome.i18n.getMessage("welcomeMessage"));
       $("#welcome .close").text(chrome.i18n.getMessage("close")).click(function() {
         chrome.tabs.remove(thisTabId);
-        bp.gaEvent("Settings-Action", "welcome-close");
+        bp.gaEvent("Options", "welcome-close");
       });
       $("#welcome .toOptions").text(chrome.i18n.getMessage("toOptions")).click(function() {
         $("body").children().toggle();
         location.hash = "";
-        bp.gaEvent("Settings-Action", "welcome-toOptions");
+        bp.gaEvent("Options", "welcome-toOptions");
       });
     }
     
@@ -276,7 +274,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initHint("gaEnabled");
     
     //we must watch this as the session could be expired
-    bp.localSettings.watch("lastfmSessionName", lastfmUserChanged);
+    bp.localSettings.watch("lastfmSessionName", lastfmUserChanged, "options");
     //disable inputs if neccessary
     toastChanged();
     lyricsChanged();
@@ -284,7 +282,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#resetSettings").click(function() {
       bp.settings.resetToDefaults();
       bp.localSettings.resetToDefaults();
-      bp.gaEvent("Settings-Action", "reset");
+      bp.gaEvent("Options", "reset");
       location.reload();
     }).text(chrome.i18n.getMessage("resetSettings"));
     
@@ -320,7 +318,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
     
     $("#credits").on("click", "a[data-network]", function() {
-      if (bp.settings.gaEnabled && _gaq) _gaq.push(["_trackSocial", $(this).data("network"), $(this).data("action") || "show"]);
+      bp.gaSocial($(this).data("network"), $(this).data("action") || "show");
     });
   });
 

@@ -39,6 +39,7 @@ $(function() {
   
   function parseCover(el) {
     var cover = el.attr("src");
+    if (cover && cover.indexOf("/default_album_med.png") > 0) return null;
     if (cover && cover.indexOf("//") == 0) cover = "https:" + cover;
     return cover;
   }
@@ -397,7 +398,7 @@ $(function() {
         item.subTitleLink = getLink(subTitle);
         playlists.push(item);
       });
-      if (callback == false) return playlists;
+      if (callback === false) return playlists;
       callback(playlists);
     },
     playlist: function(parent, end, callback) {
@@ -432,7 +433,7 @@ $(function() {
           listRatings.push(item.rating);
           playlist.push(item);
         });
-        if (callback == false) return playlist;
+        if (callback === false) return playlist;
         if (!update || playlist.length > 0) {
           callback(playlist, update);
           update = true;
@@ -446,7 +447,7 @@ $(function() {
           }
         }
       }
-      if (callback == false) return loadNextSongs();
+      if (callback === false) return loadNextSongs();
       pausePlaylistParsing = false;
       parent.scrollTop(0);
       asyncListTimer = setTimeout(loadNextSongs, 150);
@@ -462,7 +463,7 @@ $(function() {
         item.link = getLink(card);
         items.push(item);
       });
-      if (callback == false) return items;
+      if (callback === false) return items;
       callback(items);
     }
   };

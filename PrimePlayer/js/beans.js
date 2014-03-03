@@ -18,7 +18,7 @@ function Bean(defaults, useLocalStorage) {
   function notify(prop, old, val) {
     var ls = listeners[prop];
     for (var i = 0; i < ls.length; i++) {
-      ls[i](val, old, prop);
+      ls[i].listener(val, old, prop);
     }
   }
   
@@ -30,9 +30,9 @@ function Bean(defaults, useLocalStorage) {
    * 3. the name of the property
    * If the value has been set but did not actually change, the listeners won't be notified.
    */
-  this.addListener = function(prop, listener) {
+  this.addListener = function(prop, listener, src) {
     var ls = listeners[prop];
-    if (ls) ls.push(listener);
+    if (ls) ls.push({listener: listener, src: src || null});
   }
   
   /**
@@ -42,7 +42,7 @@ function Bean(defaults, useLocalStorage) {
     var ls = listeners[prop];
     if (ls) {
       for (var i = 0; i < ls.length; i++) {
-        if (listener == ls[i]) {
+        if (listener == ls[i].listener) {
           ls.splice(i, 1);
           return;
         }
@@ -51,11 +51,26 @@ function Bean(defaults, useLocalStorage) {
   }
   
   /**
+   * Removes all listeners for the given source.
+   */
+  this.removeAllListeners = function(src) {
+    src = src || null;
+    for (var prop in listeners) {
+      var ls = listeners[prop];
+      for (var i = 0; i < ls.length; i++) {
+        if (src === ls[i].src) {
+          ls.splice(i, 1);
+        }
+      }
+    }
+  }
+  
+  /**
    * Same as addListener, except that the listener will be called immediately with the current value for old and new value.
    */
-  this.watch = function(prop, listener) {
+  this.watch = function(prop, listener, src) {
     listener(cache[prop], cache[prop], prop);
-    that.addListener(prop, listener);
+    that.addListener(prop, listener, src);
   }
   
   /**
@@ -159,29 +174,31 @@ function Bean(defaults, useLocalStorage) {
     cache[name] = parse(name, defaultValue);
     listeners[name] = [];
     
-    that.__defineGetter__(name, function() {
-      return cache[name];
-    });
-    
-    that.__defineSetter__(name, function(val) {
-      var old = cache[name];
-      var equals = equalsFn[name];
-      if (equals == null) equals = defaultEquals;
-      if (equals(val, old)) {
-        return;
-      }
-      if (syncLocalStorage) {
-        if (val == null) {
-          localStorage.removeItem(name);
-        } else {
-          var type = typeof(val);
-          if (type == "function") throw "cannot store a function in localstorage";
-          localStorage[name] = type.substr(0, 1) + ((type == 'object') ? JSON.stringify(val) : val);
+    Object.defineProperty(that, name, {
+      get: function() {
+        return cache[name];
+      },
+      set: function(val) {
+        var old = cache[name];
+        var equals = equalsFn[name];
+        if (equals == null) equals = defaultEquals;
+        if (equals(val, old)) {
+          return;
         }
-      }
-      cache[name] = val;
-      if (useSyncStorage) saveSyncStorage();
-      notify(name, old, val);
+        if (syncLocalStorage) {
+          if (val == null) {
+            localStorage.removeItem(name);
+          } else {
+            var type = typeof(val);
+            if (type == "function") throw "cannot store a function in localstorage";
+            localStorage[name] = type.substr(0, 1) + ((type == 'object') ? JSON.stringify(val) : val);
+          }
+        }
+        cache[name] = val;
+        if (useSyncStorage) saveSyncStorage();
+        notify(name, old, val);
+      },
+      enumerable: true
     });
   }
   

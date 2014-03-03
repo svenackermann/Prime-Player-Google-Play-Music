@@ -16,7 +16,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("html").removeClass("layout-" + old).addClass("layout-" + val);
   }
   if (typeClass == "miniplayer" || typeClass == "toast") {
-    bp.settings.watch("layout", layoutWatcher);
+    bp.settings.watch("layout", layoutWatcher, typeClass);
   } else {
     $("html").addClass("layout-normal");
   }
@@ -24,12 +24,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function hideRatingsWatcher(val) {
     $("html").toggleClass("hideRatings", val);
   }
-  bp.settings.watch("hideRatings", hideRatingsWatcher);
+  bp.settings.watch("hideRatings", hideRatingsWatcher, typeClass);
 
   function faviconWatcher(val) {
     $("#favicon").attr("href", val);
   }
-  bp.player.watch("favicon", faviconWatcher);
+  bp.player.watch("favicon", faviconWatcher, typeClass);
 
   function repeatWatcher(val) {
     $("#repeat").attr("class", val);
@@ -648,64 +648,41 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
     setupNavigationEvents();
 
-    bp.localSettings.watch("lastfmSessionName", lastfmUserWatcher);
-    bp.localSettings.watch("lyrics", lyricsWatcher);
-    bp.localSettings.watch("lyricsFontSize", lyricsFontSizeWatcher);
-    bp.settings.watch("scrobble", scrobbleWatcher);
-    bp.settings.watch("color", colorWatcher);
-    bp.settings.watch("coverClickLink", updateCoverClickLink);
-    bp.settings.watch("titleClickLink", updateTitleClickLink);
-    bp.settings.watch("hideSearchfield", hideSearchfieldWatcher);
+    bp.localSettings.watch("lastfmSessionName", lastfmUserWatcher, typeClass);
+    bp.localSettings.watch("lyrics", lyricsWatcher, typeClass);
+    bp.localSettings.watch("lyricsFontSize", lyricsFontSizeWatcher, typeClass);
+    
+    bp.settings.watch("scrobble", scrobbleWatcher, typeClass);
+    bp.settings.watch("color", colorWatcher, typeClass);
+    bp.settings.watch("coverClickLink", updateCoverClickLink, typeClass);
+    bp.settings.watch("titleClickLink", updateTitleClickLink, typeClass);
+    bp.settings.watch("hideSearchfield", hideSearchfieldWatcher, typeClass);
 
-    bp.player.watch("repeat", repeatWatcher);
-    bp.player.watch("shuffle", shuffleWatcher);
-    bp.player.watch("ratingMode", ratingModeWatcher);
-    bp.player.watch("playing", playingWatcher);
-    bp.player.watch("volume", volumeWatcher);
-    bp.player.watch("connected", connectedWatcher);
-    bp.player.watch("quicklinks", renderQuicklinks);
-    bp.player.addListener("navigationList", renderNavigationList);
-    bp.player.addListener("listrating", updateListrating);
+    bp.player.watch("repeat", repeatWatcher, typeClass);
+    bp.player.watch("shuffle", shuffleWatcher, typeClass);
+    bp.player.watch("ratingMode", ratingModeWatcher, typeClass);
+    bp.player.watch("playing", playingWatcher, typeClass);
+    bp.player.watch("volume", volumeWatcher, typeClass);
+    bp.player.watch("connected", connectedWatcher, typeClass);
+    bp.player.watch("quicklinks", renderQuicklinks, typeClass);
+    bp.player.addListener("navigationList", renderNavigationList, typeClass);
+    bp.player.addListener("listrating", updateListrating, typeClass);
 
-    bp.song.watch("info", songInfoWatcher);
-    bp.song.watch("positionSec", positionSecWatcher);
-    bp.song.watch("rating", ratingWatcher);
-    bp.song.watch("scrobbleTime", updateScrobblePosition);
-    bp.song.watch("loved", songLovedWatcher);
-    bp.song.watch("scrobbled", scrobbledWatcher);
+    bp.song.watch("info", songInfoWatcher, typeClass);
+    bp.song.watch("positionSec", positionSecWatcher, typeClass);
+    bp.song.watch("rating", ratingWatcher, typeClass);
+    bp.song.watch("scrobbleTime", updateScrobblePosition, typeClass);
+    bp.song.watch("loved", songLovedWatcher, typeClass);
+    bp.song.watch("scrobbled", scrobbledWatcher, typeClass);
 
     if (typeClass == "miniplayer" || typeClass == "toast") setupResizeMoveListeners();
     if (typeClass == "toast") setToastAutocloseTimer();
 
     $(window).unload(function() {
-      bp.settings.removeListener("layout", layoutWatcher);
-      bp.localSettings.removeListener("lastfmSessionName", lastfmUserWatcher);
-      bp.localSettings.removeListener("lyrics", lyricsWatcher);
-      bp.localSettings.removeListener("lyricsFontSize", lyricsFontSizeWatcher);
-      bp.settings.removeListener("scrobble", scrobbleWatcher);
-      bp.settings.removeListener("color", colorWatcher);
-      bp.settings.removeListener("coverClickLink", updateCoverClickLink);
-      bp.settings.removeListener("titleClickLink", updateTitleClickLink);
-      bp.settings.removeListener("hideSearchfield", hideSearchfieldWatcher);
-      bp.settings.removeListener("hideRatings", hideRatingsWatcher);
-
-      bp.player.removeListener("repeat", repeatWatcher);
-      bp.player.removeListener("shuffle", shuffleWatcher);
-      bp.player.removeListener("ratingMode", ratingModeWatcher);
-      bp.player.removeListener("playing", playingWatcher);
-      bp.player.removeListener("volume", volumeWatcher);
-      bp.player.removeListener("connected", connectedWatcher);
-      bp.player.removeListener("quicklinks", renderQuicklinks);
-      bp.player.removeListener("favicon", faviconWatcher);
-      bp.player.removeListener("navigationList", renderNavigationList);
-      bp.player.removeListener("listrating", updateListrating);
-
-      bp.song.removeListener("info", songInfoWatcher);
-      bp.song.removeListener("positionSec", positionSecWatcher);
-      bp.song.removeListener("rating", ratingWatcher);
-      bp.song.removeListener("scrobbleTime", updateScrobblePosition);
-      bp.song.removeListener("loved", songLovedWatcher);
-      bp.song.removeListener("scrobbled", scrobbledWatcher);
+      bp.settings.removeAllListeners(typeClass);
+      bp.localSettings.removeAllListeners(typeClass);
+      bp.player.removeAllListeners(typeClass);
+      bp.song.removeAllListeners(typeClass);
     });
   });
 

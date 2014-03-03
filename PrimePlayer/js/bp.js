@@ -427,7 +427,7 @@ function cacheForLaterScrobbling(songInfo) {
   localStorage["scrobbleCache"] = JSON.stringify(scrobbleCache);
 }
 
-function isScrobbleRetriable(errorCode) {
+function isScrobbleRetriable(code) {
   return code == 16 || code == 11 || code == 9 || code == -1;
 }
 
@@ -448,7 +448,7 @@ function scrobbleCachedSongs() {
     }
     lastfm.track.scrobble(params,
       {
-        success: function(response) {
+        success: function() {
           localStorage.removeItem("scrobbleCache");
           gaEvent("LastFM", "ScrobbleCachedOK");
         },
@@ -473,7 +473,7 @@ function scrobble() {
   var cloned = $.extend({}, params);//clone now, lastfm API will enrich params with additional values we don't need
   lastfm.track.scrobble(params,
     {
-      success: function(response) {
+      success: function() {
         gaEvent("LastFM", "ScrobbleOK");
         scrobbleCachedSongs();//try cached songs again now that the service seems to work again
       },
@@ -494,7 +494,7 @@ function sendNowPlaying() {
       duration: song.info.durationSec
     },
     {
-      success: function(response) { gaEvent("LastFM", "NowPlayingOK"); },
+      success: function() { gaEvent("LastFM", "NowPlayingOK"); },
       error: function(code) {
         console.debug("Error on now playing '" + song.info.title + "': " + code);
         gaEvent("LastFM", "NowPlayingError-" + code);
@@ -533,7 +533,7 @@ function loveTrack(event, aSong) {
         artist: aSong.info.artist
       },
       {
-        success: function(response) { aSong.loved = true; },
+        success: function() { aSong.loved = true; },
         error: function(code, msg) {
           aSong.loved = msg;
           gaEvent("LastFM", "loveError-" + code);
@@ -553,7 +553,7 @@ function unloveTrack() {
         artist: song.info.artist
       },
       {
-        success: function(response) { song.loved = false; },
+        success: function() { song.loved = false; },
         error: function(code, msg) {
           song.loved = msg;
           gaEvent("LastFM", "unloveError-" + code);
@@ -589,7 +589,7 @@ function lastfmReloginClicked(notificationId) {
     chrome.notifications.onClicked.removeListener(lastfmReloginClicked);
     lastfmReloginNotificationId = null;
     lastfmLogin();
-    chrome.notifications.clear(notificationId, function(wasCleared) {/* not interesting, but required */});
+    chrome.notifications.clear(notificationId, function() {/* not interesting, but required */});
   }
 }
 
@@ -675,7 +675,7 @@ function openToast() {
     createPlayer("toast", function(win) {
       toast = win;
       chrome.windows.onRemoved.addListener(toastClosed);
-    });
+    }, false);
   } else {
     var btns = [];
     var btn = getToastBtn(settings.toastButton1);
@@ -701,8 +701,8 @@ function openToast() {
         toastCoverXhr.responseType = "blob";
         toastCoverXhr.onload = function() {
           toastCoverXhr = null;
-          options.iconUrl = webkitURL.createObjectURL(this.response);
-          chrome.notifications.update(notificationId, options, function(wasUpdated) {
+          options.iconUrl = window.URL.createObjectURL(this.response);
+          chrome.notifications.update(notificationId, options, function() {
             webkitURL.revokeObjectURL(options.iconUrl);
           });
         };
@@ -752,7 +752,7 @@ function getMiniplayerSizing() {
   };
 }
 
-function createPlayer(type, callback) {
+function createPlayer(type, callback, focused) {
   var sizing = getMiniplayerSizing();
   chrome.windows.create({
       url: chrome.extension.getURL("player.html") + "?type=" + type,
@@ -760,7 +760,8 @@ function createPlayer(type, callback) {
       width: sizing.width,
       top: sizing.top,
       left: sizing.left,
-      type: settings.miniplayerType
+      type: settings.miniplayerType,
+      focused: focused
     }, callback
   );
 }
@@ -777,7 +778,7 @@ function openMiniplayer() {
   createPlayer("miniplayer", function(win) {
     miniplayer = win;
     chrome.windows.onRemoved.addListener(miniplayerClosed);
-  });
+  }, true);
 }
 
 /** handler for all settings changes that need to update the browser action */
@@ -847,41 +848,27 @@ function updateNotifierDone() {
 }
 
 /** Google Analytics stuff */
-function gaEvent(category, eventName, value) {
-  if (settings.gaEnabled) {
-    if (value == undefined) {
-      _gaq.push(['_trackEvent', category, eventName, currentVersion]);
-    } else {
-      _gaq.push(['_trackEvent', category, eventName, currentVersion, value]);
-    }
-  }
+function gaEvent(category, eventName) {
+  if (settings.gaEnabled) ga('send', 'event', category, eventName, currentVersion);
 }
-function recordSetting(prop) {
-  var value = settings[prop];
-  switch (typeof(value)) {
-    case "boolean":
-      gaEvent("Settings", prop, (value ? 1 : 0));
-      break;
-    case "number":
-      gaEvent("Settings", prop, value);
-      break;
-    default:
-      gaEvent("Settings", prop + "-" + value);
-  }
+function gaSocial(network, action) {
+  if (settings.gaEnabled) ga('send', 'social', network, action);
 }
 function gaEnabledChanged(val) {
   if (val) {
-    settings.removeListener("gaEnabled", gaEnabledChanged);//init/record only once
-    initGA(currentVersion);
-    var i = 0;
-    for (var prop in SETTINGS_DEFAULTS) {
-      if (prop != "gaEnabled") {
-        //10 events can be sent immediately, thereafter only one per second
-        if (i < 10) recordSetting(prop)
-        else setTimeout(recordSetting.bind(window, prop), (i - 9) * 1250);
-        i++;
-      }
-    }
+    settings.removeListener("gaEnabled", gaEnabledChanged);//init only once
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-41499181-1', 'auto');
+    ga('set', 'checkProtocolTask', function(){});
+    ga('set', 'dimension1', currentVersion);
+    ga('set', 'dimension2', localSettings.lyrics.toString());
+    ga('set', 'dimension3', settings.scrobble.toString());
+    ga('set', 'dimension4', settings.toast.toString());
+    ga('set', 'dimension5', settings.layout);
+    ga('send', 'pageview', {
+      'metric1': settings.scrobblePercent,
+      'metric2': settings.toastDuration
+    });
   }
 }
 
@@ -933,10 +920,15 @@ function openLyrics(aSong) {
     if (!song.info) return;
     aSong = {artist: song.info.artist, title: song.info.title};
   }
-  var url = buildSearchUrl(aSong);
-  if (url) chrome.tabs.create({url: url}, function(tab) {
-    chrome.tabs.executeScript(tab.id, {file: "js/cs-songlyrics.js", runAt: "document_end"});
-  });
+  var url = buildLyricsSearchUrl(aSong);
+  if (url) {
+    chrome.tabs.create({url: url}, function(tab) {
+      chrome.tabs.executeScript(tab.id, {file: "js/cs-songlyrics.js", runAt: "document_end"});
+    });
+    gaEvent("Lyrics", "Open");
+  } else {
+    gaEvent("Lyrics", "Error-noURL");
+  }
 }
 
 settings.watch("updateNotifier", function(val) {
@@ -952,7 +944,7 @@ settings.watch("miniplayerType", function(val) {
     settings.miniplayerType = "popup";
   } else if (miniplayer) openMiniplayer();//reopen
 });
-settings.addListener("layout", function(val) {
+settings.addListener("layout", function() {
   if (miniplayer) {
     var sizing = getMiniplayerSizing();
     chrome.windows.update(miniplayer.id, {
@@ -1079,7 +1071,7 @@ song.addListener("position", function(val) {
     }
   }
 });
-song.addListener("info", function(val, old) {
+song.addListener("info", function(val) {
   song.toasted = false;
   song.nowPlayingSent = false;
   song.scrobbled = false;

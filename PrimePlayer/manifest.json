@@ -3,7 +3,7 @@
   "name": "Prime Player for Google Play Music\u2122",
   "short_name": "__MSG_extTitle__",
   "description": "__MSG_extDesc__",
-  "version": "2.10",
+  "version": "2.10.1",
   "author": "Sven Recknagel",
   "minimum_chrome_version": "31.0.1650.48",
   "default_locale": "en",
@@ -24,7 +24,7 @@
     "default_popup": "player.html"
   },
   "background": {
-    "scripts": ["js/jquery-2.0.2.min.js", "js/ga.js", "js/md5-min.js", "js/lastfm.api.js", "js/beans.js", "js/lyrics.js", "js/bp.js"],
+    "scripts": ["js/jquery-2.0.2.min.js", "js/md5-min.js", "js/lastfm.api.js", "js/beans.js", "js/lyrics.js", "js/bp.js"],
     "persistent": false
   },
   "options_page": "options.html",
@@ -35,7 +35,7 @@
       "matches": ["*://play.google.com/music/listen*"]
     }
   ],
-  "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
+  "content_security_policy": "script-src 'self' https://www.google-analytics.com; object-src 'self'",
   "web_accessible_resources": [
     "js/injected.js",
     "img/icon-tabconnected.png",
