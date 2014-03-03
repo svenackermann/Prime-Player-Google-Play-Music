@@ -701,7 +701,7 @@ function openToast() {
         toastCoverXhr.responseType = "blob";
         toastCoverXhr.onload = function() {
           toastCoverXhr = null;
-          options.iconUrl = webkitURL.createObjectURL(this.response);
+          options.iconUrl = window.URL.createObjectURL(this.response);
           chrome.notifications.update(notificationId, options, function() {
             webkitURL.revokeObjectURL(options.iconUrl);
           });

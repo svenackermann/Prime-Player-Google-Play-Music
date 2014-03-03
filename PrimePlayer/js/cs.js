@@ -39,6 +39,7 @@ $(function() {
   
   function parseCover(el) {
     var cover = el.attr("src");
+    if (cover && cover.indexOf("/default_album_med.png") > 0) return null;
     if (cover && cover.indexOf("//") == 0) cover = "https:" + cover;
     return cover;
   }
