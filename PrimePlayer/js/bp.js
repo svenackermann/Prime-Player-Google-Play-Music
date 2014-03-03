@@ -448,7 +448,7 @@ function scrobbleCachedSongs() {
     }
     lastfm.track.scrobble(params,
       {
-        success: function(response) {
+        success: function() {
           localStorage.removeItem("scrobbleCache");
           gaEvent("LastFM", "ScrobbleCachedOK");
         },
@@ -473,7 +473,7 @@ function scrobble() {
   var cloned = $.extend({}, params);//clone now, lastfm API will enrich params with additional values we don't need
   lastfm.track.scrobble(params,
     {
-      success: function(response) {
+      success: function() {
         gaEvent("LastFM", "ScrobbleOK");
         scrobbleCachedSongs();//try cached songs again now that the service seems to work again
       },
@@ -494,7 +494,7 @@ function sendNowPlaying() {
       duration: song.info.durationSec
     },
     {
-      success: function(response) { gaEvent("LastFM", "NowPlayingOK"); },
+      success: function() { gaEvent("LastFM", "NowPlayingOK"); },
       error: function(code) {
         console.debug("Error on now playing '" + song.info.title + "': " + code);
         gaEvent("LastFM", "NowPlayingError-" + code);
@@ -533,7 +533,7 @@ function loveTrack(event, aSong) {
         artist: aSong.info.artist
       },
       {
-        success: function(response) { aSong.loved = true; },
+        success: function() { aSong.loved = true; },
         error: function(code, msg) {
           aSong.loved = msg;
           gaEvent("LastFM", "loveError-" + code);
@@ -553,7 +553,7 @@ function unloveTrack() {
         artist: song.info.artist
       },
       {
-        success: function(response) { song.loved = false; },
+        success: function() { song.loved = false; },
         error: function(code, msg) {
           song.loved = msg;
           gaEvent("LastFM", "unloveError-" + code);
@@ -589,7 +589,7 @@ function lastfmReloginClicked(notificationId) {
     chrome.notifications.onClicked.removeListener(lastfmReloginClicked);
     lastfmReloginNotificationId = null;
     lastfmLogin();
-    chrome.notifications.clear(notificationId, function(wasCleared) {/* not interesting, but required */});
+    chrome.notifications.clear(notificationId, function() {/* not interesting, but required */});
   }
 }
 
@@ -702,7 +702,7 @@ function openToast() {
         toastCoverXhr.onload = function() {
           toastCoverXhr = null;
           options.iconUrl = webkitURL.createObjectURL(this.response);
-          chrome.notifications.update(notificationId, options, function(wasUpdated) {
+          chrome.notifications.update(notificationId, options, function() {
             webkitURL.revokeObjectURL(options.iconUrl);
           });
         };
@@ -943,7 +943,7 @@ settings.watch("miniplayerType", function(val) {
     settings.miniplayerType = "popup";
   } else if (miniplayer) openMiniplayer();//reopen
 });
-settings.addListener("layout", function(val) {
+settings.addListener("layout", function() {
   if (miniplayer) {
     var sizing = getMiniplayerSizing();
     chrome.windows.update(miniplayer.id, {
@@ -1070,7 +1070,7 @@ song.addListener("position", function(val) {
     }
   }
 });
-song.addListener("info", function(val, old) {
+song.addListener("info", function(val) {
   song.toasted = false;
   song.nowPlayingSent = false;
   song.scrobbled = false;
