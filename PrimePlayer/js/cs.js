@@ -196,7 +196,7 @@ $(function() {
           duration: $.trim($("#time_container_duration").text()),
           title: $.trim($("#playerSongTitle").text()),
           artist: $.trim(artist.text()),
-          artistLink: getLink(artist) || "ar/" + forHash($.trim(artist.text())),
+          artistLink: getLink(artist) || "artist//" + forHash($.trim(artist.text())),
           album: $.trim(album.text()),
           albumLink: getLink(album),
           cover: cover
@@ -421,12 +421,15 @@ $(function() {
           item.cover = parseCover(title.find("img"));
           item.title = $.trim(title.text());
           if (song.find(".song-indicator").length > 0) item.current = true;
-          item.artist = $.trim(song.find("td[data-col='artist'] .content").text());
-          if (item.artist) item.artistLink = "ar/" + forHash(item.artist);
+          var artist = song.find("td[data-col='artist']");
+          item.artist = $.trim(artist.find(".content").text());
+          var arId = artist.data("matched-id") || "";
+          if (item.artist || arId) item.artistLink = "artist/" + forHash(arId) + "/" + forHash(item.artist);
           var album = song.find("td[data-col='album']");
           item.album = $.trim(album.find(".content").text());
-          var alAr = album.data("album-artist");
-          if (item.album && alAr) item.albumLink = "album//" + forHash(alAr) + "/" + forHash(item.album);
+          var alAr = album.data("album-artist") || "";
+          var alId = album.data("matched-id") || "";
+          if (alId || (item.album && alAr)) item.albumLink = "album/" + forHash(alId) + "/" + forHash(alAr) + "/" + forHash(item.album);
           var duration = $.trim(song.find("td[data-col='duration']").text());
           if (/^\d\d?(\:\d\d)*$/.test(duration)) item.duration = duration;//no real duration on recommandation page
           item.rating = parseRating(song.find("td[data-col='rating']").get(0));
