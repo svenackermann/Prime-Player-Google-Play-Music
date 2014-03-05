@@ -163,7 +163,40 @@ $(function() {
     }
   }
   
+  /** remove all listeners/observers and revert DOM modifications */
+  function cleanup() {
+    sendCommand("cleanup");
+    window.removeEventListener("message", onMessage);
+    $("#primeplayerinjected").remove();
+    for (var i = 0; i < registeredListeners.length; i++) {
+      var l = registeredListeners[i];
+      $(l.selector).off("DOMSubtreeModified", l.listener);
+    }
+    $("#main").off("DOMSubtreeModified");
+    $(window).off("hashchange");
+    for (var i = 0; i < observers.length; i++) {
+      observers[i].disconnect();
+    }
+    hideConnectedIndicator();
+    disableLyrics();
+    port = null;
+  }
+  
+  /** add listeners/observers and extend DOM */
   function init() {
+    if ($("#primeplayerinjected").length > 0) {
+      //cleanup old content script
+      function onCleanupCsDone(event) {
+        if (event.source == window && event.data.type == "FROM_PRIMEPLAYER" && event.data.msg == "cleanupCsDone") {
+          window.removeEventListener("message", onCleanupCsDone);
+          init();
+        }
+      }
+      window.addEventListener("message", onCleanupCsDone);
+      window.postMessage({ type: "FROM_PRIMEPLAYER", msg: "cleanupCs" }, location.href);
+      return;//wait for callback
+    }
+  
     //when rating is changed, the page gets reloaded, so no need for event listening here
     var ratingMode;
     var ratingContainer = $("#player-right-wrapper > div.player-rating-container > ul.rating-container");
@@ -293,11 +326,9 @@ $(function() {
       clearTimeout(asyncListTimer);
     });
     
-    //we must add this script to the DOM for the code to be executed in the correct context
-    var injected = document.createElement("script"); injected.type = "text/javascript";
-    injected.src = chrome.extension.getURL("js/injected.js");
-    document.getElementsByTagName("head")[0].appendChild(injected);
     window.addEventListener("message", onMessage);
+    //we must add this script to the DOM for the code to be executed in the correct context
+    $("<script id='primeplayerinjected' type='text/javascript'></script>").attr("src", chrome.extension.getURL("js/injected.js")).appendTo("head");
     
     var sendConnectedInterval;
     function sendConnected() {
@@ -312,7 +343,7 @@ $(function() {
   
   function onMessage(event) {
     // We only accept messages from the injected script
-    if (event.source != window || event.data.type != "FROM_PRIMEPLAYER_INJECTED") return;
+    if (event.source != window || event.data.type != "FROM_PRIMEPLAYER" || !event.data.msg) return;
     switch (event.data.msg) {
       case "playlistSongRated":
         $("#main .song-row[data-index='" + event.data.index + "']").find("td[data-col='rating']").trigger("DOMSubtreeModified");
@@ -322,6 +353,11 @@ $(function() {
         if (typeof(resumePlaylistParsingFn) == "function") resumePlaylistParsingFn();
         resumePlaylistParsingFn = null;
         break;
+      case "cleanupCs":
+        port.disconnect();
+        cleanup();
+        window.postMessage({ type: "FROM_PRIMEPLAYER", msg: "cleanupCsDone" }, location.href);
+        break;
     }
   }
   
@@ -329,23 +365,6 @@ $(function() {
   function sendCommand(command, options) {
     if (command == "startPlaylistSong" || command == "ratePlaylistSong") pausePlaylistParsing = true;
     window.postMessage({ type: "FROM_PRIMEPLAYER", command: command, options: options }, location.href);
-  }
-  
-  /** remove all listeners/observers and revert DOM modifications */
-  function cleanup() {
-    sendCommand("cleanup");
-    for (var i = 0; i < registeredListeners.length; i++) {
-      var l = registeredListeners[i];
-      $(l.selector).off("DOMSubtreeModified", l.listener);
-    }
-    $("#main").off("DOMSubtreeModified");
-    $(window).off("hashchange");
-    for (var i = 0; i < observers.length; i++) {
-      observers[i].disconnect();
-    }
-    hideConnectedIndicator();
-    disableLyrics();
-    port = null;
   }
   
   function clickListCard(listId) {

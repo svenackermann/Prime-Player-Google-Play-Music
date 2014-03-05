@@ -201,8 +201,6 @@ function connectPort(port) {
   port.onMessage.addListener(onMessageListener);
   port.onDisconnect.addListener(onDisconnectListener);
   port.postMessage({type: "connected"});
-  if (settings.connectedIndicator) port.postMessage({type: "connectedIndicator", show: true});
-  postLyricsState();
   iconClickSettingsChanged();
 }
 
@@ -993,9 +991,15 @@ localSettings.addListener("lyricsWidth", postLyricsState);
 
 player.addListener("playing", updateBrowserActionInfo);
 player.addListener("playing", iconClickSettingsChanged);
-player.addListener("connected", updateBrowserActionInfo);
-player.addListener("connected", loadNavlistIfConnected);
-player.addListener("connected", executeFeelingLuckyIfConnected);
+player.addListener("connected", function(val) {
+  updateBrowserActionInfo();
+  if (val) {
+    loadNavlistIfConnected();
+    executeFeelingLuckyIfConnected();
+    if (settings.connectedIndicator) postToGooglemusic({type: "connectedIndicator", show: true});
+    if (localSettings.lyrics && settings.lyricsInGpm) postLyricsState();
+  }
+});
 
 function reloadForUpdate() {
   var backup = {};
