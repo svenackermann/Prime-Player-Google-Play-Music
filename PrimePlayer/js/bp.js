@@ -860,7 +860,7 @@ function gaEnabledChanged(val) {
     ga('set', 'checkProtocolTask', function(){});
     ga('set', 'dimension1', currentVersion);
     ga('set', 'dimension2', localSettings.lyrics.toString());
-    ga('set', 'dimension3', settings.scrobble.toString());
+    ga('set', 'dimension3', isScrobblingEnabled().toString());
     ga('set', 'dimension4', settings.toast.toString());
     ga('set', 'dimension5', settings.layout);
     ga('send', 'pageview', {
