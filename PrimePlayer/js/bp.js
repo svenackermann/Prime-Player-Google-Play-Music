@@ -123,7 +123,7 @@ var PLAYER_DEFAULTS = {
   listrating: null,
   quicklinks: null,
   connected: false,
-  favicon: "img/default/notconnected.png"
+  favicon: "img/icon/default/notconnected.png"
 };
 var player = new Bean(PLAYER_DEFAULTS);
 
@@ -135,6 +135,9 @@ lastfm.session.name = localSettings.lastfmSessionName;
 lastfm.unavailableMessage = chrome.i18n.getMessage("lastfmUnavailable");
 
 var currentVersion = chrome.runtime.getManifest().version;
+
+var browserIcon = $("<canvas width='19' height='19'/>").get(0).getContext("2d");
+var favicon = $("<canvas width='19' height='19'/>").get(0).getContext("2d");
 
 function songsEqual(song1, song2) {
   if (song1 == song2) return true;//both null
@@ -149,39 +152,61 @@ function songsEqual(song1, song2) {
 }
 song.setEqualsFn("info", songsEqual);
 
+function drawOnto(ctx, imagePaths, callback) {
+  ctx.clearRect(0, 0, 19, 19);
+  var image = new Image();
+  function loadNext() {
+    var path = imagePaths.shift();
+    if (path) image.src = chrome.extension.getURL(path + ".png")
+    else callback();
+  }
+  image.onload = function() {
+    ctx.drawImage(image, 0, 0);
+    loadNext();
+  };
+  loadNext();
+}
+
 /** handler for all events that need to update the browser action icon/title */
 function updateBrowserActionInfo() {
-  var path = "img/" + settings.iconStyle + "/";
-  var faviconPath;
+  var iconPath = "img/icon/";
+  var path = iconPath + settings.iconStyle + "/";
   var title = chrome.i18n.getMessage("extTitle");
+  var iconPaths = [];
+  var faviconPaths = [];
   if (viewUpdateNotifier) {
     path += "updated";
     title += " - " + chrome.i18n.getMessage("browserActionTitle_updated");
   } else if (!player.connected) {
     path += "notconnected";
   } else if (song.info) {
-    title = song.info.artist + " - " + song.info.title
+    iconPaths.push(path + "connected");
+    faviconPaths.push(path + "connected");
+    title = song.info.artist + " - " + song.info.title;
     if (player.playing) {
-      faviconPath = path + "playing";
-      path += settings.iconClickPlayPause ? "pause" : "playing";
+      iconPaths.push(iconPath + (settings.iconClickPlayPause ? "pause" : "playing"));
+      faviconPaths.push(iconPath + "playing");
       title = chrome.i18n.getMessage("browserActionTitle_playing") + ": " + title;
     } else {
-      faviconPath = path + "paused";
-      path += settings.iconClickPlayPause ? "play" : "paused";
+      iconPaths.push(iconPath + (settings.iconClickPlayPause ? "play" : "paused"));
+      faviconPaths.push(iconPath + "paused");
       title = chrome.i18n.getMessage("browserActionTitle_paused") + ": " + title;
     }
     if (song.scrobbled) {
-      path += "-scrobbled";
-      faviconPath += "-scrobbled";
+      iconPaths.push(iconPath + "scrobbled");
+      faviconPaths.push(iconPath + "scrobbled");
       title += " (" + chrome.i18n.getMessage("browserActionTitle_scrobbled") + ")";
     }
   } else {
     path += "connected";
     title += " - " + chrome.i18n.getMessage("browserActionTitle_connected");
   }
-  faviconPath = faviconPath || path;
-  player.favicon = faviconPath + ".png";
-  chrome.browserAction.setIcon({path: path + ".png"});
+  path += ".png";
+  
+  if (iconPaths.length) drawOnto(browserIcon, iconPaths, function() { chrome.browserAction.setIcon({imageData: browserIcon.getImageData(0, 0, 19, 19)}); })
+  else chrome.browserAction.setIcon({path: path});
+  if (faviconPaths.length) drawOnto(favicon, faviconPaths, function() { player.favicon = favicon.canvas.toDataURL(); })
+  else player.favicon = path;
   chrome.browserAction.setTitle({title: title});
 }
 

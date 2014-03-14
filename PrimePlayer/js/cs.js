@@ -15,7 +15,7 @@ $(function() {
   var asyncListTimer;
   var pausePlaylistParsing = false;
   var resumePlaylistParsingFn;
-  var lyricsAutoReload;
+  var lyricsAutoReload = false;
   var lyricsAutoReloadTimer;
   
   /** send update to background page */
