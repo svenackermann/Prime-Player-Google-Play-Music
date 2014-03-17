@@ -3,7 +3,7 @@
   "name": "Prime Player for Google Play Music\u2122",
   "short_name": "__MSG_extTitle__",
   "description": "__MSG_extDesc__",
-  "version": "2.10.1",
+  "version": "2.11",
   "author": "Sven Recknagel",
   "minimum_chrome_version": "31.0.1650.48",
   "default_locale": "en",
@@ -19,7 +19,7 @@
   ],
   "optional_permissions": [ "http://www.songlyrics.com/*" ],
   "browser_action": {
-    "default_icon": "img/default/notconnected.png",
+    "default_icon": "img/icon/default/notconnected.png",
     "default_title": "__MSG_extTitle__",
     "default_popup": "player.html"
   },

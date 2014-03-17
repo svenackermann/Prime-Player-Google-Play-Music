@@ -75,7 +75,7 @@
   }
   
   function sendPlaylistSongResult(msg, index) {
-    window.postMessage({ type: "FROM_PRIMEPLAYER_INJECTED", msg: msg, index: index }, location.href);
+    window.postMessage({ type: "FROM_PRIMEPLAYER", msg: msg, index: index }, location.href);
   }
   
   function startPlaylistSong(controlLink, index) {
@@ -136,7 +136,7 @@
   
   function onMessage(event) {
     // We only accept messages from ourselves
-    if (event.source != window || event.data.type != "FROM_PRIMEPLAYER") return;
+    if (event.source != window || event.data.type != "FROM_PRIMEPLAYER" || !event.data.command) return;
     switch (event.data.command) {
       case "playPause":
       case "toggleRepeat":

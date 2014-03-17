@@ -35,7 +35,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function scrobbleChanged() {
-    $("#scrobblePercent, #scrobbleTime, #scrobbleMaxDuration, #disableScrobbleOnFf").prop("disabled", !bp.isScrobblingEnabled());
+    $("#scrobblePercent, #scrobbleTime, #scrobbleMaxDuration, #disableScrobbleOnFf, #showScrobbledIndicator").prop("disabled", !bp.isScrobblingEnabled());
   }
 
   function toastChanged() {
@@ -52,7 +52,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function lastfmUserChanged(user) {
     var action;
     var actionText;
-    $("#scrobble, #linkRatings").prop("disabled", user == null);
+    $("#scrobble, #linkRatings, #showLovedIndicator").prop("disabled", user == null);
     scrobbleChanged();
     var links = $("#lastfmStatus").find("a");
     var userLink = links.first();
@@ -209,6 +209,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initHint("disableScrobbleOnFf");
     initCheckbox("linkRatings");
     initHint("linkRatings");
+    initCheckbox("showLovedIndicator");
+    initCheckbox("showScrobbledIndicator");
     
     initCheckbox("toast").click(toastChanged);
     initHint("toast");
@@ -251,6 +253,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initNumberInput("lyricsWidth", bp.localSettings);
     
     initIconStyle();
+    initCheckbox("showPlayingIndicator");
+    initCheckbox("showRatingIndicator");
     initCheckbox("iconClickMiniplayer").click(function() {
       if (bp.settings.iconClickMiniplayer) {
         bp.settings.iconClickPlayPause = false;

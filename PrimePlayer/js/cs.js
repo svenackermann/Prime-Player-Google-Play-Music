@@ -15,7 +15,7 @@ $(function() {
   var asyncListTimer;
   var pausePlaylistParsing = false;
   var resumePlaylistParsingFn;
-  var lyricsAutoReload;
+  var lyricsAutoReload = false;
   var lyricsAutoReloadTimer;
   
   /** send update to background page */
@@ -44,8 +44,8 @@ $(function() {
     return cover;
   }
   
-  function parseRating(ratingContainer) {
-    if (ratingContainer == null) return -1;
+  function parseRating(ratingContainer, onNullRating) {
+    if (ratingContainer == null) return (typeof onNullRating == "number") ? onNullRating : -1;
     var rating = parseInt(ratingContainer.dataset.rating);
     return isNaN(rating) ? 0 : rating;
   }
@@ -163,7 +163,40 @@ $(function() {
     }
   }
   
+  /** remove all listeners/observers and revert DOM modifications */
+  function cleanup() {
+    sendCommand("cleanup");
+    window.removeEventListener("message", onMessage);
+    $("#primeplayerinjected").remove();
+    for (var i = 0; i < registeredListeners.length; i++) {
+      var l = registeredListeners[i];
+      $(l.selector).off("DOMSubtreeModified", l.listener);
+    }
+    $("#main").off("DOMSubtreeModified");
+    $(window).off("hashchange");
+    for (var i = 0; i < observers.length; i++) {
+      observers[i].disconnect();
+    }
+    hideConnectedIndicator();
+    disableLyrics();
+    port = null;
+  }
+  
+  /** add listeners/observers and extend DOM */
   function init() {
+    if ($("#primeplayerinjected").length > 0) {
+      //cleanup old content script
+      function onCleanupCsDone(event) {
+        if (event.source == window && event.data.type == "FROM_PRIMEPLAYER" && event.data.msg == "cleanupCsDone") {
+          window.removeEventListener("message", onCleanupCsDone);
+          init();
+        }
+      }
+      window.addEventListener("message", onCleanupCsDone);
+      window.postMessage({ type: "FROM_PRIMEPLAYER", msg: "cleanupCs" }, location.href);
+      return;//wait for callback
+    }
+  
     //when rating is changed, the page gets reloaded, so no need for event listening here
     var ratingMode;
     var ratingContainer = $("#player-right-wrapper > div.player-rating-container > ul.rating-container");
@@ -196,7 +229,7 @@ $(function() {
           duration: $.trim($("#time_container_duration").text()),
           title: $.trim($("#playerSongTitle").text()),
           artist: $.trim(artist.text()),
-          artistLink: getLink(artist) || "ar/" + forHash($.trim(artist.text())),
+          artistLink: getLink(artist) || "artist//" + forHash($.trim(artist.text())),
           album: $.trim(album.text()),
           albumLink: getLink(album),
           cover: cover
@@ -227,7 +260,7 @@ $(function() {
       //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
       if (listRatings) $("#main .song-row td[data-col='rating']").trigger("DOMSubtreeModified");
       var container = $(el.parentElement);
-      if (container.is(":visible")) return parseRating(container.children("li.selected").get(0));
+      if (container.is(":visible")) return parseRating(container.children("li.selected").get(0), 0);
       return -1;
     }
     
@@ -293,11 +326,9 @@ $(function() {
       clearTimeout(asyncListTimer);
     });
     
-    //we must add this script to the DOM for the code to be executed in the correct context
-    var injected = document.createElement("script"); injected.type = "text/javascript";
-    injected.src = chrome.extension.getURL("js/injected.js");
-    document.getElementsByTagName("head")[0].appendChild(injected);
     window.addEventListener("message", onMessage);
+    //we must add this script to the DOM for the code to be executed in the correct context
+    $("<script id='primeplayerinjected' type='text/javascript'></script>").attr("src", chrome.extension.getURL("js/injected.js")).appendTo("head");
     
     var sendConnectedInterval;
     function sendConnected() {
@@ -312,7 +343,7 @@ $(function() {
   
   function onMessage(event) {
     // We only accept messages from the injected script
-    if (event.source != window || event.data.type != "FROM_PRIMEPLAYER_INJECTED") return;
+    if (event.source != window || event.data.type != "FROM_PRIMEPLAYER" || !event.data.msg) return;
     switch (event.data.msg) {
       case "playlistSongRated":
         $("#main .song-row[data-index='" + event.data.index + "']").find("td[data-col='rating']").trigger("DOMSubtreeModified");
@@ -322,6 +353,11 @@ $(function() {
         if (typeof(resumePlaylistParsingFn) == "function") resumePlaylistParsingFn();
         resumePlaylistParsingFn = null;
         break;
+      case "cleanupCs":
+        port.disconnect();
+        cleanup();
+        window.postMessage({ type: "FROM_PRIMEPLAYER", msg: "cleanupCsDone" }, location.href);
+        break;
     }
   }
   
@@ -329,23 +365,6 @@ $(function() {
   function sendCommand(command, options) {
     if (command == "startPlaylistSong" || command == "ratePlaylistSong") pausePlaylistParsing = true;
     window.postMessage({ type: "FROM_PRIMEPLAYER", command: command, options: options }, location.href);
-  }
-  
-  /** remove all listeners/observers and revert DOM modifications */
-  function cleanup() {
-    sendCommand("cleanup");
-    for (var i = 0; i < registeredListeners.length; i++) {
-      var l = registeredListeners[i];
-      $(l.selector).off("DOMSubtreeModified", l.listener);
-    }
-    $("#main").off("DOMSubtreeModified");
-    $(window).off("hashchange");
-    for (var i = 0; i < observers.length; i++) {
-      observers[i].disconnect();
-    }
-    hideConnectedIndicator();
-    disableLyrics();
-    port = null;
   }
   
   function clickListCard(listId) {
@@ -421,12 +440,15 @@ $(function() {
           item.cover = parseCover(title.find("img"));
           item.title = $.trim(title.text());
           if (song.find(".song-indicator").length > 0) item.current = true;
-          item.artist = $.trim(song.find("td[data-col='artist'] .content").text());
-          if (item.artist) item.artistLink = "ar/" + forHash(item.artist);
+          var artist = song.find("td[data-col='artist']");
+          item.artist = $.trim(artist.find(".content").text());
+          var arId = artist.data("matched-id") || "";
+          if (item.artist || arId) item.artistLink = "artist/" + forHash(arId) + "/" + forHash(item.artist);
           var album = song.find("td[data-col='album']");
           item.album = $.trim(album.find(".content").text());
-          var alAr = album.data("album-artist");
-          if (item.album && alAr) item.albumLink = "album//" + forHash(alAr) + "/" + forHash(item.album);
+          var alAr = album.data("album-artist") || "";
+          var alId = album.data("matched-id") || "";
+          if (alId || (item.album && alAr)) item.albumLink = "album/" + forHash(alId) + "/" + forHash(alAr) + "/" + forHash(item.album);
           var duration = $.trim(song.find("td[data-col='duration']").text());
           if (/^\d\d?(\:\d\d)*$/.test(duration)) item.duration = duration;//no real duration on recommandation page
           item.rating = parseRating(song.find("td[data-col='rating']").get(0));
