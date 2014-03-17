@@ -44,8 +44,8 @@ $(function() {
     return cover;
   }
   
-  function parseRating(ratingContainer) {
-    if (ratingContainer == null) return -1;
+  function parseRating(ratingContainer, onNullRating) {
+    if (ratingContainer == null) return (typeof onNullRating == "number") ? onNullRating : -1;
     var rating = parseInt(ratingContainer.dataset.rating);
     return isNaN(rating) ? 0 : rating;
   }
@@ -260,7 +260,7 @@ $(function() {
       //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
       if (listRatings) $("#main .song-row td[data-col='rating']").trigger("DOMSubtreeModified");
       var container = $(el.parentElement);
-      if (container.is(":visible")) return parseRating(container.children("li.selected").get(0));
+      if (container.is(":visible")) return parseRating(container.children("li.selected").get(0), 0);
       return -1;
     }
     
