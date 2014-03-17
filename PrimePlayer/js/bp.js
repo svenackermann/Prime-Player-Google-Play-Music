@@ -155,7 +155,6 @@ song.setEqualsFn("info", songsEqual);
 
 function draw(backgroundSrc, imagePaths, callback) {
   var ctx = $("<canvas width='19' height='19'/>").get(0).getContext("2d");
-  ctx.clearRect(0, 0, 19, 19);
   var image = new Image();
   function loadNext() {
     var path = imagePaths.shift();
@@ -189,7 +188,7 @@ function updateBrowserActionInfo() {
         faviconPaths.push(iconPath + "scrobbled");
         title += " (" + chrome.i18n.getMessage("browserActionTitle_scrobbled") + ")";
       }
-      if (song.loved && settings.showLovedIndicator) {
+      if (song.loved === true && settings.showLovedIndicator) {
         iconPaths.push(iconPath + "loved");
         faviconPaths.push(iconPath + "loved");
       }
@@ -197,10 +196,10 @@ function updateBrowserActionInfo() {
         if (player.ratingMode == "star") {
           chrome.browserAction.setBadgeText({text: "" + song.rating});
         } else if (player.ratingMode == "thumbs") {
-          if (song.rating == 5) {
+          if (song.rating >= 4) {
             iconPaths.push(iconPath + "thumbsUp");
             faviconPaths.push(iconPath + "thumbsUp");
-          } else if (song.rating == 1) {
+          } else if (song.rating == 1 || song.rating == 2) {
             iconPaths.push(iconPath + "thumbsDown");
             faviconPaths.push(iconPath + "thumbsDown");
           }
@@ -1002,7 +1001,7 @@ settings.addListener("layout", function() {
   }
 });
 settings.addListener("hideRatings", function(val) {
-  if (!val && song.info) getLovedInfo();
+  if (!val) getLovedInfo();
 });
 settings.addListener("toastUseMpStyle", closeToast);
 settings.addListener("toastButton1", closeToast);
