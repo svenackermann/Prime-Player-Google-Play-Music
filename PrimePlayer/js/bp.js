@@ -657,6 +657,8 @@ lastfm.sessionTimeoutCallback = relogin;
 function toastClosed(notificationOrWinId) {
   if (notificationOrWinId == toastId) {
     toastId = null;
+    song.removeListener("rating", drawToastImage);
+    song.removeListener("loved", drawToastImage);
     if (toastCoverXhr) {
       toastCoverXhr.abort();
       toastCoverXhr = null;
@@ -716,6 +718,71 @@ function getToastBtn(cmd) {
   return {title: getTextForToastBtn(cmd), iconUrl: chrome.extension.getURL("img/toast/" + icon + ".png")};
 }
 
+function drawToastImage() {
+  if (!song.info || !toastId) return;
+  var cover = new Image();
+  var rating = new Image();
+  var coverReady = false;
+  var ratingReady = false;
+  function draw() {
+    var ctx = $("<canvas width='100' height='100'/>").get(0).getContext("2d");
+    ctx.drawImage(cover, 0, 0, 100, 100);
+    if (cover.src.indexOf("blob") == 0) URL.revokeObjectURL(cover.src);
+    if (player.ratingMode == "thumbs") {
+      if (song.rating == 1 || song.rating == 2) ctx.drawImage(rating, 16, 0, 16, 16, 0, 84, 16, 16)
+      else if (song.rating >= 4) ctx.drawImage(rating, 0, 0, 16, 16, 0, 84, 16, 16);
+    } else if (player.ratingMode == "star") {
+      for (i = 0; i < song.rating; i++) {
+        ctx.drawImage(rating, 32, 0, 16, 16, i * 16, 84, 16, 16);
+      }
+    }
+    if (song.loved === true) {
+      ctx.drawImage(rating, 48, 0, 16, 16, 84, 84, 16, 16);
+    }
+    chrome.notifications.update(toastId, getToastOptions(ctx.canvas.toDataURL()), function() {});
+  };
+  
+  if (song.rating > 0 || song.loved === true) {
+    rating.onload = function() { ratingReady = true;  if (coverReady) draw(); };
+    rating.src = chrome.extension.getURL("img/rating.png");
+  } else ratingReady = true;
+  
+  cover.onload = function() { coverReady = true; if (ratingReady) draw(); };
+  if (song.info.cover) {
+    //we need a Cross-origin XMLHttpRequest
+    toastCoverXhr = new XMLHttpRequest();
+    toastCoverXhr.open("GET", song.info.cover, true);
+    toastCoverXhr.responseType = "blob";
+    toastCoverXhr.onload = function() {
+      toastCoverXhr = null;
+      cover.src = URL.createObjectURL(this.response);
+    };
+    toastCoverXhr.onerror = function() {
+      toastCoverXhr = null;
+      cover.src = chrome.extension.getURL("img/cover.png");
+    };
+    toastCoverXhr.send();
+  } else {
+    cover.src = chrome.extension.getURL("img/cover.png");
+  }
+}
+
+function getToastOptions(iconUrl) {
+  var btns = [];
+  var btn = getToastBtn(settings.toastButton1);
+  if (btn) btns.push(btn);
+  btn = getToastBtn(settings.toastButton2);
+  if (btn) btns.push(btn);
+  return {
+    type: "basic",
+    title: song.info.title,
+    message: song.info.artist,
+    contextMessage: song.info.album,
+    iconUrl: iconUrl,
+    buttons: btns
+  };
+}
+
 function openToast() {
   if (settings.toastUseMpStyle) {
     createPlayer("toast", function(win) {
@@ -728,32 +795,14 @@ function openToast() {
     if (btn) btns.push(btn);
     btn = getToastBtn(settings.toastButton2);
     if (btn) btns.push(btn);
-    var options = {
-      type: "basic",
-      title: song.info.title,
-      message: song.info.artist + "\n" + song.info.album,
-      iconUrl: chrome.extension.getURL("img/cover.png"),
-      buttons: btns
-    };
+    var options = getToastOptions(chrome.extension.getURL("img/cover.png"));
     chrome.notifications.create("", options, function(notificationId) {
       toastId = notificationId;
       chrome.notifications.onClosed.addListener(toastClosed);
       chrome.notifications.onClicked.addListener(toastClicked);
       chrome.notifications.onButtonClicked.addListener(toastButtonClicked);
-      if (song.info.cover) {
-        //we need a Cross-origin XMLHttpRequest
-        toastCoverXhr = new XMLHttpRequest();
-        toastCoverXhr.open("GET", song.info.cover, true);
-        toastCoverXhr.responseType = "blob";
-        toastCoverXhr.onload = function() {
-          toastCoverXhr = null;
-          options.iconUrl = window.URL.createObjectURL(this.response);
-          chrome.notifications.update(notificationId, options, function() {
-            webkitURL.revokeObjectURL(options.iconUrl);
-          });
-        };
-        toastCoverXhr.send();
-      }
+      song.watch("rating", drawToastImage);
+      song.addListener("loved", drawToastImage);
     });
   }
 }
