@@ -36,6 +36,8 @@ var SETTINGS_DEFAULTS = {
   scrobbleMaxDuration: 30,
   disableScrobbleOnFf: false,
   linkRatings: false,
+  showLovedIndicator: false,
+  showScrobbledIndicator: true,
   toast: true,
   toastUseMpStyle: false,
   toastDuration: 5,
@@ -58,6 +60,8 @@ var SETTINGS_DEFAULTS = {
   lyricsInGpm: false,
   lyricsAutoReload: false,
   iconStyle: "default",
+  showPlayingIndicator: true,
+  showRatingIndicator: false,
   iconClickMiniplayer: false,
   iconClickConnect: false,
   iconClickPlayPause: false,
@@ -136,9 +140,6 @@ lastfm.unavailableMessage = chrome.i18n.getMessage("lastfmUnavailable");
 
 var currentVersion = chrome.runtime.getManifest().version;
 
-var browserIcon = $("<canvas width='19' height='19'/>").get(0).getContext("2d");
-var favicon = $("<canvas width='19' height='19'/>").get(0).getContext("2d");
-
 function songsEqual(song1, song2) {
   if (song1 == song2) return true;//both null
   if (song1 != null && song2 != null
@@ -152,19 +153,20 @@ function songsEqual(song1, song2) {
 }
 song.setEqualsFn("info", songsEqual);
 
-function drawOnto(ctx, imagePaths, callback) {
+function draw(backgroundSrc, imagePaths, callback) {
+  var ctx = $("<canvas width='19' height='19'/>").get(0).getContext("2d");
   ctx.clearRect(0, 0, 19, 19);
   var image = new Image();
   function loadNext() {
     var path = imagePaths.shift();
     if (path) image.src = chrome.extension.getURL(path + ".png")
-    else callback();
+    else callback(ctx);
   }
   image.onload = function() {
     ctx.drawImage(image, 0, 0);
     loadNext();
   };
-  loadNext();
+  image.src = chrome.extension.getURL(backgroundSrc);
 }
 
 /** handler for all events that need to update the browser action icon/title */
@@ -174,39 +176,61 @@ function updateBrowserActionInfo() {
   var title = chrome.i18n.getMessage("extTitle");
   var iconPaths = [];
   var faviconPaths = [];
+  chrome.browserAction.setBadgeText({text: ""});
   if (viewUpdateNotifier) {
-    path += "updated";
+    path = iconPath + "updated";
     title += " - " + chrome.i18n.getMessage("browserActionTitle_updated");
-  } else if (!player.connected) {
-    path += "notconnected";
-  } else if (song.info) {
-    iconPaths.push(path + "connected");
-    faviconPaths.push(path + "connected");
-    title = song.info.artist + " - " + song.info.title;
-    if (player.playing) {
-      iconPaths.push(iconPath + (settings.iconClickPlayPause ? "pause" : "playing"));
-      faviconPaths.push(iconPath + "playing");
-      title = chrome.i18n.getMessage("browserActionTitle_playing") + ": " + title;
+  } else if (player.connected) {
+    path += "connected";
+    if (song.info) {
+      title = song.info.artist + " - " + song.info.title;
+      if (song.scrobbled && settings.showScrobbledIndicator) {
+        iconPaths.push(iconPath + "scrobbled");
+        faviconPaths.push(iconPath + "scrobbled");
+        title += " (" + chrome.i18n.getMessage("browserActionTitle_scrobbled") + ")";
+      }
+      if (song.loved && settings.showLovedIndicator) {
+        iconPaths.push(iconPath + "loved");
+        faviconPaths.push(iconPath + "loved");
+      }
+      if (song.rating && settings.showRatingIndicator) {
+        if (player.ratingMode == "star") {
+          chrome.browserAction.setBadgeText({text: "" + song.rating});
+        } else if (player.ratingMode == "thumbs") {
+          if (song.rating == 5) {
+            iconPaths.push(iconPath + "thumbsUp");
+            faviconPaths.push(iconPath + "thumbsUp");
+          } else if (song.rating == 1) {
+            iconPaths.push(iconPath + "thumbsDown");
+            faviconPaths.push(iconPath + "thumbsDown");
+          }
+        }
+      }
+      if (settings.showPlayingIndicator) {
+        if (player.playing) {
+          iconPaths.push(iconPath + (settings.iconClickPlayPause ? "pause" : "playing"));
+          faviconPaths.push(iconPath + "playing");
+          title = chrome.i18n.getMessage("browserActionTitle_playing") + ": " + title;
+        } else {
+          iconPaths.push(iconPath + (settings.iconClickPlayPause ? "play" : "paused"));
+          faviconPaths.push(iconPath + "paused");
+          title = chrome.i18n.getMessage("browserActionTitle_paused") + ": " + title;
+        }
+      }
     } else {
-      iconPaths.push(iconPath + (settings.iconClickPlayPause ? "play" : "paused"));
-      faviconPaths.push(iconPath + "paused");
-      title = chrome.i18n.getMessage("browserActionTitle_paused") + ": " + title;
-    }
-    if (song.scrobbled) {
-      iconPaths.push(iconPath + "scrobbled");
-      faviconPaths.push(iconPath + "scrobbled");
-      title += " (" + chrome.i18n.getMessage("browserActionTitle_scrobbled") + ")";
+      title += " - " + chrome.i18n.getMessage("browserActionTitle_connected");
     }
   } else {
-    path += "connected";
-    title += " - " + chrome.i18n.getMessage("browserActionTitle_connected");
+    path += "notconnected";
   }
   path += ".png";
   
-  if (iconPaths.length) drawOnto(browserIcon, iconPaths, function() { chrome.browserAction.setIcon({imageData: browserIcon.getImageData(0, 0, 19, 19)}); })
-  else chrome.browserAction.setIcon({path: path});
-  if (faviconPaths.length) drawOnto(favicon, faviconPaths, function() { player.favicon = favicon.canvas.toDataURL(); })
-  else player.favicon = path;
+  if (iconPaths.length) draw(path, iconPaths, function(icon) {
+    chrome.browserAction.setIcon({imageData: icon.getImageData(0, 0, 19, 19)});
+  }); else chrome.browserAction.setIcon({path: path});
+  if (faviconPaths.length) draw(path, faviconPaths, function(favicon) {
+    player.favicon = favicon.canvas.toDataURL();
+  }); else player.favicon = path;
   chrome.browserAction.setTitle({title: title});
 }
 
@@ -994,15 +1018,35 @@ settings.addListener("connectedIndicator", function(val) {
   postToGooglemusic({type: "connectedIndicator", show: val});
 });
 settings.watch("mpAutoOpen", function(val) {
-  if (val) player.watch("playing", openMpOnPlaying);
+  if (val) player.watch("playing", openMpOnPlaying)
   else player.removeListener("playing", openMpOnPlaying);
 });
 settings.watch("mpAutoClose", function(val) {
-  if (val) player.addListener("connected", closeMpOnDisconnect);
+  if (val) player.addListener("connected", closeMpOnDisconnect)
   else player.removeListener("connected", closeMpOnDisconnect);
 });
 settings.addListener("lyricsInGpm", postLyricsState);
 settings.addListener("lyricsAutoReload", postLyricsState);
+settings.watch("showPlayingIndicator", function(val) {
+  if (val) player.addListener("playing", updateBrowserActionInfo)
+  else player.removeListener("playing", updateBrowserActionInfo);
+  updateBrowserActionInfo();
+});
+settings.watch("showScrobbledIndicator", function(val) {
+  if (val) song.addListener("scrobbled", updateBrowserActionInfo)
+  else song.removeListener("scrobbled", updateBrowserActionInfo);
+  updateBrowserActionInfo();
+});
+settings.watch("showLovedIndicator", function(val) {
+  if (val) song.addListener("loved", updateBrowserActionInfo)
+  else song.removeListener("loved", updateBrowserActionInfo);
+  updateBrowserActionInfo();
+});
+settings.watch("showRatingIndicator", function(val) {
+  if (val) song.addListener("rating", updateBrowserActionInfo)
+  else song.removeListener("rating", updateBrowserActionInfo);
+  updateBrowserActionInfo();
+});
 
 localSettings.watch("syncSettings", function(val) {
   settings.setSyncStorage(val, function() {
@@ -1014,7 +1058,6 @@ localSettings.addListener("lyrics", postLyricsState);
 localSettings.addListener("lyricsFontSize", postLyricsState);
 localSettings.addListener("lyricsWidth", postLyricsState);
 
-player.addListener("playing", updateBrowserActionInfo);
 player.addListener("playing", iconClickSettingsChanged);
 player.addListener("connected", function(val) {
   updateBrowserActionInfo();
@@ -1069,7 +1112,6 @@ if (localStorage["updateBackup"] != null) {
   if (updateBackup.miniplayerOpen) openMiniplayer();
 }
 
-song.addListener("scrobbled", updateBrowserActionInfo);
 song.addListener("position", function(val) {
   var oldPos = song.positionSec;
   song.positionSec = parseSeconds(val);

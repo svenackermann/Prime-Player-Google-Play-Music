@@ -113,6 +113,12 @@
   "setting_linkRatingsHint": {
     "message": "Titel in last.fm lieben, wenn du Daumen hoch/f\u00FCnf Sterne in Google Music gibst und umgekehrt. Bestehende Wertungen werden nicht \u00FCberschrieben."
   },
+  "setting_showLovedIndicator": {
+    "message": "Zeige 'geliebt'-Status im Symbol"
+  },
+  "setting_showScrobbledIndicator": {
+    "message": "Zeige 'gescrobbelt'-Status im Symbol"
+  },
   "setting_miniplayerType": {
     "message": "Typ f\u00FCr den Miniplayer"
   },
@@ -239,6 +245,12 @@
   },
   "setting_iconStyle": {
     "message": "Stil des Browser-Symbols"
+  },
+  "setting_showPlayingIndicator": {
+    "message": "Zeige Play/Pause-Status im Symbol"
+  },
+  "setting_showRatingIndicator": {
+    "message": "Zeige Bewertung im Symbol"
   },
   "setting_hideRatings": {
     "message": "Bewertungs-Symbole verstecken (last.fm und Daumen/Sterne)"
