@@ -215,6 +215,14 @@
     "message": "Play/pause current song on icon click",
     "description": "label for option to play/pause current song on browser icon click"
   },
+  "setting_iconDoubleClickTime": {
+    "message": "Icon double click speed in ms (0=disabled)",
+    "description": "label for option to change the browser icon double click speed"
+  },
+  "setting_iconDoubleClickTimeHint": {
+    "message": "Set to a value greater than 0 (recommended: 500) to open the popup (instead of executing the action selected above) when the browser icon is double clicked.",
+    "description": "hint for option to change the browser icon double click speed"
+  },
   "setting_iconClickConnect": {
     "message": "Always open Google Music first on icon click, if not opened yet",
     "description": "label for option to open Google Music on browser icon click"
