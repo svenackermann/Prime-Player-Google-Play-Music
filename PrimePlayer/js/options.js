@@ -162,14 +162,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function iconClickChanged() {
-    if (bp.settings.iconClickMiniplayer) {
-      bp.settings.iconClickPlayPause = false;
-      $("#iconClickPlayPause").prop("checked", false);
-    }
-    if (bp.settings.iconClickPlayPause) {
-      bp.settings.iconClickMiniplayer = false;
-      $("#iconClickMiniplayer").prop("checked", false);
-    }
     $("#iconDoubleClickTime").prop("disabled", !bp.settings.iconClickPlayPause && !bp.settings.iconClickMiniplayer);
   }
   
@@ -267,8 +259,20 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initIconStyle();
     initCheckbox("showPlayingIndicator");
     initCheckbox("showRatingIndicator");
-    initCheckbox("iconClickMiniplayer").click(iconClickChanged);
-    initCheckbox("iconClickPlayPause").click(iconClickChanged);
+    initCheckbox("iconClickMiniplayer").click(function() {
+      if (bp.settings.iconClickMiniplayer) {
+        bp.settings.iconClickPlayPause = false;
+        $("#iconClickPlayPause").prop("checked", false);
+      }
+      iconClickChanged();
+    });
+    initCheckbox("iconClickPlayPause").click(function() {
+      if (bp.settings.iconClickPlayPause) {
+        bp.settings.iconClickMiniplayer = false;
+        $("#iconClickMiniplayer").prop("checked", false);
+      }
+      iconClickChanged();
+    });
     initNumberInput("iconDoubleClickTime");
     initHint("iconDoubleClickTime");
     initCheckbox("iconClickConnect");
