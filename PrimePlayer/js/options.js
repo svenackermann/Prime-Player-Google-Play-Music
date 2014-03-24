@@ -161,6 +161,18 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
   }
 
+  function iconClickChanged() {
+    if (bp.settings.iconClickMiniplayer) {
+      bp.settings.iconClickPlayPause = false;
+      $("#iconClickPlayPause").prop("checked", false);
+    }
+    if (bp.settings.iconClickPlayPause) {
+      bp.settings.iconClickMiniplayer = false;
+      $("#iconClickMiniplayer").prop("checked", false);
+    }
+    $("#iconDoubleClickTime").prop("disabled", !bp.settings.iconClickPlayPause && !bp.settings.iconClickMiniplayer);
+  }
+  
   /** @return version from a class attribute (e.g. for an element with class "abc v-1.2.3 def" this returns "1.2.3") */
   function extractVersionFromClass(el) {
     var cl = $(el).attr("class");
@@ -255,18 +267,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initIconStyle();
     initCheckbox("showPlayingIndicator");
     initCheckbox("showRatingIndicator");
-    initCheckbox("iconClickMiniplayer").click(function() {
-      if (bp.settings.iconClickMiniplayer) {
-        bp.settings.iconClickPlayPause = false;
-        $("#iconClickPlayPause").prop("checked", false);
-      }
-    });
-    initCheckbox("iconClickPlayPause").click(function() {
-      if (bp.settings.iconClickPlayPause) {
-        bp.settings.iconClickMiniplayer = false;
-        $("#iconClickMiniplayer").prop("checked", false);
-      }
-    });
+    initCheckbox("iconClickMiniplayer").click(iconClickChanged);
+    initCheckbox("iconClickPlayPause").click(iconClickChanged);
+    initNumberInput("iconDoubleClickTime");
+    initHint("iconDoubleClickTime");
     initCheckbox("iconClickConnect");
     initCheckbox("openGoogleMusicPinned");
     initCheckbox("connectedIndicator");
@@ -282,6 +286,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     //disable inputs if neccessary
     toastChanged();
     lyricsChanged();
+    iconClickChanged();
     
     $("#resetSettings").click(function() {
       bp.settings.resetToDefaults();

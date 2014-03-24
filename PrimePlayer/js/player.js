@@ -12,13 +12,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
   var listRatingTimer;
   var ratingHtml;
 
-  function layoutWatcher(val, old) {
-    $("html").removeClass("layout-" + old).addClass("layout-" + val);
-  }
-  if (typeClass == "miniplayer" || typeClass == "toast") {
-    bp.settings.watch("layout", layoutWatcher, typeClass);
-  } else {
+  if (typeClass == "popup") {
+    bp.popupOpened();
     $("html").addClass("layout-normal");
+  } else {
+    function layoutWatcher(val, old) {
+      $("html").removeClass("layout-" + old).addClass("layout-" + val);
+    }
+    bp.settings.watch("layout", layoutWatcher, typeClass);
   }
 
   function hideRatingsWatcher(val) {
@@ -524,6 +525,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
           if (!inp.is(":visible")) switchView(chrome.i18n.getMessage("quicklinks"), "quicklinks");
           $("#navHead > input").focus();
         }
+      } else if (e.keyCode == 32) {
+        bp.executePlayPause();
       }
     });
 

@@ -63,8 +63,9 @@ var SETTINGS_DEFAULTS = {
   showPlayingIndicator: true,
   showRatingIndicator: false,
   iconClickMiniplayer: false,
-  iconClickConnect: false,
   iconClickPlayPause: false,
+  iconDoubleClickTime: 0,
+  iconClickConnect: false,
   openGoogleMusicPinned: false,
   connectedIndicator: true,
   preventCommandRatingReset: true,
@@ -876,20 +877,39 @@ function openMiniplayer() {
   }, true);
 }
 
+var iconClickActionTimer;
+function doIconClickAction(fn) {
+  if (settings.iconDoubleClickTime) {
+    chrome.browserAction.setPopup({popup: "player.html"});
+    iconClickActionTimer = setTimeout(function() {
+      chrome.browserAction.setPopup({popup: ""});
+      fn();
+    }, settings.iconDoubleClickTime);
+  } else fn();
+}
+
+var openMiniplayerDelayed = doIconClickAction.bind(window, openMiniplayer);
+var executePlayPauseDelayed = doIconClickAction.bind(window, executePlayPause);
+
+function popupOpened() {
+  clearTimeout(iconClickActionTimer);
+  iconClickSettingsChanged();
+}
+
 /** handler for all settings changes that need to update the browser action */
 function iconClickSettingsChanged() {
   chrome.browserAction.onClicked.removeListener(openGoogleMusicTab);
-  chrome.browserAction.onClicked.removeListener(openMiniplayer);
-  chrome.browserAction.onClicked.removeListener(executePlayPause);
+  chrome.browserAction.onClicked.removeListener(openMiniplayerDelayed);
+  chrome.browserAction.onClicked.removeListener(executePlayPauseDelayed);
   chrome.browserAction.setPopup({popup: ""});
   if (viewUpdateNotifier) {
     chrome.browserAction.setPopup({popup: "updateNotifier.html"});
   } else if (settings.iconClickConnect && !googlemusictabId) {
     chrome.browserAction.onClicked.addListener(openGoogleMusicTab);
   } else if (settings.iconClickMiniplayer) {
-    chrome.browserAction.onClicked.addListener(openMiniplayer);
+    chrome.browserAction.onClicked.addListener(openMiniplayerDelayed);
   } else if (settings.iconClickPlayPause && player.playing != null) {
-    chrome.browserAction.onClicked.addListener(executePlayPause);
+    chrome.browserAction.onClicked.addListener(executePlayPauseDelayed);
   } else {
     chrome.browserAction.setPopup({popup: "player.html"});
   }

@@ -161,6 +161,12 @@
   "setting_iconClickPlayPause": {
     "message": "Beim Klick auf das Symbol Wiedergabe pausieren/fortsetzen"
   },
+  "setting_iconDoubleClickTime": {
+    "message": "Doppelklick-Geschwindigkeit f\u00FCr das Symbol in ms (0=deaktiviert)"
+  },
+  "setting_iconDoubleClickTimeHint": {
+    "message": "Bei einem Wert gr\u00F6\u00DFer als 0 (empfohlen: 500) wird bei Doppelklick auf das Symbol das Browser-Popup ge\u00F6ffnet anstatt die oben ausgew\u00E4hlte Aktion auszuf\u00FChren."
+  },
   "setting_iconClickConnect": {
     "message": "Beim Klick auf das Symbol immer erst Google Music \u00F6ffnen, wenn nicht bereits ge\u00F6ffnet"
   },
