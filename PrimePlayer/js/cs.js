@@ -7,7 +7,6 @@
  */
 $(function() {
   var port;
-  var registeredListeners = [];
   var observers = [];
   var executeOnContentLoad;
   var contentLoadDestination;
@@ -17,6 +16,7 @@ $(function() {
   var resumePlaylistParsingFn;
   var lyricsAutoReload = false;
   var lyricsAutoReloadTimer;
+  var position;
   
   /** send update to background page */
   function post(type, value) {
@@ -48,32 +48,6 @@ $(function() {
     if (ratingContainer == null) return (typeof onNullRating == "number") ? onNullRating : -1;
     var rating = parseInt(ratingContainer.dataset.rating);
     return isNaN(rating) ? 0 : rating;
-  }
-  
-  /**
-   * Execute a function after DOM manipulation on selected elements is finished.
-   * @param fn function to execute, gets the jQuery object for the selector as parameter
-   * @param selector element(s) to be watched for DOM manipulation
-   * @param removeAfterExecute if true, the function will be called only once, otherwise the event listener stays attached
-   * @param timeout time to wait after DOM manipulation before executing the function
-   */
-  function executeAfterContentLoad(fn, selector, timeout) {
-    var content = $(selector);
-    if (content.length == 0) {
-      console.error("element does not exist (did Google change their site?): " + selector);
-      return;
-    }
-    var contentTimer;
-    var listener = function() {
-      clearTimeout(contentTimer);
-      contentTimer = setTimeout(function() {
-        contentTimer = null;
-        fn(content);
-      }, timeout);//wait til the DOM manipulation is finished
-    };
-    content.on("DOMSubtreeModified", listener);
-    registeredListeners.push({ selector: selector, listener: listener });
-    listener();
   }
   
   function showConnectedIndicator() {
@@ -168,10 +142,6 @@ $(function() {
     sendCommand("cleanup");
     window.removeEventListener("message", onMessage);
     $("#primeplayerinjected").remove();
-    for (var i = 0; i < registeredListeners.length; i++) {
-      var l = registeredListeners[i];
-      $(l.selector).off("DOMSubtreeModified", l.listener);
-    }
     $("#main").off("DOMSubtreeModified");
     $(window).off("hashchange");
     for (var i = 0; i < observers.length; i++) {
@@ -244,7 +214,11 @@ $(function() {
     }
     
     function sendPosition(el) {
-      post("song-position", $.trim(el.text()));
+      var parsed = $.trim(el.text());
+      if (parsed != position) {
+        position = parsed;
+        post("song-position", position);
+      }
     }
     
     function playingGetter(el) {
@@ -273,6 +247,36 @@ $(function() {
         fn();
       }
     }
+  
+    /**
+     * Execute a function after DOM manipulation on selected elements is finished.
+     * @param fn function to execute, gets the jQuery object for the selector as parameter
+     * @param selector element(s) to be watched for DOM manipulation
+     * @param timeout time to wait after DOM manipulation before executing the function
+     */
+    function watchContent(fn, selector, timeout) {
+      var content = $(selector);
+      if (content.length > 0) {
+        var listener = fn.bind(window, content);
+        if (timeout) {
+          var contentTimer;
+          listener = function() {
+            clearTimeout(contentTimer);
+            contentTimer = setTimeout(function() {
+              contentTimer = null;
+              fn(content);
+            }, timeout);//wait til the DOM manipulation is finished
+          };
+        }
+        
+        var observer = new MutationObserver(function (mutations) { mutations.forEach(listener); });
+        observers.push(observer);
+        observer.observe(content.get(0), { childList: true });
+        listener();
+      } else {
+        console.error("element(s) do(es) not exist (did Google change their site?): " + selector);
+      }
+    }
     
     /**
      * Watch changes of attributes on DOM elements specified by the selector.
@@ -288,9 +292,7 @@ $(function() {
           getValue = function(el, attr) {return el.getAttribute(attr)};
         }
         var observer = new MutationObserver(function (mutations) {
-          mutations.forEach(function(mutation) {
-            post(type, getValue(mutation.target, mutation.attributeName));
-          });
+          mutations.forEach(function(mutation) { post(type, getValue(mutation.target, mutation.attributeName)); });
         });
         observers.push(observer);
         observer.observe(element, { attributes: true, attributeFilter: attrs.split(" ") });
@@ -300,9 +302,9 @@ $(function() {
       }
     }
     
-    executeAfterContentLoad(sendSong, "#time_container_duration, #playerSongInfo", 500);
-    executeAfterContentLoad(sendPosition, "#time_container_current", 0);
-    executeAfterContentLoad(mainLoaded, "#main", 500);
+    watchContent(sendSong, "#playerSongInfo", 500);
+    watchContent(sendPosition, "#time_container_current");
+    watchContent(mainLoaded, "#main", 500);
     watchAttr("class disabled", "#player > div.player-middle > button[data-id='play-pause']", "player-playing", playingGetter);
     watchAttr("value", "#player > div.player-middle > button[data-id='repeat']", "player-repeat");
     watchAttr("value", "#player > div.player-middle > button[data-id='shuffle']", "player-shuffle", shuffleGetter);
