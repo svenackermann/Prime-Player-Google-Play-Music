@@ -517,15 +517,15 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
     
     $(window).keyup(function(e) {
-      if (e.keyCode == 27 && !$("#player").is(":visible")) {
+      if (e.keyCode == 27 && !$("#player").is(":visible")) {//ESC
         restorePlayer();
-      } else if (e.keyCode == 81 && !bp.settings.hideSearchfield) {
+      } else if (e.keyCode == 81 && !bp.settings.hideSearchfield) {//q
         var inp = $("#navHead > input");
         if (!inp.is(":focus") && !inp.is(":disabled")) {
           if (!inp.is(":visible")) switchView(chrome.i18n.getMessage("quicklinks"), "quicklinks");
           $("#navHead > input").focus();
         }
-      } else if (e.keyCode == 32) {
+      } else if (e.keyCode == 32 && !$("#navHead > input").is(":focus")) {//space
         bp.executePlayPause();
       }
     });
