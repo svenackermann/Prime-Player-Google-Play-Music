@@ -428,10 +428,16 @@ $(function() {
       var update = false;
       var lastIndex = -1;
       function loadNextSongs() {
+        var rows = parent.find(".song-row");
+        if (!update && count > 0 && rows.first().data("index") != 0) {//not yet there
+          parent.scrollTop(0);
+          asyncListTimer = setTimeout(loadNextSongs, 150);
+          return;
+        }
         //scroll to last needed song row to trigger lazy loading
         var playlist = [];
         var lastLoaded = null;
-        parent.find(".song-row").slice(0, end).each(function() {
+        rows.slice(0, end).each(function() {
           var song = $(this);
           lastLoaded = this;
           if (song.data("index") <= lastIndex) return;
