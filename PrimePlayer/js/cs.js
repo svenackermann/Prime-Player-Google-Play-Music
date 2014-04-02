@@ -271,7 +271,7 @@ $(function() {
         
         var observer = new MutationObserver(function (mutations) { mutations.forEach(listener); });
         observers.push(observer);
-        observer.observe(content.get(0), { childList: true });
+        observer.observe(content.get(0), { childList: true, subtree: true });
         listener();
       } else {
         console.error("element(s) do(es) not exist (did Google change their site?): " + selector);
