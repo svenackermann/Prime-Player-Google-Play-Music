@@ -344,6 +344,14 @@
     "message": "Show rating in icon",
     "description": "label for option to enable rating in icon"
   },
+  "setting_saveLastPosition": {
+    "message": "Save last song position",
+    "description": "label for option to save last song position"
+  },
+  "setting_saveLastPositionHint": {
+    "message": "Saves the last played song with its position (locally), so you know where you left off before closing Google Music. The last song will be displayed in the miniplayer like a normal song with some limitations. Note that it's not possible to restore your latest queue or playlist on restart.",
+    "description": "hint for option to save last song position"
+  },
   "setting_hideRatings": {
     "message": "Hide rating icons (last.fm and thumbs/stars)",
     "description": "label for option to hide ratings"

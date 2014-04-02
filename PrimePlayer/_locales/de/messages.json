@@ -258,6 +258,12 @@
   "setting_showRatingIndicator": {
     "message": "Zeige Bewertung im Symbol"
   },
+  "setting_saveLastPosition": {
+    "message": "Speichere zuletzt gespielten Titel"
+  },
+  "setting_saveLastPositionHint": {
+    "message": "Speichert den letzten Titel (lokal) mit der aktuellen Position, um immer zu wissen, was man vor dem Beenden von Google Music geh\u00F6rt hat. Der letzte Titel wird im Miniplayer wie ein normaler Titel mit einigen Einschr\u00E4nkungen angezeigt. Beachte, dass es nicht m\u00F6glich ist, die letzte Wiedergabeliste beim Neustart wiederherzustellen."
+  },
   "setting_hideRatings": {
     "message": "Bewertungs-Symbole verstecken (last.fm und Daumen/Sterne)"
   },

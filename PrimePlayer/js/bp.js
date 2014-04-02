@@ -62,6 +62,7 @@ var SETTINGS_DEFAULTS = {
   iconStyle: "default",
   showPlayingIndicator: true,
   showRatingIndicator: false,
+  saveLastPosition: false,
   iconClickMiniplayer: false,
   iconClickPlayPause: false,
   iconDoubleClickTime: 0,
@@ -288,8 +289,8 @@ function onDisconnectListener() {
   googlemusictabId = null;
   iconClickSettingsChanged();
   
-  player.resetToDefaults();
   song.resetToDefaults();
+  player.resetToDefaults();
   
   //try to connect another tab
   while (parkedPorts.length > 0) {
@@ -550,21 +551,42 @@ function sendNowPlaying() {
   );
 }
 
-function getLovedInfo() {
-  if (localSettings.lastfmSessionName && song.info) {
-    song.loved = null;
+function getLoved(songInfo, callback) {
+  if (localSettings.lastfmSessionName && songInfo) {
     lastfm.track.getInfo({
-        track: song.info.title,
-        artist: song.info.artist,
+        track: songInfo.title,
+        artist: songInfo.artist,
         username: localSettings.lastfmSessionName
       },
       {
         success: function(response) {
-          song.loved = response.track != null && response.track.userloved == 1;
+          callback(response.track != null && response.track.userloved == 1);
         },
         error: function(code, msg) {
-          song.loved = msg;
+          callback(msg);
           gaEvent("LastFM", "getInfoError-" + code);
+        }
+      }
+    );
+  } else callback(null);
+}
+
+function getLovedInfo() {
+  song.loved = null;
+  getLoved(song.info, function(loved) { song.loved = loved; });
+}
+
+function love(songInfo, callback) {
+  if (localSettings.lastfmSessionKey && songInfo) {
+    lastfm.track.love({
+        track: songInfo.title,
+        artist: songInfo.artist
+      },
+      {
+        success: function() { callback(true); },
+        error: function(code, msg) {
+          callback(msg);
+          gaEvent("LastFM", "loveError-" + code);
         }
       }
     );
@@ -573,41 +595,32 @@ function getLovedInfo() {
 
 function loveTrack(event, aSong) {
   if (aSong == undefined) aSong = song;
-  if (localSettings.lastfmSessionKey && aSong.info) {
-    aSong.loved = null;
-    lastfm.track.love({
-        track: aSong.info.title,
-        artist: aSong.info.artist
-      },
-      {
-        success: function() { aSong.loved = true; },
-        error: function(code, msg) {
-          aSong.loved = msg;
-          gaEvent("LastFM", "loveError-" + code);
-        }
-      }
-    );
-    //auto-rate if called by click event and not rated yet
-    if (event != null && settings.linkRatings && aSong.rating == 0) executeInGoogleMusic("rate", {rating: 5});
-  }
+  aSong.loved = null;
+  love(aSong.info, function(loved) { aSong.loved = loved; });
+  //auto-rate if called by click event and not rated yet
+  if (event != null && settings.linkRatings && aSong.rating == 0) executeInGoogleMusic("rate", {rating: 5});
 }
 
-function unloveTrack() {
-  if (localSettings.lastfmSessionKey && song.info) {
-    song.loved = null;
+function unlove(songInfo, callback) {
+  if (localSettings.lastfmSessionKey && songInfo) {
     lastfm.track.unlove({
-        track: song.info.title,
-        artist: song.info.artist
+        track: songInfo.title,
+        artist: songInfo.artist
       },
       {
-        success: function() { song.loved = false; },
+        success: function() { callback(false); },
         error: function(code, msg) {
-          song.loved = msg;
+          callback(msg);
           gaEvent("LastFM", "unloveError-" + code);
         }
       }
     );
   }
+}
+
+function unloveTrack() {
+  song.loved = null;
+  love(song.info, function(loved) { song.loved = loved; });
 }
 
 /** open the last.fm authentication page */
@@ -1115,6 +1128,21 @@ settings.watch("showRatingIndicator", function(val) {
   else song.removeListener("rating", updateBrowserActionInfo);
   updateBrowserActionInfo();
 });
+function saveRatingMode(ratingMode) {
+  if (ratingMode) chrome.storage.local.set({"ratingMode": ratingMode});
+}
+function saveRating(rating) {
+  if (googlemusicport) chrome.storage.local.set({"rating": rating});
+}
+settings.watch("saveLastPosition", function(val) {
+  if (val) {
+    song.addListener("rating", saveRating);
+    player.addListener("ratingMode", saveRatingMode);
+  } else {
+    song.removeListener("rating", saveRating);
+    player.removeListener("ratingMode", saveRatingMode);
+  }
+});
 
 localSettings.watch("syncSettings", function(val) {
   settings.setSyncStorage(val, function() {
@@ -1208,6 +1236,9 @@ song.addListener("position", function(val) {
         scrobble();
       }
     }
+    if (settings.saveLastPosition && googlemusicport) {
+      chrome.storage.local.set({"lastPosition": val});
+    }
   }
 });
 song.addListener("info", function(val) {
@@ -1224,9 +1255,27 @@ song.addListener("info", function(val) {
     closeToast();
     song.loved = null;
   }
+  if (settings.saveLastPosition && googlemusicport) {
+    chrome.storage.local.set({"lastSong": val});
+  }
   updateBrowserActionInfo();
   calcScrobbleTime();
 });
+
+function getLastSong(callback) {
+  chrome.storage.local.get(["lastSong", "lastPosition", "rating", "ratingMode"], function(items) {
+    if (items.lastSong) {
+      var lastSong = {
+        info: items.lastSong,
+        position: items.lastPosition,
+        positionSec: parseSeconds(items.lastPosition),
+        rating: items.rating,
+        ratingMode: items.ratingMode
+      };
+      callback(lastSong);
+    }
+  });
+}
 
 function setVolume(percent) {
   executeInGoogleMusic("setVolume", {percent: percent});
