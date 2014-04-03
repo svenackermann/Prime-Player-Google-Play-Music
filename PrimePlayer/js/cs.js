@@ -365,8 +365,25 @@ $(function() {
   
   /** Send a command to the injected script. */
   function sendCommand(command, options) {
-    if (command == "startPlaylistSong" || command == "ratePlaylistSong") pausePlaylistParsing = true;
-    window.postMessage({ type: "FROM_PRIMEPLAYER", command: command, options: options }, location.href);
+    if (command == "startPlaylistSong" || command == "ratePlaylistSong") {
+      if (location.hash != options.link) return;
+      var body = $("#main .song-table > tbody");
+      if (!body[0] || options.index > body.data("count") - 1) return;
+      pausePlaylistParsing = true;
+      function callForRow() {//make sure row with requested index is available
+        var rows = body.find(".song-row");
+        var scrollToRow;
+        if (rows.first().data("index") > options.index) scrollToRow = rows[0];
+        else if (rows.last().data("index") < options.index) scrollToRow = rows.last()[0];
+        if (scrollToRow) {
+          scrollToRow.scrollIntoView(true);
+          setTimeout(callForRow, 50);
+        } else {
+          window.postMessage({ type: "FROM_PRIMEPLAYER", command: command, options: options }, location.href);
+        }
+      }
+      callForRow();
+    } else window.postMessage({ type: "FROM_PRIMEPLAYER", command: command, options: options }, location.href);
   }
   
   function clickListCard(listId) {
@@ -400,6 +417,26 @@ $(function() {
         location.hash = "/" + hash;
       }
     }
+  }
+  
+  function parseSongRow(song) {
+    var item = {};
+    item.index = song.data("index");
+    var title = song.find("td[data-col='title'] .content");
+    item.cover = parseCover(title.find("img"));
+    item.title = $.trim(title.text());
+    var artist = song.find("td[data-col='artist']");
+    item.artist = $.trim(artist.find(".content").text());
+    var arId = artist.data("matched-id") || "";
+    if (item.artist || arId) item.artistLink = "artist/" + forHash(arId) + "/" + forHash(item.artist);
+    var album = song.find("td[data-col='album']");
+    item.album = $.trim(album.find(".content").text());
+    var alAr = album.data("album-artist") || "";
+    var alId = album.data("matched-id") || "";
+    if (alId || (item.album && alAr)) item.albumLink = "album/" + forHash(alId) + "/" + forHash(alAr) + "/" + forHash(item.album);
+    var duration = $.trim(song.find("td[data-col='duration']").text());
+    if (/^\d\d?(\:\d\d)*$/.test(duration)) item.duration = duration;//no real duration on recommandation page
+    return item;
   }
   
   var parseNavigationList = {
@@ -441,24 +478,9 @@ $(function() {
           var song = $(this);
           lastLoaded = this;
           if (song.data("index") <= lastIndex) return;
-          lastIndex = song.data("index");
-          var item = {};
-          item.index = lastIndex;
-          var title = song.find("td[data-col='title'] .content");
-          item.cover = parseCover(title.find("img"));
-          item.title = $.trim(title.text());
+          var item = parseSongRow(song);
+          lastIndex = item.index;
           if (song.find(".song-indicator").length > 0) item.current = true;
-          var artist = song.find("td[data-col='artist']");
-          item.artist = $.trim(artist.find(".content").text());
-          var arId = artist.data("matched-id") || "";
-          if (item.artist || arId) item.artistLink = "artist/" + forHash(arId) + "/" + forHash(item.artist);
-          var album = song.find("td[data-col='album']");
-          item.album = $.trim(album.find(".content").text());
-          var alAr = album.data("album-artist") || "";
-          var alId = album.data("matched-id") || "";
-          if (alId || (item.album && alAr)) item.albumLink = "album/" + forHash(alId) + "/" + forHash(alAr) + "/" + forHash(item.album);
-          var duration = $.trim(song.find("td[data-col='duration']").text());
-          if (/^\d\d?(\:\d\d)*$/.test(duration)) item.duration = duration;//no real duration on recommandation page
           item.rating = parseRating(song.find("td[data-col='rating']").get(0));
           listRatings.push(item.rating);
           playlist.push(item);
@@ -582,6 +604,35 @@ $(function() {
     });
   }
   
+  function resumeSong(msg, error) {
+    if (error || location.hash.substr(2) != msg.albumLink) return;
+    function sendResume() {
+      var rows = $("#main .song-row");
+      if (rows.length > 0) {
+        if (rows.first().data("index") != 0) {
+          $("#main").scrollTop(0);
+          asyncListTimer = setTimeout(sendResume, 150);
+          return;
+        }
+        var found = false;
+        rows.each(function() {
+          var song = parseSongRow($(this));
+          if (song.title == msg.title && song.duration == msg.duration && (!song.artist || !msg.artist || song.artist == msg.artist)) {
+            found = true;
+            sendCommand("resumePlaylistSong", {index: song.index, position: msg.position});
+            return false;
+          }
+        });
+        var last = found || rows.last();
+        if (!found && last.data("index") < last.parent().data("count") - 1) {
+          last.get(0).scrollIntoView(true);
+          asyncListTimer = setTimeout(sendResume, 150);
+        }
+      }
+    }
+    sendResume();
+  }
+  
   port = chrome.runtime.connect({name: "googlemusic"});
   port.onDisconnect.addListener(cleanup);
   port.onMessage.addListener(function(msg) {
@@ -606,6 +657,9 @@ $(function() {
           //type "im"/"st" starts automatically
           if (!error && msg.link.indexOf("im/") != 0 && msg.link.indexOf("st/") != 0) sendCommand("startPlaylist");
         });
+        break;
+      case "resumeLastSong":
+        selectAndExecute(msg.albumLink, resumeSong.bind(window, msg));
         break;
       case "lyrics":
         renderLyrics(msg.result);

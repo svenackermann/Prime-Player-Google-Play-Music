@@ -102,6 +102,10 @@ var loadNavlistLink;
 var loadNavlistSearch;
 /** whether feelingLucky is requested */
 var feelingLucky = false;
+/** if resumeLastSong was called while not connected */
+var lastSongToResume;
+/** for correct calculation of song.ff on resume */
+var lastSongPositionSec;
 
 /** the song currently loaded */
 var SONG_DEFAULTS = {
@@ -376,6 +380,24 @@ function executeFeelingLuckyIfConnected() {
 function executeFeelingLucky() {
   feelingLucky = true;
   executeFeelingLuckyIfConnected();
+}
+
+function resumeLastSongIfConnected() {
+  if (!lastSongToResume) return;
+  if (player.connected) {
+    postToGooglemusic({type: "resumeLastSong",
+      albumLink: lastSongToResume.info.albumLink,
+      artist: lastSongToResume.info.artist,
+      title: lastSongToResume.info.title,
+      duration: lastSongToResume.info.duration,
+      position: lastSongToResume.positionSec / lastSongToResume.info.durationSec
+    });
+  } else openGoogleMusicTab();//when connected, we get triggered again
+}
+
+function resumeLastSong(lastSong) {
+  lastSongToResume = lastSong;
+  resumeLastSongIfConnected();
 }
 
 /** send a command to the connected Google Music port */
@@ -1132,14 +1154,24 @@ function saveRatingMode(ratingMode) {
   if (ratingMode) chrome.storage.local.set({"ratingMode": ratingMode});
 }
 function saveRating(rating) {
-  if (googlemusicport) chrome.storage.local.set({"rating": rating});
+  if (googlemusicport && song.info) chrome.storage.local.set({"rating": rating});
+}
+function saveScrobbled(scrobbled) {
+  if (googlemusicport) chrome.storage.local.set({"scrobbled": scrobbled, "scrobbleTime": song.scrobbleTime});
+}
+function saveFf(ff) {
+  if (googlemusicport) chrome.storage.local.set({"ff": ff});
 }
 settings.watch("saveLastPosition", function(val) {
   if (val) {
     song.addListener("rating", saveRating);
+    song.addListener("scrobbled", saveScrobbled);
+    song.addListener("ff", saveFf);
     player.addListener("ratingMode", saveRatingMode);
   } else {
     song.removeListener("rating", saveRating);
+    song.removeListener("scrobbled", saveScrobbled);
+    song.removeListener("ff", saveFf);
     player.removeListener("ratingMode", saveRatingMode);
   }
 });
@@ -1160,6 +1192,7 @@ player.addListener("connected", function(val) {
   if (val) {
     loadNavlistIfConnected();
     executeFeelingLuckyIfConnected();
+    resumeLastSongIfConnected();
     if (settings.connectedIndicator) postToGooglemusic({type: "connectedIndicator", show: true});
     if (localSettings.lyrics && settings.lyricsInGpm) postLyricsState();
   }
@@ -1209,17 +1242,18 @@ if (localStorage["updateBackup"] != null) {
 }
 
 song.addListener("position", function(val) {
-  var oldPos = song.positionSec;
+  var oldPos = lastSongPositionSec || song.positionSec;
   song.positionSec = parseSeconds(val);
-  if (!positionFromBackup && !song.ff && song.positionSec > oldPos + 5) {
-    song.ff = true;
-    if (settings.disableScrobbleOnFf && !song.scrobbled) song.scrobbleTime = -1;
-  } else if (song.ff && song.positionSec <= 5) {//prev pressed or gone back
-    song.ff = false;
-    if (settings.disableScrobbleOnFf) calcScrobbleTime();
-  }
-  positionFromBackup = false;
   if (song.info) {
+    if (lastSongPositionSec && (song.positionSec >= lastSongPositionSec || song.positionSec > 5)) lastSongPositionSec = null;
+    if (!positionFromBackup && !song.ff && song.positionSec > oldPos + 5) {
+      song.ff = true;
+      if (settings.disableScrobbleOnFf && !song.scrobbled) song.scrobbleTime = -1;
+    } else if (song.ff && song.positionSec <= 5) {//prev pressed or gone back
+      song.ff = false;
+      if (settings.disableScrobbleOnFf) calcScrobbleTime();
+    }
+    positionFromBackup = false;
     if (song.positionSec == 2) {//new song, repeat single or rewinded
       song.nowPlayingSent = false;
       song.scrobbled = false;
@@ -1242,9 +1276,17 @@ song.addListener("position", function(val) {
   }
 });
 song.addListener("info", function(val) {
+  if (lastSongToResume && songsEqual(lastSongToResume.info, val)) {
+    song.scrobbled = lastSongToResume.scrobbled;
+    song.ff = lastSongToResume.ff;
+    lastSongPositionSec = lastSongToResume.positionSec;
+    if (song.scrobbled) song.scrobbleTime = lastSongToResume.scrobbleTime;
+  } else {
+    song.scrobbled = false;
+  }
+  lastSongToResume = null;
   song.toasted = false;
   song.nowPlayingSent = false;
-  song.scrobbled = false;
   positionFromBackup = false;
   if (val) {
     song.info.durationSec = parseSeconds(val.duration);
@@ -1256,21 +1298,24 @@ song.addListener("info", function(val) {
     song.loved = null;
   }
   if (settings.saveLastPosition && googlemusicport) {
-    chrome.storage.local.set({"lastSong": val});
+    chrome.storage.local.set({"lastSong": val, "rating": song.rating});
   }
   updateBrowserActionInfo();
   calcScrobbleTime();
 });
 
 function getLastSong(callback) {
-  chrome.storage.local.get(["lastSong", "lastPosition", "rating", "ratingMode"], function(items) {
+  chrome.storage.local.get(null, function(items) {
     if (items.lastSong) {
       var lastSong = {
         info: items.lastSong,
         position: items.lastPosition,
         positionSec: parseSeconds(items.lastPosition),
         rating: items.rating,
-        ratingMode: items.ratingMode
+        ratingMode: items.ratingMode,
+        scrobbled: items.scrobbled,
+        scrobbleTime: items.scrobbleTime,
+        ff: items.ff
       };
       callback(lastSong);
     }

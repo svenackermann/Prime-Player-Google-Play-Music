@@ -70,8 +70,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
   
   function songInfoWatcher(val) {
     clearTimeout(listRatingTimer);
-    $("body").removeClass("hasLastSong");
-    getLastLoved = null;
+    if ($("body").hasClass("hasLastSong")) {
+      $("body").removeClass("hasLastSong");
+      renderRating(bp.song.rating);
+      getLastLoved = null;
+      $("#resume").removeClass("lastSongEnabled").unbind().click(googleMusicExecutor("playPause"));
+    }
     $("body").toggleClass("hasSong", val != null);
     if (val) {
       renderSongInfo(val);
@@ -115,8 +119,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     renderPosition(val, bp.song.info && bp.song.info.durationSec || 0, bp.song.position);
   }
 
-  function renderRating(rating, old) {
-    $("#googleRating").removeClass("rating-" + old).addClass("rating-" + rating);
+  function renderRating(rating) {
+    $("#googleRating").removeClass().addClass("rating-" + rating);
   }
   
   function renderLastSong(lastSong) {
@@ -124,7 +128,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     renderSongInfo(lastSong.info);
     renderPosition(lastSong.positionSec, lastSong.info.durationSec, lastSong.position);
     ratingModeWatcher(lastSong.ratingMode);
-    renderRating(lastSong.rating, bp.song.rating);
+    renderRating(lastSong.rating);
     
     function updateLoved(updateFn) {
       renderLastLoved(null);
@@ -137,6 +141,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
       renderSongLoved(loved, {getLoved: getLastLoved, unlove: unloveLast, love: loveLast});
     }
     getLastLoved();
+    if (lastSong.info.albumLink) {
+      $("#resume").addClass("lastSongEnabled").unbind().click(bp.resumeLastSong.bind(window, lastSong));
+    }
   }
   
   function ratingModeWatcher(val) {
@@ -155,16 +162,18 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function ratingWatcher(val, old) {
-    renderRating(val, old);
-    //if song info does not change within 1s, also update list rating (otherwise the rating changed because of a new song)
-    clearTimeout(listRatingTimer);
-    listRatingTimer = setTimeout(function() {
-      var cur = $("#navlist.playlist .current");
-      if (cur.length > 0) {
-        cur.find(".rating").removeClass("r" + old).addClass("r" + val);
-        currentNavList.titleList[cur.data("index")].rating = val;
-      }
-    }, 1000);
+    if (!$("body").hasClass("hasLastSong")) {
+      renderRating(val);
+      //if song info does not change within 1s, also update list rating (otherwise the rating changed because of a new song)
+      clearTimeout(listRatingTimer);
+      listRatingTimer = setTimeout(function() {
+        var cur = $("#navlist.playlist .current");
+        if (cur.length > 0) {
+          cur.find(".rating").removeClass("r" + old).addClass("r" + val);
+          currentNavList.titleList[cur.data("index")].rating = val;
+        }
+      }, 1000);
+    }
   }
 
   function updateScrobblePosition(scrobbleTime) {

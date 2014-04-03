@@ -53,63 +53,63 @@
     }
   }
   
-  function withPlaylistCols(controlLink, index, callback) {
-    if (location.hash != controlLink) return callback([]);
-    var tbody = document.getElementsByClassName("song-table")[0];
-    if (tbody == null) return callback([]);
-    tbody = tbody.getElementsByTagName("tbody")[0];
-    if (index > tbody.dataset.count - 1) return callback([]);
-    function callForRow() {
-      var rows = document.getElementsByClassName("song-row");
-      var scrollToRow;
-      if (tbody.dataset.startIndex > index) scrollToRow = rows[0];
-      else if (tbody.dataset.endIndex - 1 < index) scrollToRow = rows[rows.length - 1];
-      if (scrollToRow) {
-        scrollToRow.scrollIntoView(true);
-        setTimeout(callForRow, 50);
-      } else {
-        callback(rows[index - tbody.dataset.startIndex].getElementsByTagName("td"));
-      }
-    }
-    callForRow();
+  function withPlaylistCols(index, callback) {
+    var main = document.getElementById("main");
+    if (!main) return callback([]);
+    var rows = main.getElementsByClassName("song-row");
+    if (!rows[0]) return callback([]);
+    index = index - rows[0].dataset.index;
+    if (index < 0 || index > rows.length - 1) return callback([]);
+    callback(rows[index].getElementsByTagName("td"));
   }
   
   function sendPlaylistSongResult(msg, index) {
     window.postMessage({ type: "FROM_PRIMEPLAYER", msg: msg, index: index }, location.href);
   }
   
-  function startPlaylistSong(controlLink, index) {
-    withPlaylistCols(controlLink, index, function(cols) {
-      if (cols[0]) {
-        var span = cols[0].getElementsByClassName("content")[0];
-        if (span) {
-          dispatchMouseEvent("mouseover", span);
-          setTimeout(function() {
-            simClick(span.getElementsByClassName("hover-button")[0]);
-            sendPlaylistSongResult("playlistSongStarted", index);
-          }, 250);
-          return;
-        }
+  function startPlaylistRow(cols, success) {
+    if (!cols[0]) return false;
+    var span = cols[0].getElementsByClassName("content")[0];
+    if (span) {
+      dispatchMouseEvent("mouseover", span);
+      setTimeout(function() {
+        simClick(span.getElementsByClassName("hover-button")[0]);
+        success();
+      }, 250);
+      return true;
+    }
+    return false;
+  }
+  
+  function startPlaylistSong(options) {
+    withPlaylistCols(options.index, function(cols) {
+      if (!startPlaylistRow(cols, sendPlaylistSongResult.bind(window, "playlistSongStarted", options.index))) {
+        sendPlaylistSongResult("playlistSongError", options.index);
       }
-      sendPlaylistSongResult("playlistSongError", index);
     });
   }
   
-  function ratePlaylistSong(controlLink, index, rating) {
-    withPlaylistCols(controlLink, index, function(cols) {
+  function resumePlaylistSong(options) {
+    withPlaylistCols(options.index, function(cols) {
+      startPlaylistRow(cols, function() {
+        if (options.position > 0) setTimeout(setPositionPercent.bind(window, "slider", options.position), 1000);
+      });
+    });
+  }
+  
+  function ratePlaylistSong(options) {
+    withPlaylistCols(options.index, function(cols) {
       for (var i = cols.length - 1; i >= 0; i--) {
         if (cols[i].dataset.col == "rating") {
           dispatchMouseEvent("mouseover", cols[i]);
           setTimeout(function() {
-            rate(cols[i], rating);
-            setTimeout(function() {
-              sendPlaylistSongResult("playlistSongRated", index);
-            }, 250);
+            rate(cols[i], options.rating);
+            setTimeout(sendPlaylistSongResult.bind(window, "playlistSongRated", options.index), 250);
           }, 250);
           return;
         }
       }
-      sendPlaylistSongResult("playlistSongError", index);
+      sendPlaylistSongResult("playlistSongError", options.index);
     });
   }
   
@@ -168,10 +168,13 @@
         clickFeelingLucky();
         break;
       case "startPlaylistSong":
-        startPlaylistSong(event.data.options.link, event.data.options.index);
+        startPlaylistSong(event.data.options);
+        break;
+      case "resumePlaylistSong":
+        resumePlaylistSong(event.data.options);
         break;
       case "ratePlaylistSong":
-        ratePlaylistSong(event.data.options.link, event.data.options.index, event.data.options.rating);
+        ratePlaylistSong(event.data.options);
         break;
       case "cleanup":
         cleanup();

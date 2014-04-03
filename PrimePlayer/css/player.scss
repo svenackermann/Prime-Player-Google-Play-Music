@@ -778,7 +778,7 @@ a {
 
 #resume {
   opacity: 0.2;
-  &.enabled {
+  &.enabled, &.lastSongEnabled {
     cursor: pointer;
     opacity: 1;
   }
