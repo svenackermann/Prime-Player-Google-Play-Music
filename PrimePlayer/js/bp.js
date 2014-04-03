@@ -1290,7 +1290,7 @@ song.addListener("info", function(val) {
   positionFromBackup = false;
   if (val) {
     song.info.durationSec = parseSeconds(val.duration);
-    if (player.playing) toastPopup();
+    toastPopup();
     if (!settings.hideRatings) getLovedInfo();
   } else {
     song.timestamp = null;
