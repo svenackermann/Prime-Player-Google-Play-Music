@@ -605,7 +605,7 @@ $(function() {
   }
   
   function resumeSong(msg, error) {
-    if (error || location.hash.substr(2) != msg.albumLink) return;
+    if (error) return;
     function sendResume() {
       var rows = $("#main .song-row");
       if (rows.length > 0) {
