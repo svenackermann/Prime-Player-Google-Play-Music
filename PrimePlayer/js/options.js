@@ -259,6 +259,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initIconStyle();
     initCheckbox("showPlayingIndicator");
     initCheckbox("showRatingIndicator");
+    initCheckbox("saveLastPosition");
+    initHint("saveLastPosition");
     initCheckbox("iconClickMiniplayer").click(function() {
       if (bp.settings.iconClickMiniplayer) {
         bp.settings.iconClickPlayPause = false;
