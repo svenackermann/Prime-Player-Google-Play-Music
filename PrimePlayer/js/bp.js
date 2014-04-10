@@ -9,6 +9,7 @@
 var LOCAL_SETTINGS_DEFAULTS = {
   lastfmSessionKey: null,
   lastfmSessionName: null,
+  googleAccountNo: 0,
   syncSettings: false,
   lyrics: false,
   lyricsFontSize: 11,
@@ -1041,6 +1042,7 @@ function openGoogleMusicTab(link) {
     chrome.tabs.update(googlemusictabId, {active: true});
   } else {
     var url = "http://play.google.com/music/listen";
+    if (localSettings.googleAccountNo) url += "?u=" + localSettings.googleAccountNo;
     if (typeof(link) == "string") url += "#/" + link;
     chrome.tabs.create({url: url, pinned: settings.openGoogleMusicPinned});
   }
