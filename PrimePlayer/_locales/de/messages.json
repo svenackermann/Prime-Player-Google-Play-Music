@@ -237,6 +237,12 @@
   "setting_openGoogleMusicPinned": {
     "message": "Google Music in einem angehefteten Tab \u00F6ffnen"
   },
+  "setting_googleAccountNo": {
+    "message": "Index des zu \u00F6ffnenden Google Kontos"
+  },
+  "setting_googleAccountNoHint": {
+    "message": "Wenn du mit mehreren Google Konten angemeldet bist, kannst du hier den Index des Kontos zum \u00D6ffnen von Google Music einstellen (bei 0 beginnend). '0' \u00F6ffnet immer das Standard-Konto, was auch die korrekte Einstellung ist, wenn du nur mit einem Konto angemeldet bist"
+  },
   "setting_syncSettings": {
     "message": "Einstellungen mit Chrome sync synchronisieren"
   },

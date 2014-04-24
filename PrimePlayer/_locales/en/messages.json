@@ -316,6 +316,14 @@
     "message": "Open Google Music in a pinned tab",
     "description": "label for option to open Google Music in a pinned tab"
   },
+  "setting_googleAccountNo": {
+    "message": "Index of Google account to open",
+    "description": "label for option to select Google account number"
+  },
+  "setting_googleAccountNoHint": {
+    "message": "If you are logged in with multiple Google accounts, you can choose the (zero-based) index of the account to open Google Music with here. '0' always opens the default account, which is fine if you don't use multiple accounts.",
+    "description": "hint for option to select Google account number"
+  },
   "setting_syncSettings": {
     "message": "Sync settings with Chrome sync",
     "description": "label for option to sync settings"

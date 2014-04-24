@@ -9,15 +9,16 @@
 var LOCAL_SETTINGS_DEFAULTS = {
   lastfmSessionKey: null,
   lastfmSessionName: null,
+  googleAccountNo: 0,
   syncSettings: false,
   lyrics: false,
   lyricsFontSize: 11,
   lyricsWidth: 250,
   miniplayerSizing: {
-    normal:   { width: 270, height: 115, left: 0, top: 0 },
-    compact1: { width: 265, height: 80, left: 0, top: 0 },
-    compact2: { width: 195, height: 125, left: 0, top: 0 },
-    hbar:     { width: 515, height: 30,  left: 0, top: 0 }
+    normal:   { width: 286, height: 153, left: 0, top: 0 },
+    compact1: { width: 281, height: 118, left: 0, top: 0 },
+    compact2: { width: 211, height: 163, left: 0, top: 0 },
+    hbar:     { width: 531, height: 68,  left: 0, top: 0 }
   },
   playlistsListSizing: {width: 350, height: 320},
   playlistSizing: {width: 500, height: 295},
@@ -870,21 +871,8 @@ function miniplayerClosed(winId) {
   }
 }
 
-/** @return the saved size and position settings for the miniplayer of current type and layout */
-function getMiniplayerSizing() {
-  var addToHeight = {normal: 113, popup: 38, panel: 36, detached_panel: 36};
-  var addToWidth = {normal: 16, popup: 16, panel: 0, detached_panel: 0};
-  var sizing = localSettings.miniplayerSizing[settings.layout];
-  return {
-    height: sizing.height + addToHeight[settings.miniplayerType],
-    width: sizing.width + addToWidth[settings.miniplayerType],
-    top: sizing.top,
-    left: sizing.left
-  };
-}
-
 function createPlayer(type, callback, focused) {
-  var sizing = getMiniplayerSizing();
+  var sizing = localSettings.miniplayerSizing[settings.layout];
   chrome.windows.create({
       url: chrome.extension.getURL("player.html") + "?type=" + type,
       height: sizing.height,
@@ -1041,6 +1029,7 @@ function openGoogleMusicTab(link) {
     chrome.tabs.update(googlemusictabId, {active: true});
   } else {
     var url = "http://play.google.com/music/listen";
+    if (localSettings.googleAccountNo) url += "?u=" + localSettings.googleAccountNo;
     if (typeof(link) == "string") url += "#/" + link;
     chrome.tabs.create({url: url, pinned: settings.openGoogleMusicPinned});
   }
@@ -1096,7 +1085,7 @@ settings.watch("miniplayerType", function(val) {
 });
 settings.addListener("layout", function() {
   if (miniplayer) {
-    var sizing = getMiniplayerSizing();
+    var sizing = localSettings.miniplayerSizing[settings.layout];
     chrome.windows.update(miniplayer.id, {
         height: sizing.height,
         width: sizing.width
