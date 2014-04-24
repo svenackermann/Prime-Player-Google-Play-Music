@@ -222,25 +222,25 @@ chrome.runtime.getBackgroundPage(function(bp) {
       clearTimeout(timerId);
       timerId = setTimeout(function() {
         if (document.webkitHidden) return;//do not save size of minimized window
+        var sizingSetting;
         if ($("#player").is(":visible")) {
           var sizing = bp.localSettings.miniplayerSizing;
-          sizing[bp.settings.layout].width = window.innerWidth;
-          sizing[bp.settings.layout].height = window.innerHeight;
+          sizing[bp.settings.layout].width = window.outerWidth;
+          sizing[bp.settings.layout].height = window.outerHeight;
           bp.localSettings.miniplayerSizing = sizing;//trigger listener notification
         } else if ($("#nav").is(":visible")) {
           var type = $("#quicklinks").is(":visible") ? "quicklinks" : $("#navlist").attr("class");
-          var sizingSetting = type + "Sizing";
+          sizingSetting = type + "Sizing";
+        } else if ($("#lyrics").is(":visible")) {
+          sizingSetting = "lyricsSizing";
+        }
+        if (sizingSetting) {
           var sizing = bp.localSettings[sizingSetting];
           if (sizing) {
             sizing.width = window.outerWidth;
             sizing.height = window.outerHeight;
             bp.localSettings[sizingSetting] = sizing;//trigger listener notification
           }
-        } else if ($("#lyrics").is(":visible")) {
-          var sizing = bp.localSettings.lyricsSizing;
-          sizing.width = window.outerWidth;
-          sizing.height = window.outerHeight;
-          bp.localSettings.lyricsSizing = sizing;//trigger listener notification
         }
       }, 500);
     });
@@ -502,7 +502,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#navlist").empty();
     if (savedSizing) {
       resize(savedSizing);
-      window.moveTo(savedSizing.screenX, savedSizing.screenY);
+      var screenX = savedSizing.screenX;
+      var screenY = savedSizing.screenY;
+      setTimeout(function() { window.moveTo(screenX, screenY); }, 200);//on some machines moveTo is faster than resizeTo and then the move does not happen
       savedSizing = null;
     }
     navHistory = [];
@@ -727,6 +729,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.song.watch("loved", songLovedWatcher, typeClass);
     bp.song.watch("scrobbled", scrobbledWatcher, typeClass);
 
+    resize(bp.localSettings.miniplayerSizing[bp.settings.layout]);//try to restore saved size (chrome.windows.create does not always set the desired size)
     if (typeClass == "miniplayer" || typeClass == "toast") setupResizeMoveListeners();
     if (typeClass == "toast") setToastAutocloseTimer();
 
