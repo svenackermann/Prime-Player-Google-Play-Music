@@ -254,6 +254,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initHint("omitUnknownAlbums");
     initCheckbox("mpAutoOpen");
     initCheckbox("mpAutoClose");
+    initCheckbox("mpCloseGm");
     
     initLyrics();
     initCheckbox("openLyricsInMiniplayer");

@@ -392,6 +392,10 @@
     "message": "Automatically close miniplayer, when Google Music is closed",
     "description": "label for option to close miniplayer on Google Music close"
   },
+  "setting_mpCloseGm": {
+    "message": "Automatically close Google Music, when miniplayer is closed",
+    "description": "label for option to close Google Music on miniplayer close"
+  },
   "updateNotifierTitle": {
     "message": "Prime Player Updated",
     "description": "title for update notification"

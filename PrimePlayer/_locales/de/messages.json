@@ -294,6 +294,9 @@
   "setting_mpAutoClose": {
     "message": "Miniplayer automatisch schlie\u00DFen, wenn Google Music geschlossen wird"
   },
+  "setting_mpCloseGm": {
+    "message": "Google Music automatisch schlie\u00DFen, wenn Miniplayer geschlossen wird"
+  },
   "updateNotifierTitle": {
     "message": "Prime Player wurde aktualisiert"
   },

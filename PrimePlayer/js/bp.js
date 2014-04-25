@@ -57,6 +57,7 @@ var SETTINGS_DEFAULTS = {
   omitUnknownAlbums: false,
   mpAutoOpen: false,
   mpAutoClose: false,
+  mpCloseGm: false,
   openLyricsInMiniplayer: true,
   lyricsInGpm: false,
   lyricsAutoReload: false,
@@ -869,6 +870,7 @@ function miniplayerClosed(winId) {
     chrome.windows.onRemoved.removeListener(miniplayerClosed);
     miniplayer = null;
     if (miniplayerReopen) openMiniplayer();
+    else if (settings.mpCloseGm && googlemusictabId) chrome.tabs.remove(googlemusictabId);
     miniplayerReopen = false;
   }
 }
