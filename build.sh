@@ -1,3 +1,4 @@
+#!/bin/bash
 git diff --exit-code --quiet && git diff --exit-code --cached --quiet
 if [ $? -ne 0 ];
 then
@@ -27,3 +28,4 @@ cd ..
 
 git checkout -q develop
 echo "Back on branch develop"
+
