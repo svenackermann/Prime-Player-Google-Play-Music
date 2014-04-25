@@ -162,7 +162,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function iconClickChanged() {
-    $("#iconDoubleClickTime").prop("disabled", !bp.settings.iconClickPlayPause && !bp.settings.iconClickMiniplayer);
+    if (!bp.settings.iconClickAction0) bp.settings.iconClickAction1 = "";
+    if (!bp.settings.iconClickAction1) bp.settings.iconClickAction2 = "";
+    if (!bp.settings.iconClickAction2) bp.settings.iconClickAction3 = "";
+    var ict = $("#iconDoubleClickTime").prop("disabled", !bp.settings.iconClickAction0).val();
+    $("#iconClickAction1").prop("disabled", !bp.settings.iconClickAction0 || ict == 0).val(bp.settings.iconClickAction1);
+    $("#iconClickAction2").prop("disabled", !bp.settings.iconClickAction1 || ict == 0).val(bp.settings.iconClickAction2);
+    $("#iconClickAction3").prop("disabled", !bp.settings.iconClickAction2 || ict == 0).val(bp.settings.iconClickAction3);
   }
   
   /** @return version from a class attribute (e.g. for an element with class "abc v-1.2.3 def" this returns "1.2.3") */
@@ -194,6 +200,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#legendToasting").text(chrome.i18n.getMessage("toastingSettings"));
     $("#legendMp").text(chrome.i18n.getMessage("mpSettings"));
     $("#legendLf").text(chrome.i18n.getMessage("lfSettings"));
+    $("#legendIc").text(chrome.i18n.getMessage("icSettings"));
     $("#legendLyrics").text(chrome.i18n.getMessage("lyricsSettings"));
     $("#lastfmStatus").find("span").text(chrome.i18n.getMessage("lastfmUser"));
     var bugfeatureinfo = chrome.i18n.getMessage("bugfeatureinfo", "<a target='_blank' href='https://github.com/svenrecknagel/Prime-Player-Google-Play-Music/issues' data-network='github' data-action='issue'>GitHub</a>");
@@ -261,21 +268,22 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("showRatingIndicator");
     initCheckbox("saveLastPosition");
     initHint("saveLastPosition");
-    initCheckbox("iconClickMiniplayer").click(function() {
-      if (bp.settings.iconClickMiniplayer) {
-        bp.settings.iconClickPlayPause = false;
-        $("#iconClickPlayPause").prop("checked", false);
-      }
-      iconClickChanged();
-    });
-    initCheckbox("iconClickPlayPause").click(function() {
-      if (bp.settings.iconClickPlayPause) {
-        bp.settings.iconClickMiniplayer = false;
-        $("#iconClickMiniplayer").prop("checked", false);
-      }
-      iconClickChanged();
-    });
-    initNumberInput("iconDoubleClickTime");
+    initSelect("iconClickAction0")
+      .append($("#toastClick").children().clone())
+      .val(bp.settings.iconClickAction0)
+      .change(iconClickChanged);
+    initSelect("iconClickAction1")
+      .append($("#toastClick").children().clone())
+      .val(bp.settings.iconClickAction1)
+      .change(iconClickChanged);
+    initSelect("iconClickAction2")
+      .append($("#toastClick").children().clone())
+      .val(bp.settings.iconClickAction2)
+      .change(iconClickChanged);
+    initSelect("iconClickAction3")
+      .append($("#toastClick").children().clone())
+      .val(bp.settings.iconClickAction3);
+    initNumberInput("iconDoubleClickTime").change(iconClickChanged);
     initHint("iconDoubleClickTime");
     initCheckbox("iconClickConnect");
     initCheckbox("openGoogleMusicPinned");

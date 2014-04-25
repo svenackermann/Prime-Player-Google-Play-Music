@@ -207,24 +207,32 @@
     "message": "Horizontal bar",
     "description": "text for miniplayer layout option 'horizontal bar'"
   },
-  "setting_iconClickMiniplayer": {
-    "message": "Open miniplayer directly on icon click",
-    "description": "label for option to open miniplayer on browser icon click"
+  "setting_iconClickAction0": {
+    "message": "Action for single click",
+    "description": "label for option to choose action for 1st browser icon click"
   },
-  "setting_iconClickPlayPause": {
-    "message": "Play/pause current song on icon click",
-    "description": "label for option to play/pause current song on browser icon click"
+  "setting_iconClickAction1": {
+    "message": "Action for double click",
+    "description": "label for option to choose action for 2nd browser icon click"
+  },
+  "setting_iconClickAction2": {
+    "message": "Action for triple click",
+    "description": "label for option to choose action for 3rd browser icon click"
+  },
+  "setting_iconClickAction3": {
+    "message": "Action for 4 clicks",
+    "description": "label for option to choose action for 4th browser icon click"
   },
   "setting_iconDoubleClickTime": {
-    "message": "Icon double click speed in ms (0=disabled)",
-    "description": "label for option to change the browser icon double click speed"
+    "message": "Click speed in ms (0=disabled)",
+    "description": "label for option to change the browser icon click speed"
   },
   "setting_iconDoubleClickTimeHint": {
-    "message": "Set to a value greater than 0 (recommended: 500) to open the popup (instead of executing the action selected above) when the browser icon is double clicked.",
-    "description": "hint for option to change the browser icon double click speed"
+    "message": "Set to a value greater than 0 (recommended: 500) to enable more click actions above. After all enabled actions the popup will be opened, so if you don't enable any action a click will just show the popup.",
+    "description": "hint for option to change the browser icon click speed"
   },
   "setting_iconClickConnect": {
-    "message": "Always open Google Music first on icon click, if not opened yet",
+    "message": "Always open Google Music first on click, if not opened yet",
     "description": "label for option to open Google Music on browser icon click"
   },
   "connected": {
@@ -246,6 +254,10 @@
   "lfSettings": {
     "message": "Look and feel",
     "description": "title for the look and feel settings on options page"
+  },
+  "icSettings": {
+    "message": "Browser icon click",
+    "description": "title for the icon click settings on options page"
   },
   "lyricsSettings": {
     "message": "Lyrics settings",

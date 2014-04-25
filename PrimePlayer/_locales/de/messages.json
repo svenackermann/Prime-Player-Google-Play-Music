@@ -155,20 +155,26 @@
   "setting_layout_hbar": {
     "message": "Horizontale Leiste"
   },
-  "setting_iconClickMiniplayer": {
-    "message": "Beim Klick auf das Symbol Miniplayer direkt \u00F6ffnen"
+  "setting_iconClickAction0": {
+    "message": "Aktion bei Einfach-Klick"
   },
-  "setting_iconClickPlayPause": {
-    "message": "Beim Klick auf das Symbol Wiedergabe pausieren/fortsetzen"
+  "setting_iconClickAction1": {
+    "message": "Aktion bei Doppel-Klick"
+  },
+  "setting_iconClickAction2": {
+    "message": "Aktion bei Dreifach-Klick"
+  },
+  "setting_iconClickAction3": {
+    "message": "Aktion bei Vierfach-Klick"
   },
   "setting_iconDoubleClickTime": {
-    "message": "Doppelklick-Geschwindigkeit f\u00FCr das Symbol in ms (0=deaktiviert)"
+    "message": "Klick-Geschwindigkeit f\u00FCr in ms (0=deaktiviert)"
   },
   "setting_iconDoubleClickTimeHint": {
-    "message": "Bei einem Wert gr\u00F6\u00DFer als 0 (empfohlen: 500) wird bei Doppelklick auf das Symbol das Browser-Popup ge\u00F6ffnet anstatt die oben ausgew\u00E4hlte Aktion auszuf\u00FChren."
+    "message": "Setze dies auf einen Wert gr\u00F6\u00DFer als 0 (empfohlen: 500), um weitere Klick-Aktion oben zu aktivieren. Nachdem alle ausgew\u00E4hlten Aktion \u00FCbersprungen wurden, wird das Browser-Popup ge\u00F6ffnet. Wenn keine Aktionen aktiviert sind, wird somit immer nur das Browser-Popup ge\u00F6ffnet."
   },
   "setting_iconClickConnect": {
-    "message": "Beim Klick auf das Symbol immer erst Google Music \u00F6ffnen, wenn nicht bereits ge\u00F6ffnet"
+    "message": "Beim Klick immer erst Google Music \u00F6ffnen, wenn nicht bereits ge\u00F6ffnet"
   },
   "connected": {
     "message": "Dieser Tab ist mit Prime Player verbunden. Zum Trennen klicken."
@@ -184,6 +190,9 @@
   },
   "lfSettings": {
     "message": "Aussehen und Verhalten"
+  },
+  "icSettings": {
+    "message": "Browser-Symbol Klick"
   },
   "lyricsSettings": {
     "message": "Songtexte Einstellungen"
