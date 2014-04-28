@@ -139,8 +139,6 @@
     if (event.source != window || event.data.type != "FROM_PRIMEPLAYER" || !event.data.command) return;
     switch (event.data.command) {
       case "playPause":
-      case "toggleRepeat":
-      case "toggleShuffle":
         SJBpost(event.data.command);
         break;
       case "nextSong":
@@ -148,6 +146,12 @@
         break;
       case "prevSong":
         clickPlayerButton("rewind");
+        break;
+      case "toggleRepeat":
+        clickPlayerButton("repeat");
+        break;
+      case "toggleShuffle":
+        clickPlayerButton("shuffle");
         break;
       case "rate":
         rate(document.getElementById("player-right-wrapper"), event.data.options.rating);
