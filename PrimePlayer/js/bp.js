@@ -36,6 +36,7 @@ var SETTINGS_DEFAULTS = {
   scrobbleTime: 240,
   scrobbleMaxDuration: 30,
   disableScrobbleOnFf: false,
+  scrobbleRepeated: true,
   linkRatings: false,
   showLovedIndicator: false,
   showScrobbledIndicator: true,
@@ -1254,9 +1255,11 @@ song.addListener("position", function(val) {
     positionFromBackup = false;
     if (song.positionSec == 2) {//new song, repeat single or rewinded
       song.nowPlayingSent = false;
-      song.scrobbled = false;
-      calcScrobbleTime();
       song.timestamp = Math.round(new Date().getTime() / 1000) - 2;
+      if (settings.scrobbleRepeated) {
+        song.scrobbled = false;
+        calcScrobbleTime();
+      }
     }
     if (song.positionSec >= 3 && isScrobblingEnabled()) {
       if (!song.nowPlayingSent) {

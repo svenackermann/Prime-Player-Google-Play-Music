@@ -218,6 +218,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initNumberInput("scrobbleMaxDuration");
     initCheckbox("disableScrobbleOnFf");
     initHint("disableScrobbleOnFf");
+    initCheckbox("scrobbleRepeated");
     initCheckbox("linkRatings");
     initHint("linkRatings");
     initCheckbox("showLovedIndicator");

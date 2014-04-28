@@ -107,6 +107,9 @@
   "setting_disableScrobbleOnFfHint": {
     "message": "Scrobbelt den aktuellen Titel nicht mehr, nachdem er (mind. f\u00FCnf Sekunden) vorgespult wurde. N\u00FCtzlich, wenn man nur eine bestimmte Stelle in einem Titel sucht. Ansonsten wird der Titel gescrobbelt, sobald er die rote Scrobbel-Marke \u00FCberschreitet."
   },
+  "setting_scrobbleRepeated": {
+    "message": "Scrobbel Titel erneut wenn wiederholt gespielt"
+  },
   "setting_linkRatings": {
     "message": "Bewertungen verkn\u00FCpfen"
   },
