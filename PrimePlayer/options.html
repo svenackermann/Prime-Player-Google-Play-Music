@@ -40,6 +40,10 @@
         <label for="disableScrobbleOnFf"></label>
         <img src="img/hint.png" class="hint"></img>
       </div>
+      <div class="v-2.15">
+        <input id="scrobbleRepeated" type="checkbox"/>
+        <label for="scrobbleRepeated"></label>
+      </div>
       <div class="v-1.2">
         <input id="linkRatings" type="checkbox"/>
         <label for="linkRatings"></label>
@@ -188,6 +192,10 @@
         <input id="mpAutoClose" type="checkbox"/>
         <label for="mpAutoClose"></label>
       </div>
+      <div class="v-2.15">
+        <input id="mpCloseGm" type="checkbox"/>
+        <label for="mpCloseGm"></label>
+      </div>
     </fieldset>
     <fieldset>
       <legend id="legendLyrics"></legend>
@@ -249,23 +257,34 @@
         <label for="saveLastPosition"></label>
         <img src="img/hint.png" class="hint"></img>
       </div>
-      <div>
-        <input id="iconClickMiniplayer" type="checkbox"/>
-        <label for="iconClickMiniplayer"></label>
-      </div>
-      <div class="v-2.5">
-        <input id="iconClickPlayPause" type="checkbox"/>
-        <label for="iconClickPlayPause"></label>
-      </div>
-      <div class="v-2.12">
-        <input id="iconDoubleClickTime" type="number" min="0" max="1000"/>
-        <label for="iconDoubleClickTime"></label>
-        <img src="img/hint.png" class="hint"></img>
-      </div>
-      <div>
-        <input id="iconClickConnect" type="checkbox"/>
-        <label for="iconClickConnect"></label>
-      </div>
+      <fieldset>
+        <legend id="legendIc"></legend>
+        <div class="v-2.15">
+          <select id="iconClickAction0"></select>
+          <label for="iconClickAction0"></label>
+        </div>
+        <div class="v-2.15">
+          <select id="iconClickAction1"></select>
+          <label for="iconClickAction1"></label>
+        </div>
+        <div class="v-2.15">
+          <select id="iconClickAction2"></select>
+          <label for="iconClickAction2"></label>
+        </div>
+        <div class="v-2.15">
+          <select id="iconClickAction3"></select>
+          <label for="iconClickAction3"></label>
+        </div>
+        <div class="v-2.15">
+          <input id="iconDoubleClickTime" type="number" min="0" max="1000"/>
+          <label for="iconDoubleClickTime"></label>
+          <img src="img/hint.png" class="hint"></img>
+        </div>
+        <div>
+          <input id="iconClickConnect" type="checkbox"/>
+          <label for="iconClickConnect"></label>
+        </div>
+      </fieldset>
       <div class="v-1.1">
         <input id="openGoogleMusicPinned" type="checkbox"/>
         <label for="openGoogleMusicPinned"></label>
@@ -331,6 +350,14 @@
       <label for="cl-B">B</label>
       <input title="Show/hide versions" id="cl-V" type="checkbox" checked/>
       <label for="cl-V">V</label>
+      <div class="v-2.15">
+        <ul>
+          <li class="F">Options to customize actions for clicks on browser icon</li>
+          <li class="F">Option to close Google Music with miniplayer</li>
+          <li class="F">Option to disable scrobbling of repeated songs</li>
+          <li class="B">Fixed toggle repeat/shuffle after change on Google site</li>
+        </ul>
+      </div>
       <div class="v-2.14">
         <ul>
           <li class="F">Option to choose Google account</li>
