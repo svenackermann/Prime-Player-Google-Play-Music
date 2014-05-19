@@ -433,7 +433,7 @@ $(function() {
     item.album = $.trim(album.find(".content").text());
     var alAr = album.data("album-artist") || "";
     var alId = album.data("matched-id") || "";
-    if (alId || (item.album && alAr)) item.albumLink = "album/" + forHash(alId) + "/" + forHash(alAr) + "/" + forHash(item.album);
+    if (alId || item.album) item.albumLink = "album/" + forHash(alId) + "/" + forHash(alAr) + "/" + forHash(item.album);
     var duration = $.trim(song.find("td[data-col='duration']").text());
     if (/^\d\d?(\:\d\d)*$/.test(duration)) item.duration = duration;//no real duration on recommandation page
     return item;
