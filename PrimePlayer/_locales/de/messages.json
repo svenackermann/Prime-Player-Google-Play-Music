@@ -243,7 +243,7 @@
     "message": "Zum Wiederverbinden hier klicken."
   },
   "bugfeatureinfo": {
-    "message": "Wenn du Fehler findest oder Ideen f\u00FCr neue Funktionen hast, lege bitte einen Issue auf $GITHUB$ an oder - noch besser - sende mir einen Pull-Request.",
+    "message": "Wenn du Fehler findest oder Ideen f\u00FCr neue Funktionen hast, lege bitte einen Vorgang auf $GITHUB$ an oder - noch besser - sende mir einen Pull-Request.",
     "placeholders": { "GITHUB": { "content": "$1" } }
   },
   "setting_openGoogleMusicPinned": {
