@@ -376,6 +376,10 @@
     "message": "Saves the last played song with its position (locally), so you know where you left off before closing Google Music. The last song will be displayed in the miniplayer like a normal song with some limitations. The play button will try to load the song's album and resume the song at its last position. Unfortunately, it's not possible to restore your last queue or playlist on restart.",
     "description": "hint for option to save last song position"
   },
+  "setting_skipDislikedSongs": {
+    "message": "Skip songs rated thumbs down/1 star",
+    "description": "label for option to skip songs that were rated thumbs doen or 1 star"
+  },
   "setting_hideRatings": {
     "message": "Hide rating icons (last.fm and thumbs/stars)",
     "description": "label for option to hide ratings"

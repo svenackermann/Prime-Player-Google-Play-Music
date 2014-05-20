@@ -270,6 +270,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("showRatingIndicator");
     initCheckbox("saveLastPosition");
     initHint("saveLastPosition");
+    initCheckbox("skipDislikedSongs");
     initSelect("iconClickAction0")
       .append($("#toastClick").children().clone())
       .val(bp.settings.iconClickAction0)
