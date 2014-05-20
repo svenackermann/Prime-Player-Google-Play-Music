@@ -282,6 +282,9 @@
   "setting_saveLastPositionHint": {
     "message": "Speichert den letzten Titel (lokal) mit der aktuellen Position, um immer zu wissen, was man vor dem Beenden von Google Music geh\u00F6rt hat. Der letzte Titel wird im Miniplayer wie ein normaler Titel mit einigen Einschr\u00E4nkungen angezeigt. Der Play-Button versucht, das Album des Titels zu laden und den Titel an der letzten Position fortzusetzen. Leider ist es nicht m\u00F6glich, die letzte Wiedergabeliste beim Neustart wiederherzustellen."
   },
+  "setting_skipDislikedSongs": {
+    "message": "\u00DCberspringe Titel, die mit Daumen runter/1 Stern bewertet wurden"
+  },
   "setting_hideRatings": {
     "message": "Bewertungs-Symbole verstecken (last.fm und Daumen/Sterne)"
   },

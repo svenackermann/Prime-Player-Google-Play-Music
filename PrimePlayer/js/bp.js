@@ -66,6 +66,7 @@ var SETTINGS_DEFAULTS = {
   showPlayingIndicator: true,
   showRatingIndicator: false,
   saveLastPosition: false,
+  skipDislikedSongs: false,
   iconClickAction0: "",
   iconClickAction1: "",
   iconClickAction2: "",
@@ -1254,14 +1255,17 @@ song.addListener("position", function(val) {
     }
     positionFromBackup = false;
     if (song.positionSec == 2) {//new song, repeat single or rewinded
+      if (settings.skipDislikedSongs && (song.rating == 1 || (song.rating == 2 && player.ratingMode == "thumbs"))) {
+        executeInGoogleMusic("nextSong");
+        return;
+      }
       song.nowPlayingSent = false;
       song.timestamp = Math.round(new Date().getTime() / 1000) - 2;
       if (settings.scrobbleRepeated) {
         song.scrobbled = false;
         calcScrobbleTime();
       }
-    }
-    if (song.positionSec >= 3 && isScrobblingEnabled()) {
+    } else if (song.positionSec >= 3 && isScrobblingEnabled()) {
       if (!song.nowPlayingSent) {
         song.nowPlayingSent = true;
         sendNowPlaying();
