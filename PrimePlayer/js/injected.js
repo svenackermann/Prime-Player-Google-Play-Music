@@ -139,7 +139,7 @@
     if (event.source != window || event.data.type != "FROM_PRIMEPLAYER" || !event.data.command) return;
     switch (event.data.command) {
       case "playPause":
-        SJBpost(event.data.command);
+        clickPlayerButton("play-pause");
         break;
       case "nextSong":
         clickPlayerButton("forward");
