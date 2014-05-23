@@ -163,6 +163,10 @@
     "message": "Show scrobbled status in icon",
     "description": "label for option to enable scrobbled status in icon"
   },
+  "setting_showLastfmInfo": {
+    "message": "Show last.fm info in miniplayer (resize to see them)",
+    "description": "label for option to show last.fm info in miniplayer"
+  },
   "setting_miniplayerType": {
     "message": "Type for the miniplayer",
     "description": "label for option to change the miniplayer type"
@@ -703,5 +707,20 @@
   "loadLyrics": {
     "message": "Loading lyrics...",
     "description": "title for lyrics panel in Google Music while loading"
+  },
+  "lastfmInfo_userplaycount": {
+    "message": "scrobbled $COUNT$ times",
+    "description": "text for user scrobble count on last.fm (shown in tooltip/info area)",
+    "placeholders": { "COUNT": { "content": "$1", "example": "12" } }
+  },
+  "lastfmInfo_playcount": {
+    "message": "total scrobbles: $COUNT$",
+    "description": "text for total scrobble count on last.fm (shown in tooltip/info area)",
+    "placeholders": { "COUNT": { "content": "$1", "example": "12" } }
+  },
+  "lastfmInfo_listeners": {
+    "message": "$COUNT$ listeners",
+    "description": "text for total listeners count on last.fm (shown in tooltip/info area)",
+    "placeholders": { "COUNT": { "content": "$1", "example": "12" } }
   }
 }

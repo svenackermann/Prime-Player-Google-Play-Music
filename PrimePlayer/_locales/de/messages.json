@@ -122,6 +122,9 @@
   "setting_showScrobbledIndicator": {
     "message": "Zeige 'gescrobbelt'-Status im Symbol"
   },
+  "setting_showLastfmInfo": {
+    "message": "Zeige last.fm Daten im Miniplayer (vergr\u00F6\u00DFern zum Einblenden)"
+  },
   "setting_miniplayerType": {
     "message": "Typ f\u00FCr den Miniplayer"
   },
@@ -528,5 +531,17 @@
   },
   "loadLyrics": {
     "message": "Lade Songtext..."
+  },
+  "lastfmInfo_userplaycount": {
+    "message": "$COUNT$ mal gescrobbelt",
+    "placeholders": { "COUNT": { "content": "$1" } }
+  },
+  "lastfmInfo_playcount": {
+    "message": "$COUNT$ Scrobbels gesamt",
+    "placeholders": { "COUNT": { "content": "$1" } }
+  },
+  "lastfmInfo_listeners": {
+    "message": "$COUNT$ H\u00F6rer gesamt",
+    "placeholders": { "COUNT": { "content": "$1" } }
   }
 }

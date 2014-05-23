@@ -285,6 +285,9 @@
   #time {
     margin-top: 2px;
   }
+  #lastfmInfo {
+    font-size: 10px;
+  }
 }
 
 .layout-compact2 {
@@ -361,6 +364,11 @@
   }
   #volumeBarContainer {
     top: 20px;
+  }
+  #lastfmInfo {
+    position: relative;
+    top: 40px;
+    font-size: 10px;
   }
 }
 
@@ -446,5 +454,12 @@
     position: relative;
     top: -28px;
     left: 14px;
+  }
+  #lastfmInfo {
+    font-size: 10px;
+    > div {
+      float: left;
+      width: 150px;
+    }
   }
 }
