@@ -301,7 +301,7 @@ a {
 }
 
 .lastfm {
-  #lastfmUser, #lastfmRating {
+  #lastfmUser, #lastfmRating, #lastfmInfo.enabled {
     display: block;
   }
 }
@@ -849,6 +849,17 @@ a#volume {
 
 #volumeBar {
   height: inherit;
+}
+
+#lastfmInfo {
+  display: none;
+  font-weight: bold;
+  margin-top: 5px;
+  margin-left: 2px;
+  color: grey;
+  &.hasInfo {
+    color: black;
+  }
 }
 
 @import "layouts"

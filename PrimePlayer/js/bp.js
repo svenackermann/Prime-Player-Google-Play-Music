@@ -40,6 +40,7 @@ var SETTINGS_DEFAULTS = {
   linkRatings: false,
   showLovedIndicator: false,
   showScrobbledIndicator: true,
+  showLastfmInfo: false,
   toast: true,
   toastUseMpStyle: false,
   toastDuration: 5,
@@ -120,6 +121,7 @@ var SONG_DEFAULTS = {
   info: null,
   rating: -1,
   loved: null,
+  lastfmInfo: null,
   nowPlayingSent: false,
   scrobbled: false,
   toasted: false,
@@ -588,20 +590,32 @@ function getLoved(songInfo, callback) {
       },
       {
         success: function(response) {
-          callback(response.track != null && response.track.userloved == 1);
+          var lastfmInfo = null;
+          if (response.track) {
+            lastfmInfo = {
+              listeners: response.track.listeners || 0,
+              playcount: response.track.playcount || 0,
+              userplaycount: response.track.userplaycount || 0
+            };
+          }
+          callback(response.track != null && response.track.userloved == 1, lastfmInfo);
         },
         error: function(code, msg) {
-          callback(msg);
+          callback(msg, null);
           gaEvent("LastFM", "getInfoError-" + code);
         }
       }
     );
-  } else callback(null);
+  } else callback(null, null);
 }
 
 function getLovedInfo() {
   song.loved = null;
-  getLoved(song.info, function(loved) { song.loved = loved; });
+  song.lastfmInfo = null;
+  getLoved(song.info, function(loved, lastfmInfo) {
+    song.loved = loved;
+    song.lastfmInfo = lastfmInfo;
+  });
 }
 
 function love(songInfo, callback) {
@@ -648,7 +662,7 @@ function unlove(songInfo, callback) {
 
 function unloveTrack() {
   song.loved = null;
-  love(song.info, function(loved) { song.loved = loved; });
+  unlove(song.info, function(loved) { song.loved = loved; });
 }
 
 /** open the last.fm authentication page */

@@ -137,8 +137,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     getLastLoved = updateLoved.bind(window, bp.getLoved);
     var unloveLast = updateLoved.bind(window, bp.unlove);
     var loveLast = updateLoved.bind(window, bp.love);
-    function renderLastLoved(loved) {
+    function renderLastLoved(loved, lastfmInfo) {
       renderSongLoved(loved, {getLoved: getLastLoved, unlove: unloveLast, love: loveLast});
+      renderLastfmInfo(lastfmInfo);
     }
     getLastLoved();
     if (lastSong.info.albumLink) {
@@ -190,6 +191,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function scrobbleWatcher(val) {
     $("body").toggleClass("scrobbleEnabled", val);
+  }
+  
+  function showLastfmInfoWatcher(val) {
+    $("#lastfmInfo").toggleClass("enabled", val);
   }
 
   function colorWatcher(val, old) {
@@ -630,19 +635,46 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
   }
 
+  function renderLastfmTitle(a) {
+    var title = a.data("msg") || "";
+    var lastfmInfo = a.data("lastfmInfo");
+    if (lastfmInfo) title += "\n" + lastfmInfo
+    a.attr("title", title);
+  }
+  
+  function renderLastfmInfo(lastfmInfo) {
+    var infoText = "";
+    if (lastfmInfo) {
+      infoText = chrome.i18n.getMessage("lastfmInfo_userplaycount", lastfmInfo.userplaycount + "")
+        + "\n" + chrome.i18n.getMessage("lastfmInfo_playcount", lastfmInfo.playcount + "")
+        + "\n" + chrome.i18n.getMessage("lastfmInfo_listeners", lastfmInfo.listeners + "");
+      $("#lastfmInfo").addClass("hasInfo")
+              .find(".userplaycount > span").text(lastfmInfo.userplaycount)
+        .end().find(".playcount > span").text(lastfmInfo.playcount)
+        .end().find(".listeners > span").text(lastfmInfo.listeners);
+    } else {
+      $("#lastfmInfo").removeClass("hasInfo").find("span").text("?");
+    }
+    
+    var a = $("#lastfmRating").find("a");
+    a.data("lastfmInfo", infoText);
+    renderLastfmTitle(a);
+  }
+  
   function renderSongLoved(loved, actions) {
     var rat = $("#lastfmRating").removeClass("loved notloved error");
     var a = rat.find("a").unbind();
     if (typeof(loved) == "string") {
       rat.addClass("error");
-      a.attr("title", chrome.i18n.getMessage("lastfmError") + loved).click(actions.getLoved);
+      a.data("msg", chrome.i18n.getMessage("lastfmError") + loved).click(actions.getLoved);
     } else if (loved === true) {
       rat.addClass("loved");
-      a.attr("title", chrome.i18n.getMessage("lastfmUnlove")).click(actions.unlove);
+      a.data("msg", chrome.i18n.getMessage("lastfmUnlove")).click(actions.unlove);
     } else if (loved === false) {
       rat.addClass("notloved");
-      a.attr("title", chrome.i18n.getMessage("lastfmLove")).click(actions.love);
+      a.data("msg", chrome.i18n.getMessage("lastfmLove")).click(actions.love);
     }
+    renderLastfmTitle(a);
   }
   
   function songLovedWatcher(loved) {
@@ -700,6 +732,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
       .data("text", chrome.i18n.getMessage("quicklinks"))
       .attr("title", chrome.i18n.getMessage("showQuicklinks"));
 
+    $("#lastfmInfo")
+            .find(".userplaycount").html(chrome.i18n.getMessage("lastfmInfo_userplaycount", "<span></span>"))
+      .end().find(".playcount").html(chrome.i18n.getMessage("lastfmInfo_playcount", "<span></span>"))
+      .end().find(".listeners").html(chrome.i18n.getMessage("lastfmInfo_listeners", "<span></span>"));
+
     setupNavigationEvents();
 
     bp.localSettings.watch("lastfmSessionName", lastfmUserWatcher, typeClass);
@@ -707,6 +744,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.localSettings.watch("lyricsFontSize", lyricsFontSizeWatcher, typeClass);
     
     bp.settings.watch("scrobble", scrobbleWatcher, typeClass);
+    bp.settings.watch("showLastfmInfo", showLastfmInfoWatcher, typeClass);
     bp.settings.watch("color", colorWatcher, typeClass);
     bp.settings.watch("coverClickLink", updateCoverClickLink, typeClass);
     bp.settings.watch("titleClickLink", updateTitleClickLink, typeClass);
@@ -727,6 +765,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.song.watch("rating", ratingWatcher, typeClass);
     bp.song.watch("scrobbleTime", updateScrobblePosition, typeClass);
     bp.song.watch("loved", songLovedWatcher, typeClass);
+    bp.song.watch("lastfmInfo", renderLastfmInfo, typeClass);
     bp.song.watch("scrobbled", scrobbledWatcher, typeClass);
 
     resize(bp.localSettings.miniplayerSizing[bp.settings.layout]);//try to restore saved size (chrome.windows.create does not always set the desired size)

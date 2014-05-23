@@ -223,6 +223,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initHint("linkRatings");
     initCheckbox("showLovedIndicator");
     initCheckbox("showScrobbledIndicator");
+    initCheckbox("showLastfmInfo");
     
     initCheckbox("toast").click(toastChanged);
     initHint("toast");
