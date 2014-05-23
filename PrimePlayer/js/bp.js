@@ -648,7 +648,7 @@ function unlove(songInfo, callback) {
 
 function unloveTrack() {
   song.loved = null;
-  love(song.info, function(loved) { song.loved = loved; });
+  unlove(song.info, function(loved) { song.loved = loved; });
 }
 
 /** open the last.fm authentication page */
