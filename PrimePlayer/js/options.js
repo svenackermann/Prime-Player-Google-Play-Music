@@ -39,8 +39,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function toastChanged() {
-    $("#toastUseMpStyle, #toastIfMpOpen").prop("disabled", !bp.settings.toast);
-    $("#toastDuration").prop("disabled", !bp.settings.toast || !bp.settings.toastUseMpStyle);
+    $("#toastUseMpStyle, #toastIfMpOpen, #toastDuration").prop("disabled", !bp.settings.toast);
     $("#toastClick, #toastButton1, #toastButton2").prop("disabled", !bp.settings.toast || bp.settings.toastUseMpStyle);
   }
   
@@ -227,9 +226,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     
     initCheckbox("toast").click(toastChanged);
     initHint("toast");
-    initCheckbox("toastUseMpStyle").click(toastChanged);
+    initCheckbox("toastUseMpStyle");
     initHint("toastUseMpStyle");
     initNumberInput("toastDuration");
+    initHint("toastDuration");
     initCheckbox("toastIfMpOpen");
     initSelect("toastClick", bp.getTextForToastBtn);
     initSelect("toastButton1")

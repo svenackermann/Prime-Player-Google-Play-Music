@@ -770,7 +770,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
     resize(bp.localSettings.miniplayerSizing[bp.settings.layout]);//try to restore saved size (chrome.windows.create does not always set the desired size)
     if (typeClass == "miniplayer" || typeClass == "toast") setupResizeMoveListeners();
-    if (typeClass == "toast") setToastAutocloseTimer();
+    if (typeClass == "toast" && bp.settings.toastDuration > 0) setToastAutocloseTimer();
 
     if (bp.settings.saveLastPosition && bp.player.connected && bp.song.info == null) bp.getLastSong(renderLastSong);
     

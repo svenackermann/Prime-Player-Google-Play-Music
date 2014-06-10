@@ -104,8 +104,12 @@
     "description": "hint for option to use miniplayer style for toasts"
   },
   "setting_toastDuration": {
-    "message": "Toast duration (seconds)",
+    "message": "Toast duration in seconds (0=keep open)",
     "description": "label for option to change the toast duration"
+  },
+  "setting_toastDurationHint": {
+    "message": "For standard toasts this sets the time after which to remove the notification (from Desktop or Chromes notification area), Chrome might move it to the notification area earlier. For miniplayer style toasts this means when to close the miniplayer.",
+    "description": "hint for option to change the toast duration"
   },
   "setting_toastIfMpOpen": {
     "message": "Show toast even if the miniplayer is opened",
