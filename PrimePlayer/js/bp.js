@@ -1,7 +1,7 @@
 /**
  * The main code for the background page.
  * Manages connections, settings, the miniplayer and much more.
- * @author Sven Recknagel (svenrecknagel@googlemail.com)
+ * @author Sven Ackermann (svenrecknagel@googlemail.com)
  * Licensed under the BSD license
  */
 

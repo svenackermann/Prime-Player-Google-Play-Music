@@ -1,6 +1,6 @@
 /**
  * Functions to handle lyrics.
- * @author Sven Recknagel (svenrecknagel@googlemail.com)
+ * @author Sven Ackermann (svenrecknagel@googlemail.com)
  * Licensed under the BSD license
  */
 function buildLyricsSearchUrl(song) {

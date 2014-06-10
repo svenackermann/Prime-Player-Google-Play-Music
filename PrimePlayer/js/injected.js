@@ -1,7 +1,7 @@
 /**
  * This script is injected directly to the Google Play Music window to run in its context.
  * Handles commands from content script.
- * @author Sven Recknagel (svenrecknagel@googlemail.com)
+ * @author Sven Ackermann (svenrecknagel@googlemail.com)
  * Licensed under the BSD license
  */
 (function() {

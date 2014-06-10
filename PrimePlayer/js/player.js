@@ -1,6 +1,6 @@
 /**
  * This script does all the magic for the miniplayer, popup and toasts.
- * @author Sven Recknagel (svenrecknagel@googlemail.com)
+ * @author Sven Ackermann (svenrecknagel@googlemail.com)
  * Licensed under the BSD license
  */
 chrome.runtime.getBackgroundPage(function(bp) {
