@@ -522,7 +522,7 @@ $(function() {
   
   function sendMyPlaylists() {
     var playlists = [];
-    $("#playlists").children("li").each(function() {
+    $("#playlists").children("a").each(function() {
       playlists.push({title: $.trim($(this).find(".tooltip").text()), titleLink: getLink($(this))});
     });
     post("player-navigationList", {type: "playlistsList", link: "myPlaylists", list: playlists, empty: playlists.length == 0});
