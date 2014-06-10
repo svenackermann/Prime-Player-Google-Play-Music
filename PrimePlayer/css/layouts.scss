@@ -64,7 +64,7 @@
   
   #resume {
     @include sprite(3, 0, $size);
-    &.enabled:hover {
+    &.enabled:hover, &.lastSongEnabled:hover {
       @include sprite(3, 1, $size);
     }
   }
@@ -139,6 +139,10 @@
     #showlyrics {
       @include hoversprite(16, 0, 1, $size);
     }
+  }
+  
+  .hasLastSong #showlyrics {
+    @include hoversprite(16, 0, 1, $size);
   }
 }
 
