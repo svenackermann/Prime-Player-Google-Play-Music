@@ -546,5 +546,8 @@
   "lastfmInfo_listeners": {
     "message": "$COUNT$ H\u00F6rer gesamt",
     "placeholders": { "COUNT": { "content": "$1" } }
+  },
+  "configShortcuts": {
+    "message": "Tastaturk\u00FCrzel"
   }
 }

@@ -266,6 +266,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initNumberInput("lyricsFontSize", bp.localSettings);
     initNumberInput("lyricsWidth", bp.localSettings);
     
+    $("#shortcutsLink").text(chrome.i18n.getMessage("configShortcuts")).click(function() {
+      chrome.tabs.create({ url: "chrome://extensions/configureCommands" });
+    });
     initIconStyle();
     initCheckbox("showPlayingIndicator");
     initCheckbox("showRatingIndicator");

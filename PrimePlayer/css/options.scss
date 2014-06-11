@@ -116,9 +116,6 @@ img.hint {
   height: 16px;
   a {
     margin-left: 1ex;
-    text-decoration: underline;
-    color: -webkit-link;
-    cursor: pointer;
     &.disconnected {
       text-decoration: none;
       color: black;
@@ -132,11 +129,20 @@ img.hint {
   }
 }
 
+#lastfmStatus a, a#shortcutsLink {
+  text-decoration: underline;
+  color: -webkit-link;
+  cursor: pointer;
+}
+
 div {
   margin-bottom: 0.5ex;
   &.newFeature {
     color: #FF8F00;
     font-weight: bold;
+    a#shortcutsLink {
+      color: #FF8F00;
+    }
   }
 }
 

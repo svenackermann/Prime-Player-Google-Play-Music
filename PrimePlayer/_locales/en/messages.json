@@ -726,5 +726,9 @@
     "message": "$COUNT$ listeners",
     "description": "text for total listeners count on last.fm (shown in tooltip/info area)",
     "placeholders": { "COUNT": { "content": "$1", "example": "12" } }
+  },
+  "configShortcuts": {
+    "message": "Keyboard shortcuts",
+    "description": "text for link to open the keyboard shortcuts settings"
   }
 }
