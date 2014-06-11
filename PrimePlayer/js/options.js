@@ -188,7 +188,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#legendIc").text(chrome.i18n.getMessage("icSettings"));
     $("#legendLyrics").text(chrome.i18n.getMessage("lyricsSettings"));
     $("#lastfmStatus").find("span").text(chrome.i18n.getMessage("lastfmUser"));
-    var bugfeatureinfo = chrome.i18n.getMessage("bugfeatureinfo", "<a target='_blank' href='https://github.com/svenrecknagel/Prime-Player-Google-Play-Music/issues' data-network='github' data-action='issue'>GitHub</a>");
+    var bugfeatureinfo = chrome.i18n.getMessage("bugfeatureinfo", "<a target='_blank' href='https://github.com/svenackermann/Prime-Player-Google-Play-Music/issues' data-network='github' data-action='issue'>GitHub</a>");
     $("#bugfeatureinfo").html(bugfeatureinfo);
     
     initCheckbox("scrobble").click(scrobbleChanged);
