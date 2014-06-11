@@ -464,17 +464,21 @@
     "message": "quick-links",
     "description": "title for quicklinks view in miniplayer"
   },
+  "welcomeTitle": {
+    "message": "Prime Player installed",
+    "description": "title for notification that is shown directly after install"
+  },
   "welcomeMessage": {
-    "message": "Thank you for installing Prime Player. The extension has a bunch of options - please take your time to try them all out. Next to some options you see a green question mark. If you hover over it with your mouse, you'll get more detailed informations. For more info please take a look at the FAQ on the extension's homepage at the Chrome Store. And now have fun with Prime Player!",
-    "description": "welcome message that is shown on options page directly after install"
+    "message": "The extension has a bunch of options. Next to some of them you see a green question mark. If you hover over it with your mouse, you'll get more detailed informations. Also note the FAQ on the extension's homepage at the Chrome Store. And now have fun with Prime Player!",
+    "description": "welcome message that is shown in notification directly after install"
   },
   "toOptions": {
     "message": "To the options",
-    "description": "text for 'to options' button below welcome message"
+    "description": "text for 'to options' button in welcome notification"
   },
   "close": {
     "message": "Close",
-    "description": "text for 'close' button, used in various locations"
+    "description": "text for 'close' button in miniplayer"
   },
   "feelingLucky": {
     "message": "I'm feeling lucky mix",

@@ -180,20 +180,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   $(function() {
-    if (location.hash == "#welcome") {
-      $("body").children().toggle();
-      $("#welcome").children("div").text(chrome.i18n.getMessage("welcomeMessage"));
-      $("#welcome .close").text(chrome.i18n.getMessage("close")).click(function() {
-        chrome.tabs.remove(thisTabId);
-        bp.gaEvent("Options", "welcome-close");
-      });
-      $("#welcome .toOptions").text(chrome.i18n.getMessage("toOptions")).click(function() {
-        $("body").children().toggle();
-        location.hash = "";
-        bp.gaEvent("Options", "welcome-toOptions");
-      });
-    }
-    
     $("head > title").text(chrome.i18n.getMessage("options") + " - " + chrome.i18n.getMessage("extTitle"));
     $("#legendLastfm").text(chrome.i18n.getMessage("lastfmSettings"));
     $("#legendToasting").text(chrome.i18n.getMessage("toastingSettings"));

@@ -1005,7 +1005,37 @@ function updatedListener(details) {
       settings.toastDuration = 0;
     }
   } else if (details.reason == "install") {
-    chrome.tabs.create({url: chrome.extension.getURL("options.html#welcome")});
+    chrome.notifications.create("", {
+      type: "basic",
+      title: chrome.i18n.getMessage("welcomeTitle"),
+      message: chrome.i18n.getMessage("welcomeMessage"),
+      buttons: [{title: chrome.i18n.getMessage("toOptions")}],
+      iconUrl: chrome.extension.getURL("img/icon-48x48.png"),
+      priority: 2
+    }, function(notificationId) {
+      function checkNotId(notId) {
+        if (notId == notificationId) {
+          chrome.notifications.onClicked.removeListener(notifClicked);
+          chrome.notifications.onButtonClicked.removeListener(notifClicked);
+          chrome.notifications.onClosed.removeListener(notifClosed);
+          return true;
+        }
+        return false;
+      }
+      function notifClicked(notId) {
+        if (checkNotId(notId)) {
+          gaEvent("Options", "welcome-toOptions");
+          chrome.notifications.clear(notId, function() {/* not interesting, but required */});
+          openOptions();
+        }
+      }
+      function notifClosed(notId, byUser) {
+        if (checkNotId(notId) && byUser) gaEvent("Options", "welcome-close");
+      }
+      chrome.notifications.onClicked.addListener(notifClicked);
+      chrome.notifications.onButtonClicked.addListener(notifClicked);
+      chrome.notifications.onClosed.addListener(notifClosed);
+    });
   }
 }
 
