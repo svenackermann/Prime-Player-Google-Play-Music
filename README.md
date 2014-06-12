@@ -28,7 +28,7 @@ You can use the script watch-sass.sh for convenience then.
 
 (The BSD license)
 
-Copyright (c) 2013, Sven Recknagel (svenrecknagel@googlemail.com)
+Copyright (c) 2014, Sven Ackermann (svenrecknagel@googlemail.com)
 
 All rights reserved.
 

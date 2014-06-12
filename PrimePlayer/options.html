@@ -74,9 +74,10 @@
         <label for="toastUseMpStyle"></label>
         <img src="img/hint.png" class="hint"></img>
       </div>
-      <div class="v-1.6">
-        <input id="toastDuration" type="number" min="1"/>
+      <div class="v-2.18">
+        <input id="toastDuration" type="number" min="0"/>
         <label for="toastDuration"></label>
+        <img src="img/hint.png" class="hint"></img>
       </div>
       <div class="v-2.6">
         <input id="toastIfMpOpen" type="checkbox"/>
@@ -231,6 +232,9 @@
     </fieldset>
     <fieldset>
       <legend id="legendLf"></legend>
+      <div class="v-2.18">
+        <a tabindex="0" id="shortcutsLink"></a>
+      </div>
       <div class="v-2.11" id="iconStyle">
         <label></label>
         <input type="radio" name="iconStyle" value="default"/>
@@ -330,12 +334,12 @@
   <div class="info">
     <div id="credits">
       <h2>Credits</h2>
-      <div>Copyright (c) 2013, Sven Recknagel<br/>Licensed under the BSD license.</div>
+      <div>Copyright (c) 2014, Sven Ackermann<br/>Licensed under the BSD license.</div>
       <div style="clear:none;">
-        <a target="_blank" href="https://github.com/svenrecknagel" data-network="github"><img alt="GitHub" src="img/link-github.png"></a>
+        <a target="_blank" href="https://github.com/svenackermann" data-network="github"><img alt="GitHub" src="img/link-github.png"></a>
         <a target="_blank" href="http://www.last.fm/user/djdixit" data-network="lastfm"><img alt="Last.fm" src="img/link-lastfm.png"></a>
-        <a target="_blank" href="https://plus.google.com/101399343330170202876" data-network="googleplus"><img alt="Google+" src="img/link-googleplus.png"></a>
-        <a target="_blank" href="https://twitter.com/svenrecknagel" data-network="twitter"><img alt="Twitter" src="img/link-twitter.png"></a>
+        <a target="_blank" href="https://plus.google.com/+SvenAckermann4" data-network="googleplus"><img alt="Google+" src="img/link-googleplus.png"></a>
+        <a target="_blank" href="https://twitter.com/svenackermann4" data-network="twitter"><img alt="Twitter" src="img/link-twitter.png"></a>
       </div>
       <div>
         <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
@@ -358,6 +362,16 @@
       <label for="cl-B">B</label>
       <input title="Show/hide versions" id="cl-V" type="checkbox" checked/>
       <label for="cl-V">V</label>
+      <div class="v-2.18">
+        <ul>
+          <li class="F">Allow auto-dismiss for toast notifications</li>
+          <li class="I">Included link to keyboard shortcuts on options page</li>
+          <li class="I">Changed my lastname/accounts (I got married)</li>
+          <li class="I">After installation, show a notification instead of opening a tab</li>
+          <li class="B">Fixed parsing of personal playlists</li>
+          <li class="B">Fixed hover state for buttons when last song is shown in miniplayer</li>
+        </ul>
+      </div>
       <div class="v-2.17">
         <ul>
           <li class="F">Option to show additional last.fm information in miniplayer</li>
@@ -742,12 +756,6 @@
         </ul>
       </div>
     </div>
-  </div>
-  <div id="welcome">
-    <img src="img/icon-128x128.png"/>
-    <div></div>
-    <button class="toOptions"></button>
-    <button class="close"></button>
   </div>
 </body>
 </html>

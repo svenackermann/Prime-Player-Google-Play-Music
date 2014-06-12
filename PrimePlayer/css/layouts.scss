@@ -1,6 +1,6 @@
 /*
  * SCSS for the different layouts and color schemes
- * @author Sven Recknagel (svenrecknagel@googlemail.com)
+ * @author Sven Ackermann (svenrecknagel@googlemail.com)
  * Licensed under the BSD license
  */
 @mixin colorScheme($color) {
@@ -64,7 +64,7 @@
   
   #resume {
     @include sprite(3, 0, $size);
-    &.enabled:hover {
+    &.enabled:hover, &.lastSongEnabled:hover {
       @include sprite(3, 1, $size);
     }
   }
@@ -139,6 +139,10 @@
     #showlyrics {
       @include hoversprite(16, 0, 1, $size);
     }
+  }
+  
+  .hasLastSong #showlyrics {
+    @include hoversprite(16, 0, 1, $size);
   }
 }
 

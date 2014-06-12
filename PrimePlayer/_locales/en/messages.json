@@ -104,8 +104,12 @@
     "description": "hint for option to use miniplayer style for toasts"
   },
   "setting_toastDuration": {
-    "message": "Toast duration (seconds)",
+    "message": "Toast duration in seconds (0=keep open)",
     "description": "label for option to change the toast duration"
+  },
+  "setting_toastDurationHint": {
+    "message": "For standard toasts this sets the time after which to remove the notification (from Desktop or Chromes notification area), Chrome might move it to the notification area earlier. For miniplayer style toasts this means when to close the miniplayer.",
+    "description": "hint for option to change the toast duration"
   },
   "setting_toastIfMpOpen": {
     "message": "Show toast even if the miniplayer is opened",
@@ -460,17 +464,21 @@
     "message": "quick-links",
     "description": "title for quicklinks view in miniplayer"
   },
+  "welcomeTitle": {
+    "message": "Prime Player installed",
+    "description": "title for notification that is shown directly after install"
+  },
   "welcomeMessage": {
-    "message": "Thank you for installing Prime Player. The extension has a bunch of options - please take your time to try them all out. Next to some options you see a green question mark. If you hover over it with your mouse, you'll get more detailed informations. For more info please take a look at the FAQ on the extension's homepage at the Chrome Store. And now have fun with Prime Player!",
-    "description": "welcome message that is shown on options page directly after install"
+    "message": "The extension has a bunch of options. Next to some of them you see a green question mark. If you hover over it with your mouse, you'll get more detailed informations. Also note the FAQ on the extension's homepage at the Chrome Store. And now have fun with Prime Player!",
+    "description": "welcome message that is shown in notification directly after install"
   },
   "toOptions": {
     "message": "To the options",
-    "description": "text for 'to options' button below welcome message"
+    "description": "text for 'to options' button in welcome notification"
   },
   "close": {
     "message": "Close",
-    "description": "text for 'close' button, used in various locations"
+    "description": "text for 'close' button in miniplayer"
   },
   "feelingLucky": {
     "message": "I'm feeling lucky mix",
@@ -722,5 +730,9 @@
     "message": "$COUNT$ listeners",
     "description": "text for total listeners count on last.fm (shown in tooltip/info area)",
     "placeholders": { "COUNT": { "content": "$1", "example": "12" } }
+  },
+  "configShortcuts": {
+    "message": "Keyboard shortcuts",
+    "description": "text for link to open the keyboard shortcuts settings"
   }
 }

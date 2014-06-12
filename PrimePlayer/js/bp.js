@@ -1,7 +1,7 @@
 /**
  * The main code for the background page.
  * Manages connections, settings, the miniplayer and much more.
- * @author Sven Recknagel (svenrecknagel@googlemail.com)
+ * @author Sven Ackermann (svenrecknagel@googlemail.com)
  * Licensed under the BSD license
  */
 
@@ -43,7 +43,7 @@ var SETTINGS_DEFAULTS = {
   showLastfmInfo: false,
   toast: true,
   toastUseMpStyle: false,
-  toastDuration: 5,
+  toastDuration: 0,
   toastIfMpOpen: false,
   toastClick: "",
   toastButton1: "nextSong",
@@ -839,7 +839,9 @@ function getToastOptions(iconUrl) {
   };
 }
 
+var closeToastTimer;
 function openToast() {
+  clearTimeout(closeToastTimer);
   if (settings.toastUseMpStyle) {
     createPlayer("toast", function(win) {
       toast = win;
@@ -860,10 +862,14 @@ function openToast() {
       song.watch("rating", drawToastImage);
       song.addListener("loved", drawToastImage);
     });
+    if (settings.toastDuration > 0) {
+      closeToastTimer = setTimeout(closeToast, settings.toastDuration * 1000);
+    }
   }
 }
 
 function closeToast(callback) {
+  clearTimeout(closeToastTimer);
   if (typeof(callback) != "function") callback = function() {};
   if (toastId) chrome.notifications.clear(toastId, callback)
   else if (toast) chrome.windows.remove(toast.id, callback)
@@ -976,24 +982,60 @@ function isNewerVersion(version) {
 /** handler for onInstalled event (show the orange icon on update) */
 function updatedListener(details) {
   if (details.reason == "update") {
-    previousVersion = details.previousVersion;
-    if (isNewerVersion(currentVersion)) {
-      localStorage["previousVersion"] = previousVersion;
-      viewUpdateNotifier = true;
-      localStorage["viewUpdateNotifier"] = viewUpdateNotifier;
-      iconClickSettingsChanged();
-      updateBrowserActionInfo();
-    } else {
-      previousVersion = null;
+    if (settings.updateNotifier) {
+      previousVersion = details.previousVersion;
+      if (isNewerVersion(currentVersion)) {
+        localStorage["previousVersion"] = previousVersion;
+        viewUpdateNotifier = true;
+        localStorage["viewUpdateNotifier"] = viewUpdateNotifier;
+        iconClickSettingsChanged();
+        updateBrowserActionInfo();
+      } else {
+        previousVersion = null;
+      }
     }
-    if (currentVersion == "2.15") {//migrate icon click settings
+    //migrate settings
+    if (parseFloat(currentVersion) >= 2.15 && localStorage["iconClickMiniplayer"] !== undefined) {
       if (localStorage["iconClickMiniplayer"] == "btrue") settings.iconClickAction0 = "openMiniplayer";
       else if (localStorage["iconClickPlayPause"] == "btrue") settings.iconClickAction0 = "playPause";
       localStorage.removeItem("iconClickMiniplayer");
       localStorage.removeItem("iconClickPlayPause");
     }
+    if (parseFloat(details.previousVersion) < 2.18 && !settings.toastUseMpStyle) {
+      settings.toastDuration = 0;
+    }
   } else if (details.reason == "install") {
-    chrome.tabs.create({url: chrome.extension.getURL("options.html#welcome")});
+    chrome.notifications.create("", {
+      type: "basic",
+      title: chrome.i18n.getMessage("welcomeTitle"),
+      message: chrome.i18n.getMessage("welcomeMessage"),
+      buttons: [{title: chrome.i18n.getMessage("toOptions")}],
+      iconUrl: chrome.extension.getURL("img/icon-48x48.png"),
+      priority: 2
+    }, function(notificationId) {
+      function checkNotId(notId) {
+        if (notId == notificationId) {
+          chrome.notifications.onClicked.removeListener(notifClicked);
+          chrome.notifications.onButtonClicked.removeListener(notifClicked);
+          chrome.notifications.onClosed.removeListener(notifClosed);
+          return true;
+        }
+        return false;
+      }
+      function notifClicked(notId) {
+        if (checkNotId(notId)) {
+          gaEvent("Options", "welcome-toOptions");
+          chrome.notifications.clear(notId, function() {/* not interesting, but required */});
+          openOptions();
+        }
+      }
+      function notifClosed(notId, byUser) {
+        if (checkNotId(notId) && byUser) gaEvent("Options", "welcome-close");
+      }
+      chrome.notifications.onClicked.addListener(notifClicked);
+      chrome.notifications.onButtonClicked.addListener(notifClicked);
+      chrome.notifications.onClosed.addListener(notifClosed);
+    });
   }
 }
 
@@ -1097,10 +1139,6 @@ function openLyrics(aSong) {
   }
 }
 
-settings.watch("updateNotifier", function(val) {
-  if (val) chrome.runtime.onInstalled.addListener(updatedListener)
-  else chrome.runtime.onInstalled.removeListener(updatedListener);
-});
 settings.watch("gaEnabled", gaEnabledChanged);
 settings.watch("iconClickAction0", iconClickSettingsChanged);
 settings.addListener("iconClickConnect", iconClickSettingsChanged);
@@ -1417,6 +1455,7 @@ function executeCommand(command) {
 
 chrome.commands.onCommand.addListener(executeCommand);
 
+chrome.runtime.onInstalled.addListener(updatedListener);
 chrome.runtime.onConnect.addListener(onConnectListener);
 chrome.runtime.onUpdateAvailable.addListener(reloadForUpdate);
 chrome.runtime.onSuspend.addListener(function() {

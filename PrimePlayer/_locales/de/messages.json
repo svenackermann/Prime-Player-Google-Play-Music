@@ -78,7 +78,10 @@
     "message": "Wenn aktiviert, sehen Toasts genauso aus, wie der Miniplayer. Ansonsten werden Chrome Benachrichtigungen verwendet, die weniger Funktionen bieten."
   },
   "setting_toastDuration": {
-    "message": "Toast Dauer (Sekunden)"
+    "message": "Toast Dauer in Sekunden (0=nicht schlie\u00DFen)"
+  },
+  "setting_toastDurationHint": {
+    "message": "Bei normalen Toasts ist das die Zeit, nach der die Benachrichtigung entfernt wird (vom Desktop oder Chromes Benachrichtigungs-Leiste), Chrome verschiebt die Nachricht evtl. vorher schon in die Benachrichtigungs-Leiste. Bei Toasts im Miniplayer-Stil ist das die Zeit, nach der der Miniplayer geschlossen wird."
   },
   "setting_toastIfMpOpen": {
     "message": "Toast auch zeigen, wenn der Miniplayer ge\u00F6ffnet ist"
@@ -345,8 +348,11 @@
   "quicklinks": {
     "message": "Quick-Links"
   },
+  "welcomeTitle": {
+    "message": "Prime Player wurde installiert"
+  },
   "welcomeMessage": {
-    "message": "Danke, dass du Prime Player installiert hast. Die Erweiterung bietet viele Optionen - bitte nimm dir die Zeit, sie alle auszuprobieren. Neben einigen Optionen findest du ein gr\u00FCnes Fragezeichen. Wenn du mit dem Mauszeiger dar\u00FCber f\u00E4hrst, erh\u00E4ltst du genauere Informationen. F\u00FCr weitere Informationen sieh auch in den FAQ auf der Homepage der Erweiterung im Chrome Store nach. Und nun viel Spa\u00DF mit Prime Player!"
+    "message": "Prime Player bietet viele Optionen. Neben einigen davon findest du ein gr\u00FCnes Fragezeichen. Wenn du mit dem Mauszeiger dar\u00FCber f\u00E4hrst, erh\u00E4ltst du genauere Informationen. Beachte auch die FAQ auf der Homepage der Erweiterung im Chrome Store. Und nun viel Spa\u00DF mit Prime Player!"
   },
   "toOptions": {
     "message": "Zu den Optionen"
@@ -543,5 +549,8 @@
   "lastfmInfo_listeners": {
     "message": "$COUNT$ H\u00F6rer gesamt",
     "placeholders": { "COUNT": { "content": "$1" } }
+  },
+  "configShortcuts": {
+    "message": "Tastaturk\u00FCrzel"
   }
 }

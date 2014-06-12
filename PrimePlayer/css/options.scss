@@ -1,6 +1,6 @@
 /*!
  * CSS for the options page
- * @author Sven Recknagel (svenrecknagel@googlemail.com)
+ * @author Sven Ackermann (svenrecknagel@googlemail.com)
  * Licensed under the BSD license
  */
 body {
@@ -116,9 +116,6 @@ img.hint {
   height: 16px;
   a {
     margin-left: 1ex;
-    text-decoration: underline;
-    color: -webkit-link;
-    cursor: pointer;
     &.disconnected {
       text-decoration: none;
       color: black;
@@ -132,25 +129,19 @@ img.hint {
   }
 }
 
+#lastfmStatus a, a#shortcutsLink {
+  text-decoration: underline;
+  color: -webkit-link;
+  cursor: pointer;
+}
+
 div {
   margin-bottom: 0.5ex;
   &.newFeature {
     color: #FF8F00;
     font-weight: bold;
-  }
-}
-
-#welcome {
-  padding: 50px;
-  max-width: 800px;
-  display: none;
-  div {
-    font-size: 18px;
-  }
-  img {
-    float: left;
-  }
-  .close, .toOptions {
-    float: right;
+    a#shortcutsLink {
+      color: #FF8F00;
+    }
   }
 }

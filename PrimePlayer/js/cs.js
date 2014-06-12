@@ -2,7 +2,7 @@
  * Content script to be injected to Google Play Music.
  * This watches the DOM for relevant changes and notifies the background page.
  * It also delivers commands to the Google Play Music window.
- * @author Sven Recknagel (svenrecknagel@googlemail.com)
+ * @author Sven Ackermann (svenrecknagel@googlemail.com)
  * Licensed under the BSD license
  */
 $(function() {
@@ -522,7 +522,7 @@ $(function() {
   
   function sendMyPlaylists() {
     var playlists = [];
-    $("#playlists").children("li").each(function() {
+    $("#playlists").children("a").each(function() {
       playlists.push({title: $.trim($(this).find(".tooltip").text()), titleLink: getLink($(this))});
     });
     post("player-navigationList", {type: "playlistsList", link: "myPlaylists", list: playlists, empty: playlists.length == 0});

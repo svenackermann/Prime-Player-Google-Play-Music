@@ -1,6 +1,6 @@
 /**
  * This is the script for the options page.
- * @author Sven Recknagel (svenrecknagel@googlemail.com)
+ * @author Sven Ackermann (svenrecknagel@googlemail.com)
  * Licensed under the BSD license
  */
 chrome.runtime.getBackgroundPage(function(bp) {
@@ -39,8 +39,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function toastChanged() {
-    $("#toastUseMpStyle, #toastIfMpOpen").prop("disabled", !bp.settings.toast);
-    $("#toastDuration").prop("disabled", !bp.settings.toast || !bp.settings.toastUseMpStyle);
+    $("#toastUseMpStyle, #toastIfMpOpen, #toastDuration").prop("disabled", !bp.settings.toast);
     $("#toastClick, #toastButton1, #toastButton2").prop("disabled", !bp.settings.toast || bp.settings.toastUseMpStyle);
   }
   
@@ -181,20 +180,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   $(function() {
-    if (location.hash == "#welcome") {
-      $("body").children().toggle();
-      $("#welcome").children("div").text(chrome.i18n.getMessage("welcomeMessage"));
-      $("#welcome .close").text(chrome.i18n.getMessage("close")).click(function() {
-        chrome.tabs.remove(thisTabId);
-        bp.gaEvent("Options", "welcome-close");
-      });
-      $("#welcome .toOptions").text(chrome.i18n.getMessage("toOptions")).click(function() {
-        $("body").children().toggle();
-        location.hash = "";
-        bp.gaEvent("Options", "welcome-toOptions");
-      });
-    }
-    
     $("head > title").text(chrome.i18n.getMessage("options") + " - " + chrome.i18n.getMessage("extTitle"));
     $("#legendLastfm").text(chrome.i18n.getMessage("lastfmSettings"));
     $("#legendToasting").text(chrome.i18n.getMessage("toastingSettings"));
@@ -203,7 +188,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#legendIc").text(chrome.i18n.getMessage("icSettings"));
     $("#legendLyrics").text(chrome.i18n.getMessage("lyricsSettings"));
     $("#lastfmStatus").find("span").text(chrome.i18n.getMessage("lastfmUser"));
-    var bugfeatureinfo = chrome.i18n.getMessage("bugfeatureinfo", "<a target='_blank' href='https://github.com/svenrecknagel/Prime-Player-Google-Play-Music/issues' data-network='github' data-action='issue'>GitHub</a>");
+    var bugfeatureinfo = chrome.i18n.getMessage("bugfeatureinfo", "<a target='_blank' href='https://github.com/svenackermann/Prime-Player-Google-Play-Music/issues' data-network='github' data-action='issue'>GitHub</a>");
     $("#bugfeatureinfo").html(bugfeatureinfo);
     
     initCheckbox("scrobble").click(scrobbleChanged);
@@ -227,9 +212,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     
     initCheckbox("toast").click(toastChanged);
     initHint("toast");
-    initCheckbox("toastUseMpStyle").click(toastChanged);
+    initCheckbox("toastUseMpStyle");
     initHint("toastUseMpStyle");
     initNumberInput("toastDuration");
+    initHint("toastDuration");
     initCheckbox("toastIfMpOpen");
     initSelect("toastClick", bp.getTextForToastBtn);
     initSelect("toastButton1")
@@ -266,6 +252,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initNumberInput("lyricsFontSize", bp.localSettings);
     initNumberInput("lyricsWidth", bp.localSettings);
     
+    $("#shortcutsLink").text(chrome.i18n.getMessage("configShortcuts")).click(function() {
+      chrome.tabs.create({ url: "chrome://extensions/configureCommands" });
+    });
     initIconStyle();
     initCheckbox("showPlayingIndicator");
     initCheckbox("showRatingIndicator");

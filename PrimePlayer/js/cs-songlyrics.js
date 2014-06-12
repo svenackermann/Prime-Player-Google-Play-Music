@@ -1,7 +1,7 @@
 /**
  * Content script for song lyrics.
  * Will only be injected in tabs opened by the extension to automatically open the first search result.
- * @author Sven Recknagel (svenrecknagel@googlemail.com)
+ * @author Sven Ackermann (svenrecknagel@googlemail.com)
  * Licensed under the BSD license
  */
 (function() {
