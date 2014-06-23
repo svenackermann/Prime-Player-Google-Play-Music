@@ -39,7 +39,8 @@ function fetchLyrics(song, callback) {
             .done(function(data) {
               var page = $(data);
               var lyrics = page.find("#songLyricsDiv");
-              if (lyrics.text().trim().indexOf("We do not have the lyrics for") == 0) {
+              var trimmedLyrics = lyrics.text().trim();
+              if (trimmedLyrics.length == 0 || trimmedLyrics.indexOf("We do not have the lyrics for") == 0) {
                 gaEvent("Lyrics", "NoLyrics");
                 callback({noresults: true, src: href, searchSrc: url})
               } else {
