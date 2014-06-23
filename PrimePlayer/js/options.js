@@ -113,14 +113,15 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   /** the i18n key for option "<opt>" for property "<prop>" is "setting_<prop>_<opt>" */
-  function initSelect(prop, getOptionText) {
+  function initSelect(prop, getOptionText, updater) {
     if (typeof(getOptionText) != "function") {
       getOptionText = function(val) {return chrome.i18n.getMessage("setting_" + prop + "_" + val);};
     }
+    if (typeof(updater) != "function") updater = stringUpdater;
     var input = $("#" + prop);
     input
       .val(bp.settings[prop])
-      .change(stringUpdater(prop))
+      .change(updater(prop))
       .parent().find("label").text(chrome.i18n.getMessage("setting_" + prop));
     input.find("option").each(function() {
         $(this).text(getOptionText($(this).attr("value")));
@@ -260,7 +261,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("showRatingIndicator");
     initCheckbox("saveLastPosition");
     initHint("saveLastPosition");
-    initCheckbox("skipDislikedSongs");
+    initSelect("skipRatedLower");
     initSelect("iconClickAction0")
       .append($("#toastClick").children().clone())
       .val(bp.settings.iconClickAction0)
