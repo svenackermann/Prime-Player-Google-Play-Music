@@ -236,6 +236,12 @@
   "setting_color_orange": {
     "message": "Orange"
   },
+  "setting_mpBgColor": {
+    "message": "Hintergrundfarbe"
+  },
+  "setting_mpTextColor": {
+    "message": "Textfarbe"
+  },
   "lastfmConnectSuccess": {
     "message": "Verbindung erfolgreich"
   },

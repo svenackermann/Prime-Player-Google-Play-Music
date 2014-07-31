@@ -51,6 +51,8 @@ var SETTINGS_DEFAULTS = {
   miniplayerType: "popup",
   layout: "normal",
   color: "turq",
+  mpBgColor: "#eeeeee",
+  mpTextColor: "#000000",
   coverClickLink: "now",
   titleClickLink: "ap/queue",
   openLinksInMiniplayer: true,

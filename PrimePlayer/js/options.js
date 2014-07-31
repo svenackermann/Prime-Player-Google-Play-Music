@@ -129,6 +129,15 @@ chrome.runtime.getBackgroundPage(function(bp) {
     return input;
   }
   
+  function initColorInput(prop) {
+    var input = $("#" + prop);
+    input
+      .val(bp.settings[prop])
+      .change(stringUpdater(prop, bp.settings))
+      .parent().find("label").text(chrome.i18n.getMessage("setting_" + prop));
+    return input;
+  }
+  
   function initIconStyle() {
     $("#iconStyle").find("label").text(chrome.i18n.getMessage("setting_iconStyle"));
     $("#iconStyle").find("input[value='" + bp.settings.iconStyle + "']").prop("checked", true);
@@ -231,6 +240,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initSelect("layout");
     initHint("layout");
     initSelect("color");
+    initColorInput("mpBgColor");
+    initColorInput("mpTextColor");
     initSelect("coverClickLink", bp.getTextForQuicklink);
     initSelect("titleClickLink")
       .append($("#coverClickLink").children().clone())

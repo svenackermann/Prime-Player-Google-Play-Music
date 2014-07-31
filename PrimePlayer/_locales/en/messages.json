@@ -315,6 +315,14 @@
     "message": "Orange",
     "description": "text for color option 'orange'"
   },
+  "setting_mpBgColor": {
+    "message": "Background color",
+    "description": "label for option to select the miniplayer background color"
+  },
+  "setting_mpTextColor": {
+    "message": "Text color",
+    "description": "label for option to select the miniplayer text color"
+  },
   "lastfmConnectSuccess": {
     "message": "Successfully connected",
     "description": "tooltip for lastfm connection success icon"

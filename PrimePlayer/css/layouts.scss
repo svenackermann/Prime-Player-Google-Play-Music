@@ -382,7 +382,7 @@
     padding: 0;
   }
   #player {
-    width: 476px;
+    min-width: 486px;
   }
   #cover {
     width: $height - 4px;
@@ -403,14 +403,14 @@
       width: 144px;
     }
     #player {
-      width: 359px;
+      min-width: 369px;
     }
     .lyrics {
       #time {
         width: 168px;
       }
       #player {
-        width: 383px;
+        min-width: 393px;
       }
     }
   }
@@ -432,7 +432,10 @@
       width: 285px;
     }
     #player {
-      width: 500px;
+      min-width: 510px;
+    }
+    #rating {
+      left: $height + 336px;
     }
   }
   #currentTime, #songTime {
@@ -448,11 +451,9 @@
     left: $height + 316px;
     padding-top: 2px;
   }
-  .lyrics #rating {
-    left: $height + 336px;
-  }
   #rightbuttons {
     margin-top: 1px;
+    padding-right: 15px;
   }
   .lastfm #feelingLucky {
     position: relative;
