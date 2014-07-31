@@ -200,6 +200,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function colorWatcher(val, old) {
     $("html").removeClass("color-" + old).addClass("color-" + val);
   }
+
+  function mpBgColorWatcher(val) {
+    $("#player").css("background-color", val);
+  }
+
+  function mpTextColorWatcher(val) {
+    $("#player").css("color", val);
+  }
   
   function hideSearchfieldWatcher(val) {
     $("#nav").toggleClass("searchField", !val);
@@ -746,6 +754,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.settings.watch("scrobble", scrobbleWatcher, typeClass);
     bp.settings.watch("showLastfmInfo", showLastfmInfoWatcher, typeClass);
     bp.settings.watch("color", colorWatcher, typeClass);
+    bp.settings.watch("mpBgColor", mpBgColorWatcher, typeClass);
+    bp.settings.watch("mpTextColor", mpTextColorWatcher, typeClass);
     bp.settings.watch("coverClickLink", updateCoverClickLink, typeClass);
     bp.settings.watch("titleClickLink", updateTitleClickLink, typeClass);
     bp.settings.watch("hideSearchfield", hideSearchfieldWatcher, typeClass);
@@ -768,7 +778,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.song.watch("lastfmInfo", renderLastfmInfo, typeClass);
     bp.song.watch("scrobbled", scrobbledWatcher, typeClass);
 
-    resize(bp.localSettings.miniplayerSizing[bp.settings.layout]);//try to restore saved size (chrome.windows.create does not always set the desired size)
+    if (bp.settings.layout != "hbar") resize(bp.localSettings.miniplayerSizing[bp.settings.layout]);//try to restore saved size (chrome.windows.create does not always set the desired size)
     if (typeClass == "miniplayer" || typeClass == "toast") setupResizeMoveListeners();
     if (typeClass == "toast" && bp.settings.toastDuration > 0) setToastAutocloseTimer();
 

@@ -31,16 +31,19 @@ body {
 }
 
 a {
-  color: black;
   text-decoration: none;
   cursor: pointer;
   &:hover {
-    color: #333333;
+    opacity: 0.7;
     text-decoration: underline;
   }
   &:focus {
     outline: none;
   }
+}
+
+#player {
+  height: 100%;
 }
 
 #top {
@@ -116,7 +119,7 @@ a {
     color: lightgrey;
   }
   #song > a {
-    color: grey !important;
+    opacity: 0.8;
   }
   #cover {
     opacity: 0.75;
@@ -135,7 +138,6 @@ a {
     display: block;
     &:not(.nav) {
       cursor: default;
-      color: black;
       text-decoration: none;
     }
   }
@@ -153,12 +155,10 @@ a {
     white-space: nowrap;
     display: block;
     text-decoration: none;
-    color: black;
     cursor: default;
     &.nav {
       cursor: pointer;
       &:hover {
-        color: #333333;
         text-decoration: underline;
       }
     }
@@ -269,26 +269,18 @@ a {
 }
 
 .popup {
-  height: 115px;
   body {
-    height: 115px;
     min-width: 240px;
   }
-  &.hideRatings {
-    height: 96px;
-    body {
-      height: 96px;
+  &.hideRatings .lastfm {
+    #rightbuttons {
+      height: 48px;
+      margin-left: 18px;
     }
-    .lastfm {
-      #rightbuttons {
-        height: 48px;
-        margin-left: 18px;
-      }
-      #feelingLucky {
-        position: relative;
-        top: -16px;
-        left: -16px;
-      }
+    #feelingLucky {
+      position: relative;
+      top: -16px;
+      left: -16px;
     }
   }
 }
@@ -856,9 +848,9 @@ a#volume {
   font-weight: bold;
   margin-top: 5px;
   margin-left: 2px;
-  color: grey;
+  opacity: 0.7;
   &.hasInfo {
-    color: black;
+    opacity: 1;
   }
 }
 

@@ -51,6 +51,8 @@ var SETTINGS_DEFAULTS = {
   miniplayerType: "popup",
   layout: "normal",
   color: "turq",
+  mpBgColor: "#eeeeee",
+  mpTextColor: "#000000",
   coverClickLink: "now",
   titleClickLink: "ap/queue",
   openLinksInMiniplayer: true,
@@ -67,7 +69,7 @@ var SETTINGS_DEFAULTS = {
   showPlayingIndicator: true,
   showRatingIndicator: false,
   saveLastPosition: false,
-  skipDislikedSongs: false,
+  skipRatedLower: 0,
   iconClickAction0: "",
   iconClickAction1: "",
   iconClickAction2: "",
@@ -1004,6 +1006,10 @@ function updatedListener(details) {
     if (parseFloat(details.previousVersion) < 2.18 && !settings.toastUseMpStyle) {
       settings.toastDuration = 0;
     }
+    if (parseFloat(details.previousVersion) < 2.19 && localStorage["skipDislikedSongs"] !== undefined) {
+      settings.skipRatedLower = localStorage["skipDislikedSongs"] == "btrue" ? 1 : 0;
+      localStorage.removeItem("skipDislikedSongs");
+    }
   } else if (details.reason == "install") {
     chrome.notifications.create("", {
       type: "basic",
@@ -1307,7 +1313,7 @@ song.addListener("position", function(val) {
     }
     positionFromBackup = false;
     if (song.positionSec == 2) {//new song, repeat single or rewinded
-      if (settings.skipDislikedSongs && (song.rating == 1 || (song.rating == 2 && player.ratingMode == "thumbs"))) {
+      if (settings.skipRatedLower > 0 && song.rating > 0 && (song.rating <= settings.skipRatedLower || (song.rating == 2 && player.ratingMode == "thumbs"))) {
         executeInGoogleMusic("nextSong");
         return;
       }

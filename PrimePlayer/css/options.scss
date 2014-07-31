@@ -64,6 +64,9 @@ input[type='number'] {
 
 select {
   min-width: 200px;
+  &#skipRatedLower {
+    min-width: 150px;
+  }
 }
 
 img.hint {

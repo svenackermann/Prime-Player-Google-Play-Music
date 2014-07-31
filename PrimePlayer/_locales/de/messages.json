@@ -236,6 +236,12 @@
   "setting_color_orange": {
     "message": "Orange"
   },
+  "setting_mpBgColor": {
+    "message": "Hintergrundfarbe"
+  },
+  "setting_mpTextColor": {
+    "message": "Textfarbe"
+  },
   "lastfmConnectSuccess": {
     "message": "Verbindung erfolgreich"
   },
@@ -288,8 +294,23 @@
   "setting_saveLastPositionHint": {
     "message": "Speichert den letzten Titel (lokal) mit der aktuellen Position, um immer zu wissen, was man vor dem Beenden von Google Music geh\u00F6rt hat. Der letzte Titel wird im Miniplayer wie ein normaler Titel mit einigen Einschr\u00E4nkungen angezeigt. Der Play-Button versucht, das Album des Titels zu laden und den Titel an der letzten Position fortzusetzen. Leider ist es nicht m\u00F6glich, die letzte Wiedergabeliste beim Neustart wiederherzustellen."
   },
-  "setting_skipDislikedSongs": {
-    "message": "\u00DCberspringe Titel, die mit Daumen runter/1 Stern bewertet wurden"
+  "setting_skipRatedLower": {
+    "message": "(oder schlechter) bewertete Titel \u00FCberspringen"
+  },
+  "setting_skipRatedLower_0": {
+    "message": "deaktiviert"
+  },
+  "setting_skipRatedLower_1": {
+    "message": "1 Stern/Daumen runter"
+  },
+  "setting_skipRatedLower_2": {
+    "message": "2 Sterne"
+  },
+  "setting_skipRatedLower_3": {
+    "message": "3 Sterne"
+  },
+  "setting_skipRatedLower_4": {
+    "message": "4 Sterne"
   },
   "setting_hideRatings": {
     "message": "Bewertungs-Symbole verstecken (last.fm und Daumen/Sterne)"

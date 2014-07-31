@@ -315,6 +315,14 @@
     "message": "Orange",
     "description": "text for color option 'orange'"
   },
+  "setting_mpBgColor": {
+    "message": "Background color",
+    "description": "label for option to select the miniplayer background color"
+  },
+  "setting_mpTextColor": {
+    "message": "Text color",
+    "description": "label for option to select the miniplayer text color"
+  },
   "lastfmConnectSuccess": {
     "message": "Successfully connected",
     "description": "tooltip for lastfm connection success icon"
@@ -384,9 +392,29 @@
     "message": "Saves the last played song with its position (locally), so you know where you left off before closing Google Music. The last song will be displayed in the miniplayer like a normal song with some limitations. The play button will try to load the song's album and resume the song at its last position. Unfortunately, it's not possible to restore your last queue or playlist on restart.",
     "description": "hint for option to save last song position"
   },
-  "setting_skipDislikedSongs": {
-    "message": "Skip songs rated thumbs down/1 star",
-    "description": "label for option to skip songs that were rated thumbs doen or 1 star"
+  "setting_skipRatedLower": {
+    "message": "(or lower) rated songs will be skipped",
+    "description": "label for option to skip songs that have a low rating"
+  },
+  "setting_skipRatedLower_0": {
+    "message": "disabled",
+    "description": "text for low rated option 'disabled'"
+  },
+  "setting_skipRatedLower_1": {
+    "message": "1 star/thumbs down",
+    "description": "text for low rated option '1'"
+  },
+  "setting_skipRatedLower_2": {
+    "message": "2 stars",
+    "description": "text for low rated option '2'"
+  },
+  "setting_skipRatedLower_3": {
+    "message": "3 stars",
+    "description": "text for low rated option '3'"
+  },
+  "setting_skipRatedLower_4": {
+    "message": "4 stars",
+    "description": "text for low rated option '4'"
   },
   "setting_hideRatings": {
     "message": "Hide rating icons (last.fm and thumbs/stars)",

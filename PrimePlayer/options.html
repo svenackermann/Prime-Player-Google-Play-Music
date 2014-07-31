@@ -149,6 +149,14 @@
         </select>
         <label for="color"></label>
       </div>
+      <div class="v-2.19">
+        <input id="mpBgColor" type="color"/>
+        <label for="mpBgColor"></label>
+      </div>
+      <div class="v-2.19">
+        <input id="mpTextColor" type="color"/>
+        <label for="mpTextColor"></label>
+      </div>
       <div class="v-2.0">
         <select id="coverClickLink">
           <option value=""></option>
@@ -265,9 +273,15 @@
         <label for="saveLastPosition"></label>
         <img src="img/hint.png" class="hint"></img>
       </div>
-      <div class="v-2.16">
-        <input id="skipDislikedSongs" type="checkbox"/>
-        <label for="skipDislikedSongs"></label>
+      <div class="v-2.19">
+        <select id="skipRatedLower">
+          <option value="0"></option>
+          <option value="1"></option>
+          <option value="2"></option>
+          <option value="3"></option>
+          <option value="4"></option>
+        </select>
+        <label for="skipRatedLower"></label>
       </div>
       <fieldset>
         <legend id="legendIc"></legend>
@@ -362,6 +376,12 @@
       <label for="cl-B">B</label>
       <input title="Show/hide versions" id="cl-V" type="checkbox" checked/>
       <label for="cl-V">V</label>
+      <div class="v-2.19">
+        <ul>
+          <li class="F">Options to change miniplayer background and text color</li>
+          <li class="I">Option to skip downvoted songs made adjustable</li>
+        </ul>
+      </div>
       <div class="v-2.18">
         <ul>
           <li class="F">Allow auto-dismiss for toast notifications</li>
