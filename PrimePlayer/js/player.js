@@ -778,7 +778,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.song.watch("lastfmInfo", renderLastfmInfo, typeClass);
     bp.song.watch("scrobbled", scrobbledWatcher, typeClass);
 
-    resize(bp.localSettings.miniplayerSizing[bp.settings.layout]);//try to restore saved size (chrome.windows.create does not always set the desired size)
+    if (bp.settings.layout != "hbar") resize(bp.localSettings.miniplayerSizing[bp.settings.layout]);//try to restore saved size (chrome.windows.create does not always set the desired size)
     if (typeClass == "miniplayer" || typeClass == "toast") setupResizeMoveListeners();
     if (typeClass == "toast" && bp.settings.toastDuration > 0) setToastAutocloseTimer();
 
