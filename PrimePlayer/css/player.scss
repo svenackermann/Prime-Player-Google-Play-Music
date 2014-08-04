@@ -33,7 +33,7 @@ body {
 a {
   text-decoration: none;
   cursor: pointer;
-  &:hover {
+  &.nav:hover {
     opacity: 0.7;
     text-decoration: underline;
   }
@@ -120,6 +120,9 @@ a {
   }
   #song > a {
     opacity: 0.8;
+    &:hover {
+      opacity: 0.6;
+    }
   }
   #cover {
     opacity: 0.75;
@@ -145,6 +148,9 @@ a {
     margin-top: 8px;
     display: block;
     text-decoration: underline;
+    &:hover {
+      opacity: 0.7;
+    }
   }
 }
 
