@@ -745,6 +745,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
       .end().find(".playcount").html(chrome.i18n.getMessage("lastfmInfo_playcount", "<span></span>"))
       .end().find(".listeners").html(chrome.i18n.getMessage("lastfmInfo_listeners", "<span></span>"));
 
+    $("#lastfmUser")
+      .on("contextmenu", function(e) {
+        e.preventDefault();
+        bp.settings.scrobble = !bp.settings.scrobble;
+      });
+
     setupNavigationEvents();
 
     bp.localSettings.watch("lastfmSessionName", lastfmUserWatcher, typeClass);

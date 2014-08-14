@@ -34,8 +34,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     );
   }
 
-  function scrobbleChanged() {
-    $("#scrobblePercent, #scrobbleTime, #scrobbleMaxDuration, #disableScrobbleOnFf, #showScrobbledIndicator").prop("disabled", !bp.isScrobblingEnabled());
+  function scrobbleChanged(val) {
+    $("#scrobblePercent, #scrobbleTime, #scrobbleMaxDuration, #disableScrobbleOnFf, #showScrobbledIndicator, #scrobbleRepeated").prop("disabled", !bp.isScrobblingEnabled());
+    $("#scrobble").prop("checked", val);
   }
 
   function toastChanged() {
@@ -52,7 +53,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var action;
     var actionText;
     $("#scrobble, #linkRatings, #showLovedIndicator").prop("disabled", user == null);
-    scrobbleChanged();
+    scrobbleChanged(bp.settings.scrobble);
     var links = $("#lastfmStatus").find("a");
     var userLink = links.first();
     if (user) {
@@ -201,7 +202,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var bugfeatureinfo = chrome.i18n.getMessage("bugfeatureinfo", "<a target='_blank' href='https://github.com/svenackermann/Prime-Player-Google-Play-Music/issues' data-network='github' data-action='issue'>GitHub</a>");
     $("#bugfeatureinfo").html(bugfeatureinfo);
     
-    initCheckbox("scrobble").click(scrobbleChanged);
+    initCheckbox("scrobble");
     var percentSpan = $("#scrobblePercent").parent().find("span");
     percentSpan.text(bp.settings.scrobblePercent);
     $("#scrobblePercent")
@@ -302,6 +303,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("gaEnabled");
     initHint("gaEnabled");
     
+    //watch this if changed via miniplayer
+    bp.settings.addListener("scrobble", scrobbleChanged, "options");
     //we must watch this as the session could be expired
     bp.localSettings.watch("lastfmSessionName", lastfmUserChanged, "options");
     //disable inputs if neccessary
@@ -353,7 +356,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
   });
 
   $(window).unload(function() {
-    bp.localSettings.removeListener("lastfmSessionName", lastfmUserChanged);
+    bp.settings.removeAllListeners("options");
+    bp.localSettings.removeAllListeners("options");
     if (bp.optionsTabId == thisTabId) bp.optionsTabId = null;
   });
 
