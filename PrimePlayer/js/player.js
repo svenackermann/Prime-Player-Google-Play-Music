@@ -12,6 +12,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   var listRatingTimer;
   var ratingHtml;
   var getLastLoved;
+  var lastSongLastfmInfo;
 
   if (typeClass == "popup") {
     bp.popupOpened();
@@ -74,6 +75,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("body").removeClass("hasLastSong");
       renderRating(bp.song.rating);
       getLastLoved = null;
+      lastSongLastfmInfo = null;
       $("#resume").removeClass("lastSongEnabled").unbind().click(googleMusicExecutor("playPause"));
     }
     $("body").toggleClass("hasSong", val != null);
@@ -139,6 +141,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var loveLast = updateLoved.bind(window, bp.love);
     function renderLastLoved(loved, lastfmInfo) {
       renderSongLoved(loved, {getLoved: getLastLoved, unlove: unloveLast, love: loveLast});
+      lastSongLastfmInfo = lastfmInfo;
       renderLastfmInfo(lastfmInfo);
     }
     getLastLoved();
@@ -551,6 +554,18 @@ chrome.runtime.getBackgroundPage(function(bp) {
       }, 500);
     });
 
+    function ctrlHandler(urlField, e) {
+      if (e.ctrlKey) {
+        e.stopImmediatePropagation();
+        var lastfmInfo = bp.song.lastfmInfo || lastSongLastfmInfo;
+        if (lastfmInfo && lastfmInfo[urlField]) chrome.tabs.create({url: lastfmInfo[urlField]});
+      }
+    }
+    
+    $("#track").click(ctrlHandler.bind(window, "url"));
+    $("#artist").click(ctrlHandler.bind(window, "artistUrl"));
+    $("#album").click(ctrlHandler.bind(window, "albumUrl"));
+    
     $("body").on("click", ".nav", function(e) {
       var link = $(this).data("link");
       if (link) {

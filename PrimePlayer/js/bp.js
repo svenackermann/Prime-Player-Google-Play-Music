@@ -597,7 +597,10 @@ function getLoved(songInfo, callback) {
             lastfmInfo = {
               listeners: response.track.listeners || 0,
               playcount: response.track.playcount || 0,
-              userplaycount: response.track.userplaycount || 0
+              userplaycount: response.track.userplaycount || 0,
+              url: response.track.url,
+              artistUrl: response.track.artist && response.track.artist.url,
+              albumUrl: response.track.album && response.track.album.url
             };
           }
           callback(response.track != null && response.track.userloved == 1, lastfmInfo);
