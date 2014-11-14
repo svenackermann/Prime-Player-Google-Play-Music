@@ -191,7 +191,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function connectedWatcher(val) {
-    $("#startTimer").prop("disabled", !val);
+    $("#startTimer, #timerMin, #timerNotify, #timerAction").prop("disabled", !val);
     $("#stopTimer").prop("disabled", true);
   }
   
@@ -201,9 +201,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("#timerStatus").text(chrome.i18n.getMessage("timerAction_" + bp.localSettings.timerAction) + " in " + bp.toTimeString(countDown));
       setTimeout(updateTimerStatus, 1000);
     } else {
-      $("#stopTimer").prop("disabled", true);
       $("#timerStatus").empty();
     }
+    $("#stopTimer").prop("disabled", countDown <= 0);
   }
   
   function initTimer() {
@@ -220,13 +220,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
         bp.localSettings.timerAction = $("#timerAction").val();
         bp.localSettings.timerNotify = $("#timerNotify").prop("checked");
         bp.startSleepTimer();
-        $("#stopTimer").prop("disabled", false);
         updateTimerStatus();
       }
     });
-    $("#stopTimer").text(chrome.i18n.getMessage("stopTimer")).click(function() {
-      bp.clearSleepTimer();
-    });
+    $("#stopTimer").text(chrome.i18n.getMessage("stopTimer")).click(bp.clearSleepTimer);
     updateTimerStatus();
   }
   
@@ -242,8 +239,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#lastfmStatus").find("span").text(chrome.i18n.getMessage("lastfmUser"));
     var bugfeatureinfo = chrome.i18n.getMessage("bugfeatureinfo", "<a target='_blank' href='https://github.com/svenackermann/Prime-Player-Google-Play-Music/issues' data-network='github' data-action='issue'>GitHub</a>");
     $("#bugfeatureinfo").html(bugfeatureinfo);
-    
-    initTimer();
     
     initCheckbox("scrobble");
     var percentSpan = $("#scrobblePercent").parent().find("span");
@@ -356,6 +351,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     iconClickChanged();
     
     bp.player.watch("connected", connectedWatcher, "options");
+    initTimer();
     
     $("#resetSettings").click(function() {
       bp.settings.resetToDefaults();
