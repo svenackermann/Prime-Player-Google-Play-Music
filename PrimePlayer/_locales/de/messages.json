@@ -188,6 +188,9 @@
   "connected": {
     "message": "Dieser Tab ist mit Prime Player verbunden. Zum Trennen klicken."
   },
+  "timerSettings": {
+    "message": "Timer Einstellungen"
+  },
   "lastfmSettings": {
     "message": "last.fm Einstellungen"
   },
@@ -573,5 +576,41 @@
   },
   "configShortcuts": {
     "message": "Tastaturk\u00FCrzel"
+  },
+  "timerMinutes": {
+    "message": "Minuten f\u00FCr Countdown"
+  },
+  "timerNotify": {
+    "message": "Bei Ablauf benachrichtigen"
+  },
+  "timerAction": {
+    "message": "Aktion bei Ablauf"
+  },
+  "timerAction_closeGm": {
+    "message": "Google Music schlie\u00DFen"
+  },
+  "timerAction_pause": {
+    "message": "Musik pausieren"
+  },
+  "startTimer": {
+    "message": "Start"
+  },
+  "stopTimer": {
+    "message": "Stop"
+  },
+  "timerNotificationTitle": {
+    "message": "Timer abgelaufen"
+  },
+  "timerNotificationMsgPause": {
+    "message": "Die Musik wurde gestoppt, weil die eingestellte Zeit abgelaufen ist."
+  },
+  "timerNotificationMsgCloseGm": {
+    "message": "Google Music wurde geschlossen, weil die eingestellte Zeit abgelaufen ist."
+  },
+  "timerNotificationBtnPause": {
+    "message": "Fortsetzen"
+  },
+  "timerNotificationBtnCloseGm": {
+    "message": "Wieder \u00F6ffnen"
   }
 }

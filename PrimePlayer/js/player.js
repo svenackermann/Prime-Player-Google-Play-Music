@@ -323,20 +323,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
 
-  function toTimeString(sec) {
-    if (sec > 60*60*24) return chrome.i18n.getMessage("moreThanOneDay");
-    if (sec < 10) return "0:0" + sec;
-    if (sec < 60) return "0:" + sec;
-    var time = "";
-    while (true) {
-      var cur = sec % 60;
-      time = cur + time;
-      if (sec == cur) return time;
-      time = (cur < 10 ? ":0" : ":") + time;
-      sec = (sec - cur) / 60;
-    }
-  }
-
   var renderNavList = {
     playlistsList: function(navlist, list) {
       for (var i = 0; i < list.length; i++) {
@@ -400,7 +386,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       navlist.toggleClass("noalbum", currentNavList.noAlbum);
       navlist.toggleClass("norating", currentNavList.noRating);
       navlist.toggleClass("noduration", currentNavList.duration == 0);
-      if (currentNavList.duration > 0) $("#navHead").find("span.duration").text("(" + toTimeString(currentNavList.duration) + ")");
+      if (currentNavList.duration > 0) $("#navHead").find("span.duration").text("(" + bp.toTimeString(currentNavList.duration) + ")");
       if (current) current.scrollIntoView(true);
     },
     albumContainers: function(navlist, list) {

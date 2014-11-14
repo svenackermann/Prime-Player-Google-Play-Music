@@ -7,7 +7,27 @@
 </head>
 <body>
   <div class="settings">
-    <h1></h1>
+    <fieldset>
+      <legend id="legendTimer"></legend>
+      <div class="v-2.20">
+        <input id="timerMin" type="number" min="1"/>
+        <label for="timerMin"></label>
+        <span id="timerStatus"></span>
+      </div>
+      <div class="v-2.20">
+        <input id="timerNotify" type="checkbox"/>
+        <label for="timerNotify"></label>
+      </div>
+      <div class="v-2.20">
+        <select id="timerAction">
+          <option value="pause"></option>
+          <option value="closeGm"></option>
+        </select>
+        <label for="timerAction"></label>
+      </div>
+      <button id="startTimer"></button>
+      <button id="stopTimer"></button>
+    </fieldset>
     <fieldset>
       <legend id="legendLastfm"></legend>
       <div id="lastfmStatus">
