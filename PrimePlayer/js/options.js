@@ -198,7 +198,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function updateTimerStatus() {
     var countDown = Math.floor(bp.timerEnd - (new Date().getTime() / 1000));
     if (countDown > 0) {
-      $("#timerStatus").text(bp.toTimeString(countDown));
+      $("#timerStatus").text(chrome.i18n.getMessage("timerAction_" + bp.localSettings.timerAction) + " in " + bp.toTimeString(countDown));
       setTimeout(updateTimerStatus, 1000);
     } else {
       $("#stopTimer").prop("disabled", true);
