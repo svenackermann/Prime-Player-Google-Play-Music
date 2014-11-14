@@ -12,6 +12,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   var listRatingTimer;
   var ratingHtml;
   var getLastLoved;
+  var lastSongLastfmInfo;
 
   if (typeClass == "popup") {
     bp.popupOpened();
@@ -74,6 +75,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("body").removeClass("hasLastSong");
       renderRating(bp.song.rating);
       getLastLoved = null;
+      lastSongLastfmInfo = null;
       $("#resume").removeClass("lastSongEnabled").unbind().click(googleMusicExecutor("playPause"));
     }
     $("body").toggleClass("hasSong", val != null);
@@ -139,6 +141,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var loveLast = updateLoved.bind(window, bp.love);
     function renderLastLoved(loved, lastfmInfo) {
       renderSongLoved(loved, {getLoved: getLastLoved, unlove: unloveLast, love: loveLast});
+      lastSongLastfmInfo = lastfmInfo;
       renderLastfmInfo(lastfmInfo);
     }
     getLastLoved();
@@ -320,20 +323,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
 
-  function toTimeString(sec) {
-    if (sec > 60*60*24) return chrome.i18n.getMessage("moreThanOneDay");
-    if (sec < 10) return "0:0" + sec;
-    if (sec < 60) return "0:" + sec;
-    var time = "";
-    while (true) {
-      var cur = sec % 60;
-      time = cur + time;
-      if (sec == cur) return time;
-      time = (cur < 10 ? ":0" : ":") + time;
-      sec = (sec - cur) / 60;
-    }
-  }
-
   var renderNavList = {
     playlistsList: function(navlist, list) {
       for (var i = 0; i < list.length; i++) {
@@ -397,7 +386,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       navlist.toggleClass("noalbum", currentNavList.noAlbum);
       navlist.toggleClass("norating", currentNavList.noRating);
       navlist.toggleClass("noduration", currentNavList.duration == 0);
-      if (currentNavList.duration > 0) $("#navHead").find("span.duration").text("(" + toTimeString(currentNavList.duration) + ")");
+      if (currentNavList.duration > 0) $("#navHead").find("span.duration").text("(" + bp.toTimeString(currentNavList.duration) + ")");
       if (current) current.scrollIntoView(true);
     },
     albumContainers: function(navlist, list) {
@@ -551,6 +540,18 @@ chrome.runtime.getBackgroundPage(function(bp) {
       }, 500);
     });
 
+    function ctrlHandler(urlField, e) {
+      if (e.ctrlKey) {
+        e.stopImmediatePropagation();
+        var lastfmInfo = bp.song.lastfmInfo || lastSongLastfmInfo;
+        if (lastfmInfo && lastfmInfo[urlField]) chrome.tabs.create({url: lastfmInfo[urlField]});
+      }
+    }
+    
+    $("#track").click(ctrlHandler.bind(window, "url"));
+    $("#artist").click(ctrlHandler.bind(window, "artistUrl"));
+    $("#album").click(ctrlHandler.bind(window, "albumUrl"));
+    
     $("body").on("click", ".nav", function(e) {
       var link = $(this).data("link");
       if (link) {
@@ -744,6 +745,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
             .find(".userplaycount").html(chrome.i18n.getMessage("lastfmInfo_userplaycount", "<span></span>"))
       .end().find(".playcount").html(chrome.i18n.getMessage("lastfmInfo_playcount", "<span></span>"))
       .end().find(".listeners").html(chrome.i18n.getMessage("lastfmInfo_listeners", "<span></span>"));
+
+    $("#lastfmUser")
+      .on("contextmenu", function(e) {
+        e.preventDefault();
+        bp.settings.scrobble = !bp.settings.scrobble;
+      });
 
     setupNavigationEvents();
 

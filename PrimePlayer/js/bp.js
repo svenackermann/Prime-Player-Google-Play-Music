@@ -25,7 +25,10 @@ var LOCAL_SETTINGS_DEFAULTS = {
   quicklinksSizing: {width: 280, height: 160},
   albumContainersSizing: {width: 220, height: 320},
   searchresultSizing: {width: 350, height: 320},
-  lyricsSizing: {width: 400, height: 400}
+  lyricsSizing: {width: 400, height: 400},
+  timerMinutes: 60,
+  timerAction: "pause",
+  timerNotify: true
 }
 var localSettings = new Bean(LOCAL_SETTINGS_DEFAULTS, true);
 
@@ -456,6 +459,20 @@ function parseSeconds(time) {
   return sec || 0;
 }
 
+function toTimeString(sec) {
+  if (sec > 60*60*24) return chrome.i18n.getMessage("moreThanOneDay");
+  if (sec < 10) return "0:0" + sec;
+  if (sec < 60) return "0:" + sec;
+  var time = "";
+  while (true) {
+    var cur = sec % 60;
+    time = cur + time;
+    if (sec == cur) return time;
+    time = (cur < 10 ? ":0" : ":") + time;
+    sec = (sec - cur) / 60;
+  }
+}
+
 function getTextForQuicklink(link) {
   if (link == "myPlaylists") return chrome.i18n.getMessage("myPlaylists");
   var text;
@@ -597,7 +614,10 @@ function getLoved(songInfo, callback) {
             lastfmInfo = {
               listeners: response.track.listeners || 0,
               playcount: response.track.playcount || 0,
-              userplaycount: response.track.userplaycount || 0
+              userplaycount: response.track.userplaycount || 0,
+              url: response.track.url,
+              artistUrl: response.track.artist && response.track.artist.url,
+              albumUrl: response.track.album && response.track.album.url
             };
           }
           callback(response.track != null && response.track.userloved == 1, lastfmInfo);
@@ -886,6 +906,10 @@ function toastPopup() {
   }
 }
 
+function closeGm() {
+  if (googlemusictabId) chrome.tabs.remove(googlemusictabId);
+}
+
 var miniplayerReopen = false;
 /** reset state when miniplayer is closed, reopen if neccessary */
 function miniplayerClosed(winId) {
@@ -894,7 +918,7 @@ function miniplayerClosed(winId) {
     chrome.windows.onRemoved.removeListener(miniplayerClosed);
     miniplayer = null;
     if (miniplayerReopen) openMiniplayer();
-    else if (settings.mpCloseGm && googlemusictabId) chrome.tabs.remove(googlemusictabId);
+    else if (settings.mpCloseGm) closeGm();
     miniplayerReopen = false;
   }
 }
@@ -1085,6 +1109,64 @@ function gaEnabledChanged(val) {
   }
 }
 
+var timerEnd = 0;
+var sleepTimer;
+function startSleepTimer() {
+  clearTimeout(sleepTimer);
+  timerEnd = (new Date().getTime() / 1000) + (localSettings.timerMinutes * 60);
+  sleepTimer = setTimeout(function() {
+    sleepTimer = null;
+    timerEnd = 0;
+    var msg, btnTitle, undoAction;
+    switch (localSettings.timerAction) {
+      case "pause":
+        if (player.playing) {
+          msg = chrome.i18n.getMessage("timerNotificationMsgPause");
+          btnTitle = chrome.i18n.getMessage("timerNotificationBtnPause");
+          undoAction = executePlayPause;
+          executePlayPause();
+        }
+        break;
+      case "closeGm":
+        if (googlemusictabId) {
+          msg = chrome.i18n.getMessage("timerNotificationMsgCloseGm");
+          btnTitle = chrome.i18n.getMessage("timerNotificationBtnCloseGm");
+          undoAction = openGoogleMusicTab;
+        }
+        closeGm();
+        break;
+    }
+    if (localSettings.timerNotify && msg) {
+      chrome.notifications.create("", {
+        type: "basic",
+        title: chrome.i18n.getMessage("timerNotificationTitle"),
+        message: msg,
+        buttons: [{title: btnTitle}],
+        iconUrl: chrome.extension.getURL("img/icon-48x48.png"),
+        priority: 2
+      }, function(notificationId) {
+        function clearNotification() {
+          chrome.notifications.clear(notificationId, function() {/* not interesting, but required */});
+          chrome.notifications.onButtonClicked.removeListener(btnClicked);
+        }
+        function btnClicked(notId) {
+          if (notId == notificationId) {
+            clearNotification();
+            undoAction();
+          }
+        }
+        chrome.notifications.onButtonClicked.addListener(btnClicked);
+        setTimeout(clearNotification, 10000);
+      });
+    }
+  }, localSettings.timerMinutes * 60000);
+}
+function clearSleepTimer() {
+  clearTimeout(sleepTimer);
+  sleepTimer = null;
+  timerEnd = 0;
+}
+
 function extractUrlParam(name, queryString) {
   var matched = RegExp(name + "=(.+?)(&|$)").exec(queryString);
   if (matched == null || matched.length < 2) return null;
@@ -1253,6 +1335,8 @@ player.addListener("connected", function(val) {
     resumeLastSongIfConnected();
     if (settings.connectedIndicator) postToGooglemusic({type: "connectedIndicator", show: true});
     if (localSettings.lyrics && settings.lyricsInGpm) postLyricsState();
+  } else {
+    clearSleepTimer();
   }
 });
 

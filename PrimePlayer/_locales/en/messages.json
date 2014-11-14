@@ -251,6 +251,10 @@
     "message": "This tab is connected to Prime Player. Click to disconnect.",
     "description": "tooltip for the 'P'-icon on Google Music page"
   },
+  "timerSettings": {
+    "message": "Timer settings",
+    "description": "title for the timer settings on options page"
+  },
   "lastfmSettings": {
     "message": "last.fm settings",
     "description": "title for the lastfm settings on options page"
@@ -762,5 +766,53 @@
   "configShortcuts": {
     "message": "Keyboard shortcuts",
     "description": "text for link to open the keyboard shortcuts settings"
+  },
+  "timerMinutes": {
+    "message": "Countdown minutes",
+    "description": "label for timer minutes setting"
+  },
+  "timerNotify": {
+    "message": "Notify on timeout",
+    "description": "label for timer notification setting"
+  },
+  "timerAction": {
+    "message": "Action on timeout",
+    "description": "label for timer action setting"
+  },
+  "timerAction_closeGm": {
+    "message": "Close Google Music",
+    "description": "label for timer action option to close Google Music"
+  },
+  "timerAction_pause": {
+    "message": "Pause music",
+    "description": "label for timer action option to pause music"
+  },
+  "startTimer": {
+    "message": "Start",
+    "description": "label for button to start timer"
+  },
+  "stopTimer": {
+    "message": "Stop",
+    "description": "label for button to stop timer"
+  },
+  "timerNotificationTitle": {
+    "message": "Timeout occured",
+    "description": "title for timeout notification"
+  },
+  "timerNotificationMsgPause": {
+    "message": "The music has been stopped because the timout occured.",
+    "description": "Message for timeout notification with pause action"
+  },
+  "timerNotificationMsgCloseGm": {
+    "message": "Google Music has been closed because the timout occured.",
+    "description": "Message for timeout notification with close Google Music action"
+  },
+  "timerNotificationBtnPause": {
+    "message": "Resume",
+    "description": "Message for timeout notification button with pause action"
+  },
+  "timerNotificationBtnCloseGm": {
+    "message": "Open again",
+    "description": "Message for timeout notification button with close Google Music action"
   }
 }
