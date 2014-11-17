@@ -71,6 +71,8 @@ var SETTINGS_DEFAULTS = {
   iconStyle: "default",
   showPlayingIndicator: true,
   showRatingIndicator: false,
+  showProgress: false,
+  showProgressColor: "#ff0000",
   saveLastPosition: false,
   skipRatedLower: 0,
   iconClickAction0: "",
@@ -172,19 +174,38 @@ function songsEqual(song1, song2) {
 }
 song.setEqualsFn("info", songsEqual);
 
+var browserIconCtx;
+var lastProgressPosition = 0;
+function drawProgress() {
+  if (settings.showProgress && browserIconCtx && song.positionSec > 0) {
+    lastProgressPosition = song.positionSec;
+    browserIconCtx.strokeStyle = settings.showProgressColor;
+    browserIconCtx.lineWidth = 3;
+    browserIconCtx.beginPath();
+    browserIconCtx.arc(9, 10, 8, 1.5 * Math.PI, (2 * lastProgressPosition / song.info.durationSec - 0.5) * Math.PI);
+    browserIconCtx.stroke();
+    return true;
+  }
+  return false;
+}
+
 function draw(backgroundSrc, imagePaths, callback) {
-  var ctx = $("<canvas width='19' height='19'/>").get(0).getContext("2d");
+  var iconCtx = $("<canvas width='19' height='19'/>").get(0).getContext("2d");
   var image = new Image();
   function loadNext() {
     var path = imagePaths.shift();
     if (path) image.src = chrome.extension.getURL(path + ".png")
-    else callback(ctx);
+    else callback(iconCtx);
   }
   image.onload = function() {
-    ctx.drawImage(image, 0, 0);
+    iconCtx.drawImage(image, 0, 0);
     loadNext();
   };
   image.src = chrome.extension.getURL(backgroundSrc);
+}
+
+function updateBrowserIcon() {
+  chrome.browserAction.setIcon({imageData: browserIconCtx.getImageData(0, 0, 19, 19)});
 }
 
 /** handler for all events that need to update the browser action icon/title */
@@ -243,11 +264,13 @@ function updateBrowserActionInfo() {
   }
   path += ".png";
   
-  if (iconPaths.length) draw(path, iconPaths, function(icon) {
-    chrome.browserAction.setIcon({imageData: icon.getImageData(0, 0, 19, 19)});
-  }); else chrome.browserAction.setIcon({path: path});
-  if (faviconPaths.length) draw(path, faviconPaths, function(favicon) {
-    player.favicon = favicon.canvas.toDataURL();
+  draw(path, iconPaths, function(iconCtx) {
+    browserIconCtx = iconCtx;
+    drawProgress();
+    updateBrowserIcon();
+  });
+  if (faviconPaths.length) draw(path, faviconPaths, function(iconCtx) {
+    player.favicon = iconCtx.canvas.toDataURL();
   }); else player.favicon = path;
   chrome.browserAction.setTitle({title: title});
 }
@@ -1291,6 +1314,8 @@ settings.watch("showRatingIndicator", function(val) {
   else song.removeListener("rating", updateBrowserActionInfo);
   updateBrowserActionInfo();
 });
+settings.addListener("showProgress", updateBrowserActionInfo);
+settings.addListener("showProgressColor", updateBrowserActionInfo);
 function saveRatingMode(ratingMode) {
   if (ratingMode) chrome.storage.local.set({"ratingMode": ratingMode});
 }
@@ -1420,6 +1445,7 @@ song.addListener("position", function(val) {
     if (settings.saveLastPosition && googlemusicport) {
       chrome.storage.local.set({"lastPosition": val});
     }
+    if (Math.abs(song.positionSec - lastProgressPosition) > 3 && drawProgress()) updateBrowserIcon();
   }
 });
 song.addListener("info", function(val) {

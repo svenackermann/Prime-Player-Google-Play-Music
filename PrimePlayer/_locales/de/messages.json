@@ -291,6 +291,12 @@
   "setting_showRatingIndicator": {
     "message": "Zeige Bewertung im Symbol"
   },
+  "setting_showProgress": {
+    "message": "Zeige Titel-Fortschritt im Symbol"
+  },
+  "setting_showProgressColor": {
+    "message": "Farbe f\u00FCr Titel-Fortschritt"
+  },
   "setting_saveLastPosition": {
     "message": "Speichere zuletzt gespielten Titel"
   },

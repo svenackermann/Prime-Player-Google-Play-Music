@@ -388,6 +388,14 @@
     "message": "Show rating in icon",
     "description": "label for option to enable rating in icon"
   },
+  "setting_showProgress": {
+    "message": "Show song progress in icon",
+    "description": "label for option to show progress in icon"
+  },
+  "setting_showProgressColor": {
+    "message": "Song progress color",
+    "description": "label for show progress color"
+  },
   "setting_saveLastPosition": {
     "message": "Save last song position",
     "description": "label for option to save last song position"

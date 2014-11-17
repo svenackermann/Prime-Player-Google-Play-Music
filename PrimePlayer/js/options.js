@@ -181,6 +181,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#iconClickAction3").prop("disabled", !bp.settings.iconClickAction2 || ict == 0).val(bp.settings.iconClickAction3);
   }
   
+  function showProgressChanged() {
+    $("#showProgressColor").prop("disabled", !bp.settings.showProgress);
+  }
+  
   /** @return version from a class attribute (e.g. for an element with class "abc v-1.2.3 def" this returns "1.2.3") */
   function extractVersionFromClass(el) {
     var cl = $(el).attr("class");
@@ -191,19 +195,19 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function connectedWatcher(val) {
-    $("#startTimer").prop("disabled", !val);
+    $("#startTimer, #timerMin, #timerNotify, #timerAction").prop("disabled", !val);
     $("#stopTimer").prop("disabled", true);
   }
   
   function updateTimerStatus() {
     var countDown = Math.floor(bp.timerEnd - (new Date().getTime() / 1000));
     if (countDown > 0) {
-      $("#timerStatus").text(bp.toTimeString(countDown));
+      $("#timerStatus").text(chrome.i18n.getMessage("timerAction_" + bp.localSettings.timerAction) + " in " + bp.toTimeString(countDown));
       setTimeout(updateTimerStatus, 1000);
     } else {
-      $("#stopTimer").prop("disabled", true);
       $("#timerStatus").empty();
     }
+    $("#stopTimer").prop("disabled", countDown <= 0);
   }
   
   function initTimer() {
@@ -220,13 +224,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
         bp.localSettings.timerAction = $("#timerAction").val();
         bp.localSettings.timerNotify = $("#timerNotify").prop("checked");
         bp.startSleepTimer();
-        $("#stopTimer").prop("disabled", false);
         updateTimerStatus();
       }
     });
-    $("#stopTimer").text(chrome.i18n.getMessage("stopTimer")).click(function() {
-      bp.clearSleepTimer();
-    });
+    $("#stopTimer").text(chrome.i18n.getMessage("stopTimer")).click(bp.clearSleepTimer);
     updateTimerStatus();
   }
   
@@ -242,8 +243,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#lastfmStatus").find("span").text(chrome.i18n.getMessage("lastfmUser"));
     var bugfeatureinfo = chrome.i18n.getMessage("bugfeatureinfo", "<a target='_blank' href='https://github.com/svenackermann/Prime-Player-Google-Play-Music/issues' data-network='github' data-action='issue'>GitHub</a>");
     $("#bugfeatureinfo").html(bugfeatureinfo);
-    
-    initTimer();
     
     initCheckbox("scrobble");
     var percentSpan = $("#scrobblePercent").parent().find("span");
@@ -314,6 +313,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initIconStyle();
     initCheckbox("showPlayingIndicator");
     initCheckbox("showRatingIndicator");
+    initCheckbox("showProgress").click(showProgressChanged);
+    initColorInput("showProgressColor");
     initCheckbox("saveLastPosition");
     initHint("saveLastPosition");
     initSelect("skipRatedLower");
@@ -354,8 +355,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     toastChanged();
     lyricsChanged();
     iconClickChanged();
+    showProgressChanged();
     
     bp.player.watch("connected", connectedWatcher, "options");
+    initTimer();
     
     $("#resetSettings").click(function() {
       bp.settings.resetToDefaults();
