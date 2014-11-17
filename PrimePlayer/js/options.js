@@ -181,6 +181,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#iconClickAction3").prop("disabled", !bp.settings.iconClickAction2 || ict == 0).val(bp.settings.iconClickAction3);
   }
   
+  function showProgressChanged() {
+    $("#showProgressColor").prop("disabled", !bp.settings.showProgress);
+  }
+  
   /** @return version from a class attribute (e.g. for an element with class "abc v-1.2.3 def" this returns "1.2.3") */
   function extractVersionFromClass(el) {
     var cl = $(el).attr("class");
@@ -309,6 +313,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initIconStyle();
     initCheckbox("showPlayingIndicator");
     initCheckbox("showRatingIndicator");
+    initCheckbox("showProgress").click(showProgressChanged);
+    initColorInput("showProgressColor");
     initCheckbox("saveLastPosition");
     initHint("saveLastPosition");
     initSelect("skipRatedLower");
@@ -349,6 +355,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     toastChanged();
     lyricsChanged();
     iconClickChanged();
+    showProgressChanged();
     
     bp.player.watch("connected", connectedWatcher, "options");
     initTimer();
