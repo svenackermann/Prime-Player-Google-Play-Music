@@ -195,7 +195,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function connectedWatcher(val) {
-    $("#startTimer, #timerMin, #timerNotify, #timerAction").prop("disabled", !val);
+    $("#startTimer, #timerMin, #timerNotify, #timerPreNotify, #timerAction").prop("disabled", !val);
     $("#stopTimer").prop("disabled", true);
   }
   
@@ -211,8 +211,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function initTimer() {
-    $("#timerMin").val(bp.localSettings.timerMinutes).parent().find("label").text(chrome.i18n.getMessage("timerMinutes"));
+    function updatePreNotifyMax() {
+      $("#timerPreNotify").attr("max", $("#timerMin").val() * 60);
+    }
+    $("#timerMin").val(bp.localSettings.timerMinutes).change(updatePreNotifyMax).parent().find("label").text(chrome.i18n.getMessage("timerMinutes"));
     $("#timerNotify").prop("checked", bp.localSettings.timerNotify).parent().find("label").text(chrome.i18n.getMessage("timerNotify"));
+    $("#timerPreNotify").val(bp.localSettings.timerPreNotify).parent().find("label").text(chrome.i18n.getMessage("timerPreNotify"));
     $("#timerAction").val(bp.localSettings.timerAction).parent().find("label").text(chrome.i18n.getMessage("timerAction"));
     $("#timerAction").find("option").each(function() {
       $(this).text(chrome.i18n.getMessage("timerAction_" + $(this).attr("value")));
@@ -223,11 +227,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
         bp.localSettings.timerMinutes = min;
         bp.localSettings.timerAction = $("#timerAction").val();
         bp.localSettings.timerNotify = $("#timerNotify").prop("checked");
+        bp.localSettings.timerPreNotify = $("#timerPreNotify").val();
         bp.startSleepTimer();
         updateTimerStatus();
       }
     });
     $("#stopTimer").text(chrome.i18n.getMessage("stopTimer")).click(bp.clearSleepTimer);
+    updatePreNotifyMax();
     updateTimerStatus();
   }
   

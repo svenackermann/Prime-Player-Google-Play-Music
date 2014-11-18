@@ -589,6 +589,9 @@
   "timerNotify": {
     "message": "Bei Ablauf benachrichtigen"
   },
+  "timerPreNotify": {
+    "message": "Sekunden vor Ablauf warnen (0=nicht warnen)"
+  },
   "timerAction": {
     "message": "Aktion bei Ablauf"
   },
@@ -618,5 +621,19 @@
   },
   "timerNotificationBtnCloseGm": {
     "message": "Wieder \u00F6ffnen"
+  },
+  "timerWarningTitle": {
+    "message": "Timer endet bald"
+  },
+  "timerWarningMsgPause": {
+    "message": "Die Musik wird automatisch in $SEC$ Sekunden angehalten.",
+    "placeholders": { "SEC": { "content": "$1" } }
+  },
+  "timerWarningMsgCloseGm": {
+    "message": "Google Music wird in $SEC$ Sekunden geschlossen.",
+    "placeholders": { "SEC": { "content": "$1" } }
+  },
+  "cancelTimer": {
+    "message": "Timer stoppen"
   }
 }
