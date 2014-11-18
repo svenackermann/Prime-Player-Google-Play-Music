@@ -98,8 +98,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var input = $("#" + prop);
     input
       .prop("checked", settings[prop])
-      .click(boolUpdater(prop, settings))
-      .parent().find("label").text(chrome.i18n.getMessage("setting_" + prop));
+      .click(boolUpdater(prop, settings));
+    $("label[for='" + prop + "']").text(chrome.i18n.getMessage("setting_" + prop));
     return input;
   }
 
@@ -108,8 +108,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var input = $("#" + prop);
     input
       .val(settings[prop])
-      .blur(numberUpdater(prop, settings))
-      .parent().find("label").text(chrome.i18n.getMessage("setting_" + prop));
+      .blur(numberUpdater(prop, settings));
+    $("label[for='" + prop + "']").text(chrome.i18n.getMessage("setting_" + prop));
     return input;
   }
 
@@ -123,10 +123,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     input
       .val(bp.settings[prop])
       .change(updater(prop))
-      .parent().find("label").text(chrome.i18n.getMessage("setting_" + prop));
-    input.find("option").each(function() {
+      .find("option").each(function() {
         $(this).text(getOptionText($(this).attr("value")));
       });
+    $("label[for='" + prop + "']").text(chrome.i18n.getMessage("setting_" + prop));
     return input;
   }
   
@@ -134,13 +134,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var input = $("#" + prop);
     input
       .val(bp.settings[prop])
-      .change(stringUpdater(prop, bp.settings))
-      .parent().find("label").text(chrome.i18n.getMessage("setting_" + prop));
+      .change(stringUpdater(prop, bp.settings));
+    $("label[for='" + prop + "']").text(chrome.i18n.getMessage("setting_" + prop));
     return input;
   }
   
   function initIconStyle() {
-    $("#iconStyle").find("label").text(chrome.i18n.getMessage("setting_iconStyle"));
+    $("label[for='iconStyle']").text(chrome.i18n.getMessage("setting_iconStyle"));
     $("#iconStyle").find("input[value='" + bp.settings.iconStyle + "']").prop("checked", true);
     $("#iconStyle").find("input").click(stringUpdater("iconStyle"));
   }
@@ -237,6 +237,24 @@ chrome.runtime.getBackgroundPage(function(bp) {
     updateTimerStatus();
   }
   
+  function initFilter() {
+    function updateOptionsMode() {
+      $("#settings").removeClass("f-beg f-adv f-exp").addClass("f-" + bp.settings.optionsMode);
+    }
+    initSelect("optionsMode").change(updateOptionsMode);
+    updateOptionsMode();
+    
+    $("#filter p").text(chrome.i18n.getMessage("filterHint"));
+    $("#filter > div > input[type='checkbox']").each(function() {
+      var id = $(this).attr("id");
+      function updateFilter() {
+        $("#settings").toggleClass(id, !bp.settings[id]);
+      }
+      initCheckbox(id).click(updateFilter);
+      updateFilter();
+    });
+  }
+  
   $(function() {
     $("head > title").text(chrome.i18n.getMessage("options") + " - " + chrome.i18n.getMessage("extTitle"));
     $("#legendTimer").text(chrome.i18n.getMessage("timerSettings"));
@@ -256,8 +274,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#scrobblePercent")
       .val(bp.settings.scrobblePercent)
       .mouseup(numberUpdater("scrobblePercent", bp.settings))
-      .change(function(){ percentSpan.text($(this).val()); })
-      .parent().find("label").text(chrome.i18n.getMessage("setting_scrobblePercent"));
+      .change(function(){ percentSpan.text($(this).val()); });
+    $("label[for='scrobblePercent']").text(chrome.i18n.getMessage("setting_scrobblePercent"));
     initNumberInput("scrobbleTime");
     initNumberInput("scrobbleMaxDuration");
     initCheckbox("disableScrobbleOnFf");
@@ -407,6 +425,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#credits").on("click", "a[data-network]", function() {
       bp.gaSocial($(this).data("network"), $(this).data("action") || "show");
     });
+    
+    initFilter();
   });
 
   $(window).unload(function() {

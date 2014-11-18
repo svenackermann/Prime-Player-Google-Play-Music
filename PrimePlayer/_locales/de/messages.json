@@ -635,5 +635,35 @@
   },
   "cancelTimer": {
     "message": "Timer stoppen"
+  },
+  "filterHint": {
+    "message": "Hier kannst du die sichtbaren Optionen einschr\u00E4nken."
+  },
+  "setting_optionsMode": {
+    "message": "Modus"
+  },
+  "setting_optionsMode_beg": {
+    "message": "Anf\u00E4nger"
+  },
+  "setting_optionsMode_adv": {
+    "message": "Fortgeschritten"
+  },
+  "setting_optionsMode_exp": {
+    "message": "Experte"
+  },
+  "setting_filterTimer": {
+    "message": "Timer"
+  },
+  "setting_filterLastfm": {
+    "message": "Last.fm"
+  },
+  "setting_filterToast": {
+    "message": "Toasting"
+  },
+  "setting_filterMiniplayer": {
+    "message": "Miniplayer"
+  },
+  "setting_filterLyrics": {
+    "message": "Songtexte"
   }
 }

@@ -844,5 +844,45 @@
   "cancelTimer": {
     "message": "Cancel timer",
     "description": "label for notification button to cancel timer"
+  },
+  "filterHint": {
+    "message": "Here you can limit the visible options.",
+    "description": "hint for options filter"
+  },
+  "setting_optionsMode": {
+    "message": "Mode",
+    "description": "label for options filter mode"
+  },
+  "setting_optionsMode_beg": {
+    "message": "Beginner",
+    "description": "label for options filter beginner"
+  },
+  "setting_optionsMode_adv": {
+    "message": "Advanced",
+    "description": "label for options filter advanced"
+  },
+  "setting_optionsMode_exp": {
+    "message": "Expert",
+    "description": "label for options filter expert"
+  },
+  "setting_filterTimer": {
+    "message": "Timer",
+    "description": "label for options timer filter"
+  },
+  "setting_filterLastfm": {
+    "message": "Last.fm",
+    "description": "label for options last.fm filter"
+  },
+  "setting_filterToast": {
+    "message": "Toasting",
+    "description": "label for options toast filter"
+  },
+  "setting_filterMiniplayer": {
+    "message": "Miniplayer",
+    "description": "label for options miniplayer filter"
+  },
+  "setting_filterLyrics": {
+    "message": "Lyrics",
+    "description": "label for options lyrics filter"
   }
 }

@@ -86,7 +86,13 @@ var SETTINGS_DEFAULTS = {
   connectedIndicator: true,
   preventCommandRatingReset: true,
   updateNotifier: true,
-  gaEnabled: true
+  gaEnabled: true,
+  optionsMode: "exp",
+  filterTimer: true,
+  filterLastfm: true,
+  filterToast: true,
+  filterMiniplayer: true,
+  filterLyrics: true
 };
 var settings = new Bean(SETTINGS_DEFAULTS, true);
 

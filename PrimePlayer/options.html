@@ -6,19 +6,19 @@
 <script type="text/javascript" src="js/options.js"></script>
 </head>
 <body>
-  <div class="settings">
-    <fieldset>
+  <div id="settings" class="f-exp">
+    <fieldset class="timer">
       <legend id="legendTimer"></legend>
       <div class="v-2.20">
         <input id="timerMin" type="number" min="1"/>
         <label for="timerMin"></label>
         <span id="timerStatus"></span>
       </div>
-      <div class="v-2.20">
+      <div class="v-2.20 adv">
         <input id="timerNotify" type="checkbox"/>
         <label for="timerNotify"></label>
       </div>
-      <div class="v-2.22">
+      <div class="v-2.22 adv">
         <input id="timerPreNotify" type="number" min="0"/>
         <label for="timerPreNotify"></label>
       </div>
@@ -32,7 +32,7 @@
       <button id="startTimer"></button>
       <button id="stopTimer"></button>
     </fieldset>
-    <fieldset>
+    <fieldset class="lastfm">
       <legend id="legendLastfm"></legend>
       <div id="lastfmStatus">
         <span></span>
@@ -51,49 +51,41 @@
         <label for="scrobblePercent"></label>
         (<span></span>%)
       </div>
-      <div>
+      <div class="exp">
         <input id="scrobbleTime" type="number" min="0"/>
         <label for="scrobbleTime"></label>
       </div>
-      <div>
+      <div class="exp">
         <input id="scrobbleMaxDuration" type="number" min="0"/>
         <label for="scrobbleMaxDuration"></label>
       </div>
-      <div class="v-1.2">
+      <div class="v-1.2 adv">
         <input id="disableScrobbleOnFf" type="checkbox"/>
         <label for="disableScrobbleOnFf"></label>
         <img src="img/hint.png" class="hint"></img>
       </div>
-      <div class="v-2.15">
+      <div class="v-2.15 exp">
         <input id="scrobbleRepeated" type="checkbox"/>
         <label for="scrobbleRepeated"></label>
       </div>
-      <div class="v-1.2">
+      <div class="v-1.2 adv">
         <input id="linkRatings" type="checkbox"/>
         <label for="linkRatings"></label>
         <img src="img/hint.png" class="hint"></img>
       </div>
-      <div class="v-2.11">
-        <input id="showLovedIndicator" type="checkbox"/>
-        <label for="showLovedIndicator"></label>
-      </div>
-      <div class="v-2.11">
-        <input id="showScrobbledIndicator" type="checkbox"/>
-        <label for="showScrobbledIndicator"></label>
-      </div>
-      <div class="v-2.17">
+      <div class="v-2.17 miniplayer">
         <input id="showLastfmInfo" type="checkbox"/>
         <label for="showLastfmInfo"></label>
       </div>
     </fieldset>
-    <fieldset>
+    <fieldset class="toast">
       <legend id="legendToasting"></legend>
       <div>
         <input id="toast" type="checkbox"/>
         <label for="toast"></label>
         <img src="img/hint.png" class="hint"></img>
       </div>
-      <div class="v-1.6">
+      <div class="v-1.6 exp">
         <input id="toastUseMpStyle" type="checkbox"/>
         <label for="toastUseMpStyle"></label>
         <img src="img/hint.png" class="hint"></img>
@@ -103,46 +95,46 @@
         <label for="toastDuration"></label>
         <img src="img/hint.png" class="hint"></img>
       </div>
-      <div class="v-2.6">
+      <div class="v-2.6 exp miniplayer">
         <input id="toastIfMpOpen" type="checkbox"/>
         <label for="toastIfMpOpen"></label>
       </div>
-      <div class="v-2.8">
+      <div class="v-2.8 adv">
         <select id="toastClick">
           <option value=""></option>
           <option value="playPause"></option>
           <option value="prevSong"></option>
           <option value="nextSong"></option>
           <option value="ff"></option>
-          <option value="openMiniplayer"></option>
+          <option value="openMiniplayer" class="miniplayer"></option>
           <option value="volumeUp"></option>
           <option value="volumeDown"></option>
           <option value="volumeMute"></option>
           <option value="toggleRepeat"></option>
           <option value="toggleShuffle"></option>
-          <option value="loveUnloveSong"></option>
+          <option value="loveUnloveSong" class="lastfm"></option>
           <option value="rate-1"></option>
           <option value="rate-2"></option>
           <option value="rate-3"></option>
           <option value="rate-4"></option>
           <option value="rate-5"></option>
           <option value="feelingLucky"></option>
-          <option value="openLyrics"></option>
+          <option value="openLyrics" class="lyrics"></option>
         </select>
         <label for="toastClick"></label>
       </div>
-      <div class="v-2.8">
+      <div class="v-2.8 adv">
         <select id="toastButton1"></select>
         <label for="toastButton1"></label>
       </div>
-      <div class="v-2.8">
+      <div class="v-2.8 adv">
         <select id="toastButton2"></select>
         <label for="toastButton2"></label>
       </div>
     </fieldset>
-    <fieldset>
+    <fieldset class="miniplayer">
       <legend id="legendMp"></legend>
-      <div>
+      <div class="exp">
         <select id="miniplayerType">
           <option value="normal"></option>
           <option value="popup"></option>
@@ -173,15 +165,15 @@
         </select>
         <label for="color"></label>
       </div>
-      <div class="v-2.19">
+      <div class="v-2.19 adv">
         <input id="mpBgColor" type="color"/>
         <label for="mpBgColor"></label>
       </div>
-      <div class="v-2.19">
+      <div class="v-2.19 adv">
         <input id="mpTextColor" type="color"/>
         <label for="mpTextColor"></label>
       </div>
-      <div class="v-2.0">
+      <div class="v-2.0 adv">
         <select id="coverClickLink">
           <option value=""></option>
           <option value="now"></option>
@@ -199,53 +191,53 @@
         </select>
         <label for="coverClickLink"></label>
       </div>
-      <div class="v-2.0">
+      <div class="v-2.0 adv">
         <select id="titleClickLink"></select>
         <label for="titleClickLink"></label>
       </div>
-      <div class="v-2.0">
+      <div class="v-2.0 exp">
         <input id="openLinksInMiniplayer" type="checkbox"/>
         <label for="openLinksInMiniplayer"></label>
         <img src="img/hint.png" class="hint"></img>
       </div>
-      <div class="v-2.1">
+      <div class="v-2.1 adv">
         <input id="hideSearchfield" type="checkbox"/>
         <label for="hideSearchfield"></label>
       </div>
-      <div class="v-1.11">
+      <div class="v-1.11 exp">
         <input id="hideRatings" type="checkbox"/>
         <label for="hideRatings"></label>
       </div>
-      <div class="v-2.0">
+      <div class="v-2.0 exp">
         <input id="omitUnknownAlbums" type="checkbox"/>
         <label for="omitUnknownAlbums"></label>
         <img src="img/hint.png" class="hint"></img>
       </div>
-      <div class="v-2.2">
+      <div class="v-2.2 adv">
         <input id="mpAutoOpen" type="checkbox"/>
         <label for="mpAutoOpen"></label>
       </div>
-      <div class="v-2.2">
+      <div class="v-2.2 adv">
         <input id="mpAutoClose" type="checkbox"/>
         <label for="mpAutoClose"></label>
       </div>
-      <div class="v-2.15">
+      <div class="v-2.15 adv">
         <input id="mpCloseGm" type="checkbox"/>
         <label for="mpCloseGm"></label>
       </div>
     </fieldset>
-    <fieldset>
+    <fieldset class="lyrics">
       <legend id="legendLyrics"></legend>
       <div class="v-2.8">
         <input id="lyrics" type="checkbox"/>
         <label for="lyrics"></label>
       </div>
-      <div class="v-2.8">
+      <div class="v-2.8 exp miniplayer">
         <input id="openLyricsInMiniplayer" type="checkbox"/>
         <label for="openLyricsInMiniplayer"></label>
         <img src="img/hint.png" class="hint"></img>
       </div>
-      <div class="v-2.10">
+      <div class="v-2.10 adv">
         <input id="lyricsAutoReload" type="checkbox"/>
         <label for="lyricsAutoReload"></label>
       </div>
@@ -253,11 +245,11 @@
         <input id="lyricsInGpm" type="checkbox"/>
         <label for="lyricsInGpm"></label>
       </div>
-      <div class="v-2.10">
+      <div class="v-2.10 adv">
         <input id="lyricsFontSize" type="number" min="1"/>
         <label for="lyricsFontSize"></label>
       </div>
-      <div class="v-2.10">
+      <div class="v-2.10 adv">
         <input id="lyricsWidth" type="number" min="50"/>
         <label for="lyricsWidth"></label>
       </div>
@@ -292,11 +284,19 @@
         <input id="showRatingIndicator" type="checkbox"/>
         <label for="showRatingIndicator"></label>
       </div>
+      <div class="v-2.11 lastfm">
+        <input id="showLovedIndicator" type="checkbox"/>
+        <label for="showLovedIndicator"></label>
+      </div>
+      <div class="v-2.11 lastfm">
+        <input id="showScrobbledIndicator" type="checkbox"/>
+        <label for="showScrobbledIndicator"></label>
+      </div>
       <div class="v-2.21">
         <input id="showProgress" type="checkbox"/>
         <label for="showProgress"></label>
       </div>
-      <div class="v-2.21">
+      <div class="v-2.21 adv">
         <input id="showProgressColor" type="color"/>
         <label for="showProgressColor"></label>
       </div>
@@ -305,7 +305,7 @@
         <label for="saveLastPosition"></label>
         <img src="img/hint.png" class="hint"></img>
       </div>
-      <div class="v-2.19">
+      <div class="v-2.19 adv">
         <select id="skipRatedLower">
           <option value="0"></option>
           <option value="1"></option>
@@ -315,7 +315,7 @@
         </select>
         <label for="skipRatedLower"></label>
       </div>
-      <fieldset>
+      <fieldset class="adv">
         <legend id="legendIc"></legend>
         <div class="v-2.15">
           <select id="iconClickAction0"></select>
@@ -343,33 +343,33 @@
           <label for="iconClickConnect"></label>
         </div>
       </fieldset>
-      <div class="v-1.1">
+      <div class="v-1.1 exp">
         <input id="openGoogleMusicPinned" type="checkbox"/>
         <label for="openGoogleMusicPinned"></label>
       </div>
-      <div class="v-2.14">
+      <div class="v-2.14 exp">
         <input id="googleAccountNo" type="number" min="0"/>
         <label for="googleAccountNo"></label>
         <img src="img/hint.png" class="hint"></img>
       </div>
-      <div class="v-2.0">
+      <div class="v-2.0 exp">
         <input id="connectedIndicator" type="checkbox"/>
         <label for="connectedIndicator"></label>
       </div>
-      <div class="v-2.7.1">
+      <div class="v-2.7.1 exp">
         <input id="preventCommandRatingReset" type="checkbox"/>
         <label for="preventCommandRatingReset"></label>
         <img src="img/hint.png" class="hint"></img>
       </div>
-      <div class="v-1.1">
+      <div class="v-1.1 adv">
         <input id="updateNotifier" type="checkbox"/>
         <label for="updateNotifier"></label>
       </div>
-      <div class="v-1.4">
+      <div class="v-1.4 adv">
         <input id="syncSettings" type="checkbox"/>
         <label for="syncSettings"></label>
       </div>
-      <div>
+      <div class="exp">
         <input id="gaEnabled" type="checkbox"/>
         <label for="gaEnabled"></label>
         <img src="img/hint.png" class="hint"></img>
@@ -378,6 +378,28 @@
     <button id="resetSettings"></button>
   </div>
   <div class="info">
+    <div id="filter" class="v-2.23">
+      <h2>Filter</h2>
+      <p></p>
+      <label for="optionsMode"></label>
+      <select id="optionsMode">
+        <option value="beg"></option>
+        <option value="adv"></option>
+        <option value="exp"></option>
+      </select>
+      <div>
+        <input id="filterTimer" type="checkbox" checked/>
+        <label for="filterTimer"></label>
+        <input id="filterLastfm" type="checkbox" checked/>
+        <label for="filterLastfm"></label>
+        <input id="filterToast" type="checkbox" checked/>
+        <label for="filterToast"></label>
+        <input id="filterMiniplayer" type="checkbox" checked/>
+        <label for="filterMiniplayer"></label>
+        <input id="filterLyrics" type="checkbox" checked/>
+        <label for="filterLyrics"></label>
+      </div>
+    </div>
     <div id="credits">
       <h2>Credits</h2>
       <div>Copyright (c) 2014, Sven Ackermann<br/>Licensed under the BSD license.</div>
