@@ -93,13 +93,17 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   /** the i18n key for the label for property "<prop>" is "setting_<prop>" */
+  function setLabel(prop) {
+    $("label[for='" + prop + "']").text(chrome.i18n.getMessage("setting_" + prop));
+  }
+  
   function initCheckbox(prop, settings) {
     if (!settings) settings = bp.settings;
     var input = $("#" + prop);
     input
       .prop("checked", settings[prop])
       .click(boolUpdater(prop, settings));
-    $("label[for='" + prop + "']").text(chrome.i18n.getMessage("setting_" + prop));
+    setLabel(prop);
     return input;
   }
 
@@ -109,7 +113,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     input
       .val(settings[prop])
       .blur(numberUpdater(prop, settings));
-    $("label[for='" + prop + "']").text(chrome.i18n.getMessage("setting_" + prop));
+    setLabel(prop);
     return input;
   }
 
@@ -126,7 +130,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       .find("option").each(function() {
         $(this).text(getOptionText($(this).attr("value")));
       });
-    $("label[for='" + prop + "']").text(chrome.i18n.getMessage("setting_" + prop));
+    setLabel(prop);
     return input;
   }
   
@@ -135,12 +139,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
     input
       .val(bp.settings[prop])
       .change(stringUpdater(prop, bp.settings));
-    $("label[for='" + prop + "']").text(chrome.i18n.getMessage("setting_" + prop));
+    setLabel(prop);
     return input;
   }
   
   function initIconStyle() {
-    $("label[for='iconStyle']").text(chrome.i18n.getMessage("setting_iconStyle"));
+    setLabel("iconStyle");
     $("#iconStyle").find("input[value='" + bp.settings.iconStyle + "']").prop("checked", true);
     $("#iconStyle").find("input").click(stringUpdater("iconStyle"));
   }
@@ -268,6 +272,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var bugfeatureinfo = chrome.i18n.getMessage("bugfeatureinfo", "<a target='_blank' href='https://github.com/svenackermann/Prime-Player-Google-Play-Music/issues' data-network='github' data-action='issue'>GitHub</a>");
     $("#bugfeatureinfo").html(bugfeatureinfo);
     
+    initTimer();
+    
     initCheckbox("scrobble");
     var percentSpan = $("#scrobblePercent").parent().find("span");
     percentSpan.text(bp.settings.scrobblePercent);
@@ -275,7 +281,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       .val(bp.settings.scrobblePercent)
       .mouseup(numberUpdater("scrobblePercent", bp.settings))
       .change(function(){ percentSpan.text($(this).val()); });
-    $("label[for='scrobblePercent']").text(chrome.i18n.getMessage("setting_scrobblePercent"));
+    setLabel("scrobblePercent");
     initNumberInput("scrobbleTime");
     initNumberInput("scrobbleMaxDuration");
     initCheckbox("disableScrobbleOnFf");
@@ -375,14 +381,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.settings.addListener("scrobble", scrobbleChanged, "options");
     //we must watch this as the session could be expired
     bp.localSettings.watch("lastfmSessionName", lastfmUserChanged, "options");
+    //watch for timer status
+    bp.player.watch("connected", connectedWatcher, "options");
     //disable inputs if neccessary
     toastChanged();
     lyricsChanged();
     iconClickChanged();
     showProgressChanged();
-    
-    bp.player.watch("connected", connectedWatcher, "options");
-    initTimer();
     
     $("#resetSettings").click(function() {
       bp.settings.resetToDefaults();
