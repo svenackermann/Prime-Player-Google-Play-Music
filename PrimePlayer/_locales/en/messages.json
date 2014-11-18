@@ -783,6 +783,10 @@
     "message": "Notify on timeout",
     "description": "label for timer notification setting"
   },
+  "timerPreNotify": {
+    "message": "seconds to warn before before timeout (0=do not warn)",
+    "description": "label for timer warning setting"
+  },
   "timerAction": {
     "message": "Action on timeout",
     "description": "label for timer action setting"
@@ -822,5 +826,23 @@
   "timerNotificationBtnCloseGm": {
     "message": "Open again",
     "description": "Message for timeout notification button with close Google Music action"
+  },
+  "timerWarningTitle": {
+    "message": "Timeout will occur soon",
+    "description": "title for timeout warning notification"
+  },
+  "timerWarningMsgPause": {
+    "message": "The music will automatically be stopped in $SEC$ seconds.",
+    "description": "Message for timeout warning with pause action",
+    "placeholders": { "SEC": { "content": "$1", "example": "10" } }
+  },
+  "timerWarningMsgCloseGm": {
+    "message": "Google Music will be closed in $SEC$ seconds.",
+    "description": "Message for timeout warning with close Google Music action",
+    "placeholders": { "SEC": { "content": "$1", "example": "10" } }
+  },
+  "cancelTimer": {
+    "message": "Cancel timer",
+    "description": "label for notification button to cancel timer"
   }
 }
