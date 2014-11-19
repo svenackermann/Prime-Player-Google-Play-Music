@@ -87,7 +87,7 @@ var SETTINGS_DEFAULTS = {
   preventCommandRatingReset: true,
   updateNotifier: true,
   gaEnabled: true,
-  optionsMode: "exp",
+  optionsMode: "beg",
   filterTimer: true,
   filterLastfm: true,
   filterToast: true,
@@ -1037,7 +1037,27 @@ function isNewerVersion(version) {
   return version.length > prev.length;//version is longer (e.g. 1.0.1 > 1.0), else same version
 }
 
-/** handler for onInstalled event (show the orange icon on update) */
+function migrateSettings(previousVersion) {
+  if (localStorage["iconClickMiniplayer"] !== undefined) {
+    if (localStorage["iconClickMiniplayer"] == "btrue") settings.iconClickAction0 = "openMiniplayer";
+    else if (localStorage["iconClickPlayPause"] == "btrue") settings.iconClickAction0 = "playPause";
+    localStorage.removeItem("iconClickMiniplayer");
+    localStorage.removeItem("iconClickPlayPause");
+  }
+  if (previousVersion < 2.18 && !settings.toastUseMpStyle) {
+    settings.toastDuration = 0;
+  }
+  if (localStorage["skipDislikedSongs"] !== undefined) {
+    settings.skipRatedLower = localStorage["skipDislikedSongs"] == "btrue" ? 1 : 0;
+    localStorage.removeItem("skipDislikedSongs");
+  }
+  if (previousVersion < 2.23) {
+    //use expert mode for existing users
+    settings.optionsMode = "exp";
+  }
+}
+
+/** handler for onInstalled event (show the orange icon on update / notification on install) */
 function updatedListener(details) {
   if (details.reason == "update") {
     if (settings.updateNotifier) {
@@ -1052,20 +1072,7 @@ function updatedListener(details) {
         previousVersion = null;
       }
     }
-    //migrate settings
-    if (parseFloat(currentVersion) >= 2.15 && localStorage["iconClickMiniplayer"] !== undefined) {
-      if (localStorage["iconClickMiniplayer"] == "btrue") settings.iconClickAction0 = "openMiniplayer";
-      else if (localStorage["iconClickPlayPause"] == "btrue") settings.iconClickAction0 = "playPause";
-      localStorage.removeItem("iconClickMiniplayer");
-      localStorage.removeItem("iconClickPlayPause");
-    }
-    if (parseFloat(details.previousVersion) < 2.18 && !settings.toastUseMpStyle) {
-      settings.toastDuration = 0;
-    }
-    if (parseFloat(details.previousVersion) < 2.19 && localStorage["skipDislikedSongs"] !== undefined) {
-      settings.skipRatedLower = localStorage["skipDislikedSongs"] == "btrue" ? 1 : 0;
-      localStorage.removeItem("skipDislikedSongs");
-    }
+    migrateSettings(parseFloat(details.previousVersion));
   } else if (details.reason == "install") {
     chrome.notifications.create("", {
       type: "basic",
