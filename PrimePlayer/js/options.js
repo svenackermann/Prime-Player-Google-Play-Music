@@ -86,10 +86,18 @@ chrome.runtime.getBackgroundPage(function(bp) {
     };
   }
 
+  function appendHint(container) {
+    var hint = $("<p class='legend-hint'></p>");
+    $("<img src='img/hint.png' class='hint'/>").click(function() {hint.slideToggle("fast");}).appendTo(container);
+    return hint;
+  }
+  
   /** the i18n key for the hint for property "<prop>" is "setting_<prop>Hint" */
   function initHint(prop) {
-    $("#" + prop)
-      .parent().find("img.hint").attr("title", chrome.i18n.getMessage("setting_" + prop + "Hint"));
+    var container = $("#" + prop).parent();
+    var hint = appendHint(container)
+    hint.html(chrome.i18n.getMessage("setting_" + prop + "Hint")).appendTo(container);
+    return hint;
   }
 
   /** the i18n key for the label for property "<prop>" is "setting_<prop>" */
@@ -259,15 +267,17 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
   }
   
+  function initLegends() {
+    $("#settings legend").each(function() {
+      $(this).text(chrome.i18n.getMessage(this.id));
+      appendHint(this).text(chrome.i18n.getMessage(this.id + "Hint")).insertAfter(this);
+    });
+  }
+  
   $(function() {
     $("head > title").text(chrome.i18n.getMessage("options") + " - " + chrome.i18n.getMessage("extTitle"));
-    $("#legendTimer").text(chrome.i18n.getMessage("timerSettings"));
-    $("#legendLastfm").text(chrome.i18n.getMessage("lastfmSettings"));
-    $("#legendToasting").text(chrome.i18n.getMessage("toastingSettings"));
-    $("#legendMp").text(chrome.i18n.getMessage("mpSettings"));
-    $("#legendLf").text(chrome.i18n.getMessage("lfSettings"));
-    $("#legendIc").text(chrome.i18n.getMessage("icSettings"));
-    $("#legendLyrics").text(chrome.i18n.getMessage("lyricsSettings"));
+    initLegends();
+    
     $("#lastfmStatus").find("span").text(chrome.i18n.getMessage("lastfmUser"));
     var bugfeatureinfo = chrome.i18n.getMessage("bugfeatureinfo", "<a target='_blank' href='https://github.com/svenackermann/Prime-Player-Google-Play-Music/issues' data-network='github' data-action='issue'>GitHub</a>");
     $("#bugfeatureinfo").html(bugfeatureinfo);
@@ -309,7 +319,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
       .val(bp.settings.toastButton2);
     
     initSelect("miniplayerType");
-    initHint("miniplayerType");
+    //var miniplayerTypeHintHtml = $(chrome.i18n.getMessage("setting_miniplayerTypeHint").replace("<FLAGSLINK>", "<a tabindex='0'>chrome://flags</a>"));
+    //miniplayerTypeHintHtml.find("a").click(function() { chrome.tabs.create({ url: "chrome://flags" }); });
+    initHint("miniplayerType").find("a").text("chrome://flags").attr("tabindex", "0").click(function() { chrome.tabs.create({ url: "chrome://flags" }); });
     initSelect("layout");
     initHint("layout");
     initSelect("color");
@@ -337,9 +349,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initNumberInput("lyricsFontSize", bp.localSettings);
     initNumberInput("lyricsWidth", bp.localSettings);
     
-    $("#shortcutsLink").text(chrome.i18n.getMessage("configShortcuts")).click(function() {
-      chrome.tabs.create({ url: "chrome://extensions/configureCommands" });
-    });
+    $("#shortcutsLink").text(chrome.i18n.getMessage("configShortcuts")).click(function() { chrome.tabs.create({ url: "chrome://extensions/configureCommands" }); });
     initIconStyle();
     initCheckbox("showPlayingIndicator");
     initCheckbox("showRatingIndicator");

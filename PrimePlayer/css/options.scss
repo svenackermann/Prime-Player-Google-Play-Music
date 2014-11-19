@@ -24,6 +24,13 @@ body {
   }
 }
 
+.legend-hint {
+  display: none;
+  max-width: 400px;
+  color: #009933;
+  font-weight: bold;
+}
+
 .info {
   padding-left: 15px;
   overflow-x: hidden;
@@ -85,6 +92,10 @@ img.hint {
   vertical-align: text-bottom;
 }
 
+#settings img.hint {
+  cursor: pointer;
+}
+
 #changelog {
   clear: both;
   h2 {
@@ -143,7 +154,7 @@ img.hint {
   }
 }
 
-#lastfmStatus a, a#shortcutsLink {
+#lastfmStatus a, a#shortcutsLink, .legend-hint a {
   text-decoration: underline;
   color: -webkit-link;
   cursor: pointer;
