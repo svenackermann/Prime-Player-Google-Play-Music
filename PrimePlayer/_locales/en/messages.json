@@ -176,7 +176,7 @@
     "description": "label for option to change the miniplayer type"
   },
   "setting_miniplayerTypeHint": {
-    "message": "Hint: Go to chrome://flags and activate 'Panels' to enable 'real' panels that can stay always on top.",
+    "message": "If you want to use type 'panel', go to <a></a> and activate 'Panels' to enable 'real' panels that can stay always on top.",
     "description": "hint for option to change the miniplayer type"
   },
   "setting_miniplayerType_normal": {
@@ -251,33 +251,61 @@
     "message": "This tab is connected to Prime Player. Click to disconnect.",
     "description": "tooltip for the 'P'-icon on Google Music page"
   },
-  "timerSettings": {
+  "legendTimer": {
     "message": "Timer settings",
     "description": "title for the timer settings on options page"
   },
-  "lastfmSettings": {
+  "legendTimerHint": {
+    "message": "The timer allows you to automatically stop the music or close the Google Music tab after a specified amount of time. The settings will become available as soon as Prime Player is connected to Google Music.",
+    "description": "hint for the timer settings on options page"
+  },
+  "legendLastfm": {
     "message": "last.fm settings",
     "description": "title for the lastfm settings on options page"
   },
-  "toastingSettings": {
+  "legendLastfmHint": {
+    "message": "Here you can control the connection between Google Music and last.fm and adjust your scrobbling preferences.",
+    "description": "hint for the lastfm settings on options page"
+  },
+  "legendToasting": {
     "message": "Toasting settings",
     "description": "title for the toast settings on options page"
   },
-  "mpSettings": {
+  "legendToastingHint": {
+    "message": "Toasts are Chrome notifications that show you the current song and allow for some actions. Whenever a new song starts, a toast notification will appear on your screen.",
+    "description": "hint for the toast settings on options page"
+  },
+  "legendMp": {
     "message": "Miniplayer settings",
     "description": "title for the miniplayer settings on options page"
   },
-  "lfSettings": {
+  "legendMpHint": {
+    "message": "The miniplayer is a powerful, highly customizable tool, so take your time to try the different options out. You can open the miniplayer e.g. by clicking on the note icon in the popup that shows up when you click the Prime Player icon in the Chrome toolbar.",
+    "description": "hint for the miniplayer settings on options page"
+  },
+  "legendLf": {
     "message": "Look and feel",
     "description": "title for the look and feel settings on options page"
   },
-  "icSettings": {
+  "legendLfHint": {
+    "message": "These settings control the Prime Player icon and some other general behavior.",
+    "description": "hint for the look and feel settings on options page"
+  },
+  "legendIc": {
     "message": "Browser icon click",
     "description": "title for the icon click settings on options page"
   },
-  "lyricsSettings": {
+  "legendIcHint": {
+    "message": "This allows you to customize the action(s) that will be executed when you click the Prime Player icon in the Chrome toolbar.",
+    "description": "hint for the icon click settings on options page"
+  },
+  "legendLyrics": {
     "message": "Lyrics settings",
     "description": "title for the lyrics settings on options page"
+  },
+  "legendLyricsHint": {
+    "message": "You can allow Prime Player to load lyrics from songlyrics.com to show them in the miniplayer or the Google Music tab.",
+    "description": "hint for the lyrics settings on options page"
   },
   "setting_gaEnabled": {
     "message": "Enable Google Analytics",
@@ -844,5 +872,45 @@
   "cancelTimer": {
     "message": "Cancel timer",
     "description": "label for notification button to cancel timer"
+  },
+  "filterHint": {
+    "message": "Here you can limit the visible options.",
+    "description": "hint for options filter"
+  },
+  "setting_optionsMode": {
+    "message": "Mode",
+    "description": "label for options filter mode"
+  },
+  "setting_optionsMode_beg": {
+    "message": "Beginner",
+    "description": "label for options filter beginner"
+  },
+  "setting_optionsMode_adv": {
+    "message": "Advanced",
+    "description": "label for options filter advanced"
+  },
+  "setting_optionsMode_exp": {
+    "message": "Expert",
+    "description": "label for options filter expert"
+  },
+  "setting_filterTimer": {
+    "message": "Timer",
+    "description": "label for options timer filter"
+  },
+  "setting_filterLastfm": {
+    "message": "Last.fm",
+    "description": "label for options last.fm filter"
+  },
+  "setting_filterToast": {
+    "message": "Toasting",
+    "description": "label for options toast filter"
+  },
+  "setting_filterMiniplayer": {
+    "message": "Miniplayer",
+    "description": "label for options miniplayer filter"
+  },
+  "setting_filterLyrics": {
+    "message": "Lyrics",
+    "description": "label for options lyrics filter"
   }
 }

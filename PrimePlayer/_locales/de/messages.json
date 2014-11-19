@@ -132,7 +132,7 @@
     "message": "Typ f\u00FCr den Miniplayer"
   },
   "setting_miniplayerTypeHint": {
-    "message": "Hinweis: Unter chrome://flags die Option 'Steuerfelder aktivieren' einschalten, damit 'echte' Panels erzeugt werden, die im Vordergrund bleiben k\u00F6nnen."
+    "message": "Wenn du den Typ 'Panel' nutzen willst, schalte auf <a></a> die Option 'Steuerfelder aktivieren' ein, damit 'echte' Panels erzeugt werden, die im Vordergrund bleiben k\u00F6nnen."
   },
   "setting_miniplayerType_normal": {
     "message": "Fenster"
@@ -188,26 +188,47 @@
   "connected": {
     "message": "Dieser Tab ist mit Prime Player verbunden. Zum Trennen klicken."
   },
-  "timerSettings": {
+  "legendTimer": {
     "message": "Timer Einstellungen"
   },
-  "lastfmSettings": {
+  "legendTimerHint": {
+    "message": "Mit dem Timer kannst du nach einer festgelegten Zeit automatisch die Musik stoppen oder den Google Music Tab schlie\u00DFen. Die Einstellungen werden verf\u00FCgbar, sobald Prime Player mit Google Music verbunden ist."
+  },
+  "legendLastfm": {
     "message": "last.fm Einstellungen"
   },
-  "toastingSettings": {
+  "legendLastfmHint": {
+    "message": "Hier kannst du die Verbindung mit last.fm kontrollieren und deine Scrobbling-Einstellungen anpassen."
+  },
+  "legendToasting": {
     "message": "Toasting Einstellungen"
   },
-  "mpSettings": {
+  "legendToastingHint": {
+    "message": "Toasts sind Chrome-Benachrichtigungen, die den aktuellen Titel anzeigen und ein paar Aktionen erlauben. Immer wenn ein neuer Titel startet, erscheint eine Toast-Benachrichtigung auf dem Bildschirm."
+  },
+  "legendMp": {
     "message": "Miniplayer Einstellungen"
   },
-  "lfSettings": {
+  "legendMpHint": {
+    "message": "Der Miniplayer ist ein m\u00E4chtiges, anpassbares Tool, also nimm dir die Zeit, die verschiedenen Einstellungen auszuprobieren. Du kannst den Miniplayer z.B. mit dem Noten-Symbol im Popup, das beim Klick auf das Prime-Player-Symbol in Chromes Toolbar erscheint, \u00F6ffnen."
+  },
+  "legendLf": {
     "message": "Aussehen und Verhalten"
   },
-  "icSettings": {
+  "legendLfHint": {
+    "message": "Diese Einstellungen kontrollieren das Prime-Player-Symbol und anderes allgemeines Verhalten."
+  },
+  "legendIc": {
     "message": "Browser-Symbol Klick"
   },
-  "lyricsSettings": {
+  "legendIcHint": {
+    "message": "Hiermit kannst du die Aktion(en) anpassen, die beim Klick auf das Prime-Player-Symbol in Chromes Toolbar ausgef\u00FChrt wird/werden."
+  },
+  "legendLyrics": {
     "message": "Songtexte Einstellungen"
+  },
+  "legendLyricsHint": {
+    "message": "Du kannst Prime Player erlaubt, Songtexte von songlyrics.com zu laden, um diese im Miniplayer und/oder dem Google Music Tab anzuzeigen."
   },
   "setting_gaEnabled": {
     "message": "Google Analytics aktivieren"
@@ -635,5 +656,35 @@
   },
   "cancelTimer": {
     "message": "Timer stoppen"
+  },
+  "filterHint": {
+    "message": "Hier kannst du die sichtbaren Optionen einschr\u00E4nken."
+  },
+  "setting_optionsMode": {
+    "message": "Modus"
+  },
+  "setting_optionsMode_beg": {
+    "message": "Anf\u00E4nger"
+  },
+  "setting_optionsMode_adv": {
+    "message": "Fortgeschritten"
+  },
+  "setting_optionsMode_exp": {
+    "message": "Experte"
+  },
+  "setting_filterTimer": {
+    "message": "Timer"
+  },
+  "setting_filterLastfm": {
+    "message": "Last.fm"
+  },
+  "setting_filterToast": {
+    "message": "Toasting"
+  },
+  "setting_filterMiniplayer": {
+    "message": "Miniplayer"
+  },
+  "setting_filterLyrics": {
+    "message": "Songtexte"
   }
 }

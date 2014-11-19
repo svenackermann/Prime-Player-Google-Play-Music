@@ -86,7 +86,13 @@ var SETTINGS_DEFAULTS = {
   connectedIndicator: true,
   preventCommandRatingReset: true,
   updateNotifier: true,
-  gaEnabled: true
+  gaEnabled: true,
+  optionsMode: "beg",
+  filterTimer: true,
+  filterLastfm: true,
+  filterToast: true,
+  filterMiniplayer: true,
+  filterLyrics: true
 };
 var settings = new Bean(SETTINGS_DEFAULTS, true);
 
@@ -626,15 +632,13 @@ function sendNowPlaying() {
   );
 }
 
-function getLoved(songInfo, callback) {
-  if (localSettings.lastfmSessionName && songInfo) {
-    lastfm.track.getInfo({
-        track: songInfo.title,
-        artist: songInfo.artist,
-        username: localSettings.lastfmSessionName
-      },
-      {
+function getLastfmInfo(songInfo, callback) {
+  if (songInfo) {
+    var params = { track: songInfo.title, artist: songInfo.artist };
+    if (localSettings.lastfmSessionName) params.username = localSettings.lastfmSessionName;
+    lastfm.track.getInfo(params, {
         success: function(response) {
+          var loved = null;
           var lastfmInfo = null;
           if (response.track) {
             lastfmInfo = {
@@ -645,8 +649,9 @@ function getLoved(songInfo, callback) {
               artistUrl: response.track.artist && response.track.artist.url,
               albumUrl: response.track.album && response.track.album.url
             };
+            if (params.username) loved = response.track.userloved == 1;
           }
-          callback(response.track != null && response.track.userloved == 1, lastfmInfo);
+          callback(loved, lastfmInfo);
         },
         error: function(code, msg) {
           callback(msg, null);
@@ -657,10 +662,10 @@ function getLoved(songInfo, callback) {
   } else callback(null, null);
 }
 
-function getLovedInfo() {
+function getCurrentLastfmInfo() {
   song.loved = null;
   song.lastfmInfo = null;
-  getLoved(song.info, function(loved, lastfmInfo) {
+  getLastfmInfo(song.info, function(loved, lastfmInfo) {
     song.loved = loved;
     song.lastfmInfo = lastfmInfo;
   });
@@ -1031,7 +1036,27 @@ function isNewerVersion(version) {
   return version.length > prev.length;//version is longer (e.g. 1.0.1 > 1.0), else same version
 }
 
-/** handler for onInstalled event (show the orange icon on update) */
+function migrateSettings(previousVersion) {
+  if (localStorage["iconClickMiniplayer"] !== undefined) {
+    if (localStorage["iconClickMiniplayer"] == "btrue") settings.iconClickAction0 = "openMiniplayer";
+    else if (localStorage["iconClickPlayPause"] == "btrue") settings.iconClickAction0 = "playPause";
+    localStorage.removeItem("iconClickMiniplayer");
+    localStorage.removeItem("iconClickPlayPause");
+  }
+  if (previousVersion < 2.18 && !settings.toastUseMpStyle) {
+    settings.toastDuration = 0;
+  }
+  if (localStorage["skipDislikedSongs"] !== undefined) {
+    settings.skipRatedLower = localStorage["skipDislikedSongs"] == "btrue" ? 1 : 0;
+    localStorage.removeItem("skipDislikedSongs");
+  }
+  if (previousVersion < 2.23) {
+    //use expert mode for existing users
+    settings.optionsMode = "exp";
+  }
+}
+
+/** handler for onInstalled event (show the orange icon on update / notification on install) */
 function updatedListener(details) {
   if (details.reason == "update") {
     if (settings.updateNotifier) {
@@ -1046,20 +1071,7 @@ function updatedListener(details) {
         previousVersion = null;
       }
     }
-    //migrate settings
-    if (parseFloat(currentVersion) >= 2.15 && localStorage["iconClickMiniplayer"] !== undefined) {
-      if (localStorage["iconClickMiniplayer"] == "btrue") settings.iconClickAction0 = "openMiniplayer";
-      else if (localStorage["iconClickPlayPause"] == "btrue") settings.iconClickAction0 = "playPause";
-      localStorage.removeItem("iconClickMiniplayer");
-      localStorage.removeItem("iconClickPlayPause");
-    }
-    if (parseFloat(details.previousVersion) < 2.18 && !settings.toastUseMpStyle) {
-      settings.toastDuration = 0;
-    }
-    if (parseFloat(details.previousVersion) < 2.19 && localStorage["skipDislikedSongs"] !== undefined) {
-      settings.skipRatedLower = localStorage["skipDislikedSongs"] == "btrue" ? 1 : 0;
-      localStorage.removeItem("skipDislikedSongs");
-    }
+    migrateSettings(parseFloat(details.previousVersion));
   } else if (details.reason == "install") {
     chrome.notifications.create("", {
       type: "basic",
@@ -1315,7 +1327,10 @@ settings.addListener("layout", function() {
   }
 });
 settings.addListener("hideRatings", function(val) {
-  if (!val) getLovedInfo();
+  if (!val && song.loved == null) getCurrentLastfmInfo();
+});
+settings.addListener("showLastfmInfo", function(val) {
+  if (val && song.lastfmInfo == null) getCurrentLastfmInfo();
 });
 settings.addListener("toastUseMpStyle", closeToast);
 settings.addListener("toastButton1", closeToast);
@@ -1507,14 +1522,15 @@ song.addListener("info", function(val) {
   song.toasted = false;
   song.nowPlayingSent = false;
   positionFromBackup = false;
+  song.loved = null;
+  song.lastfmInfo = null;
   if (val) {
     song.info.durationSec = parseSeconds(val.duration);
     toastPopup();
-    if (!settings.hideRatings) getLovedInfo();
+    if (!settings.hideRatings || settings.showLastfmInfo) getCurrentLastfmInfo();
   } else {
     song.timestamp = null;
     closeToast();
-    song.loved = null;
   }
   if (settings.saveLastPosition && googlemusicport) {
     chrome.storage.local.set({"lastSong": val, "rating": song.rating});

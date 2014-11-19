@@ -20,7 +20,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
           bp.lastfm.session = response.session;
           status.find(".success").attr("title", chrome.i18n.getMessage("lastfmConnectSuccess")).show();
           bp.gaEvent("LastFM", "AuthorizeOK");
-          bp.getLovedInfo();
+          bp.getCurrentLastfmInfo();
           bp.scrobbleCachedSongs();
         },
         error: function(code, message) {
@@ -86,20 +86,32 @@ chrome.runtime.getBackgroundPage(function(bp) {
     };
   }
 
+  function appendHint(container) {
+    var hint = $("<p class='hint-text'></p>");
+    $("<img src='img/hint.png' class='hint'/>").click(function() {hint.slideToggle("fast");}).appendTo(container);
+    return hint;
+  }
+  
   /** the i18n key for the hint for property "<prop>" is "setting_<prop>Hint" */
   function initHint(prop) {
-    $("#" + prop)
-      .parent().find("img.hint").attr("title", chrome.i18n.getMessage("setting_" + prop + "Hint"));
+    var container = $("#" + prop).parent();
+    var hint = appendHint(container)
+    hint.html(chrome.i18n.getMessage("setting_" + prop + "Hint")).appendTo(container);
+    return hint;
   }
 
   /** the i18n key for the label for property "<prop>" is "setting_<prop>" */
+  function setLabel(prop) {
+    $("label[for='" + prop + "']").text(chrome.i18n.getMessage("setting_" + prop));
+  }
+  
   function initCheckbox(prop, settings) {
     if (!settings) settings = bp.settings;
     var input = $("#" + prop);
     input
       .prop("checked", settings[prop])
-      .click(boolUpdater(prop, settings))
-      .parent().find("label").text(chrome.i18n.getMessage("setting_" + prop));
+      .click(boolUpdater(prop, settings));
+    setLabel(prop);
     return input;
   }
 
@@ -108,8 +120,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var input = $("#" + prop);
     input
       .val(settings[prop])
-      .blur(numberUpdater(prop, settings))
-      .parent().find("label").text(chrome.i18n.getMessage("setting_" + prop));
+      .blur(numberUpdater(prop, settings));
+    setLabel(prop);
     return input;
   }
 
@@ -123,10 +135,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     input
       .val(bp.settings[prop])
       .change(updater(prop))
-      .parent().find("label").text(chrome.i18n.getMessage("setting_" + prop));
-    input.find("option").each(function() {
+      .find("option").each(function() {
         $(this).text(getOptionText($(this).attr("value")));
       });
+    setLabel(prop);
     return input;
   }
   
@@ -134,13 +146,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var input = $("#" + prop);
     input
       .val(bp.settings[prop])
-      .change(stringUpdater(prop, bp.settings))
-      .parent().find("label").text(chrome.i18n.getMessage("setting_" + prop));
+      .change(stringUpdater(prop, bp.settings));
+    setLabel(prop);
     return input;
   }
   
   function initIconStyle() {
-    $("#iconStyle").find("label").text(chrome.i18n.getMessage("setting_iconStyle"));
+    setLabel("iconStyle");
     $("#iconStyle").find("input[value='" + bp.settings.iconStyle + "']").prop("checked", true);
     $("#iconStyle").find("input").click(stringUpdater("iconStyle"));
   }
@@ -193,21 +205,19 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var end = cl.indexOf(" ", start);
     return cl.substring(start, end < 0 ? cl.length : end);
   }
-
-  function connectedWatcher(val) {
-    $("#startTimer, #timerMin, #timerNotify, #timerPreNotify, #timerAction").prop("disabled", !val);
-    $("#stopTimer").prop("disabled", true);
-  }
   
+  var timerStatusInterval;
   function updateTimerStatus() {
     var countDown = Math.floor(bp.timerEnd - (new Date().getTime() / 1000));
     if (countDown > 0) {
       $("#timerStatus").text(chrome.i18n.getMessage("timerAction_" + bp.localSettings.timerAction) + " in " + bp.toTimeString(countDown));
-      setTimeout(updateTimerStatus, 1000);
     } else {
+      clearInterval(timerStatusInterval);
+      timerStatusInterval = null;
       $("#timerStatus").empty();
     }
-    $("#stopTimer").prop("disabled", countDown <= 0);
+    $("#startTimer, #timerMin, #timerNotify, #timerPreNotify, #timerAction").prop("disabled", !bp.player.connected || countDown > 0);
+    $("#stopTimer").prop("disabled", !bp.player.connected || countDown <= 0);
   }
   
   function initTimer() {
@@ -229,26 +239,52 @@ chrome.runtime.getBackgroundPage(function(bp) {
         bp.localSettings.timerNotify = $("#timerNotify").prop("checked");
         bp.localSettings.timerPreNotify = $("#timerPreNotify").val();
         bp.startSleepTimer();
+        timerStatusInterval = setInterval(updateTimerStatus, 1000);
         updateTimerStatus();
       }
     });
-    $("#stopTimer").text(chrome.i18n.getMessage("stopTimer")).click(bp.clearSleepTimer);
+    $("#stopTimer").text(chrome.i18n.getMessage("stopTimer")).click(function() {
+      bp.clearSleepTimer();
+      updateTimerStatus();
+    });
     updatePreNotifyMax();
     updateTimerStatus();
   }
   
+  function initFilter() {
+    function updateOptionsMode() {
+      $("#settings").removeClass("f-beg f-adv f-exp").addClass("f-" + bp.settings.optionsMode);
+    }
+    initSelect("optionsMode").change(updateOptionsMode);
+    updateOptionsMode();
+    
+    $("#filter p").text(chrome.i18n.getMessage("filterHint"));
+    $("#filter > div > input[type='checkbox']").each(function() {
+      var id = $(this).attr("id");
+      function updateFilter() {
+        $("#settings").toggleClass(id, !bp.settings[id]);
+      }
+      initCheckbox(id).click(updateFilter);
+      updateFilter();
+    });
+  }
+  
+  function initLegends() {
+    $("#settings legend").each(function() {
+      $(this).text(chrome.i18n.getMessage(this.id));
+      appendHint(this).text(chrome.i18n.getMessage(this.id + "Hint")).insertAfter(this);
+    });
+  }
+  
   $(function() {
     $("head > title").text(chrome.i18n.getMessage("options") + " - " + chrome.i18n.getMessage("extTitle"));
-    $("#legendTimer").text(chrome.i18n.getMessage("timerSettings"));
-    $("#legendLastfm").text(chrome.i18n.getMessage("lastfmSettings"));
-    $("#legendToasting").text(chrome.i18n.getMessage("toastingSettings"));
-    $("#legendMp").text(chrome.i18n.getMessage("mpSettings"));
-    $("#legendLf").text(chrome.i18n.getMessage("lfSettings"));
-    $("#legendIc").text(chrome.i18n.getMessage("icSettings"));
-    $("#legendLyrics").text(chrome.i18n.getMessage("lyricsSettings"));
+    initLegends();
+    
     $("#lastfmStatus").find("span").text(chrome.i18n.getMessage("lastfmUser"));
     var bugfeatureinfo = chrome.i18n.getMessage("bugfeatureinfo", "<a target='_blank' href='https://github.com/svenackermann/Prime-Player-Google-Play-Music/issues' data-network='github' data-action='issue'>GitHub</a>");
     $("#bugfeatureinfo").html(bugfeatureinfo);
+    
+    initTimer();
     
     initCheckbox("scrobble");
     var percentSpan = $("#scrobblePercent").parent().find("span");
@@ -256,8 +292,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#scrobblePercent")
       .val(bp.settings.scrobblePercent)
       .mouseup(numberUpdater("scrobblePercent", bp.settings))
-      .change(function(){ percentSpan.text($(this).val()); })
-      .parent().find("label").text(chrome.i18n.getMessage("setting_scrobblePercent"));
+      .change(function(){ percentSpan.text($(this).val()); });
+    setLabel("scrobblePercent");
     initNumberInput("scrobbleTime");
     initNumberInput("scrobbleMaxDuration");
     initCheckbox("disableScrobbleOnFf");
@@ -284,10 +320,16 @@ chrome.runtime.getBackgroundPage(function(bp) {
       .append($("#toastClick").children().clone())
       .val(bp.settings.toastButton2);
     
-    initSelect("miniplayerType");
-    initHint("miniplayerType");
-    initSelect("layout");
+    function setLayoutHintVisibility() {
+      var visible = bp.settings.miniplayerType == "panel" && bp.settings.layout == "hbar";
+      $("#layout").siblings(".hint").toggle(visible);
+      if (!visible) $("#layout").siblings(".hint-text").hide();
+    }
+    initSelect("miniplayerType").change(setLayoutHintVisibility);
+    initHint("miniplayerType").find("a").text("chrome://flags").attr("tabindex", "0").click(function() { chrome.tabs.create({ url: "chrome://flags" }); });
+    initSelect("layout").change(setLayoutHintVisibility);
     initHint("layout");
+    setLayoutHintVisibility();
     initSelect("color");
     initColorInput("mpBgColor");
     initColorInput("mpTextColor");
@@ -313,9 +355,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initNumberInput("lyricsFontSize", bp.localSettings);
     initNumberInput("lyricsWidth", bp.localSettings);
     
-    $("#shortcutsLink").text(chrome.i18n.getMessage("configShortcuts")).click(function() {
-      chrome.tabs.create({ url: "chrome://extensions/configureCommands" });
-    });
+    $("#shortcutsLink").text(chrome.i18n.getMessage("configShortcuts")).click(function() { chrome.tabs.create({ url: "chrome://extensions/configureCommands" }); });
     initIconStyle();
     initCheckbox("showPlayingIndicator");
     initCheckbox("showRatingIndicator");
@@ -357,14 +397,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.settings.addListener("scrobble", scrobbleChanged, "options");
     //we must watch this as the session could be expired
     bp.localSettings.watch("lastfmSessionName", lastfmUserChanged, "options");
+    //watch for timer status
+    bp.player.addListener("connected", updateTimerStatus, "options");
     //disable inputs if neccessary
     toastChanged();
     lyricsChanged();
     iconClickChanged();
     showProgressChanged();
-    
-    bp.player.watch("connected", connectedWatcher, "options");
-    initTimer();
     
     $("#resetSettings").click(function() {
       bp.settings.resetToDefaults();
@@ -407,6 +446,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#credits").on("click", "a[data-network]", function() {
       bp.gaSocial($(this).data("network"), $(this).data("action") || "show");
     });
+    
+    initFilter();
   });
 
   $(window).unload(function() {

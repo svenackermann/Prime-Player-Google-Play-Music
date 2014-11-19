@@ -167,7 +167,7 @@ function Bean(defaults, useLocalStorage) {
   }
   
   function defaultEquals(val, old) {
-    return typeof(val) != "object" && val === old;
+    return typeof(val) != "object" && val === old || (val === null && old === null);//typeof(null) is object
   }
   
   function setting(name, defaultValue) {
