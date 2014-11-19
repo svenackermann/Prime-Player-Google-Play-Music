@@ -24,7 +24,7 @@ body {
   }
 }
 
-.legend-hint {
+.hint-text {
   display: none;
   max-width: 400px;
   color: #009933;
@@ -154,7 +154,7 @@ img.hint {
   }
 }
 
-#lastfmStatus a, a#shortcutsLink, .legend-hint a {
+#lastfmStatus a, a#shortcutsLink, .hint-text a {
   text-decoration: underline;
   color: -webkit-link;
   cursor: pointer;

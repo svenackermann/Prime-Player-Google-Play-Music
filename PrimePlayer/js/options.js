@@ -87,7 +87,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function appendHint(container) {
-    var hint = $("<p class='legend-hint'></p>");
+    var hint = $("<p class='hint-text'></p>");
     $("<img src='img/hint.png' class='hint'/>").click(function() {hint.slideToggle("fast");}).appendTo(container);
     return hint;
   }
@@ -320,10 +320,16 @@ chrome.runtime.getBackgroundPage(function(bp) {
       .append($("#toastClick").children().clone())
       .val(bp.settings.toastButton2);
     
-    initSelect("miniplayerType");
+    function setLayoutHintVisibility() {
+      var visible = bp.settings.miniplayerType == "panel" && bp.settings.layout == "hbar";
+      $("#layout").siblings(".hint").toggle(visible);
+      if (!visible) $("#layout").siblings(".hint-text").hide();
+    }
+    initSelect("miniplayerType").change(setLayoutHintVisibility);
     initHint("miniplayerType").find("a").text("chrome://flags").attr("tabindex", "0").click(function() { chrome.tabs.create({ url: "chrome://flags" }); });
-    initSelect("layout");
+    initSelect("layout").change(setLayoutHintVisibility);
     initHint("layout");
+    setLayoutHintVisibility();
     initSelect("color");
     initColorInput("mpBgColor");
     initColorInput("mpTextColor");
