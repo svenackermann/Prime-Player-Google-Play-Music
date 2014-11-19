@@ -11,8 +11,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
   var currentNavList = {};
   var listRatingTimer;
   var ratingHtml;
-  var getLastLoved;
-  var lastSongLastfmInfo;
+  var getLastSongInfo;
+  var lastSongInfo = false;
 
   if (typeClass == "popup") {
     bp.popupOpened();
@@ -26,7 +26,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function hideRatingsWatcher(val) {
     $("html").toggleClass("hideRatings", val);
-    if (!val && getLastLoved) getLastLoved();
+    if (!val && lastSongInfo === false && getLastSongInfo) getLastSongInfo();
   }
   bp.settings.watch("hideRatings", hideRatingsWatcher, typeClass);
 
@@ -74,8 +74,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     if ($("body").hasClass("hasLastSong")) {
       $("body").removeClass("hasLastSong");
       renderRating(bp.song.rating);
-      getLastLoved = null;
-      lastSongLastfmInfo = null;
+      getLastSongInfo = null;
+      lastSongInfo = false;
       $("#resume").removeClass("lastSongEnabled").unbind().click(googleMusicExecutor("playPause"));
     }
     $("body").toggleClass("hasSong", val != null);
@@ -132,19 +132,22 @@ chrome.runtime.getBackgroundPage(function(bp) {
     ratingModeWatcher(lastSong.ratingMode);
     renderRating(lastSong.rating);
     
-    function updateLoved(updateFn) {
-      renderLastLoved(null);
-      updateFn(lastSong.info, renderLastLoved);
+    function updateSongInfo(updateFn) {
+      renderLastSongInfo(null);
+      updateFn(lastSong.info, renderLastSongInfo);
     }
-    getLastLoved = updateLoved.bind(window, bp.getLoved);
-    var unloveLast = updateLoved.bind(window, bp.unlove);
-    var loveLast = updateLoved.bind(window, bp.love);
-    function renderLastLoved(loved, lastfmInfo) {
-      renderSongLoved(loved, {getLoved: getLastLoved, unlove: unloveLast, love: loveLast});
-      lastSongLastfmInfo = lastfmInfo;
-      renderLastfmInfo(lastfmInfo);
+    getLastSongInfo = updateSongInfo.bind(window, bp.getLastfmInfo);
+    var unloveLast = updateSongInfo.bind(window, bp.unlove);
+    var loveLast = updateSongInfo.bind(window, bp.love);
+    function renderLastSongInfo(loved, lastfmInfo) {
+      renderSongLoved(loved, {getLastfmInfo: getLastSongInfo, unlove: unloveLast, love: loveLast});
+      if (lastfmInfo !== undefined) {//not for love/unlove
+        lastSongInfo = lastfmInfo;
+        renderLastfmInfo(lastfmInfo);
+      }
     }
-    getLastLoved();
+    if (bp.settings.showLastfmInfo || (!bp.settings.hideRatings && bp.localSettings.lastfmSessionName)) getLastSongInfo();
+    
     if (lastSong.info.albumLink) {
       $("#resume").addClass("lastSongEnabled").unbind().click(bp.resumeLastSong.bind(window, lastSong));
     }
@@ -197,7 +200,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function showLastfmInfoWatcher(val) {
-    $("#lastfmInfo").toggleClass("enabled", val);
+    $("#lastfmInfo").toggle(val);
+    if (val && lastSongInfo === false && getLastSongInfo) getLastSongInfo();
   }
 
   function colorWatcher(val, old) {
@@ -289,6 +293,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("#lastfmUser")
         .attr("title", chrome.i18n.getMessage("lastfmUser") + user)
         .attr("href", "http://last.fm/user/" + user);
+      if (!bp.settings.hideRatings && getLastSongInfo) getLastSongInfo();
     }
   }
   
@@ -543,7 +548,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     function ctrlHandler(urlField, e) {
       if (e.ctrlKey) {
         e.stopImmediatePropagation();
-        var lastfmInfo = bp.song.lastfmInfo || lastSongLastfmInfo;
+        var lastfmInfo = bp.song.lastfmInfo || lastSongInfo;
         if (lastfmInfo && lastfmInfo[urlField]) chrome.tabs.create({url: lastfmInfo[urlField]});
       }
     }
@@ -675,7 +680,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var a = rat.find("a").unbind();
     if (typeof(loved) == "string") {
       rat.addClass("error");
-      a.data("msg", chrome.i18n.getMessage("lastfmError") + loved).click(actions.getLoved);
+      a.data("msg", chrome.i18n.getMessage("lastfmError") + loved).click(actions.getLastfmInfo);
     } else if (loved === true) {
       rat.addClass("loved");
       a.data("msg", chrome.i18n.getMessage("lastfmUnlove")).click(actions.unlove);
@@ -687,7 +692,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function songLovedWatcher(loved) {
-    renderSongLoved(loved, {getLoved: bp.getLovedInfo, unlove: bp.unloveTrack, love: bp.loveTrack});
+    renderSongLoved(loved, {getLastfmInfo: bp.getCurrentLastfmInfo, unlove: bp.unloveTrack, love: bp.loveTrack});
   }
 
   function toggleVolumeControl() {

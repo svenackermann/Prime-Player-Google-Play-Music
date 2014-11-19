@@ -632,15 +632,13 @@ function sendNowPlaying() {
   );
 }
 
-function getLoved(songInfo, callback) {
-  if (localSettings.lastfmSessionName && songInfo) {
-    lastfm.track.getInfo({
-        track: songInfo.title,
-        artist: songInfo.artist,
-        username: localSettings.lastfmSessionName
-      },
-      {
+function getLastfmInfo(songInfo, callback) {
+  if (songInfo) {
+    var params = { track: songInfo.title, artist: songInfo.artist };
+    if (localSettings.lastfmSessionName) params.username = localSettings.lastfmSessionName;
+    lastfm.track.getInfo(params, {
         success: function(response) {
+          var loved = null;
           var lastfmInfo = null;
           if (response.track) {
             lastfmInfo = {
@@ -651,8 +649,9 @@ function getLoved(songInfo, callback) {
               artistUrl: response.track.artist && response.track.artist.url,
               albumUrl: response.track.album && response.track.album.url
             };
+            if (params.username) loved = response.track.userloved == 1;
           }
-          callback(response.track != null && response.track.userloved == 1, lastfmInfo);
+          callback(loved, lastfmInfo);
         },
         error: function(code, msg) {
           callback(msg, null);
@@ -663,10 +662,10 @@ function getLoved(songInfo, callback) {
   } else callback(null, null);
 }
 
-function getLovedInfo() {
+function getCurrentLastfmInfo() {
   song.loved = null;
   song.lastfmInfo = null;
-  getLoved(song.info, function(loved, lastfmInfo) {
+  getLastfmInfo(song.info, function(loved, lastfmInfo) {
     song.loved = loved;
     song.lastfmInfo = lastfmInfo;
   });
@@ -1327,8 +1326,11 @@ settings.addListener("layout", function() {
     );
   }
 });
-settings.addListener("hideRatings", function(val) {
-  if (!val) getLovedInfo();
+settings.addListener("hideRatings", function() {
+  if (song.loved == null) getCurrentLastfmInfo();
+});
+settings.addListener("showLastfmInfo", function() {
+  if (song.lastfmInfo == null) getCurrentLastfmInfo();
 });
 settings.addListener("toastUseMpStyle", closeToast);
 settings.addListener("toastButton1", closeToast);
@@ -1523,7 +1525,7 @@ song.addListener("info", function(val) {
   if (val) {
     song.info.durationSec = parseSeconds(val.duration);
     toastPopup();
-    if (!settings.hideRatings) getLovedInfo();
+    if (!settings.hideRatings || settings.showLastfmInfo) getCurrentLastfmInfo();
   } else {
     song.timestamp = null;
     closeToast();

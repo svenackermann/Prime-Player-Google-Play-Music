@@ -299,7 +299,7 @@ a {
 }
 
 .lastfm {
-  #lastfmUser, #lastfmRating, #lastfmInfo.enabled {
+  #lastfmUser, #lastfmRating {
     display: block;
   }
 }
@@ -858,6 +858,13 @@ a#volume {
   &.hasInfo {
     opacity: 1;
   }
+  .userplaycount {
+    display: none;
+  }
+}
+
+.lastfm #lastfmInfo .userplaycount {
+  display: block;
 }
 
 @import "layouts"
