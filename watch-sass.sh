@@ -1,3 +1,4 @@
+#!/bin/bash
 cd PrimePlayer/css
 rm -f player.css
 rm -f player.css.map
