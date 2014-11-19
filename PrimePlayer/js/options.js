@@ -205,21 +205,19 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var end = cl.indexOf(" ", start);
     return cl.substring(start, end < 0 ? cl.length : end);
   }
-
-  function connectedWatcher(val) {
-    $("#startTimer, #timerMin, #timerNotify, #timerPreNotify, #timerAction").prop("disabled", !val);
-    $("#stopTimer").prop("disabled", true);
-  }
   
+  var timerStatusInterval;
   function updateTimerStatus() {
     var countDown = Math.floor(bp.timerEnd - (new Date().getTime() / 1000));
     if (countDown > 0) {
       $("#timerStatus").text(chrome.i18n.getMessage("timerAction_" + bp.localSettings.timerAction) + " in " + bp.toTimeString(countDown));
-      setTimeout(updateTimerStatus, 1000);
     } else {
+      clearInterval(timerStatusInterval);
+      timerStatusInterval = null;
       $("#timerStatus").empty();
     }
-    $("#stopTimer").prop("disabled", countDown <= 0);
+    $("#startTimer, #timerMin, #timerNotify, #timerPreNotify, #timerAction").prop("disabled", !bp.player.connected || countDown > 0);
+    $("#stopTimer").prop("disabled", !bp.player.connected || countDown <= 0);
   }
   
   function initTimer() {
@@ -241,10 +239,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
         bp.localSettings.timerNotify = $("#timerNotify").prop("checked");
         bp.localSettings.timerPreNotify = $("#timerPreNotify").val();
         bp.startSleepTimer();
+        timerStatusInterval = setInterval(updateTimerStatus, 1000);
         updateTimerStatus();
       }
     });
-    $("#stopTimer").text(chrome.i18n.getMessage("stopTimer")).click(bp.clearSleepTimer);
+    $("#stopTimer").text(chrome.i18n.getMessage("stopTimer")).click(function() {
+      bp.clearSleepTimer();
+      updateTimerStatus();
+    });
     updatePreNotifyMax();
     updateTimerStatus();
   }
@@ -319,8 +321,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
       .val(bp.settings.toastButton2);
     
     initSelect("miniplayerType");
-    //var miniplayerTypeHintHtml = $(chrome.i18n.getMessage("setting_miniplayerTypeHint").replace("<FLAGSLINK>", "<a tabindex='0'>chrome://flags</a>"));
-    //miniplayerTypeHintHtml.find("a").click(function() { chrome.tabs.create({ url: "chrome://flags" }); });
     initHint("miniplayerType").find("a").text("chrome://flags").attr("tabindex", "0").click(function() { chrome.tabs.create({ url: "chrome://flags" }); });
     initSelect("layout");
     initHint("layout");
@@ -392,7 +392,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     //we must watch this as the session could be expired
     bp.localSettings.watch("lastfmSessionName", lastfmUserChanged, "options");
     //watch for timer status
-    bp.player.watch("connected", connectedWatcher, "options");
+    bp.player.watch("connected", updateTimerStatus, "options");
     //disable inputs if neccessary
     toastChanged();
     lyricsChanged();
