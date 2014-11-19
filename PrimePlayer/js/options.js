@@ -398,7 +398,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     //we must watch this as the session could be expired
     bp.localSettings.watch("lastfmSessionName", lastfmUserChanged, "options");
     //watch for timer status
-    bp.player.watch("connected", updateTimerStatus, "options");
+    bp.player.addListener("connected", updateTimerStatus, "options");
     //disable inputs if neccessary
     toastChanged();
     lyricsChanged();

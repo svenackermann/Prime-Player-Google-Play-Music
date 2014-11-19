@@ -1326,11 +1326,11 @@ settings.addListener("layout", function() {
     );
   }
 });
-settings.addListener("hideRatings", function() {
-  if (song.loved == null) getCurrentLastfmInfo();
+settings.addListener("hideRatings", function(val) {
+  if (!val && song.loved == null) getCurrentLastfmInfo();
 });
-settings.addListener("showLastfmInfo", function() {
-  if (song.lastfmInfo == null) getCurrentLastfmInfo();
+settings.addListener("showLastfmInfo", function(val) {
+  if (val && song.lastfmInfo == null) getCurrentLastfmInfo();
 });
 settings.addListener("toastUseMpStyle", closeToast);
 settings.addListener("toastButton1", closeToast);
@@ -1522,6 +1522,8 @@ song.addListener("info", function(val) {
   song.toasted = false;
   song.nowPlayingSent = false;
   positionFromBackup = false;
+  song.loved = null;
+  song.lastfmInfo = null;
   if (val) {
     song.info.durationSec = parseSeconds(val.duration);
     toastPopup();
@@ -1529,7 +1531,6 @@ song.addListener("info", function(val) {
   } else {
     song.timestamp = null;
     closeToast();
-    song.loved = null;
   }
   if (settings.saveLastPosition && googlemusicport) {
     chrome.storage.local.set({"lastSong": val, "rating": song.rating});
