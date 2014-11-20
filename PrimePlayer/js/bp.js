@@ -905,7 +905,8 @@ function openToast() {
       message: song.info.artist,
       contextMessage: song.info.album,
       iconUrl: chrome.extension.getURL("img/cover.png"),
-      buttons: btns
+      buttons: btns,
+      isClickable: settings.toastClick
     };
     if (settings.toastProgress) options.progress = Math.floor(song.positionSec * 100 / song.info.durationSec);
     chrome.notifications.create(Notification.TOAST, options, function(nid) {
@@ -1191,7 +1192,8 @@ function startSleepTimer(backupTimerEnd) {
         message: msg,
         buttons: [{title: btnTitle}],
         iconUrl: chrome.extension.getURL("img/icon-48x48.png"),
-        priority: 2
+        priority: 2,
+        isClickable: false
       }, function(nid) {
         function clearNotification() {
           chrome.notifications.clear(nid, noop);
@@ -1220,7 +1222,8 @@ function startSleepTimer(backupTimerEnd) {
         message: getWarningMessage(),
         buttons: [{title: chrome.i18n.getMessage("cancelTimer")}],
         iconUrl: chrome.extension.getURL("img/icon-48x48.png"),
-        priority: 1
+        priority: 1,
+        isClickable: false
       };
       chrome.notifications.create(Notification.TIMERWARN, preNotifyOptions, function(nid) {
         var preNotifyInterval;
