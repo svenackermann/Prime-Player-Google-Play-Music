@@ -206,14 +206,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
     return cl.substring(start, end < 0 ? cl.length : end);
   }
   
-  var timerStatusInterval;
   function updateTimerStatus() {
     var countDown = Math.floor(bp.timerEnd - (new Date().getTime() / 1000));
     if (countDown > 0) {
       $("#timerStatus").text(chrome.i18n.getMessage("timerAction_" + bp.localSettings.timerAction) + " in " + bp.toTimeString(countDown));
+      setTimeout(updateTimerStatus, 1000);
     } else {
-      clearInterval(timerStatusInterval);
-      timerStatusInterval = null;
       $("#timerStatus").empty();
     }
     $("#startTimer, #timerMin, #timerNotify, #timerPreNotify, #timerAction").prop("disabled", !bp.player.connected || countDown > 0);
@@ -239,7 +237,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
         bp.localSettings.timerNotify = $("#timerNotify").prop("checked");
         bp.localSettings.timerPreNotify = $("#timerPreNotify").val();
         bp.startSleepTimer();
-        timerStatusInterval = setInterval(updateTimerStatus, 1000);
         updateTimerStatus();
       }
     });

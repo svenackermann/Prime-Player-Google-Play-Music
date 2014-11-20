@@ -1150,9 +1150,11 @@ function gaEnabledChanged(val) {
 var timerEnd = 0;
 var sleepTimer;
 var preNotifyTimer;
-function startSleepTimer() {
+function startSleepTimer(backupTimerEnd) {
   clearTimeout(sleepTimer);
-  timerEnd = (new Date().getTime() / 1000) + (localSettings.timerMinutes * 60);
+  var nowSec = new Date().getTime() / 1000;
+  timerEnd = backupTimerEnd || nowSec + (localSettings.timerMinutes * 60);
+  var countdownSec = Math.max(0, timerEnd - nowSec);
   sleepTimer = setTimeout(function() {
     chrome.notifications.clear("preNotifyTimer", noop);
     sleepTimer = null;
@@ -1199,8 +1201,8 @@ function startSleepTimer() {
         setTimeout(clearNotification, 10000);
       });
     }
-  }, localSettings.timerMinutes * 60000);
-  if (localSettings.timerPreNotify > 0) {
+  }, countdownSec * 1000);
+  if (localSettings.timerPreNotify > 0 && countdownSec > 0) {
     preNotifyTimer = setTimeout(function() {
       preNotifyTimer = null;
       function getWarningMessage() {
@@ -1236,7 +1238,7 @@ function startSleepTimer() {
           chrome.notifications.update(notificationId, preNotifyOptions, noop);
         }, 1000);
       });
-    }, (localSettings.timerMinutes * 60 - localSettings.timerPreNotify) * 1000);
+    }, Math.max(0, (countdownSec - localSettings.timerPreNotify) * 1000));
   }
 }
 function clearSleepTimer() {
@@ -1438,7 +1440,8 @@ function reloadForUpdate() {
   backup.songTimestamp = song.timestamp;
   backup.loved = song.loved;
   backup.volumeBeforeMute = volumeBeforeMute;
-  localStorage["updateBackup"] = JSON.stringify(backup);
+  backup.timerEnd = timerEnd;
+  localStorage.updateBackup = JSON.stringify(backup);
   //sometimes the onDisconnect listener in the content script is not triggered on reload(), so explicitely disconnect here
   if (googlemusicport) {
     googlemusicport.onDisconnect.removeListener(onDisconnectListener);
@@ -1451,22 +1454,26 @@ function reloadForUpdate() {
   setTimeout(function() { chrome.runtime.reload(); }, 1000);//wait a second til port cleanup is finished
 }
 
-if (localStorage["updateBackup"] != null) {
-  var updateBackup = JSON.parse(localStorage["updateBackup"]);
+if (localStorage.updateBackup != null) {
+  var backup = JSON.parse(localStorage.updateBackup);
   localStorage.removeItem("updateBackup");
-  song.timestamp = updateBackup.songTimestamp;
-  song.toasted = updateBackup.toasted;
-  song.info = updateBackup.songInfo;
-  song.positionSec = parseSeconds(updateBackup.songPosition);
-  song.position = updateBackup.songPosition;
-  song.nowPlayingSent = updateBackup.nowPlayingSent;
-  song.ff = updateBackup.songFf;
+  song.timestamp = backup.songTimestamp;
+  song.toasted = backup.toasted;
+  song.info = backup.songInfo;
+  song.positionSec = parseSeconds(backup.songPosition);
+  song.position = backup.songPosition;
+  song.nowPlayingSent = backup.nowPlayingSent;
+  song.ff = backup.songFf;
   calcScrobbleTime();
-  song.scrobbled = updateBackup.scrobbled;
-  song.loved = updateBackup.loved;
+  song.scrobbled = backup.scrobbled;
+  song.loved = backup.loved;
   positionFromBackup = true;
-  volumeBeforeMute = updateBackup.volumeBeforeMute;
-  if (updateBackup.miniplayerOpen) openMiniplayer();
+  volumeBeforeMute = backup.volumeBeforeMute;
+  timerEnd = backup.timerEnd;
+  if (timerEnd) {
+    startSleepTimer(timerEnd);
+  }
+  if (backup.miniplayerOpen) openMiniplayer();
 }
 
 song.addListener("position", function(val) {
