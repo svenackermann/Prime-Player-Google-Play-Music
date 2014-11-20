@@ -81,7 +81,10 @@
     "message": "Toast Dauer in Sekunden (0=nicht schlie\u00DFen)"
   },
   "setting_toastDurationHint": {
-    "message": "Bei normalen Toasts ist das die Zeit, nach der die Benachrichtigung entfernt wird (vom Desktop oder Chromes Benachrichtigungs-Leiste), Chrome verschiebt die Nachricht evtl. vorher schon in die Benachrichtigungs-Leiste. Bei Toasts im Miniplayer-Stil ist das die Zeit, nach der der Miniplayer geschlossen wird."
+    "message": "Bei normalen Toasts ist das die Zeit, nach der die Benachrichtigung entfernt wird (vom Desktop oder Chromes Benachrichtigungs-Leiste), Chrome verschiebt die Nachricht evtl. vorher schon in die Benachrichtigungs-Leiste. Bei Toasts im Miniplayer-Stil (Experten-Modus) ist das die Zeit, nach der der Miniplayer geschlossen wird."
+  },
+  "setting_toastProgress": {
+    "message": "Zeige Titel-Fortschritt in Toast"
   },
   "setting_toastIfMpOpen": {
     "message": "Toast auch zeigen, wenn der Miniplayer ge\u00F6ffnet ist"

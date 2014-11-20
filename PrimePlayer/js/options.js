@@ -41,7 +41,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function toastChanged() {
     $("#toastUseMpStyle, #toastIfMpOpen, #toastDuration").prop("disabled", !bp.settings.toast);
-    $("#toastClick, #toastButton1, #toastButton2").prop("disabled", !bp.settings.toast || bp.settings.toastUseMpStyle);
+    $("#toastClick, #toastButton1, #toastButton2, #toastProgress").prop("disabled", !bp.settings.toast || bp.settings.toastUseMpStyle);
   }
   
   function lyricsChanged() {
@@ -304,10 +304,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
     
     initCheckbox("toast").click(toastChanged);
     initHint("toast");
-    initCheckbox("toastUseMpStyle");
+    initCheckbox("toastUseMpStyle").click(toastChanged);
     initHint("toastUseMpStyle");
     initNumberInput("toastDuration");
     initHint("toastDuration");
+    initCheckbox("toastProgress");
     initCheckbox("toastIfMpOpen");
     initSelect("toastClick", bp.getTextForToastBtn);
     initSelect("toastButton1")

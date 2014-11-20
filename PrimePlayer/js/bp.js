@@ -48,6 +48,7 @@ var SETTINGS_DEFAULTS = {
   toast: true,
   toastUseMpStyle: false,
   toastDuration: 0,
+  toastProgress: false,
   toastIfMpOpen: false,
   toastClick: "",
   toastButton1: "nextSong",
@@ -98,8 +99,8 @@ var settings = new Bean(SETTINGS_DEFAULTS, true);
 
 /** the miniplayer instance, if opened */
 var miniplayer;
-/** if the toast notification is opened */
-var toastOpen = false;
+/** if the toast notification is opened, its options */
+var toastOptions;
 /** the toast window (if toastUseMpStyle) */
 var toastWin;
 /** the XMLHttpRequest for the toast cover */
@@ -771,7 +772,7 @@ lastfm.sessionTimeoutCallback = relogin;
 
 function toastClosed(notificationOrWinId) {
   if (notificationOrWinId == Notification.TOAST) {
-    toastOpen = false;
+    toastOptions = null;
     song.removeListener("rating", drawToastImage);
     song.removeListener("loved", drawToastImage);
     if (toastCoverXhr) {
@@ -834,7 +835,7 @@ function getToastBtn(cmd) {
 }
 
 function drawToastImage() {
-  if (!song.info || !toastOpen) return;
+  if (!song.info || !toastOptions) return;
   var cover = new Image();
   var rating = new Image();
   var coverReady = false;
@@ -854,7 +855,8 @@ function drawToastImage() {
     if (song.loved === true) {
       ctx.drawImage(rating, 48, 0, 16, 16, 84, 84, 16, 16);
     }
-    chrome.notifications.update(Notification.TOAST, getToastOptions(ctx.canvas.toDataURL()), noop);
+    toastOptions.iconUrl = ctx.canvas.toDataURL();
+    chrome.notifications.update(Notification.TOAST, toastOptions, noop);
   };
   
   if (song.rating > 0 || song.loved === true) {
@@ -882,22 +884,6 @@ function drawToastImage() {
   }
 }
 
-function getToastOptions(iconUrl) {
-  var btns = [];
-  var btn = getToastBtn(settings.toastButton1);
-  if (btn) btns.push(btn);
-  btn = getToastBtn(settings.toastButton2);
-  if (btn) btns.push(btn);
-  return {
-    type: "basic",
-    title: song.info.title,
-    message: song.info.artist,
-    contextMessage: song.info.album,
-    iconUrl: iconUrl,
-    buttons: btns
-  };
-}
-
 var closeToastTimer;
 function openToast() {
   clearTimeout(closeToastTimer);
@@ -912,9 +898,18 @@ function openToast() {
     if (btn) btns.push(btn);
     btn = getToastBtn(settings.toastButton2);
     if (btn) btns.push(btn);
-    var options = getToastOptions(chrome.extension.getURL("img/cover.png"));
+    
+    var options = {
+      type: settings.toastProgress ? "progress" : "basic",
+      title: song.info.title,
+      message: song.info.artist,
+      contextMessage: song.info.album,
+      iconUrl: chrome.extension.getURL("img/cover.png"),
+      buttons: btns
+    };
+    if (settings.toastProgress) options.progress = Math.floor(song.positionSec * 100 / song.info.durationSec);
     chrome.notifications.create(Notification.TOAST, options, function(nid) {
-      toastOpen = true;
+      toastOptions = options;
       chrome.notifications.onClosed.addListener(toastClosed);
       chrome.notifications.onClicked.addListener(toastClicked);
       chrome.notifications.onButtonClicked.addListener(toastButtonClicked);
@@ -930,7 +925,7 @@ function openToast() {
 function closeToast(callback) {
   clearTimeout(closeToastTimer);
   if (typeof(callback) != "function") callback = noop;
-  if (toastOpen) chrome.notifications.clear(Notification.TOAST, callback)
+  if (toastOptions) chrome.notifications.clear(Notification.TOAST, callback)
   else if (toastWin) chrome.windows.remove(toastWin.id, callback)
   else callback();
 }
@@ -1348,6 +1343,7 @@ settings.addListener("showLastfmInfo", function(val) {
 settings.addListener("toastUseMpStyle", closeToast);
 settings.addListener("toastButton1", closeToast);
 settings.addListener("toastButton2", closeToast);
+settings.addListener("toastProgress", closeToast);
 settings.addListener("scrobble", calcScrobbleTime);
 settings.addListener("scrobbleMaxDuration", calcScrobbleTime);
 settings.addListener("scrobblePercent", calcScrobbleTime);
@@ -1511,14 +1507,23 @@ song.addListener("position", function(val) {
         song.scrobbled = false;
         calcScrobbleTime();
       }
-    } else if (song.positionSec >= 3 && isScrobblingEnabled()) {
-      if (!song.nowPlayingSent) {
-        song.nowPlayingSent = true;
-        sendNowPlaying();
+    } else if (song.positionSec >= 3) {
+      if (isScrobblingEnabled()) {
+        if (!song.nowPlayingSent) {
+          song.nowPlayingSent = true;
+          sendNowPlaying();
+        }
+        if (!song.scrobbled && song.scrobbleTime >= 0 && song.positionSec >= song.scrobbleTime) {
+          song.scrobbled = true;
+          scrobble();
+        }
       }
-      if (!song.scrobbled && song.scrobbleTime >= 0 && song.positionSec >= song.scrobbleTime) {
-        song.scrobbled = true;
-        scrobble();
+      if (settings.toastProgress && toastOptions) {
+        var progress = Math.floor(song.positionSec * 100 / song.info.durationSec);
+        if (progress > toastOptions.progress) {//avoid update on noop
+          toastOptions.progress = progress;
+          chrome.notifications.update(Notification.TOAST, toastOptions, noop);
+        }
       }
     }
     if (settings.saveLastPosition && googlemusicport) {
