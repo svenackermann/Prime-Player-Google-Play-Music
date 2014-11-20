@@ -188,3 +188,9 @@ div {
   margin-bottom: 6px;
   min-width: initial;
 }
+
+#notificationDisabledWarning {
+  display: none;
+  max-width: 400px;
+  color: red;
+}

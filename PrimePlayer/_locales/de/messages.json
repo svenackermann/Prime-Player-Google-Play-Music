@@ -692,5 +692,8 @@
   },
   "setting_filterLyrics": {
     "message": "Songtexte"
+  },
+  "notificationsDisabled": {
+    "message": "Benachrichtigungen sind f\u00FCr Prime Player deaktiviert. Daher sind nur Toasts im Miniplayer-Stil m\u00F6glich."
   }
 }

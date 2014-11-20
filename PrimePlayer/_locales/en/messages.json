@@ -920,5 +920,9 @@
   "setting_filterLyrics": {
     "message": "Lyrics",
     "description": "label for options lyrics filter"
+  },
+  "notificationsDisabled": {
+    "message": "Notifications are disabled for Prime Player, so only miniplayer style toasts are available.",
+    "description": "warning message if notifications are disabled"
   }
 }

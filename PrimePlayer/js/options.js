@@ -40,7 +40,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function toastChanged() {
-    $("#toastUseMpStyle, #toastIfMpOpen, #toastDuration").prop("disabled", !bp.settings.toast);
+    $("#toastIfMpOpen, #toastDuration").prop("disabled", !bp.settings.toast);
+    $("#toastUseMpStyle").prop("disabled", !bp.settings.toast || !bp.localSettings.notificationsEnabled);
     $("#toastClick, #toastButton1, #toastButton2, #toastProgress").prop("disabled", !bp.settings.toast || bp.settings.toastUseMpStyle);
   }
   
@@ -68,6 +69,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
     links.last().text(actionText).unbind().click(action);
   }
 
+  function notificationsEnabledChanged(val) {
+    $("#timerNotify, #timerPreNotify, #toastProgress, #toastClick, #toastButton1, #toastButton2").parent().toggle(val);
+    if (!val && !bp.settings.toastUseMpStyle) $("#toastUseMpStyle").click()
+    else toastChanged();
+    $("#notificationDisabledWarning").toggle(!val);
+  }
+  
   function stringUpdater(prop) {
     return function() {
       bp.settings[prop] = $(this).val();
@@ -302,6 +310,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("showScrobbledIndicator");
     initCheckbox("showLastfmInfo");
     
+    $("#notificationDisabledWarning").text(chrome.i18n.getMessage("notificationsDisabled"));
     initCheckbox("toast").click(toastChanged);
     initHint("toast");
     initCheckbox("toastUseMpStyle").click(toastChanged);
@@ -395,8 +404,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.settings.addListener("scrobble", scrobbleChanged, "options");
     //we must watch this as the session could be expired
     bp.localSettings.watch("lastfmSessionName", lastfmUserChanged, "options");
+    bp.localSettings.watch("notificationsEnabled", notificationsEnabledChanged, "options");
     //watch for timer status
     bp.player.addListener("connected", updateTimerStatus, "options");
+    
     //disable inputs if neccessary
     toastChanged();
     lyricsChanged();

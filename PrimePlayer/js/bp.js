@@ -29,7 +29,8 @@ var LOCAL_SETTINGS_DEFAULTS = {
   timerMinutes: 60,
   timerAction: "pause",
   timerNotify: true,
-  timerPreNotify: 0
+  timerPreNotify: 0,
+  notificationsEnabled: true
 }
 var localSettings = new Bean(LOCAL_SETTINGS_DEFAULTS, true);
 
@@ -759,14 +760,17 @@ function lastfmReloginClicked(nid) {
 /** logout from last.fm and show a notification to login again */
 function relogin() {
   lastfmLogout();
-  chrome.notifications.create(Notification.RELOGIN, {
-    type: "basic",
-    title: chrome.i18n.getMessage("lastfmSessionTimeout"),
-    message: chrome.i18n.getMessage("lastfmRelogin"),
-    iconUrl: chrome.extension.getURL("img/icon-48x48.png")
-  }, function(nid) {
-    chrome.notifications.onClicked.addListener(lastfmReloginClicked);
-  });
+  if (localSettings.notificationsEnabled) {
+    chrome.notifications.create(Notification.RELOGIN, {
+      type: "basic",
+      title: chrome.i18n.getMessage("lastfmSessionTimeout"),
+      message: chrome.i18n.getMessage("lastfmRelogin"),
+      iconUrl: chrome.extension.getURL("img/icon-48x48.png"),
+      isClickable: true
+    }, function(nid) {
+      chrome.notifications.onClicked.addListener(lastfmReloginClicked);
+    });
+  }
 }
 lastfm.sessionTimeoutCallback = relogin;
 
@@ -892,7 +896,7 @@ function openToast() {
       toastWin = win;
       chrome.windows.onRemoved.addListener(toastClosed);
     }, false);
-  } else {
+  } else if (localSettings.notificationsEnabled) {
     var btns = [];
     var btn = getToastBtn(settings.toastButton1);
     if (btn) btns.push(btn);
@@ -1163,7 +1167,7 @@ function startSleepTimer(backupTimerEnd) {
   timerEnd = backupTimerEnd || nowSec + (localSettings.timerMinutes * 60);
   var countdownSec = Math.max(0, timerEnd - nowSec);
   sleepTimer = setTimeout(function() {
-    chrome.notifications.clear("preNotifyTimer", noop);
+    if (localSettings.notificationsEnabled) chrome.notifications.clear("preNotifyTimer", noop);
     sleepTimer = null;
     timerEnd = 0;
     var msg, btnTitle, undoAction;
@@ -1185,7 +1189,7 @@ function startSleepTimer(backupTimerEnd) {
         closeGm();
         break;
     }
-    if (localSettings.timerNotify && msg) {
+    if (localSettings.timerNotify && msg && localSettings.notificationsEnabled) {
       chrome.notifications.create(Notification.TIMEREND, {
         type: "basic",
         title: chrome.i18n.getMessage("timerNotificationTitle"),
@@ -1213,6 +1217,8 @@ function startSleepTimer(backupTimerEnd) {
   if (localSettings.timerPreNotify > 0 && countdownSec > 0) {
     preNotifyTimer = setTimeout(function() {
       preNotifyTimer = null;
+      if (!localSettings.notificationsEnabled) return;
+      
       function getWarningMessage() {
         return chrome.i18n.getMessage(localSettings.timerAction == "pause" ? "timerWarningMsgPause" : "timerWarningMsgCloseGm", "" + Math.max(0, Math.floor(timerEnd - new Date().getTime() / 1000)));
       }
@@ -1255,7 +1261,7 @@ function clearSleepTimer() {
   sleepTimer = null;
   clearTimeout(preNotifyTimer);
   preNotifyTimer = null;
-  chrome.notifications.clear(Notification.TIMERWARN, noop);
+  if (localSettings.notificationsEnabled) chrome.notifications.clear(Notification.TIMERWARN, noop);
   timerEnd = 0;
 }
 
@@ -1657,6 +1663,11 @@ function executeCommand(command) {
   }
 }
 
+function updateNotificationsEnabled(level) {
+  localSettings.notificationsEnabled = level == "granted";
+  if (!localSettings.notificationsEnabled) gaEvent("Options", "notifications-disabled");
+}
+
 chrome.commands.onCommand.addListener(executeCommand);
 
 chrome.runtime.onInstalled.addListener(updatedListener);
@@ -1665,6 +1676,9 @@ chrome.runtime.onUpdateAvailable.addListener(reloadForUpdate);
 chrome.runtime.onSuspend.addListener(function() {
   chrome.runtime.onUpdateAvailable.removeListener(reloadForUpdate);
 });
+chrome.notifications.onShowSettings.addListener(openOptions);
+chrome.notifications.getPermissionLevel(updateNotificationsEnabled);
+chrome.notifications.onPermissionLevelChanged.addListener(updateNotificationsEnabled);
 
 connectGoogleMusicTabs();
 if (isScrobblingEnabled()) scrobbleCachedSongs();
