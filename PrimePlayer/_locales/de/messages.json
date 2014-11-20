@@ -403,10 +403,13 @@
     "message": "Prime Player wurde installiert"
   },
   "welcomeMessage": {
-    "message": "Prime Player bietet viele Optionen. Neben einigen davon findest du ein gr\u00FCnes Fragezeichen. Wenn du mit dem Mauszeiger dar\u00FCber f\u00E4hrst, erh\u00E4ltst du genauere Informationen. Beachte auch die FAQ auf der Homepage der Erweiterung im Chrome Store. Und nun viel Spa\u00DF mit Prime Player!"
+    "message": "Prime Player bietet viele Optionen, die du an deine Bed\u00FCrfnisse anpassen kannst. Beachte auch die FAQ auf der Homepage der Erweiterung im Chrome Store. Und nun viel Spa\u00DF mit Prime Player!"
   },
   "toOptions": {
     "message": "Zu den Optionen"
+  },
+  "toWiki": {
+    "message": "Zum Wiki"
   },
   "close": {
     "message": "Schlie\u00DFen"

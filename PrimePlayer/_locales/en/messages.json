@@ -537,12 +537,16 @@
     "description": "title for notification that is shown directly after install"
   },
   "welcomeMessage": {
-    "message": "The extension has a bunch of options. Next to some of them you see a green question mark. If you hover over it with your mouse, you'll get more detailed informations. Also note the FAQ on the extension's homepage at the Chrome Store. And now have fun with Prime Player!",
+    "message": "The extension has a bunch of options that you can adjust to fit your needs. Also note the FAQ on the extension's homepage at the Chrome Store. And now have fun with Prime Player!",
     "description": "welcome message that is shown in notification directly after install"
   },
   "toOptions": {
     "message": "To the options",
     "description": "text for 'to options' button in welcome notification"
+  },
+  "toWiki": {
+    "message": "To the Wiki",
+    "description": "text for 'to wiki' button in welcome notification"
   },
   "close": {
     "message": "Close",

@@ -419,6 +419,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var token;
     if (bp.localSettings.lastfmSessionName == null && (token = bp.extractUrlParam("token", location.search))) {
       getLastfmSession(token);
+      history.replaceState("", "", chrome.extension.getURL("options.html"));//remove token from URL
     }
     
     //mark new features

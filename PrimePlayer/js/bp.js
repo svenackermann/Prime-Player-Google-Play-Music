@@ -98,9 +98,10 @@ var settings = new Bean(SETTINGS_DEFAULTS, true);
 
 /** the miniplayer instance, if opened */
 var miniplayer;
-/** the toast notification id or window, if opened */
-var toastId;
-var toast;
+/** if the toast notification is opened */
+var toastOpen = false;
+/** the toast window (if toastUseMpStyle) */
+var toastWin;
 /** the XMLHttpRequest for the toast cover */
 var toastCoverXhr;
 /** the currently connected port with its tab */
@@ -158,6 +159,14 @@ var PLAYER_DEFAULTS = {
   favicon: "img/icon/default/notconnected.png"
 };
 var player = new Bean(PLAYER_DEFAULTS);
+
+var Notification = {
+  RELOGIN: "pp.relogin",
+  TOAST: "pp.toast",
+  WELCOME: "pp.welcome",
+  TIMEREND: "pp.timerEnd",
+  TIMERWARN: "pp.timerwarn"
+};
 
 var LASTFM_APIKEY = "1ecc0b24153df7dc6ac0229d6fcb8dda";
 var LASTFM_APISECRET = "fb4b74854f7a7b099c30bfe71236dfd5";
@@ -455,7 +464,7 @@ function executePlayPause() {
 }
 
 function isScrobblingEnabled() {
-  return settings.scrobble && localSettings.lastfmSessionName != null;
+  return settings.scrobble && localSettings.lastfmSessionKey != null;
 }
 
 /** @return song position in seconds when the song will be scrobbled or -1 if disabled */
@@ -738,34 +747,31 @@ function lastfmLogout() {
   song.loved = null;
 }
 
-var lastfmReloginNotificationId;
-function lastfmReloginClicked(notificationId) {
-  if (notificationId == lastfmReloginNotificationId) {
+function lastfmReloginClicked(nid) {
+  if (nid == Notification.RELOGIN) {
     chrome.notifications.onClicked.removeListener(lastfmReloginClicked);
-    lastfmReloginNotificationId = null;
     lastfmLogin();
-    chrome.notifications.clear(notificationId, noop);
+    chrome.notifications.clear(nid, noop);
   }
 }
 
 /** logout from last.fm and show a notification to login again */
 function relogin() {
   lastfmLogout();
-  chrome.notifications.create("", {
+  chrome.notifications.create(Notification.RELOGIN, {
     type: "basic",
     title: chrome.i18n.getMessage("lastfmSessionTimeout"),
     message: chrome.i18n.getMessage("lastfmRelogin"),
     iconUrl: chrome.extension.getURL("img/icon-48x48.png")
-  }, function(notificationId) {
-    lastfmReloginNotificationId = notificationId;
+  }, function(nid) {
     chrome.notifications.onClicked.addListener(lastfmReloginClicked);
   });
 }
 lastfm.sessionTimeoutCallback = relogin;
 
 function toastClosed(notificationOrWinId) {
-  if (notificationOrWinId == toastId) {
-    toastId = null;
+  if (notificationOrWinId == Notification.TOAST) {
+    toastOpen = false;
     song.removeListener("rating", drawToastImage);
     song.removeListener("loved", drawToastImage);
     if (toastCoverXhr) {
@@ -776,19 +782,19 @@ function toastClosed(notificationOrWinId) {
     chrome.notifications.onClicked.removeListener(toastClicked);
     chrome.notifications.onButtonClicked.removeListener(toastButtonClicked);
   }
-  if (toast && notificationOrWinId == toast.id) {
-    toast = null;
+  if (toastWin && notificationOrWinId == toastWin.id) {
+    toastWin = null;
     chrome.windows.onRemoved.removeListener(toastClosed);
   }
 }
 
-function toastClicked(notificationId) {
-  if (notificationId == toastId && settings.toastClick) executeCommand(settings.toastClick);
+function toastClicked(nid) {
+  if (nid == Notification.TOAST && settings.toastClick) executeCommand(settings.toastClick);
 }
 
-function toastButtonClicked(notificationId, buttonIndex) {
-  if (notificationId == toastId) {
-    //check which button was clicked that the button is valid (otherwise it is not displayed and we would execute the wrong command)
+function toastButtonClicked(nid, buttonIndex) {
+  if (nid == Notification.TOAST) {
+    //check which button was clicked and that the button is valid (otherwise it is not displayed and we would execute the wrong command)
     var cmd = settings.toastButton1;
     var btn = getToastBtn(cmd);
     if (!btn || buttonIndex == 1) {
@@ -804,7 +810,7 @@ function getToastBtn(cmd) {
   var icon = cmd;
   switch (cmd) {
     case "loveUnloveSong":
-      if (!localSettings.lastfmSessionName) return null;
+      if (!localSettings.lastfmSessionKey) return null;
       break;
     case "toggleRepeat":
       if (!player.repeat) return null;
@@ -828,7 +834,7 @@ function getToastBtn(cmd) {
 }
 
 function drawToastImage() {
-  if (!song.info || !toastId) return;
+  if (!song.info || !toastOpen) return;
   var cover = new Image();
   var rating = new Image();
   var coverReady = false;
@@ -848,7 +854,7 @@ function drawToastImage() {
     if (song.loved === true) {
       ctx.drawImage(rating, 48, 0, 16, 16, 84, 84, 16, 16);
     }
-    chrome.notifications.update(toastId, getToastOptions(ctx.canvas.toDataURL()), noop);
+    chrome.notifications.update(Notification.TOAST, getToastOptions(ctx.canvas.toDataURL()), noop);
   };
   
   if (song.rating > 0 || song.loved === true) {
@@ -897,7 +903,7 @@ function openToast() {
   clearTimeout(closeToastTimer);
   if (settings.toastUseMpStyle) {
     createPlayer("toast", function(win) {
-      toast = win;
+      toastWin = win;
       chrome.windows.onRemoved.addListener(toastClosed);
     }, false);
   } else {
@@ -907,8 +913,8 @@ function openToast() {
     btn = getToastBtn(settings.toastButton2);
     if (btn) btns.push(btn);
     var options = getToastOptions(chrome.extension.getURL("img/cover.png"));
-    chrome.notifications.create("", options, function(notificationId) {
-      toastId = notificationId;
+    chrome.notifications.create(Notification.TOAST, options, function(nid) {
+      toastOpen = true;
       chrome.notifications.onClosed.addListener(toastClosed);
       chrome.notifications.onClicked.addListener(toastClicked);
       chrome.notifications.onButtonClicked.addListener(toastButtonClicked);
@@ -924,8 +930,8 @@ function openToast() {
 function closeToast(callback) {
   clearTimeout(closeToastTimer);
   if (typeof(callback) != "function") callback = noop;
-  if (toastId) chrome.notifications.clear(toastId, callback)
-  else if (toast) chrome.windows.remove(toast.id, callback)
+  if (toastOpen) chrome.notifications.clear(Notification.TOAST, callback)
+  else if (toastWin) chrome.windows.remove(toastWin.id, callback)
   else callback();
 }
 
@@ -1073,35 +1079,40 @@ function updatedListener(details) {
     }
     migrateSettings(parseFloat(details.previousVersion));
   } else if (details.reason == "install") {
-    chrome.notifications.create("", {
+    chrome.notifications.create(Notification.WELCOME, {
       type: "basic",
       title: chrome.i18n.getMessage("welcomeTitle"),
       message: chrome.i18n.getMessage("welcomeMessage"),
-      buttons: [{title: chrome.i18n.getMessage("toOptions")}],
+      buttons: [{title: chrome.i18n.getMessage("toOptions")}, {title: chrome.i18n.getMessage("toWiki")}],
       iconUrl: chrome.extension.getURL("img/icon-48x48.png"),
       priority: 2
-    }, function(notificationId) {
+    }, function(nid) {
       function checkNotId(notId) {
-        if (notId == notificationId) {
-          chrome.notifications.onClicked.removeListener(notifClicked);
-          chrome.notifications.onButtonClicked.removeListener(notifClicked);
+        if (notId == nid) {
+          chrome.notifications.onClicked.removeListener(notifOrBtnClicked);
+          chrome.notifications.onButtonClicked.removeListener(notifOrBtnClicked);
           chrome.notifications.onClosed.removeListener(notifClosed);
           return true;
         }
         return false;
       }
-      function notifClicked(notId) {
+      function notifOrBtnClicked(notId, buttonIndex) {
         if (checkNotId(notId)) {
-          gaEvent("Options", "welcome-toOptions");
           chrome.notifications.clear(notId, noop);
-          openOptions();
+          if (buttonIndex == 0) {
+            gaEvent("Options", "welcome-toOptions");
+            openOptions();
+          } else {
+            gaEvent("Options", "welcome-toWiki");
+            chrome.tabs.create({url: "https://github.com/svenackermann/Prime-Player-Google-Play-Music/wiki"});
+          }
         }
       }
       function notifClosed(notId, byUser) {
         if (checkNotId(notId) && byUser) gaEvent("Options", "welcome-close");
       }
-      chrome.notifications.onClicked.addListener(notifClicked);
-      chrome.notifications.onButtonClicked.addListener(notifClicked);
+      chrome.notifications.onClicked.addListener(notifOrBtnClicked);
+      chrome.notifications.onButtonClicked.addListener(notifOrBtnClicked);
       chrome.notifications.onClosed.addListener(notifClosed);
     });
   }
@@ -1179,20 +1190,20 @@ function startSleepTimer(backupTimerEnd) {
         break;
     }
     if (localSettings.timerNotify && msg) {
-      chrome.notifications.create("", {
+      chrome.notifications.create(Notification.TIMEREND, {
         type: "basic",
         title: chrome.i18n.getMessage("timerNotificationTitle"),
         message: msg,
         buttons: [{title: btnTitle}],
         iconUrl: chrome.extension.getURL("img/icon-48x48.png"),
         priority: 2
-      }, function(notificationId) {
+      }, function(nid) {
         function clearNotification() {
-          chrome.notifications.clear(notificationId, noop);
+          chrome.notifications.clear(nid, noop);
           chrome.notifications.onButtonClicked.removeListener(btnClicked);
         }
         function btnClicked(notId) {
-          if (notId == notificationId) {
+          if (notId == nid) {
             clearNotification();
             undoAction();
           }
@@ -1216,16 +1227,16 @@ function startSleepTimer(backupTimerEnd) {
         iconUrl: chrome.extension.getURL("img/icon-48x48.png"),
         priority: 1
       };
-      chrome.notifications.create("preNotifyTimer", preNotifyOptions, function(notificationId) {
+      chrome.notifications.create(Notification.TIMERWARN, preNotifyOptions, function(nid) {
         var preNotifyInterval;
         function btnClicked(notId) {
-          if (notId == notificationId) {
+          if (notId == nid) {
             clearSleepTimer();
             chrome.notifications.clear(notId, noop);
           }
         }
         function preNotifyClosed(notId) {
-          if (notId == notificationId) {
+          if (notId == nid) {
             clearInterval(preNotifyInterval);
             chrome.notifications.onButtonClicked.removeListener(btnClicked);
             chrome.notifications.onClosed.removeListener(preNotifyClosed);
@@ -1235,7 +1246,7 @@ function startSleepTimer(backupTimerEnd) {
         chrome.notifications.onClosed.addListener(preNotifyClosed);
         preNotifyInterval = setInterval(function() {
           preNotifyOptions.message = getWarningMessage();
-          chrome.notifications.update(notificationId, preNotifyOptions, noop);
+          chrome.notifications.update(nid, preNotifyOptions, noop);
         }, 1000);
       });
     }, Math.max(0, (countdownSec - localSettings.timerPreNotify) * 1000));
@@ -1246,7 +1257,7 @@ function clearSleepTimer() {
   sleepTimer = null;
   clearTimeout(preNotifyTimer);
   preNotifyTimer = null;
-  chrome.notifications.clear("preNotifyTimer", noop);
+  chrome.notifications.clear(Notification.TIMERWARN, noop);
   timerEnd = 0;
 }
 
