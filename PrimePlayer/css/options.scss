@@ -191,6 +191,15 @@ div {
 
 #notificationDisabledWarning {
   display: none;
-  max-width: 400px;
-  color: red;
+}
+  
+.notifDisabled {
+  #notificationDisabledWarning {
+    display: block;
+    max-width: 400px;
+    color: red;
+  }
+  .notif {
+    display: none;
+  }
 }

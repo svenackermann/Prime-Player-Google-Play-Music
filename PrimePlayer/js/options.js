@@ -70,8 +70,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function notificationsEnabledChanged(val) {
-    $("#timerNotify, #timerPreNotify, #toastProgress, #toastClick, #toastButton1, #toastButton2").parent().toggle(val);
-    if (!val && !bp.settings.toastUseMpStyle) $("#toastUseMpStyle").click()
+    $("#settings").toggleClass("notifDisabled", !val);
+    if (!val && bp.settings.toast && !bp.settings.toastUseMpStyle) $("#toastUseMpStyle").click()
     else toastChanged();
     $("#notificationDisabledWarning").toggle(!val);
   }
