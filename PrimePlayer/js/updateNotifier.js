@@ -1,7 +1,7 @@
 /**
  * This script just adds text to HTML template.
  * @author Sven Ackermann (svenrecknagel@googlemail.com)
- * Licensed under the BSD license
+ * @license BSD license
  */
 chrome.runtime.getBackgroundPage(function(bp) {
   $(function() {

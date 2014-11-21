@@ -1,7 +1,7 @@
 /**
  * Functions to handle lyrics.
  * @author Sven Ackermann (svenrecknagel@googlemail.com)
- * Licensed under the BSD license
+ * @license BSD license
  */
 function buildLyricsSearchUrl(song) {
   var artist = "";
@@ -40,12 +40,12 @@ function fetchLyrics(song, callback) {
               var page = $(data);
               var lyrics = page.find("#songLyricsDiv");
               var trimmedLyrics = lyrics.text().trim();
-              if (trimmedLyrics.length == 0 || trimmedLyrics.indexOf("We do not have the lyrics for") == 0) {
+              if (trimmedLyrics.length === 0 || trimmedLyrics.indexOf("We do not have the lyrics for") === 0) {
                 gaEvent("Lyrics", "NoLyrics");
-                callback({noresults: true, src: href, searchSrc: url})
+                callback({noresults: true, src: href, searchSrc: url});
               } else {
                 var credits = page.find(".albuminfo > li > p");
-                if (credits.length == 0) credits = null;
+                if (credits.length === 0) credits = null;
                 gaEvent("Lyrics", "OK");
                 callback({title: page.find(".pagetitle h1"), lyrics: lyrics, credits: credits, src: href, searchSrc: url});
               }

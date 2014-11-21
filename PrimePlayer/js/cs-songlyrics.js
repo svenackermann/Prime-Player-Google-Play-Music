@@ -2,7 +2,7 @@
  * Content script for song lyrics.
  * Will only be injected in tabs opened by the extension to automatically open the first search result.
  * @author Sven Ackermann (svenrecknagel@googlemail.com)
- * Licensed under the BSD license
+ * @license BSD license
  */
 (function() {
   var result = document.getElementsByClassName("serpresult")[0];

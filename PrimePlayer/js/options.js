@@ -1,7 +1,7 @@
 /**
  * This is the script for the options page.
  * @author Sven Ackermann (svenrecknagel@googlemail.com)
- * Licensed under the BSD license
+ * @license BSD license
  */
 chrome.runtime.getBackgroundPage(function(bp) {
 
@@ -53,7 +53,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function lastfmUserChanged(user) {
     var action;
     var actionText;
-    $("#scrobble, #linkRatings, #showLovedIndicator").prop("disabled", user == null);
+    $("#scrobble, #linkRatings, #showLovedIndicator").prop("disabled", user === null);
     scrobbleChanged(bp.settings.scrobble);
     var links = $("#lastfmStatus").find("a");
     var userLink = links.first();
@@ -71,7 +71,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function notificationsEnabledChanged(val) {
     $("#settings").toggleClass("notifDisabled", !val);
-    if (!val && bp.settings.toast && !bp.settings.toastUseMpStyle) $("#toastUseMpStyle").click()
+    if (!val && bp.settings.toast && !bp.settings.toastUseMpStyle) $("#toastUseMpStyle").click();
     else toastChanged();
   }
   
@@ -102,7 +102,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   /** the i18n key for the hint for property "<prop>" is "setting_<prop>Hint" */
   function initHint(prop) {
     var container = $("#" + prop).parent();
-    var hint = appendHint(container)
+    var hint = appendHint(container);
     hint.html(chrome.i18n.getMessage("setting_" + prop + "Hint")).appendTo(container);
     return hint;
   }
@@ -195,9 +195,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     if (!bp.settings.iconClickAction1) bp.settings.iconClickAction2 = "";
     if (!bp.settings.iconClickAction2) bp.settings.iconClickAction3 = "";
     var ict = $("#iconDoubleClickTime").prop("disabled", !bp.settings.iconClickAction0).val();
-    $("#iconClickAction1").prop("disabled", !bp.settings.iconClickAction0 || ict == 0).val(bp.settings.iconClickAction1);
-    $("#iconClickAction2").prop("disabled", !bp.settings.iconClickAction1 || ict == 0).val(bp.settings.iconClickAction2);
-    $("#iconClickAction3").prop("disabled", !bp.settings.iconClickAction2 || ict == 0).val(bp.settings.iconClickAction3);
+    $("#iconClickAction1").prop("disabled", !bp.settings.iconClickAction0 || ict === 0).val(bp.settings.iconClickAction1);
+    $("#iconClickAction2").prop("disabled", !bp.settings.iconClickAction1 || ict === 0).val(bp.settings.iconClickAction2);
+    $("#iconClickAction3").prop("disabled", !bp.settings.iconClickAction2 || ict === 0).val(bp.settings.iconClickAction3);
   }
   
   function showProgressChanged() {
@@ -428,7 +428,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     
     //get last.fm session if we are the callback page (query param "token" exists)
     var token;
-    if (bp.localSettings.lastfmSessionName == null && (token = bp.extractUrlParam("token", location.search))) {
+    if (bp.localSettings.lastfmSessionName === null && (token = bp.extractUrlParam("token", location.search))) {
       getLastfmSession(token);
       history.replaceState("", "", chrome.extension.getURL("options.html"));//remove token from URL
     }

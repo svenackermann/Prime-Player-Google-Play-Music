@@ -2,7 +2,7 @@
  * This script is injected directly to the Google Play Music window to run in its context.
  * Handles commands from content script.
  * @author Sven Ackermann (svenrecknagel@googlemail.com)
- * Licensed under the BSD license
+ * @license BSD license
  */
 (function() {
   function dispatchMouseEvent(eventname, element, clientX, clientY) {

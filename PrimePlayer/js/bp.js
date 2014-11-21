@@ -2,7 +2,7 @@
  * The main code for the background page.
  * Manages connections, settings, the miniplayer and much more.
  * @author Sven Ackermann (svenrecknagel@googlemail.com)
- * Licensed under the BSD license
+ * @license BSD license
  */
 
 /** settings that must not be synced with Chrome sync */
@@ -31,7 +31,7 @@ var LOCAL_SETTINGS_DEFAULTS = {
   timerNotify: true,
   timerPreNotify: 0,
   notificationsEnabled: true
-}
+};
 var localSettings = new Bean(LOCAL_SETTINGS_DEFAULTS, true);
 
 /** settings that should be synced with Chrome sync if enabled */
@@ -114,9 +114,9 @@ var optionsTabId;
 /** ports waiting for a connection when another tab was already connected (if multiple tabs with Google Music  are opened) */
 var parkedPorts = [];
 /** whether to view the update notifier (set in onInstalled event listener) */
-var viewUpdateNotifier = localStorage["viewUpdateNotifier"] || false;
+var viewUpdateNotifier = localStorage.viewUpdateNotifier || false;
 /** the previous version, if we just updated (set in onInstalled event listener, used by options page) */
-var previousVersion = localStorage["previousVersion"];
+var previousVersion = localStorage.previousVersion;
 /** the volume before mute for restoring */
 var volumeBeforeMute;
 /** true, if the position came from update backup data, needed to not set ff by mistake */
@@ -206,16 +206,16 @@ function Notification() {
     if (!chrome.notifications.onButtonClicked.hasListener(globalBtnClickListener)) chrome.notifications.onButtonClicked.addListener(globalBtnClickListener);
     if (!chrome.notifications.onClosed.hasListener(globalCloseListener)) chrome.notifications.onClosed.addListener(globalCloseListener);
   };
-};
+}
 var notifications = new Notification();
 
 function songsEqual(song1, song2) {
   if (song1 == song2) return true;//both null
-  if (song1 != null && song2 != null
-      && (song1.duration == null || song2.duration == null || song1.duration == song2.duration)
-      && song1.title == song2.title
-      && song1.artist == song2.artist
-      && song1.album == song2.album) {
+  if (song1 && song2 &&
+      (song1.duration === null || song2.duration === null || song1.duration == song2.duration) &&
+      song1.title == song2.title &&
+      song1.artist == song2.artist &&
+      song1.album == song2.album) {
     return true;
   }
   return false;
@@ -242,7 +242,7 @@ function draw(backgroundSrc, imagePaths, callback) {
   var image = new Image();
   function loadNext() {
     var path = imagePaths.shift();
-    if (path) image.src = chrome.extension.getURL(path + ".png")
+    if (path) image.src = chrome.extension.getURL(path + ".png");
     else callback(iconCtx);
   }
   image.onload = function() {
@@ -397,10 +397,10 @@ function onDisconnectListener() {
 function onMessageListener(message) {
   var val = message.value;
   var type = message.type;
-  if (type.indexOf("song-") == 0) {
-    if (type == "song-position" && val == "") val = SONG_DEFAULTS.position;
+  if (type.indexOf("song-") === 0) {
+    if (type == "song-position" && val === "") val = SONG_DEFAULTS.position;
     song[type.substring(5)] = val;
-  } else if (type.indexOf("player-") == 0) {
+  } else if (type.indexOf("player-") === 0) {
     player[type.substring(7)] = val;
   } else if (type == "loadLyrics") {
     if (song.info) fetchLyrics(song.info, function(result) {
@@ -494,17 +494,17 @@ function executePlayPause() {
 }
 
 function isScrobblingEnabled() {
-  return settings.scrobble && localSettings.lastfmSessionKey != null;
+  return settings.scrobble && localSettings.lastfmSessionKey !== null;
 }
 
 /** @return song position in seconds when the song will be scrobbled or -1 if disabled */
 function calcScrobbleTime() {
   if (song.scrobbled) return;
-  if (song.info
-  && song.info.durationSec > 0
-  && isScrobblingEnabled()
-  && !(song.ff && settings.disableScrobbleOnFf)
-  && !(settings.scrobbleMaxDuration > 0 && song.info.durationSec > (settings.scrobbleMaxDuration * 60))) {
+  if (song.info &&
+    song.info.durationSec > 0 &&
+    isScrobblingEnabled() &&
+    !(song.ff && settings.disableScrobbleOnFf) &&
+    !(settings.scrobbleMaxDuration > 0 && song.info.durationSec > (settings.scrobbleMaxDuration * 60))) {
     var scrobbleTime = song.info.durationSec * (settings.scrobblePercent / 100);
     if (settings.scrobbleTime > 0 && scrobbleTime > settings.scrobbleTime) {
       scrobbleTime = settings.scrobbleTime;
@@ -565,13 +565,13 @@ function getTextForToastBtn(cmd) {
       key = cmd;
       break;
     case "rate-1":
-      if (player.ratingMode == "star") key = "command_star1"
-      else if (player.ratingMode == "thumbs") key = "command_thumbsDown"
+      if (player.ratingMode == "star") key = "command_star1";
+      else if (player.ratingMode == "thumbs") key = "command_thumbsDown";
       else key = "command_rate1";
       break;
     case "rate-5":
-      if (player.ratingMode == "star") key = "command_star5"
-      else if (player.ratingMode == "thumbs") key = "command_thumbsUp"
+      if (player.ratingMode == "star") key = "command_star5";
+      else if (player.ratingMode == "thumbs") key = "command_thumbsUp";
       else key = "command_rate5";
       break;
     default:
@@ -581,7 +581,7 @@ function getTextForToastBtn(cmd) {
 }
 
 function cacheForLaterScrobbling(songInfo) {
-  var scrobbleCache = localStorage["scrobbleCache"];
+  var scrobbleCache = localStorage.scrobbleCache;
   scrobbleCache = scrobbleCache ? JSON.parse(scrobbleCache) : {};
   if (scrobbleCache.user != localSettings.lastfmSessionName) {
     scrobbleCache.songs = [];
@@ -592,7 +592,7 @@ function cacheForLaterScrobbling(songInfo) {
     scrobbleCache.songs.shift();
   }
   scrobbleCache.songs.push(songInfo);
-  localStorage["scrobbleCache"] = JSON.stringify(scrobbleCache);
+  localStorage.scrobbleCache = JSON.stringify(scrobbleCache);
 }
 
 function isScrobbleRetriable(code) {
@@ -600,7 +600,7 @@ function isScrobbleRetriable(code) {
 }
 
 function scrobbleCachedSongs() {
-  var scrobbleCache = localStorage["scrobbleCache"];
+  var scrobbleCache = localStorage.scrobbleCache;
   if (scrobbleCache) {
     scrobbleCache = JSON.parse(scrobbleCache);
     if (scrobbleCache.user != localSettings.lastfmSessionName) {
@@ -728,11 +728,11 @@ function love(songInfo, callback) {
 }
 
 function loveTrack(event, aSong) {
-  if (aSong == undefined) aSong = song;
+  if (aSong === undefined) aSong = song;
   aSong.loved = null;
   love(aSong.info, function(loved) { aSong.loved = loved; });
   //auto-rate if called by click event and not rated yet
-  if (event != null && settings.linkRatings && aSong.rating == 0) executeInGoogleMusic("rate", {rating: 5});
+  if (event != null && settings.linkRatings && aSong.rating === 0) executeInGoogleMusic("rate", {rating: 5});
 }
 
 function unlove(songInfo, callback) {
@@ -837,10 +837,10 @@ function getToastBtn(cmd) {
       if (!player.shuffle) return null;
       break;
     case "rate-1":
-      if (player.ratingMode == "thumbs") icon = "thumbsDown"
+      if (player.ratingMode == "thumbs") icon = "thumbsDown";
       break;
     case "rate-5":
-      if (player.ratingMode == "thumbs") icon = "thumbsUp"
+      if (player.ratingMode == "thumbs") icon = "thumbsUp";
       break;
     case "rate-2":
     case "rate-3":
@@ -861,9 +861,9 @@ function drawToastImage() {
     if (!toastOptions) return;//might be closed already
     var ctx = $("<canvas width='100' height='100'/>").get(0).getContext("2d");
     ctx.drawImage(cover, 0, 0, 100, 100);
-    if (cover.src.indexOf("blob") == 0) URL.revokeObjectURL(cover.src);
+    if (cover.src.indexOf("blob") === 0) URL.revokeObjectURL(cover.src);
     if (player.ratingMode == "thumbs") {
-      if (song.rating == 1 || song.rating == 2) ctx.drawImage(rating, 16, 0, 16, 16, 0, 84, 16, 16)
+      if (song.rating == 1 || song.rating == 2) ctx.drawImage(rating, 16, 0, 16, 16, 0, 84, 16, 16);
       else if (song.rating >= 4) ctx.drawImage(rating, 0, 0, 16, 16, 0, 84, 16, 16);
     } else if (player.ratingMode == "star") {
       for (i = 0; i < song.rating; i++) {
@@ -875,7 +875,7 @@ function drawToastImage() {
     }
     toastOptions.iconUrl = ctx.canvas.toDataURL();
     notifications.update(notifications.TOAST, toastOptions);
-  };
+  }
   
   if (song.rating > 0 || song.loved === true) {
     rating.onload = function() { ratingReady = true;  if (coverReady) draw(); };
@@ -924,7 +924,7 @@ function openToast() {
       contextMessage: song.info.album,
       iconUrl: chrome.extension.getURL("img/cover.png"),
       buttons: btns,
-      isClickable: settings.toastClick != ""
+      isClickable: settings.toastClick !== ""
     };
     if (settings.toastProgress) options.progress = Math.floor(song.positionSec * 100 / song.info.durationSec);
     notifications.create(notifications.TOAST, options, function(nid) {
@@ -944,8 +944,8 @@ function openToast() {
 function closeToast(callback) {
   clearTimeout(closeToastTimer);
   if (typeof(callback) != "function") callback = noop;
-  if (toastOptions) notifications.clear(notifications.TOAST, callback)
-  else if (toastWin) chrome.windows.remove(toastWin.id, callback)
+  if (toastOptions) notifications.clear(notifications.TOAST, callback);
+  else if (toastWin) chrome.windows.remove(toastWin.id, callback);
   else callback();
 }
 
@@ -1057,17 +1057,17 @@ function isNewerVersion(version) {
 }
 
 function migrateSettings(previousVersion) {
-  if (localStorage["iconClickMiniplayer"] !== undefined) {
-    if (localStorage["iconClickMiniplayer"] == "btrue") settings.iconClickAction0 = "openMiniplayer";
-    else if (localStorage["iconClickPlayPause"] == "btrue") settings.iconClickAction0 = "playPause";
+  if (localStorage.iconClickMiniplayer !== undefined) {
+    if (localStorage.iconClickMiniplayer == "btrue") settings.iconClickAction0 = "openMiniplayer";
+    else if (localStorage.iconClickPlayPause == "btrue") settings.iconClickAction0 = "playPause";
     localStorage.removeItem("iconClickMiniplayer");
     localStorage.removeItem("iconClickPlayPause");
   }
   if (previousVersion < 2.18 && !settings.toastUseMpStyle) {
     settings.toastDuration = 0;
   }
-  if (localStorage["skipDislikedSongs"] !== undefined) {
-    settings.skipRatedLower = localStorage["skipDislikedSongs"] == "btrue" ? 1 : 0;
+  if (localStorage.skipDislikedSongs !== undefined) {
+    settings.skipRatedLower = localStorage.skipDislikedSongs == "btrue" ? 1 : 0;
     localStorage.removeItem("skipDislikedSongs");
   }
   if (previousVersion < 2.23) {
@@ -1082,9 +1082,9 @@ function updatedListener(details) {
     if (settings.updateNotifier) {
       previousVersion = details.previousVersion;
       if (isNewerVersion(currentVersion)) {
-        localStorage["previousVersion"] = previousVersion;
+        localStorage.previousVersion = previousVersion;
         viewUpdateNotifier = true;
-        localStorage["viewUpdateNotifier"] = viewUpdateNotifier;
+        localStorage.viewUpdateNotifier = viewUpdateNotifier;
         iconClickSettingsChanged();
         updateBrowserActionInfo();
       } else {
@@ -1289,7 +1289,7 @@ function connectGoogleMusicTabs() {
 }
 
 function openMpOnPlaying(playing) {
-  if (playing && miniplayer == null) openMiniplayer();
+  if (playing && miniplayer === null) openMiniplayer();
 }
 
 function closeMpOnDisconnect(connected) {
@@ -1331,10 +1331,10 @@ settings.addListener("layout", function() {
   }
 });
 settings.addListener("hideRatings", function(val) {
-  if (!val && song.loved == null) getCurrentLastfmInfo();
+  if (!val && song.loved === null) getCurrentLastfmInfo();
 });
 settings.addListener("showLastfmInfo", function(val) {
-  if (val && song.lastfmInfo == null) getCurrentLastfmInfo();
+  if (val && song.lastfmInfo === null) getCurrentLastfmInfo();
 });
 settings.addListener("toastUseMpStyle", closeToast);
 settings.addListener("toastButton1", closeToast);
@@ -1351,32 +1351,32 @@ settings.addListener("connectedIndicator", function(val) {
   postToGooglemusic({type: "connectedIndicator", show: val});
 });
 settings.watch("mpAutoOpen", function(val) {
-  if (val) player.watch("playing", openMpOnPlaying)
+  if (val) player.watch("playing", openMpOnPlaying);
   else player.removeListener("playing", openMpOnPlaying);
 });
 settings.watch("mpAutoClose", function(val) {
-  if (val) player.addListener("connected", closeMpOnDisconnect)
+  if (val) player.addListener("connected", closeMpOnDisconnect);
   else player.removeListener("connected", closeMpOnDisconnect);
 });
 settings.addListener("lyricsInGpm", postLyricsState);
 settings.addListener("lyricsAutoReload", postLyricsState);
 settings.watch("showPlayingIndicator", function(val) {
-  if (val) player.addListener("playing", updateBrowserActionInfo)
+  if (val) player.addListener("playing", updateBrowserActionInfo);
   else player.removeListener("playing", updateBrowserActionInfo);
   updateBrowserActionInfo();
 });
 settings.watch("showScrobbledIndicator", function(val) {
-  if (val) song.addListener("scrobbled", updateBrowserActionInfo)
+  if (val) song.addListener("scrobbled", updateBrowserActionInfo);
   else song.removeListener("scrobbled", updateBrowserActionInfo);
   updateBrowserActionInfo();
 });
 settings.watch("showLovedIndicator", function(val) {
-  if (val) song.addListener("loved", updateBrowserActionInfo)
+  if (val) song.addListener("loved", updateBrowserActionInfo);
   else song.removeListener("loved", updateBrowserActionInfo);
   updateBrowserActionInfo();
 });
 settings.watch("showRatingIndicator", function(val) {
-  if (val) song.addListener("rating", updateBrowserActionInfo)
+  if (val) song.addListener("rating", updateBrowserActionInfo);
   else song.removeListener("rating", updateBrowserActionInfo);
   updateBrowserActionInfo();
 });
@@ -1418,7 +1418,7 @@ localSettings.addListener("lyrics", postLyricsState);
 localSettings.addListener("lyricsFontSize", postLyricsState);
 localSettings.addListener("lyricsWidth", postLyricsState);
 localSettings.watch("notificationsEnabled", function(val) {
-  if (val) notifications.init()
+  if (val) notifications.init();
   else gaEvent("Options", "notifications-disabled");
 });
 
@@ -1437,7 +1437,7 @@ player.addListener("connected", function(val) {
 
 function reloadForUpdate() {
   var backup = {};
-  backup.miniplayerOpen = miniplayer != null;
+  backup.miniplayerOpen = miniplayer !== null;
   backup.nowPlayingSent = song.nowPlayingSent;
   backup.scrobbled = song.scrobbled;
   backup.toasted = song.toasted;
@@ -1461,7 +1461,7 @@ function reloadForUpdate() {
   setTimeout(function() { chrome.runtime.reload(); }, 1000);//wait a second til port cleanup is finished
 }
 
-if (localStorage.updateBackup != null) {
+if (localStorage.updateBackup) {
   var backup = JSON.parse(localStorage.updateBackup);
   localStorage.removeItem("updateBackup");
   song.timestamp = backup.songTimestamp;
@@ -1589,8 +1589,7 @@ function setSongPosition(percent) {
 }
 
 function isRatingReset(oldRating, newRating) {
-  return oldRating == newRating
-    || (player.ratingMode == "thumbs" && ((oldRating == 2 && newRating == 1) || (oldRating == 4 && newRating == 5)));
+  return oldRating == newRating || (player.ratingMode == "thumbs" && ((oldRating == 2 && newRating == 1) || (oldRating == 4 && newRating == 5)));
 }
 
 function rate(rating) {
@@ -1620,18 +1619,18 @@ function executeCommand(command) {
       if (song.info) closeToast(openToast);
       break;
     case "loveUnloveSong":
-      if (song.loved === true) unloveTrack()
+      if (song.loved === true) unloveTrack();
       else loveTrack(true);
       break;
     case "volumeUp":
-      if (player.volume != null && player.volume != "100") setVolume(Math.min(100, parseInt(player.volume) + 10) / 100);
+      if (player.volume !== null && player.volume != "100") setVolume(Math.min(100, parseInt(player.volume) + 10) / 100);
       break;
     case "volumeDown":
-      if (player.volume != null && player.volume != "0") setVolume(Math.max(0, parseInt(player.volume) - 10) / 100);
+      if (player.volume !== null && player.volume != "0") setVolume(Math.max(0, parseInt(player.volume) - 10) / 100);
       break;
     case "volumeMute":
       if (player.volume != null) {
-        if (volumeBeforeMute != null && player.volume == "0") {
+        if (volumeBeforeMute !== null && player.volume == "0") {
           setVolume(parseInt(volumeBeforeMute) / 100);
           volumeBeforeMute = null;
         } else if (player.volume != "0") {
@@ -1647,7 +1646,7 @@ function executeCommand(command) {
       if (localSettings.lyrics) openLyrics();
       break;
     default:
-      if (command.indexOf("rate-") == 0 && song.info) {
+      if (command.indexOf("rate-") === 0 && song.info) {
         var rating = parseInt(command.substr(5, 1));
         if (!settings.preventCommandRatingReset || !isRatingReset(song.rating, rating)) rate(rating);
       }

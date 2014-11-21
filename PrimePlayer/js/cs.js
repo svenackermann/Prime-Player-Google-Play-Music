@@ -3,7 +3,7 @@
  * This watches the DOM for relevant changes and notifies the background page.
  * It also delivers commands to the Google Play Music window.
  * @author Sven Ackermann (svenrecknagel@googlemail.com)
- * Licensed under the BSD license
+ * @license BSD license
  */
 $(function() {
   var port;
@@ -40,7 +40,7 @@ $(function() {
   function parseCover(el) {
     var cover = el.attr("src");
     if (cover && cover.indexOf("/default_album_med.png") > 0) return null;
-    if (cover && cover.indexOf("//") == 0) cover = "https:" + cover;
+    if (cover && cover.indexOf("//") === 0) cover = "https:" + cover;
     return cover;
   }
   
@@ -120,7 +120,7 @@ $(function() {
   }
   
   function enableLyrics(fontSize, width) {
-    if ($("#ppLyricsButton").length == 0) {
+    if ($("#ppLyricsButton").length === 0) {
       $("<img id='ppLyricsButton'/>")
         .attr("src", chrome.extension.getURL("img/toast/openLyrics.png"))
         .attr("title", chrome.i18n.getMessage("command_openLyrics"))
@@ -209,7 +209,7 @@ $(function() {
           lyricsAutoReloadTimer = setTimeout(loadLyrics, 1000);
         }
       }
-      $("#ppLyricsButton").toggleClass("active", info != null);
+      $("#ppLyricsButton").toggleClass("active", info !== null);
       post("song-info", info);
     }
     
@@ -288,8 +288,8 @@ $(function() {
     function watchAttr(attrs, selector, type, getValue) {
       var element = $(selector).get(0);
       if (element) {
-        if (getValue == undefined) {
-          getValue = function(el, attr) {return el.getAttribute(attr)};
+        if (getValue === undefined) {
+          getValue = function(el, attr) { return el.getAttribute(attr); };
         }
         var observer = new MutationObserver(function (mutations) {
           mutations.forEach(function(mutation) { post(type, getValue(mutation.target, mutation.attributeName)); });
@@ -402,7 +402,7 @@ $(function() {
     } else {
       executeOnContentLoad = callback;
       contentLoadDestination = null;
-      if (hash.indexOf("st/") == 0) {//setting hash does not work for type "st"
+      if (hash.indexOf("st/") === 0) {//setting hash does not work for type "st"
         var listId = hash.substr(3);
         if (!clickListCard(listId)) {
           selectAndExecute("rd", function() {//try to find it on the mixes page
@@ -448,7 +448,7 @@ $(function() {
         if (omitUnknownAlbums && id.substr(1).indexOf("/") < 0) return;
         var item = {};
         item.titleLink = getLink(card);
-        if (item.titleLink == null) return;
+        if (item.titleLink === null) return;
         item.cover = parseCover(card.find(".image-wrapper img"));
         item.title = $.trim(card.find(".title").text());
         var subTitle = card.find(".sub-title");
@@ -525,7 +525,7 @@ $(function() {
     $("#playlists").children("a").each(function() {
       playlists.push({title: $.trim($(this).find(".tooltip").text()), titleLink: getLink($(this))});
     });
-    post("player-navigationList", {type: "playlistsList", link: "myPlaylists", list: playlists, empty: playlists.length == 0});
+    post("player-navigationList", {type: "playlistsList", link: "myPlaylists", list: playlists, empty: playlists.length === 0});
   }
   
   function getListType(hash) {
@@ -565,7 +565,7 @@ $(function() {
           parseNavigationList[type]($("#main"), undefined, function(list, update) {
             response.list = list;
             response.update = update;
-            response.empty = response.list.length == 0;
+            response.empty = response.list.length === 0;
             post("player-navigationList", response);
           }, omitUnknownAlbums);
         } else {
@@ -578,10 +578,10 @@ $(function() {
   
   function parseSublist(searchView, type, end) {
     var cont = searchView.children("div[data-type='" + type + "']");
-    if (cont.length == 0) return null;
+    if (cont.length === 0) return null;
     var listType = getListType(type);
     var list = parseNavigationList[listType](cont, end, false);
-    if (list.length == 0) return null;
+    if (list.length === 0) return null;
     return {
       list: list,
       type: listType,
@@ -599,7 +599,7 @@ $(function() {
       response.lists.push(parseSublist(searchView, "srar", 6));
       response.lists.push(parseSublist(searchView, "sral", 5));
       response.lists.push(parseSublist(searchView, "srs", 10));
-      response.empty = response.lists[0] == null && response.lists[1] == null && response.lists[2] == null;
+      response.empty = response.lists[0] === null && response.lists[1] === null && response.lists[2] === null;
       post("player-navigationList", response);
     });
   }
@@ -655,7 +655,7 @@ $(function() {
       case "startPlaylist":
         selectAndExecute(msg.link, function(error) {
           //type "im"/"st" starts automatically
-          if (!error && msg.link.indexOf("im/") != 0 && msg.link.indexOf("st/") != 0) sendCommand("startPlaylist");
+          if (!error && msg.link.indexOf("im/") !== 0 && msg.link.indexOf("st/") !== 0) sendCommand("startPlaylist");
         });
         break;
       case "resumeLastSong":
@@ -668,11 +668,11 @@ $(function() {
         init();
         break;
       case "connectedIndicator":
-        if (msg.show) showConnectedIndicator()
+        if (msg.show) showConnectedIndicator();
         else hideConnectedIndicator();
         break;
       case "lyricsState":
-        if (msg.enabled) enableLyrics(msg.fontSize, msg.width)
+        if (msg.enabled) enableLyrics(msg.fontSize, msg.width);
         else disableLyrics();
         lyricsAutoReload = msg.autoReload;
         break;

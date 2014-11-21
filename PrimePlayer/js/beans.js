@@ -4,7 +4,7 @@
  * @param defaults object with default values, every value in this object will be observable using "addListener" or "watch"
  * @param useLocalStorage whether to save values in localStorage, defaults to false
  * @author Sven Ackermann (svenrecknagel@googlemail.com)
- * Licensed under the BSD license
+ * @license BSD license
  */
 function Bean(defaults, useLocalStorage) {
   var cache = {};
@@ -33,7 +33,7 @@ function Bean(defaults, useLocalStorage) {
   this.addListener = function(prop, listener, src) {
     var ls = listeners[prop];
     if (ls) ls.push({listener: listener, src: src || null});
-  }
+  };
   
   /**
    * Removes a listener function for the given property.
@@ -48,7 +48,7 @@ function Bean(defaults, useLocalStorage) {
         }
       }
     }
-  }
+  };
   
   /**
    * Removes all listeners for the given source.
@@ -63,7 +63,7 @@ function Bean(defaults, useLocalStorage) {
         }
       }
     }
-  }
+  };
   
   /**
    * Same as addListener, except that the listener will be called immediately with the current value for old and new value.
@@ -71,7 +71,7 @@ function Bean(defaults, useLocalStorage) {
   this.watch = function(prop, listener, src) {
     listener(cache[prop], cache[prop], prop);
     that.addListener(prop, listener, src);
-  }
+  };
   
   /**
    * Allows to set a function that checks equality for a given property.
@@ -80,7 +80,7 @@ function Bean(defaults, useLocalStorage) {
    */
   this.setEqualsFn = function(prop, equals) {
     equalsFn[prop] = equals;
-  }
+  };
   
   function loadSyncStorage(doneCallback) {
     chrome.storage.sync.get(null, function(items) {
@@ -121,7 +121,7 @@ function Bean(defaults, useLocalStorage) {
       clearTimeout(saveSyncStorageTimer);
     }
     useSyncStorage = syncStorage;
-  }
+  };
   
   /**
    * Resets all values of this bean to their defaults.
@@ -136,7 +136,7 @@ function Bean(defaults, useLocalStorage) {
       clearTimeout(saveSyncStorageTimer);
       chrome.storage.sync.clear();
     }
-  }
+  };
   
   /**
    * Adds all properties from defaultValue to value that do not yet exist there.
@@ -152,7 +152,7 @@ function Bean(defaults, useLocalStorage) {
    * Convert string value to correct type.
    */
   function parse(name, defaultValue) {
-    if (!syncLocalStorage || localStorage[name] == undefined) {
+    if (!syncLocalStorage || localStorage[name] === undefined) {
       return defaultValue;
     }
     var value = localStorage[name];
@@ -181,7 +181,7 @@ function Bean(defaults, useLocalStorage) {
       set: function(val) {
         var old = cache[name];
         var equals = equalsFn[name];
-        if (equals == null) equals = defaultEquals;
+        if (typeof(equals) != "function") equals = defaultEquals;
         if (equals(val, old)) {
           return;
         }

@@ -3,7 +3,7 @@
  * Here just everything that is not needed for Prime Player has been removed.
  * We also use jQuery to save some code and store the session info and a sessionTimeoutCallback in the object.
  *
- * Copyright (c) 2008-2010, Felix Bruns <felixbruns@web.de>
+ * @license Copyright (c) 2008-2010, Felix Bruns <felixbruns@web.de>
  * @author Sven Ackermann (svenrecknagel@googlemail.com)
  */
 function LastFM(options){
@@ -13,8 +13,8 @@ function LastFM(options){
   var apiUrl    = options.apiUrl    || 'https://ws.audioscrobbler.com/2.0/';
 
   this.session = {};
-  this.sessionTimeoutCallback;
-  this.unavailableMessage;
+  this.sessionTimeoutCallback = null;
+  this.unavailableMessage = null;
   var that = this;
 
   /* Internal call (POST, GET). */
