@@ -162,14 +162,6 @@ var PLAYER_DEFAULTS = {
 };
 var player = new Bean(PLAYER_DEFAULTS);
 
-var Notification = {
-  RELOGIN: "pp.relogin",
-  TOAST: "pp.toast",
-  WELCOME: "pp.welcome",
-  TIMEREND: "pp.timerEnd",
-  TIMERWARN: "pp.timerwarn"
-};
-
 var LASTFM_APIKEY = "1ecc0b24153df7dc6ac0229d6fcb8dda";
 var LASTFM_APISECRET = "fb4b74854f7a7b099c30bfe71236dfd5";
 var lastfm = new LastFM({apiKey: LASTFM_APIKEY, apiSecret: LASTFM_APISECRET});
@@ -180,6 +172,37 @@ lastfm.unavailableMessage = chrome.i18n.getMessage("lastfmUnavailable");
 var currentVersion = chrome.runtime.getManifest().version;
 
 function noop() {/* not interesting, but required */}
+
+var notifications = {};
+function globalNotificationListener(evt, id, arg2) {
+  var forId = notifications[id];
+  if (forId && forId[evt]) for (var i = 0; i < forId[evt].length; i++) forId[evt][i](arg2);
+}
+var globalClickListener = globalNotificationListener.bind(window, "click");
+var globalBtnClickListener = globalNotificationListener.bind(window, "btnClick");
+var globalCloseListener = globalNotificationListener.bind(window, "close");
+var Notification = {
+  RELOGIN: "pp.relogin",
+  TOAST: "pp.toast",
+  WELCOME: "pp.welcome",
+  TIMEREND: "pp.timerEnd",
+  TIMERWARN: "pp.timerwarn",
+  create: function(id, options, cb) {
+    if (localSettings.notificationsEnabled) chrome.notifications.create(id, options, function(nid) {
+      notifications[nid] = {click: [], btnClick: [], close: []};
+      cb(nid);
+      Notification.addListener("close", nid, function() { delete(notifications[nid]); });
+    });
+  },
+  update: function(id, options, cb) { if (localSettings.notificationsEnabled) chrome.notifications.update(id, options, cb || noop); },
+  clear: function(id, cb) { if (localSettings.notificationsEnabled) chrome.notifications.clear(id, cb || noop); },
+  addListener: function(evt, id, cb) { notifications[id][evt].push(cb); },
+  init: function() {
+    if (!chrome.notifications.onClicked.hasListener(globalClickListener)) chrome.notifications.onClicked.addListener(globalClickListener);
+    if (!chrome.notifications.onButtonClicked.hasListener(globalBtnClickListener)) chrome.notifications.onButtonClicked.addListener(globalBtnClickListener);
+    if (!chrome.notifications.onClosed.hasListener(globalCloseListener)) chrome.notifications.onClosed.addListener(globalCloseListener);
+  }
+};
 
 function songsEqual(song1, song2) {
   if (song1 == song2) return true;//both null
@@ -749,65 +772,50 @@ function lastfmLogout() {
   song.loved = null;
 }
 
-function lastfmReloginClicked(nid) {
-  if (nid == Notification.RELOGIN) {
-    chrome.notifications.onClicked.removeListener(lastfmReloginClicked);
-    lastfmLogin();
-    chrome.notifications.clear(nid, noop);
-  }
-}
-
 /** logout from last.fm and show a notification to login again */
 function relogin() {
   lastfmLogout();
-  if (localSettings.notificationsEnabled) {
-    chrome.notifications.create(Notification.RELOGIN, {
-      type: "basic",
-      title: chrome.i18n.getMessage("lastfmSessionTimeout"),
-      message: chrome.i18n.getMessage("lastfmRelogin"),
-      iconUrl: chrome.extension.getURL("img/icon-48x48.png"),
-      isClickable: true
-    }, function(nid) {
-      chrome.notifications.onClicked.addListener(lastfmReloginClicked);
+  Notification.create(Notification.RELOGIN, {
+    type: "basic",
+    title: chrome.i18n.getMessage("lastfmSessionTimeout"),
+    message: chrome.i18n.getMessage("lastfmRelogin"),
+    iconUrl: chrome.extension.getURL("img/icon-48x48.png"),
+    isClickable: true
+  }, function(nid) {
+    Notification.addListener("click", nid, function() {
+      Notification.clear(nid);
+      lastfmLogin();
     });
-  }
+  });
 }
 lastfm.sessionTimeoutCallback = relogin;
 
-function toastClosed(notificationOrWinId) {
-  if (notificationOrWinId == Notification.TOAST) {
-    toastOptions = null;
-    song.removeListener("rating", drawToastImage);
-    song.removeListener("loved", drawToastImage);
-    if (toastCoverXhr) {
-      toastCoverXhr.abort();
-      toastCoverXhr = null;
-    }
-    chrome.notifications.onClosed.removeListener(toastClosed);
-    chrome.notifications.onClicked.removeListener(toastClicked);
-    chrome.notifications.onButtonClicked.removeListener(toastButtonClicked);
+function toastClosed() {
+  toastOptions = null;
+  song.removeListener("rating", drawToastImage);
+  song.removeListener("loved", drawToastImage);
+  if (toastCoverXhr) {
+    toastCoverXhr.abort();
+    toastCoverXhr = null;
   }
-  if (toastWin && notificationOrWinId == toastWin.id) {
+}
+  
+function toastMpClosed(winId) {
+  if (toastWin && winId == toastWin.id) {
     toastWin = null;
-    chrome.windows.onRemoved.removeListener(toastClosed);
+    chrome.windows.onRemoved.removeListener(toastMpClosed);
   }
 }
 
-function toastClicked(nid) {
-  if (nid == Notification.TOAST && settings.toastClick) executeCommand(settings.toastClick);
-}
-
-function toastButtonClicked(nid, buttonIndex) {
-  if (nid == Notification.TOAST) {
-    //check which button was clicked and that the button is valid (otherwise it is not displayed and we would execute the wrong command)
-    var cmd = settings.toastButton1;
-    var btn = getToastBtn(cmd);
-    if (!btn || buttonIndex == 1) {
-      cmd = settings.toastButton2;
-      btn = getToastBtn(cmd);
-    }
-    if (btn) executeCommand(cmd);
+function toastButtonClicked(buttonIndex) {
+  //check which button was clicked and that the button is valid (otherwise it is not displayed and we would execute the wrong command)
+  var cmd = settings.toastButton1;
+  var btn = getToastBtn(cmd);
+  if (!btn || buttonIndex == 1) {
+    cmd = settings.toastButton2;
+    btn = getToastBtn(cmd);
   }
+  if (btn) executeCommand(cmd);
 }
 
 function getToastBtn(cmd) {
@@ -845,6 +853,7 @@ function drawToastImage() {
   var coverReady = false;
   var ratingReady = false;
   function draw() {
+    if (!toastOptions) return;//might be closed already
     var ctx = $("<canvas width='100' height='100'/>").get(0).getContext("2d");
     ctx.drawImage(cover, 0, 0, 100, 100);
     if (cover.src.indexOf("blob") == 0) URL.revokeObjectURL(cover.src);
@@ -860,7 +869,7 @@ function drawToastImage() {
       ctx.drawImage(rating, 48, 0, 16, 16, 84, 84, 16, 16);
     }
     toastOptions.iconUrl = ctx.canvas.toDataURL();
-    chrome.notifications.update(Notification.TOAST, toastOptions, noop);
+    Notification.update(Notification.TOAST, toastOptions);
   };
   
   if (song.rating > 0 || song.loved === true) {
@@ -894,9 +903,9 @@ function openToast() {
   if (settings.toastUseMpStyle) {
     createPlayer("toast", function(win) {
       toastWin = win;
-      chrome.windows.onRemoved.addListener(toastClosed);
+      chrome.windows.onRemoved.addListener(toastMpClosed);
     }, false);
-  } else if (localSettings.notificationsEnabled) {
+  } else {
     var btns = [];
     var btn = getToastBtn(settings.toastButton1);
     if (btn) btns.push(btn);
@@ -910,14 +919,14 @@ function openToast() {
       contextMessage: song.info.album,
       iconUrl: chrome.extension.getURL("img/cover.png"),
       buttons: btns,
-      isClickable: settings.toastClick
+      isClickable: settings.toastClick != ""
     };
     if (settings.toastProgress) options.progress = Math.floor(song.positionSec * 100 / song.info.durationSec);
-    chrome.notifications.create(Notification.TOAST, options, function(nid) {
+    Notification.create(Notification.TOAST, options, function(nid) {
       toastOptions = options;
-      chrome.notifications.onClosed.addListener(toastClosed);
-      chrome.notifications.onClicked.addListener(toastClicked);
-      chrome.notifications.onButtonClicked.addListener(toastButtonClicked);
+      Notification.addListener("close", nid, toastClosed);
+      Notification.addListener("click", nid, function() { if (settings.toastClick) executeCommand(settings.toastClick); });
+      Notification.addListener("btnClick", nid, toastButtonClicked);
       song.watch("rating", drawToastImage);
       song.addListener("loved", drawToastImage);
     });
@@ -930,7 +939,7 @@ function openToast() {
 function closeToast(callback) {
   clearTimeout(closeToastTimer);
   if (typeof(callback) != "function") callback = noop;
-  if (toastOptions) chrome.notifications.clear(Notification.TOAST, callback)
+  if (toastOptions) Notification.clear(Notification.TOAST, callback)
   else if (toastWin) chrome.windows.remove(toastWin.id, callback)
   else callback();
 }
@@ -1079,7 +1088,7 @@ function updatedListener(details) {
     }
     migrateSettings(parseFloat(details.previousVersion));
   } else if (details.reason == "install") {
-    chrome.notifications.create(Notification.WELCOME, {
+    Notification.create(Notification.WELCOME, {
       type: "basic",
       title: chrome.i18n.getMessage("welcomeTitle"),
       message: chrome.i18n.getMessage("welcomeMessage"),
@@ -1087,33 +1096,19 @@ function updatedListener(details) {
       iconUrl: chrome.extension.getURL("img/icon-48x48.png"),
       priority: 2
     }, function(nid) {
-      function checkNotId(notId) {
-        if (notId == nid) {
-          chrome.notifications.onClicked.removeListener(notifOrBtnClicked);
-          chrome.notifications.onButtonClicked.removeListener(notifOrBtnClicked);
-          chrome.notifications.onClosed.removeListener(notifClosed);
-          return true;
-        }
-        return false;
-      }
-      function notifOrBtnClicked(notId, buttonIndex) {
-        if (checkNotId(notId)) {
-          chrome.notifications.clear(notId, noop);
-          if (buttonIndex == 0) {
-            gaEvent("Options", "welcome-toOptions");
-            openOptions();
-          } else {
-            gaEvent("Options", "welcome-toWiki");
-            chrome.tabs.create({url: "https://github.com/svenackermann/Prime-Player-Google-Play-Music/wiki"});
-          }
+      function notifOrBtnClicked(buttonIndex) {
+        Notification.clear(nid);
+        if (buttonIndex == 1) {
+          gaEvent("Options", "welcome-toWiki");
+          chrome.tabs.create({url: "https://github.com/svenackermann/Prime-Player-Google-Play-Music/wiki"});
+        } else {//button 0 or notification clicked
+          gaEvent("Options", "welcome-toOptions");
+          openOptions();
         }
       }
-      function notifClosed(notId, byUser) {
-        if (checkNotId(notId) && byUser) gaEvent("Options", "welcome-close");
-      }
-      chrome.notifications.onClicked.addListener(notifOrBtnClicked);
-      chrome.notifications.onButtonClicked.addListener(notifOrBtnClicked);
-      chrome.notifications.onClosed.addListener(notifClosed);
+      Notification.addListener("click", nid, notifOrBtnClicked);
+      Notification.addListener("btnClick", nid, notifOrBtnClicked);
+      Notification.addListener("close", nid, function(byUser) { if (byUser) gaEvent("Options", "welcome-close"); });
     });
   }
 }
@@ -1167,7 +1162,7 @@ function startSleepTimer(backupTimerEnd) {
   timerEnd = backupTimerEnd || nowSec + (localSettings.timerMinutes * 60);
   var countdownSec = Math.max(0, timerEnd - nowSec);
   sleepTimer = setTimeout(function() {
-    if (localSettings.notificationsEnabled) chrome.notifications.clear("preNotifyTimer", noop);
+    Notification.clear(Notification.TIMERWARN);
     sleepTimer = null;
     timerEnd = 0;
     var msg, btnTitle, undoAction;
@@ -1189,8 +1184,8 @@ function startSleepTimer(backupTimerEnd) {
         closeGm();
         break;
     }
-    if (localSettings.timerNotify && msg && localSettings.notificationsEnabled) {
-      chrome.notifications.create(Notification.TIMEREND, {
+    if (localSettings.timerNotify && msg) {
+      Notification.create(Notification.TIMEREND, {
         type: "basic",
         title: chrome.i18n.getMessage("timerNotificationTitle"),
         message: msg,
@@ -1199,17 +1194,12 @@ function startSleepTimer(backupTimerEnd) {
         priority: 2,
         isClickable: false
       }, function(nid) {
-        function clearNotification() {
-          chrome.notifications.clear(nid, noop);
-          chrome.notifications.onButtonClicked.removeListener(btnClicked);
+        function clearNotification() { Notification.clear(nid); }
+        function btnClicked() {
+          clearNotification();
+          undoAction();
         }
-        function btnClicked(notId) {
-          if (notId == nid) {
-            clearNotification();
-            undoAction();
-          }
-        }
-        chrome.notifications.onButtonClicked.addListener(btnClicked);
+        Notification.addListener("btnClick", nid, btnClicked);
         setTimeout(clearNotification, 10000);
       });
     }
@@ -1217,8 +1207,6 @@ function startSleepTimer(backupTimerEnd) {
   if (localSettings.timerPreNotify > 0 && countdownSec > 0) {
     preNotifyTimer = setTimeout(function() {
       preNotifyTimer = null;
-      if (!localSettings.notificationsEnabled) return;
-      
       function getWarningMessage() {
         return chrome.i18n.getMessage(localSettings.timerAction == "pause" ? "timerWarningMsgPause" : "timerWarningMsgCloseGm", "" + Math.max(0, Math.floor(timerEnd - new Date().getTime() / 1000)));
       }
@@ -1231,26 +1219,20 @@ function startSleepTimer(backupTimerEnd) {
         priority: 1,
         isClickable: false
       };
-      chrome.notifications.create(Notification.TIMERWARN, preNotifyOptions, function(nid) {
+      Notification.create(Notification.TIMERWARN, preNotifyOptions, function(nid) {
         var preNotifyInterval;
-        function btnClicked(notId) {
-          if (notId == nid) {
-            clearSleepTimer();
-            chrome.notifications.clear(notId, noop);
-          }
+        function btnClicked() {
+          clearSleepTimer();
+          Notification.clear(nid);
         }
-        function preNotifyClosed(notId) {
-          if (notId == nid) {
-            clearInterval(preNotifyInterval);
-            chrome.notifications.onButtonClicked.removeListener(btnClicked);
-            chrome.notifications.onClosed.removeListener(preNotifyClosed);
-          }
+        function preNotifyClosed() {
+          clearInterval(preNotifyInterval);
         }
-        chrome.notifications.onButtonClicked.addListener(btnClicked);
-        chrome.notifications.onClosed.addListener(preNotifyClosed);
+        Notification.addListener("btnClick", nid, btnClicked);
+        Notification.addListener("close", nid, preNotifyClosed);
         preNotifyInterval = setInterval(function() {
           preNotifyOptions.message = getWarningMessage();
-          chrome.notifications.update(nid, preNotifyOptions, noop);
+          Notification.update(nid, preNotifyOptions);
         }, 1000);
       });
     }, Math.max(0, (countdownSec - localSettings.timerPreNotify) * 1000));
@@ -1261,7 +1243,7 @@ function clearSleepTimer() {
   sleepTimer = null;
   clearTimeout(preNotifyTimer);
   preNotifyTimer = null;
-  if (localSettings.notificationsEnabled) chrome.notifications.clear(Notification.TIMERWARN, noop);
+  Notification.clear(Notification.TIMERWARN);
   timerEnd = 0;
 }
 
@@ -1430,6 +1412,10 @@ localSettings.addListener("lastfmSessionName", calcScrobbleTime);
 localSettings.addListener("lyrics", postLyricsState);
 localSettings.addListener("lyricsFontSize", postLyricsState);
 localSettings.addListener("lyricsWidth", postLyricsState);
+localSettings.watch("notificationsEnabled", function(val) {
+  if (val) Notification.init()
+  else gaEvent("Options", "notifications-disabled");
+});
 
 player.addListener("connected", function(val) {
   updateBrowserActionInfo();
@@ -1531,7 +1517,7 @@ song.addListener("position", function(val) {
         var progress = Math.floor(song.positionSec * 100 / song.info.durationSec);
         if (progress > toastOptions.progress) {//avoid update on noop
           toastOptions.progress = progress;
-          chrome.notifications.update(Notification.TOAST, toastOptions, noop);
+          Notification.update(Notification.TOAST, toastOptions);
         }
       }
     }
@@ -1665,7 +1651,6 @@ function executeCommand(command) {
 
 function updateNotificationsEnabled(level) {
   localSettings.notificationsEnabled = level == "granted";
-  if (!localSettings.notificationsEnabled) gaEvent("Options", "notifications-disabled");
 }
 
 chrome.commands.onCommand.addListener(executeCommand);
