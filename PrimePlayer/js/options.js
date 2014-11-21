@@ -73,7 +73,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#settings").toggleClass("notifDisabled", !val);
     if (!val && bp.settings.toast && !bp.settings.toastUseMpStyle) $("#toastUseMpStyle").click()
     else toastChanged();
-    $("#notificationDisabledWarning").toggle(!val);
   }
   
   function stringUpdater(prop) {

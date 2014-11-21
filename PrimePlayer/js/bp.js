@@ -171,38 +171,43 @@ lastfm.unavailableMessage = chrome.i18n.getMessage("lastfmUnavailable");
 
 var currentVersion = chrome.runtime.getManifest().version;
 
-function noop() {/* not interesting, but required */}
+function noop() {/* not interesting, but sometimes required */}
 
-var notifications = {};
-function globalNotificationListener(evt, id, arg2) {
-  var forId = notifications[id];
-  if (forId && forId[evt]) for (var i = 0; i < forId[evt].length; i++) forId[evt][i](arg2);
-}
-var globalClickListener = globalNotificationListener.bind(window, "click");
-var globalBtnClickListener = globalNotificationListener.bind(window, "btnClick");
-var globalCloseListener = globalNotificationListener.bind(window, "close");
-var Notification = {
-  RELOGIN: "pp.relogin",
-  TOAST: "pp.toast",
-  WELCOME: "pp.welcome",
-  TIMEREND: "pp.timerEnd",
-  TIMERWARN: "pp.timerwarn",
-  create: function(id, options, cb) {
+//wrap chrome notifications API for convenience
+function Notification() {
+  var that = this;
+  var notifications = {};
+  function globalNotificationListener(evt, id, arg2) {
+    var forId = notifications[id];
+    if (forId && forId[evt]) for (var i = 0; i < forId[evt].length; i++) forId[evt][i](arg2);
+  }
+  var globalClickListener = globalNotificationListener.bind(window, "click");
+  var globalBtnClickListener = globalNotificationListener.bind(window, "btnClick");
+  var globalCloseListener = globalNotificationListener.bind(window, "close");
+  
+  this.RELOGIN = "pp.relogin";
+  this.TOAST = "pp.toast";
+  this.WELCOME = "pp.welcome";
+  this.TIMEREND = "pp.timerEnd";
+  this.TIMERWARN = "pp.timerwarn";
+  
+  this.create = function(id, options, cb) {
     if (localSettings.notificationsEnabled) chrome.notifications.create(id, options, function(nid) {
       notifications[nid] = {click: [], btnClick: [], close: []};
       cb(nid);
-      Notification.addListener("close", nid, function() { delete(notifications[nid]); });
+      that.addListener("close", nid, function() { delete(notifications[nid]); });
     });
-  },
-  update: function(id, options, cb) { if (localSettings.notificationsEnabled) chrome.notifications.update(id, options, cb || noop); },
-  clear: function(id, cb) { if (localSettings.notificationsEnabled) chrome.notifications.clear(id, cb || noop); },
-  addListener: function(evt, id, cb) { notifications[id][evt].push(cb); },
-  init: function() {
+  };
+  this.update = function(id, options, cb) { if (localSettings.notificationsEnabled) chrome.notifications.update(id, options, cb || noop); };
+  this.clear = function(id, cb) { if (localSettings.notificationsEnabled) chrome.notifications.clear(id, cb || noop); };
+  this.addListener = function(evt, id, cb) { notifications[id][evt].push(cb); };
+  this.init = function() {
     if (!chrome.notifications.onClicked.hasListener(globalClickListener)) chrome.notifications.onClicked.addListener(globalClickListener);
     if (!chrome.notifications.onButtonClicked.hasListener(globalBtnClickListener)) chrome.notifications.onButtonClicked.addListener(globalBtnClickListener);
     if (!chrome.notifications.onClosed.hasListener(globalCloseListener)) chrome.notifications.onClosed.addListener(globalCloseListener);
-  }
+  };
 };
+var notifications = new Notification();
 
 function songsEqual(song1, song2) {
   if (song1 == song2) return true;//both null
@@ -775,15 +780,15 @@ function lastfmLogout() {
 /** logout from last.fm and show a notification to login again */
 function relogin() {
   lastfmLogout();
-  Notification.create(Notification.RELOGIN, {
+  notifications.create(notifications.RELOGIN, {
     type: "basic",
     title: chrome.i18n.getMessage("lastfmSessionTimeout"),
     message: chrome.i18n.getMessage("lastfmRelogin"),
     iconUrl: chrome.extension.getURL("img/icon-48x48.png"),
     isClickable: true
   }, function(nid) {
-    Notification.addListener("click", nid, function() {
-      Notification.clear(nid);
+    notifications.addListener("click", nid, function() {
+      notifications.clear(nid);
       lastfmLogin();
     });
   });
@@ -869,7 +874,7 @@ function drawToastImage() {
       ctx.drawImage(rating, 48, 0, 16, 16, 84, 84, 16, 16);
     }
     toastOptions.iconUrl = ctx.canvas.toDataURL();
-    Notification.update(Notification.TOAST, toastOptions);
+    notifications.update(notifications.TOAST, toastOptions);
   };
   
   if (song.rating > 0 || song.loved === true) {
@@ -922,11 +927,11 @@ function openToast() {
       isClickable: settings.toastClick != ""
     };
     if (settings.toastProgress) options.progress = Math.floor(song.positionSec * 100 / song.info.durationSec);
-    Notification.create(Notification.TOAST, options, function(nid) {
+    notifications.create(notifications.TOAST, options, function(nid) {
       toastOptions = options;
-      Notification.addListener("close", nid, toastClosed);
-      Notification.addListener("click", nid, function() { if (settings.toastClick) executeCommand(settings.toastClick); });
-      Notification.addListener("btnClick", nid, toastButtonClicked);
+      notifications.addListener("close", nid, toastClosed);
+      notifications.addListener("click", nid, function() { if (settings.toastClick) executeCommand(settings.toastClick); });
+      notifications.addListener("btnClick", nid, toastButtonClicked);
       song.watch("rating", drawToastImage);
       song.addListener("loved", drawToastImage);
     });
@@ -939,7 +944,7 @@ function openToast() {
 function closeToast(callback) {
   clearTimeout(closeToastTimer);
   if (typeof(callback) != "function") callback = noop;
-  if (toastOptions) Notification.clear(Notification.TOAST, callback)
+  if (toastOptions) notifications.clear(notifications.TOAST, callback)
   else if (toastWin) chrome.windows.remove(toastWin.id, callback)
   else callback();
 }
@@ -1088,7 +1093,7 @@ function updatedListener(details) {
     }
     migrateSettings(parseFloat(details.previousVersion));
   } else if (details.reason == "install") {
-    Notification.create(Notification.WELCOME, {
+    notifications.create(notifications.WELCOME, {
       type: "basic",
       title: chrome.i18n.getMessage("welcomeTitle"),
       message: chrome.i18n.getMessage("welcomeMessage"),
@@ -1097,7 +1102,7 @@ function updatedListener(details) {
       priority: 2
     }, function(nid) {
       function notifOrBtnClicked(buttonIndex) {
-        Notification.clear(nid);
+        notifications.clear(nid);
         if (buttonIndex == 1) {
           gaEvent("Options", "welcome-toWiki");
           chrome.tabs.create({url: "https://github.com/svenackermann/Prime-Player-Google-Play-Music/wiki"});
@@ -1106,9 +1111,9 @@ function updatedListener(details) {
           openOptions();
         }
       }
-      Notification.addListener("click", nid, notifOrBtnClicked);
-      Notification.addListener("btnClick", nid, notifOrBtnClicked);
-      Notification.addListener("close", nid, function(byUser) { if (byUser) gaEvent("Options", "welcome-close"); });
+      notifications.addListener("click", nid, notifOrBtnClicked);
+      notifications.addListener("btnClick", nid, notifOrBtnClicked);
+      notifications.addListener("close", nid, function(byUser) { if (byUser) gaEvent("Options", "welcome-close"); });
     });
   }
 }
@@ -1162,7 +1167,7 @@ function startSleepTimer(backupTimerEnd) {
   timerEnd = backupTimerEnd || nowSec + (localSettings.timerMinutes * 60);
   var countdownSec = Math.max(0, timerEnd - nowSec);
   sleepTimer = setTimeout(function() {
-    Notification.clear(Notification.TIMERWARN);
+    notifications.clear(notifications.TIMERWARN);
     sleepTimer = null;
     timerEnd = 0;
     var msg, btnTitle, undoAction;
@@ -1185,7 +1190,7 @@ function startSleepTimer(backupTimerEnd) {
         break;
     }
     if (localSettings.timerNotify && msg) {
-      Notification.create(Notification.TIMEREND, {
+      notifications.create(notifications.TIMEREND, {
         type: "basic",
         title: chrome.i18n.getMessage("timerNotificationTitle"),
         message: msg,
@@ -1194,12 +1199,12 @@ function startSleepTimer(backupTimerEnd) {
         priority: 2,
         isClickable: false
       }, function(nid) {
-        function clearNotification() { Notification.clear(nid); }
+        function clearNotification() { notifications.clear(nid); }
         function btnClicked() {
           clearNotification();
           undoAction();
         }
-        Notification.addListener("btnClick", nid, btnClicked);
+        notifications.addListener("btnClick", nid, btnClicked);
         setTimeout(clearNotification, 10000);
       });
     }
@@ -1219,20 +1224,20 @@ function startSleepTimer(backupTimerEnd) {
         priority: 1,
         isClickable: false
       };
-      Notification.create(Notification.TIMERWARN, preNotifyOptions, function(nid) {
+      notifications.create(notifications.TIMERWARN, preNotifyOptions, function(nid) {
         var preNotifyInterval;
         function btnClicked() {
           clearSleepTimer();
-          Notification.clear(nid);
+          notifications.clear(nid);
         }
         function preNotifyClosed() {
           clearInterval(preNotifyInterval);
         }
-        Notification.addListener("btnClick", nid, btnClicked);
-        Notification.addListener("close", nid, preNotifyClosed);
+        notifications.addListener("btnClick", nid, btnClicked);
+        notifications.addListener("close", nid, preNotifyClosed);
         preNotifyInterval = setInterval(function() {
           preNotifyOptions.message = getWarningMessage();
-          Notification.update(nid, preNotifyOptions);
+          notifications.update(nid, preNotifyOptions);
         }, 1000);
       });
     }, Math.max(0, (countdownSec - localSettings.timerPreNotify) * 1000));
@@ -1243,7 +1248,7 @@ function clearSleepTimer() {
   sleepTimer = null;
   clearTimeout(preNotifyTimer);
   preNotifyTimer = null;
-  Notification.clear(Notification.TIMERWARN);
+  notifications.clear(notifications.TIMERWARN);
   timerEnd = 0;
 }
 
@@ -1413,7 +1418,7 @@ localSettings.addListener("lyrics", postLyricsState);
 localSettings.addListener("lyricsFontSize", postLyricsState);
 localSettings.addListener("lyricsWidth", postLyricsState);
 localSettings.watch("notificationsEnabled", function(val) {
-  if (val) Notification.init()
+  if (val) notifications.init()
   else gaEvent("Options", "notifications-disabled");
 });
 
@@ -1517,7 +1522,7 @@ song.addListener("position", function(val) {
         var progress = Math.floor(song.positionSec * 100 / song.info.durationSec);
         if (progress > toastOptions.progress) {//avoid update on noop
           toastOptions.progress = progress;
-          Notification.update(Notification.TOAST, toastOptions);
+          notifications.update(notifications.TOAST, toastOptions);
         }
       }
     }
