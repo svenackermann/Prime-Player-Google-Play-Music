@@ -271,27 +271,27 @@
     "message": "Here you can control the connection between Google Music and last.fm and adjust your scrobbling preferences.",
     "description": "hint for the lastfm settings on options page"
   },
-  "legendToasting": {
-    "message": "Toasting settings",
+  "legendToast": {
+    "message": "Toast settings",
     "description": "title for the toast settings on options page"
   },
-  "legendToastingHint": {
+  "legendToastHint": {
     "message": "Toasts are Chrome notifications that show you the current song and allow for some actions. Whenever a new song starts, a toast notification will appear on your screen.",
     "description": "hint for the toast settings on options page"
   },
-  "legendMp": {
+  "legendMiniplayer": {
     "message": "Miniplayer settings",
     "description": "title for the miniplayer settings on options page"
   },
-  "legendMpHint": {
+  "legendMiniplayerHint": {
     "message": "The miniplayer is a powerful, highly customizable tool, so take your time to try the different options out. You can open the miniplayer e.g. by clicking on the note icon in the popup that shows up when you click the Prime Player icon in the Chrome toolbar.",
     "description": "hint for the miniplayer settings on options page"
   },
-  "legendLf": {
-    "message": "Look and feel",
+  "legendLookfeel": {
+    "message": "Look \u0026 feel",
     "description": "title for the look and feel settings on options page"
   },
-  "legendLfHint": {
+  "legendLookfeelHint": {
     "message": "These settings control the Prime Player icon and some other general behavior.",
     "description": "hint for the look and feel settings on options page"
   },
@@ -910,7 +910,7 @@
     "description": "label for options last.fm filter"
   },
   "setting_filterToast": {
-    "message": "Toasting",
+    "message": "Toasts",
     "description": "label for options toast filter"
   },
   "setting_filterMiniplayer": {
@@ -920,6 +920,10 @@
   "setting_filterLyrics": {
     "message": "Lyrics",
     "description": "label for options lyrics filter"
+  },
+  "setting_filterLookfeel": {
+    "message": "Look \u0026 feel",
+    "description": "label for options look and feel filter"
   },
   "notificationsDisabled": {
     "message": "Notifications are disabled for Prime Player, so only miniplayer style toasts are available.",

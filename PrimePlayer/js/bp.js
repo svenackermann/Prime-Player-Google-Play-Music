@@ -94,7 +94,8 @@ var SETTINGS_DEFAULTS = {
   filterLastfm: true,
   filterToast: true,
   filterMiniplayer: true,
-  filterLyrics: true
+  filterLyrics: true,
+  filterLookfeel: true
 };
 var settings = new Bean(SETTINGS_DEFAULTS, true);
 

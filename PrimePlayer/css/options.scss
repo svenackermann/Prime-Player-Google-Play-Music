@@ -19,7 +19,7 @@ body {
   &.f-adv .exp {
     display: none;
   }
-  &.filterTimer .timer, &.filterLastfm .lastfm, &.filterToast .toast, &.filterMiniplayer .miniplayer, &.filterLyrics .lyrics {
+  &.filterTimer .timer, &.filterLastfm .lastfm, &.filterToast .toast, &.filterMiniplayer .miniplayer, &.filterLyrics .lyrics, &.filterLookfeel .lookfeel {
     display: none;
   }
 }
@@ -34,7 +34,7 @@ body {
 .info {
   padding-left: 15px;
   overflow-x: hidden;
-  min-width: 250px;
+  min-width: 350px;
   max-width: 450px;
   font-size: 11px;
   h3 {
@@ -181,6 +181,12 @@ div {
   font-size: 12px;
   label {
     margin-right: 1ex;
+  }
+  > div {
+    label {
+      display: inline-block;
+      min-width: 100px;
+    }
   }
 }
 

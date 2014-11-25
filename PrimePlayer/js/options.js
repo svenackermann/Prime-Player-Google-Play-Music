@@ -263,12 +263,15 @@ chrome.runtime.getBackgroundPage(function(bp) {
     updateOptionsMode();
     
     $("#filter p").text(chrome.i18n.getMessage("filterHint"));
-    $("#filter > div > input[type='checkbox']").each(function() {
+    $("#filter > div > div > input[type='checkbox']").each(function() {
       var id = $(this).attr("id");
+      var cb = initCheckbox(id);
+      var label = cb.siblings("label[for='" + id + "']");
       function updateFilter() {
         $("#settings").toggleClass(id, !bp.settings[id]);
+        label.html(bp.settings[id] ? "<a href='#" + id.replace("filter", "legend") + "'>" + label.text() + "</a>" : label.text());
       }
-      initCheckbox(id).click(updateFilter);
+      cb.click(updateFilter);
       updateFilter();
     });
   }

@@ -203,22 +203,22 @@
   "legendLastfmHint": {
     "message": "Hier kannst du die Verbindung mit last.fm kontrollieren und deine Scrobbling-Einstellungen anpassen."
   },
-  "legendToasting": {
-    "message": "Toasting Einstellungen"
+  "legendToast": {
+    "message": "Toast Einstellungen"
   },
-  "legendToastingHint": {
+  "legendToastHint": {
     "message": "Toasts sind Chrome-Benachrichtigungen, die den aktuellen Titel anzeigen und ein paar Aktionen erlauben. Immer wenn ein neuer Titel startet, erscheint eine Toast-Benachrichtigung auf dem Bildschirm."
   },
-  "legendMp": {
+  "legendMiniplayer": {
     "message": "Miniplayer Einstellungen"
   },
-  "legendMpHint": {
+  "legendMiniplayerHint": {
     "message": "Der Miniplayer ist ein m\u00E4chtiges, anpassbares Tool, also nimm dir die Zeit, die verschiedenen Einstellungen auszuprobieren. Du kannst den Miniplayer z.B. mit dem Noten-Symbol im Popup, das beim Klick auf das Prime-Player-Symbol in Chromes Toolbar erscheint, \u00F6ffnen."
   },
-  "legendLf": {
-    "message": "Aussehen und Verhalten"
+  "legendLookfeel": {
+    "message": "Aussehen \u0026 Verhalten"
   },
-  "legendLfHint": {
+  "legendLookfeelHint": {
     "message": "Diese Einstellungen kontrollieren das Prime-Player-Symbol und anderes allgemeines Verhalten."
   },
   "legendIc": {
@@ -685,13 +685,16 @@
     "message": "Last.fm"
   },
   "setting_filterToast": {
-    "message": "Toasting"
+    "message": "Toasts"
   },
   "setting_filterMiniplayer": {
     "message": "Miniplayer"
   },
   "setting_filterLyrics": {
     "message": "Songtexte"
+  },
+  "setting_filterLookfeel": {
+    "message": "Verhalten"
   },
   "notificationsDisabled": {
     "message": "Benachrichtigungen sind f\u00FCr Prime Player deaktiviert. Daher sind nur Toasts im Miniplayer-Stil m\u00F6glich."
