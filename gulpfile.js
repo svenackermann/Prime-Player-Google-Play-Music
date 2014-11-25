@@ -13,6 +13,7 @@ var htmlminify = require("gulp-minify-html");
 var jsonedit = require("gulp-json-transform");
 var n2a = require("gulp-native2ascii");
 var imagemin = require("gulp-imagemin");
+var runSequence = require('run-sequence');
 
 var paths = {
   js_bp: ["PrimePlayer/js/lastfm.api.js", "PrimePlayer/js/beans.js", "PrimePlayer/js/lyrics.js", "PrimePlayer/js/bp.js"],
@@ -31,7 +32,8 @@ function myUglify() { return uglify({ preserveComments: "some" }); }
 gulp.task("jshint", function() {
   return gulp.src(paths.js_custom)
     .pipe(jshint())
-    .pipe(jshint.reporter("jshint-stylish"));
+    .pipe(jshint.reporter("jshint-stylish"))
+    .pipe(jshint.reporter("fail"));
 });
 
 gulp.task("clean", function(cb) {
@@ -87,7 +89,7 @@ gulp.task("watch", ["build"], function() {
   gulp.watch(paths.scss_all, ["compile-css"]);
 });
 
-gulp.task("zip", ["build"], function() {
+gulp.task("zip", function() {
   var json_locale = gulp.src(["PrimePlayer/_locales/**/messages.json"], { base: "PrimePlayer" })
     .pipe(jsonedit(function(json) {
       function replacer(key, value) {
@@ -120,8 +122,8 @@ gulp.task("zip", ["build"], function() {
     .pipe(gulp.dest("./"));
 });
 
-gulp.task("release", ["clean"], function() {
-  gulp.start("zip");
+gulp.task("release", ["clean"], function(cb) {
+  runSequence("jshint", "build", "zip", cb);
 });
 
 gulp.task("default", ["watch"]);
