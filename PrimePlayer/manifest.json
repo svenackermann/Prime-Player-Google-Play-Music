@@ -24,35 +24,30 @@
     "default_popup": "player.html"
   },
   "background": {
-    "scripts": ["js/jquery-2.0.2.min.js", "js/md5-min.js", "js/lastfm.api.js", "js/beans.js", "js/lyrics.js", "js/bp.js"],
+    "scripts": ["js/jquery-2.0.2.min.js", "js/md5-min.js", "js/bp.min.js"],
     "persistent": false
   },
   "options_page": "options.html",
   "content_scripts": [ 
     {
-      "js": ["js/jquery-2.0.2.min.js", "js/cs.js"],
+      "js": ["js/jquery-2.0.2.min.js", "js/cs.min.js"],
       "css": ["css/gpm.css"],
       "matches": ["*://play.google.com/music/listen*"]
     }
   ],
   "content_security_policy": "script-src 'self' https://www.google-analytics.com; object-src 'self'",
   "web_accessible_resources": [
-    "js/injected.js",
+    "js/injected.min.js",
     "img/icon-tabconnected.png",
     "img/toast/openLyrics.png",
     "img/icon-48x48.png",
     "img/ajax-loader.gif",
     "img/reload.png",
     "options.html",
-    "css/player.scss",
-    "css/layouts.scss",
-    "css/player.css.map",
-    "css/gpm.scss",
-    "css/gpm.css.map",
-    "css/options.scss",
-    "css/options.css.map",
-    "css/updateNotifier.scss",
-    "css/updateNotifier.css.map"
+    "js/injected.min.js.map",
+    "js/cs.min.js.map",
+    "js/cs-songlyrics.min.js.map",
+    "css/gpm.css.map"
   ],
   "commands": {
     "playPause": {
