@@ -31,7 +31,7 @@ function myUglify() { return uglify({ preserveComments: "some" }); }
 gulp.task("jshint", function() {
   return gulp.src(paths.js_custom)
     .pipe(jshint())
-    .pipe(jshint.reporter("default"));
+    .pipe(jshint.reporter("jshint-stylish"));
 });
 
 gulp.task("clean", function(cb) {

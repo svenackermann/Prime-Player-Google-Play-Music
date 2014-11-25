@@ -121,8 +121,8 @@ function LastFM(options){
       var keys   = [];
       var string = '';
 
-      for(var key in params){
-        keys.push(key);
+      for(var param in params){
+        keys.push(param);
       }
 
       keys.sort();

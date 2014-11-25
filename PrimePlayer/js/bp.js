@@ -111,7 +111,7 @@ var toastCoverXhr;
 var googlemusicport;
 var googlemusictabId;
 /** ID of the options tab, if opened */
-var optionsTabId;
+var optionsTabId = null;
 /** ports waiting for a connection when another tab was already connected (if multiple tabs with Google Music  are opened) */
 var parkedPorts = [];
 /** whether to view the update notifier (set in onInstalled event listener) */
@@ -525,7 +525,7 @@ function parseSeconds(time) {
   var sec = 0;
   var factor = 1;
   for (var i = time.length - 1; i >= 0; i--) {
-    sec += parseInt(time[i], 10) * factor;
+    sec += parseInt(time[i]) * factor;
     factor *= 60;
   }
   return sec || 0;
@@ -733,7 +733,11 @@ function loveTrack(event, aSong) {
   aSong.loved = null;
   love(aSong.info, function(loved) { aSong.loved = loved; });
   //auto-rate if called by click event and not rated yet
-  if (event != null && settings.linkRatings && aSong.rating === 0) executeInGoogleMusic("rate", {rating: 5});
+  if (event != null && //jshint ignore:line
+    settings.linkRatings &&
+    aSong.rating === 0) {
+      executeInGoogleMusic("rate", {rating: 5});
+  }
 }
 
 function unlove(songInfo, callback) {
@@ -1045,7 +1049,7 @@ function iconClickSettingsChanged() {
 
 /** @return true, if the given version is newer than the saved previous version (used by options page and update listener) */
 function isNewerVersion(version) {
-  if (previousVersion == null) return false;
+  if (previousVersion == null) return false;//jshint ignore:line
   var prev = previousVersion.split(".");
   version = version.split(".");
   for (var i = 0; i < prev.length; i++) {
@@ -1144,7 +1148,7 @@ function gaSocial(network, action) {
 function gaEnabledChanged(val) {
   if (val) {
     settings.removeListener("gaEnabled", gaEnabledChanged);//init only once
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');//jshint ignore:line
     ga('create', 'UA-41499181-1', 'auto');
     ga('set', 'checkProtocolTask', function(){});
     ga('set', 'dimension1', currentVersion);
@@ -1255,7 +1259,7 @@ function clearSleepTimer() {
 
 function extractUrlParam(name, queryString) {
   var matched = RegExp(name + "=(.+?)(&|$)").exec(queryString);
-  if (matched == null || matched.length < 2) return null;
+  if (matched === null || matched.length < 2) return null;
   return matched[1];
 }
 
@@ -1630,7 +1634,7 @@ function executeCommand(command) {
       if (player.volume !== null && player.volume != "0") setVolume(Math.max(0, parseInt(player.volume) - 10) / 100);
       break;
     case "volumeMute":
-      if (player.volume != null) {
+      if (player.volume !== null) {
         if (volumeBeforeMute !== null && player.volume == "0") {
           setVolume(parseInt(volumeBeforeMute) / 100);
           volumeBeforeMute = null;

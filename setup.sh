@@ -15,7 +15,7 @@ fi
 echo "*** Gulp install complete"
 
 echo "*** installing Gulp and plugins locally..."
-npm install --save-dev gulp gulp-jshint gulp-concat gulp-uglify gulp-sass gulp-sourcemaps gulp-rename gulp-changed del gulp-zip merge-stream gulp-minify-html gulp-json-transform gulp-native2ascii
+npm install --save-dev gulp gulp-jshint jshint-stylish gulp-concat gulp-uglify gulp-sass gulp-sourcemaps gulp-rename gulp-changed del gulp-zip merge-stream gulp-minify-html gulp-json-transform gulp-native2ascii
 if [ $? -ne 0 ];
 then
   echo "*** gulp/plugins install failed"

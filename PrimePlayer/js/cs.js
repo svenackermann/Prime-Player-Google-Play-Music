@@ -45,7 +45,7 @@ $(function() {
   }
   
   function parseRating(ratingContainer, onNullRating) {
-    if (ratingContainer == null) return (typeof onNullRating == "number") ? onNullRating : -1;
+    if (ratingContainer === null) return (typeof onNullRating == "number") ? onNullRating : -1;
     var rating = parseInt(ratingContainer.dataset.rating);
     return isNaN(rating) ? 0 : rating;
   }
@@ -154,14 +154,14 @@ $(function() {
   
   /** add listeners/observers and extend DOM */
   function init() {
+    function onCleanupCsDone(event) {
+      if (event.source == window && event.data.type == "FROM_PRIMEPLAYER" && event.data.msg == "cleanupCsDone") {
+        window.removeEventListener("message", onCleanupCsDone);
+        init();
+      }
+    }
     if ($("#primeplayerinjected").length > 0) {
       //cleanup old content script
-      function onCleanupCsDone(event) {
-        if (event.source == window && event.data.type == "FROM_PRIMEPLAYER" && event.data.msg == "cleanupCsDone") {
-          window.removeEventListener("message", onCleanupCsDone);
-          init();
-        }
-      }
       window.addEventListener("message", onCleanupCsDone);
       window.postMessage({ type: "FROM_PRIMEPLAYER", msg: "cleanupCs" }, location.href);
       return;//wait for callback
@@ -349,6 +349,7 @@ $(function() {
     switch (event.data.msg) {
       case "playlistSongRated":
         $("#main .song-row[data-index='" + event.data.index + "']").find("td[data-col='rating']").trigger("DOMSubtreeModified");
+        /* falls through */
       case "playlistSongStarted":
       case "playlistSongError":
         pausePlaylistParsing = false;
@@ -370,6 +371,7 @@ $(function() {
       var body = $("#main .song-table > tbody");
       if (!body[0] || options.index > body.data("count") - 1) return;
       pausePlaylistParsing = true;
+      /* jshint -W082 */
       function callForRow() {//make sure row with requested index is available
         var rows = body.find(".song-row");
         var scrollToRow;
@@ -466,7 +468,7 @@ $(function() {
       var lastIndex = -1;
       function loadNextSongs() {
         var rows = parent.find(".song-row");
-        if (!update && count > 0 && rows.first().data("index") != 0) {//not yet there
+        if (!update && count > 0 && rows.first().data("index") !== 0) {//not yet there
           parent.scrollTop(0);
           asyncListTimer = setTimeout(loadNextSongs, 150);
           return;
@@ -490,7 +492,7 @@ $(function() {
           callback(playlist, update);
           update = true;
         }
-        if (count != null && lastIndex + 1 < count && (end == undefined || lastIndex + 1 < end)) {
+        if (count !== undefined && lastIndex + 1 < count && (end === undefined || lastIndex + 1 < end)) {
           if (pausePlaylistParsing) {
             resumePlaylistParsingFn = loadNextSongs;
           } else {
@@ -609,7 +611,7 @@ $(function() {
     function sendResume() {
       var rows = $("#main .song-row");
       if (rows.length > 0) {
-        if (rows.first().data("index") != 0) {
+        if (rows.first().data("index") !== 0) {
           $("#main").scrollTop(0);
           asyncListTimer = setTimeout(sendResume, 150);
           return;

@@ -143,7 +143,7 @@ function Bean(defaults, useLocalStorage) {
    */
   function merge(value, defaultValue) {
     for (var prop in defaultValue) {
-      if (value[prop] == null) value[prop] = defaultValue[prop];
+      if (value[prop] == null) value[prop] = defaultValue[prop];// jshint ignore:line
     }
     return value;
   }
@@ -186,7 +186,7 @@ function Bean(defaults, useLocalStorage) {
           return;
         }
         if (syncLocalStorage) {
-          if (val == null) {
+          if (val == null) {// jshint ignore:line
             localStorage.removeItem(name);
           } else {
             var type = typeof(val);

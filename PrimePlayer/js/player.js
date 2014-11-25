@@ -59,8 +59,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function renderSongInfo(info) {
     $("#songTime").text(info.duration);
     $("#track").text(info.title);
-    $("#artist").text(info.artist).attr("title", info.artist).data("link", info.artistLink).toggleClass("nav", info.artistLink != null);
-    $("#album").text(info.album).attr("title", info.album).data("link", info.albumLink).toggleClass("nav", info.albumLink != null);
+    $("#artist").text(info.artist).attr("title", info.artist).data("link", info.artistLink).toggleClass("nav", info.artistLink !== undefined);
+    $("#album").text(info.album).attr("title", info.album).data("link", info.albumLink).toggleClass("nav", info.albumLink !== null);
     $("#cover").attr("src", info.cover || "img/cover.png");
     $("#showlyrics")
       .attr("title", chrome.i18n.getMessage("lyricsFor", info.title))
@@ -242,8 +242,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
       timerId = setTimeout(function() {
         if (document.webkitHidden) return;//do not save size of minimized window
         var sizingSetting;
+        var sizing;
         if ($("#player").is(":visible")) {
-          var sizing = bp.localSettings.miniplayerSizing;
+          sizing = bp.localSettings.miniplayerSizing;
           sizing[bp.settings.layout].width = window.outerWidth;
           sizing[bp.settings.layout].height = window.outerHeight;
           bp.localSettings.miniplayerSizing = sizing;//trigger listener notification
@@ -254,7 +255,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
           sizingSetting = "lyricsSizing";
         }
         if (sizingSetting) {
-          var sizing = bp.localSettings[sizingSetting];
+          sizing = bp.localSettings[sizingSetting];
           if (sizing) {
             sizing.width = window.outerWidth;
             sizing.height = window.outerHeight;
@@ -322,7 +323,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function resize(sizing) {
-    if ((typeClass == "miniplayer" || typeClass == "toast") && sizing.width != null && sizing.height != null) {
+    if (typeClass == "miniplayer" || typeClass == "toast") {
       window.resizeTo(sizing.width, sizing.height);
     }
   }
@@ -405,7 +406,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   };
 
   function updateListrating(val) {
-    if (val == null || val.controlLink != currentNavList.controlLink) return;
+    if (val === null || val.controlLink != currentNavList.controlLink) return;
     var e = currentNavList.titleList[val.index];
     $("#navlistContainer .playlist")
       .children("div[data-index='" + val.index + "']")

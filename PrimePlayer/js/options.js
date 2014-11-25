@@ -429,7 +429,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     //tell the background page that we're open
     chrome.tabs.getCurrent(function(tab) {
       thisTabId = tab.id;
-      if (bp.optionsTabId == null) bp.optionsTabId = tab.id;
+      if (bp.optionsTabId === null) bp.optionsTabId = tab.id;
     });
     
     //get last.fm session if we are the callback page (query param "token" exists)
