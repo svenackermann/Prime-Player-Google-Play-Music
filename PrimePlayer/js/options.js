@@ -327,7 +327,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
       .val(bp.settings.toastButton2);
     
     function setLayoutHintVisibility() {
-      var visible = bp.settings.miniplayerType == "panel" && bp.settings.layout == "hbar";
+      var panel = bp.settings.miniplayerType == "panel" || bp.settings.miniplayerType == "detached_panel";
+      $("#miniplayerType").siblings(".hint").toggle(panel);
+      if (!panel) $("#miniplayerType").siblings(".hint-text").hide();
+      var visible = panel && bp.settings.layout == "hbar";
       $("#layout").siblings(".hint").toggle(visible);
       if (!visible) $("#layout").siblings(".hint-text").hide();
     }
