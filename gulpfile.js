@@ -50,13 +50,25 @@ gulp.task("compile-js-bp", function() {
 });
 
 gulp.task("compile-js-single", function() {
-  return gulp.src(paths.js_single)
+  /*return gulp.src(paths.js_single)
     .pipe(rename({suffix: ".min"}))
-    .pipe(changed(paths.dest.js))
+    .pipe(changed(paths.dest.js, { extension: ".min.js" }))
     .pipe(sourcemaps.init())
     .pipe(myUglify())
     .pipe(sourcemaps.write("./"))
-    .pipe(gulp.dest(paths.dest.js));
+    .pipe(gulp.dest(paths.dest.js));*/
+  //workaround for https://github.com/terinjokes/gulp-uglify/issues/56
+  var merged = merge();
+  paths.js_single.forEach(function(el) {
+    merged.add(gulp.src(el)
+      .pipe(changed(paths.dest.js, { extension: ".min.js" }))
+      .pipe(sourcemaps.init())
+      .pipe(concat(el.substring(el.lastIndexOf("/") + 1, el.lastIndexOf(".js")) + ".min.js"))
+      .pipe(myUglify())
+      .pipe(sourcemaps.write("./"))
+    );
+  });
+  return merged.pipe(gulp.dest(paths.dest.js));;
 });
 
 gulp.task("compile-css", function () {
