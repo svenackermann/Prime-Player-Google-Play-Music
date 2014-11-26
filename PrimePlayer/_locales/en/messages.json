@@ -148,7 +148,7 @@
     "description": "label for option to disable scrobbling after fast forward"
   },
   "setting_disableScrobbleOnFfHint": {
-    "message": "Does not scrobble the current song after it has been fast forwarded (at least five seconds). Useful if you only search a particaluar part of a song. Otherwise, the title will be scrobbled as soon as it passes the red scrobbling marker.",
+    "message": "Does not scrobble the current song after it has been fast forwarded (at least five seconds). Useful if you only search a particular part of a song. Otherwise, the title will be scrobbled as soon as it passes the red scrobbling marker.",
     "description": "hint for option to disable scrobbling after fast forward"
   },
   "setting_scrobbleRepeated": {
@@ -160,7 +160,7 @@
     "description": "label for option to link ratings"
   },
   "setting_linkRatingsHint": {
-    "message": "Love a song in last.fm if you give thumbs up/five stars in Google Music and vice versa. Does not override existing ratings.",
+    "message": "Love a song in last.fm if you give thumbs up/five stars in Google Music and vice versa. This will never override existing ratings and it does not work when rated directly on the Google Music or last.fm site (only via miniplayer, keyboard shortcut, toast action, ...).",
     "description": "hint for option to link ratings"
   },
   "setting_showLovedIndicator": {
@@ -397,7 +397,7 @@
     "description": "label for option to sync settings"
   },
   "setting_preventCommandRatingReset": {
-    "message": "Prevent rating resets for keyboard shortcut",
+    "message": "Prevent rating resets without feedback",
     "description": "label for option to prevent rating resets"
   },
   "setting_preventCommandRatingResetHint": {

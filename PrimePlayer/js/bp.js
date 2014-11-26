@@ -820,7 +820,7 @@ function toastButtonClicked(buttonIndex) {
     cmd = settings.toastButton2;
     btn = getToastBtn(cmd);
   }
-  if (btn) executeCommand(cmd);
+  if (btn) executeCommand(cmd, "toast");
 }
 
 function getToastBtn(cmd) {
@@ -930,7 +930,7 @@ function openToast() {
     notifications.create(notifications.TOAST, options, function(nid) {
       toastOptions = options;
       notifications.addListener("close", nid, toastClosed);
-      notifications.addListener("click", nid, function() { if (settings.toastClick) executeCommand(settings.toastClick); });
+      notifications.addListener("click", nid, function() { if (settings.toastClick) executeCommand(settings.toastClick, "toast"); });
       notifications.addListener("btnClick", nid, toastButtonClicked);
       song.watch("rating", drawToastImage);
       song.addListener("loved", drawToastImage);
@@ -1015,9 +1015,9 @@ function iconClickActionDelayed() {
     iconClickActionTimer = setTimeout(function() {
       chrome.browserAction.setPopup({popup: ""});
       iconClickCount = 0;
-      executeCommand(action);
+      executeCommand(action, "icon");
     }, settings.iconDoubleClickTime);
-  } else executeCommand(action);
+  } else executeCommand(action, "icon");
 }
 
 function popupOpened() {
@@ -1599,7 +1599,7 @@ function rate(rating) {
   executeInGoogleMusic("rate", {rating: rating});
 }
 
-function executeCommand(command) {
+function executeCommand(command, src) {
   switch (command) {
     case "playPause":
     case "nextSong":
@@ -1647,7 +1647,7 @@ function executeCommand(command) {
     default:
       if (command.indexOf("rate-") === 0 && song.info) {
         var rating = parseInt(command.substr(5, 1));
-        if (!settings.preventCommandRatingReset || !isRatingReset(song.rating, rating)) rate(rating);
+        if ((src == "icon" && settings.showRatingIndicator) || !settings.preventCommandRatingReset || !isRatingReset(song.rating, rating)) rate(rating);
       }
   }
 }

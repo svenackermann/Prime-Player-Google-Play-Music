@@ -120,7 +120,7 @@
     "message": "Bewertungen verkn\u00FCpfen"
   },
   "setting_linkRatingsHint": {
-    "message": "Titel in last.fm lieben, wenn du Daumen hoch/f\u00FCnf Sterne in Google Music gibst und umgekehrt. Bestehende Wertungen werden nicht \u00FCberschrieben."
+    "message": "Titel in last.fm lieben, wenn du Daumen hoch/f\u00FCnf Sterne in Google Music gibst und umgekehrt. Bestehende Wertungen werden nicht \u00FCberschrieben. Funktioniert nicht, wenn direkt auf der Google Music oder last.fm Seite bewertet wird (nur \u00FCber Miniplayer, Tastaturk\u00FCrzel, Toast Aktionen, ...)."
   },
   "setting_showLovedIndicator": {
     "message": "Zeige 'geliebt'-Status im Symbol"
@@ -298,7 +298,7 @@
     "message": "Einstellungen mit Chrome sync synchronisieren"
   },
   "setting_preventCommandRatingReset": {
-    "message": "Setze Bewertungen niemals zur\u00FCck, wenn mittels Tastaturk\u00FCrzel bewertet wird"
+    "message": "Setze Bewertungen niemals zur\u00FCck, die nicht sichtbar sind"
   },
   "setting_preventCommandRatingResetHint": {
     "message": "Normalerweise wird die Bewertung f\u00FCr einen Titel entfernt, wenn du ihn mit der aktuellen Bewertung erneut bewertest. Wenn du Tastaturk\u00FCrzel oder die Aktionen in der Toast-Benachrichtigung zum Bewerten verwendest, ist das \u00FCblicherweise nicht erw\u00FCnscht, weil man die aktuelle Bewertung nicht sieht. Deaktiviere diese Option, um in dem Fall trotzdem die Bewertung zu entfernen."
