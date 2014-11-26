@@ -44,6 +44,7 @@ var SETTINGS_DEFAULTS = {
   scrobbleRepeated: true,
   linkRatings: false,
   linkRatingsGpm: false,
+  linkRatingsAuto: false,
   showLovedIndicator: false,
   showScrobbledIndicator: true,
   showLastfmInfo: false,
@@ -708,15 +709,6 @@ function getLastfmInfo(songInfo, cb) {
   } else cb(null, null);
 }
 
-function getCurrentLastfmInfo() {
-  song.loved = null;
-  song.lastfmInfo = null;
-  getLastfmInfo(song.info, function(loved, lastfmInfo) {
-    song.loved = loved;
-    song.lastfmInfo = lastfmInfo;
-  });
-}
-
 function love(songInfo, cb) {
   if (localSettings.lastfmSessionKey && songInfo) {
     lastfm.track.love({
@@ -731,15 +723,6 @@ function love(songInfo, cb) {
         }
       }
     );
-  }
-}
-
-function loveTrack(event) {
-  if (song.loved !== true) {
-    song.loved = null;
-    love(song.info, function(loved) { song.loved = loved; });
-    //auto-rate if called by click event and not rated yet
-    if (event && settings.linkRatings && song.rating === 0) executeInGoogleMusic("rate", {rating: 5});
   }
 }
 
@@ -760,10 +743,36 @@ function unlove(songInfo, cb) {
   }
 }
 
-function unloveTrack() {
+function getCurrentLastfmInfo() {
   song.loved = null;
-  unlove(song.info, function(loved) { song.loved = loved; });
+  song.lastfmInfo = null;
+  var songInfo = song.info;
+  getLastfmInfo(songInfo, function(loved, lastfmInfo) {
+    if (songInfo != song.info) return;//song meanwhile changed
+    song.loved = loved;
+    song.lastfmInfo = lastfmInfo;
+    if (settings.linkRatings && settings.linkRatingsAuto) {
+      if (loved === true && song.rating === 0) executeInGoogleMusic("rate", {rating: 5});
+      else if (loved === false && song.rating == 5) loveTrack();
+    }
+  });
 }
+
+function updateTrackLoved(fn) {
+  song.loved = null;
+  var songInfo = song.info;
+  fn(songInfo, function(loved) { if (songInfo == song.info) song.loved = loved; /* check if song meanwhile changed */ });
+}
+
+function loveTrack(event) {
+  if (song.loved !== true) {
+    updateTrackLoved(love);
+    //auto-rate if called by click event and not rated yet
+    if (event && settings.linkRatings && song.rating === 0) executeInGoogleMusic("rate", {rating: 5});
+  }
+}
+
+var unloveTrack = updateTrackLoved.bind(window, unlove);
 
 /** open the last.fm authentication page */
 function lastfmLogin() {

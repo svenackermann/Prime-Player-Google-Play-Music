@@ -167,6 +167,14 @@
     "message": "Also auto-love when rated directly on Google Music tab",
     "description": "label for option to love song when rated on Google Music tab"
   },
+  "setting_linkRatingsAuto": {
+    "message": "Auto-link ratings",
+    "description": "label for option to auto-link ratings"
+  },
+  "setting_linkRatingsAutoHint": {
+    "message": "When a song starts that you already rated 5 stars/thumbs up but is not loved in last.fm, it will be loved without user interaction. If it is loved already and has no rating in Google Music, it will be given 5 stars/thumbs up.",
+    "description": "hint for option to auto-link ratings"
+  },
   "setting_showLovedIndicator": {
     "message": "Show loved status in icon",
     "description": "label for option to enable loved status in icon"

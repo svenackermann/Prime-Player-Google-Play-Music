@@ -40,7 +40,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function linkRatingsChanged() {
-    $("#linkRatingsGpm").prop("disabled", !bp.settings.linkRatings || !bp.localSettings.lastfmSessionName);
+    $("#linkRatingsGpm, #linkRatingsAuto").prop("disabled", !bp.settings.linkRatings || !bp.localSettings.lastfmSessionName);
   }
   
   function toastChanged() {
@@ -314,6 +314,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("linkRatings").click(linkRatingsChanged);
     initHint("linkRatings");
     initCheckbox("linkRatingsGpm");
+    initCheckbox("linkRatingsAuto");
+    initHint("linkRatingsAuto");
     initCheckbox("showLovedIndicator");
     initCheckbox("showScrobbledIndicator");
     initCheckbox("showLastfmInfo");

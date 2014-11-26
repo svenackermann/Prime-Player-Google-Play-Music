@@ -125,6 +125,12 @@
   "setting_linkRatingsGpm": {
     "message": "Auch automatisch lieben, wenn im Google Music Tab bewertet wird"
   },
+  "setting_linkRatingsAuto": {
+    "message": "Bewertungen automatisch verkn\u00FCpfen"
+  },
+  "setting_linkRatingsAutoHint": {
+    "message": "Wenn ein Titel startet, den du bereits mit Daumen hoch/f\u00FCnf Sternen bewertet hast, der aber nicht in last.fm geliebt ist, wird er ohne Nutzer-Interaktion geliebt. Wenn er bereits geliebt ist, aber keine Bewertung in Google Music hat, erh\u00E4lt er Daumen hoch/f\u00FCnf Sterne."
+  },
   "setting_showLovedIndicator": {
     "message": "Zeige 'geliebt'-Status im Symbol"
   },
