@@ -14,6 +14,8 @@ var jsonedit = require("gulp-json-transform");
 var n2a = require("gulp-native2ascii");
 var imagemin = require("gulp-imagemin");
 var runSequence = require('run-sequence');
+var gulpif = require("gulp-if");
+var develop = true;
 
 var paths = {
   js_bp: ["PrimePlayer/js/lastfm.api.js", "PrimePlayer/js/beans.js", "PrimePlayer/js/lyrics.js", "PrimePlayer/js/bp.js"],
@@ -44,10 +46,10 @@ gulp.task("clean", function(cb) {
 
 gulp.task("compile-js-bp", function() {
   return gulp.src(paths.js_bp)
-    .pipe(sourcemaps.init())
+    .pipe(gulpif(develop, sourcemaps.init()))
     .pipe(concat("bp.min.js"))
     .pipe(myUglify())
-    .pipe(sourcemaps.write("./"))
+    .pipe(gulpif(develop, sourcemaps.write("./")))
     .pipe(gulp.dest(paths.dest.js));
 });
 
@@ -55,19 +57,19 @@ gulp.task("compile-js-single", function() {
   /*return gulp.src(paths.js_single)
     .pipe(rename({suffix: ".min"}))
     .pipe(changed(paths.dest.js, { extension: ".min.js" }))
-    .pipe(sourcemaps.init())
+    .pipe(gulpif(develop, sourcemaps.init()))
     .pipe(myUglify())
-    .pipe(sourcemaps.write("./"))
+    .pipe(gulpif(develop, sourcemaps.write("./")))
     .pipe(gulp.dest(paths.dest.js));*/
   //workaround for https://github.com/terinjokes/gulp-uglify/issues/56
   var merged = merge();
   paths.js_single.forEach(function(el) {
     merged.add(gulp.src(el)
       .pipe(changed(paths.dest.js, { extension: ".min.js" }))
-      .pipe(sourcemaps.init())
+      .pipe(gulpif(develop, sourcemaps.init()))
       .pipe(concat(el.substring(el.lastIndexOf("/") + 1, el.lastIndexOf(".js")) + ".min.js"))
       .pipe(myUglify())
-      .pipe(sourcemaps.write("./"))
+      .pipe(gulpif(develop, sourcemaps.write("./")))
     );
   });
   return merged.pipe(gulp.dest(paths.dest.js));;
@@ -75,9 +77,9 @@ gulp.task("compile-js-single", function() {
 
 gulp.task("compile-css", function () {
   return gulp.src(paths.scss)
-    .pipe(sourcemaps.init())
+    .pipe(gulpif(develop, sourcemaps.init()))
     .pipe(sass({outputStyle: "compressed"}))
-    .pipe(sourcemaps.write("./"))
+    .pipe(gulpif(develop, sourcemaps.write("./")))
     .pipe(gulp.dest(paths.dest.css));
 });
 
@@ -101,13 +103,15 @@ gulp.task("zip", function() {
     }))
     .pipe(n2a({ reverse: false }));
   
-  //remove *.map from web_accessible_resources
   var json_manifest = gulp.src(["PrimePlayer/manifest.json"])
     .pipe(jsonedit(function(json) {
-      var war = json.web_accessible_resources;
-      for (var i = 0; i < war.length;) {
-        if (war[i].search(/\.map\b/) > 0) war.splice(i, 1);
-        else i++;
+      if (!develop) {
+        //remove *.map from web_accessible_resources
+        var war = json.web_accessible_resources;
+        for (var i = 0; i < war.length;) {
+          if (war[i].search(/\.map\b/) > 0) war.splice(i, 1);
+          else i++;
+        }
       }
       return json;
     }))
@@ -116,7 +120,7 @@ gulp.task("zip", function() {
   var html = gulp.src(["PrimePlayer/**/*.html"])
     .pipe(htmlminify({ empty: true }));
   
-  var rest = ["PrimePlayer/**", "!**/*.map", "!**/*.scss", "!**/*.json", "!**/*.html"];
+  var rest = ["PrimePlayer/**", "!**/*.scss", "!**/*.json", "!**/*.html"];
   paths.js_custom.forEach(function(el) { rest.push("!" + el); });
   
   return merge(json_locale, json_manifest, html, gulp.src(rest))
@@ -125,6 +129,7 @@ gulp.task("zip", function() {
 });
 
 gulp.task("release", ["clean"], function(cb) {
+  develop = false;
   runSequence("jshint", "build", "zip", cb);
 });
 
