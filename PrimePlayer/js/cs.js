@@ -45,9 +45,11 @@ $(function() {
   }
   
   function parseRating(ratingContainer, onNullRating) {
-    if (ratingContainer === null) return (typeof onNullRating == "number") ? onNullRating : -1;
-    var rating = parseInt(ratingContainer.dataset.rating);
-    return isNaN(rating) ? 0 : rating;
+    if (ratingContainer) {
+      var rating = parseInt(ratingContainer.dataset.rating);
+      return isNaN(rating) ? 0 : rating;
+    }
+    return (typeof onNullRating == "number") ? onNullRating : -1;
   }
   
   function showConnectedIndicator() {

@@ -83,13 +83,14 @@ gulp.task("compile-css", function () {
 
 gulp.task("build", ["compile-js-bp", "compile-js-single", "compile-css"], function(cb) { cb(); });
 
-gulp.task("watch", ["build"], function() {
+gulp.task("watch", function() {
   gulp.watch(paths.js_bp, ["compile-js-bp"]);
   gulp.watch(paths.js_single, ["compile-js-single"]);
   gulp.watch(paths.scss_all, ["compile-css"]);
 });
 
 gulp.task("zip", function() {
+  //remove descriptions and examples
   var json_locale = gulp.src(["PrimePlayer/_locales/**/messages.json"], { base: "PrimePlayer" })
     .pipe(jsonedit(function(json) {
       function replacer(key, value) {
@@ -100,6 +101,7 @@ gulp.task("zip", function() {
     }))
     .pipe(n2a({ reverse: false }));
   
+  //remove *.map from web_accessible_resources
   var json_manifest = gulp.src(["PrimePlayer/manifest.json"])
     .pipe(jsonedit(function(json) {
       var war = json.web_accessible_resources;
@@ -126,4 +128,4 @@ gulp.task("release", ["clean"], function(cb) {
   runSequence("jshint", "build", "zip", cb);
 });
 
-gulp.task("default", ["watch"]);
+gulp.task("default", ["build", "watch"]);

@@ -22,7 +22,7 @@ Please use the "develop" branch for contributing, as I use [git-flow](http://nvi
 (I know, that's pushing it a bit, but I try to learn sth. on developing this).
 
 You'll need [Gulp](http://gulpjs.com/) for development. If you have [node.js](http://nodejs.org/) installed, just run setup.sh to install Gulp with all required plugins.
-Afterwards you can execute `gulp watch` in the Prime player root directory to let Gulp watch for changes and automatically recompile artifacts (CSS/JS) as needed.
+Afterwards you can execute `gulp` in the project root directory to let Gulp watch for changes and automatically recompile artifacts (CSS/JS) as needed.
 
 ### License
 

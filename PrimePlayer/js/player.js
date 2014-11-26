@@ -616,8 +616,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         var index = div.data("index");
         var e = currentNavList.titleList[index];
         if (e.rating < 0) return;//negative ratings cannot be changed
-        var reset = bp.isRatingReset(e.rating, rating);
-        if (bp.settings.linkRatings && rating == 5 && !reset) bp.loveTrack(null, { info: { title: e.title, artist: e.artist} });
+        if (rating == 5 && bp.settings.linkRatings && !bp.isRatingReset(e.rating, rating)) bp.love({ title: e.title, artist: e.artist}, bp.noop);
         bp.executeInGoogleMusic("ratePlaylistSong", {link: currentNavList.controlLink, index: index, rating: rating});
       }
     });
