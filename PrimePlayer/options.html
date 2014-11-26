@@ -6,7 +6,7 @@
 <script type="text/javascript" src="js/options.min.js"></script>
 </head>
 <body>
-  <div id="settings" class="f-exp">
+  <div id="settings">
     <fieldset class="timer">
       <legend id="legendTimer"></legend>
       <div class="v-2.20">
@@ -46,30 +46,34 @@
         <input id="scrobble" type="checkbox"/>
         <label for="scrobble"></label>
       </div>
-      <div>
+      <div class="sub">
         <input id="scrobblePercent" type="range" min="1" max="100" step="1"/>
         <label for="scrobblePercent"></label>
         (<span></span>%)
       </div>
-      <div class="exp">
+      <div class="sub exp">
         <input id="scrobbleTime" type="number" min="0"/>
         <label for="scrobbleTime"></label>
       </div>
-      <div class="exp">
+      <div class="sub exp">
         <input id="scrobbleMaxDuration" type="number" min="0"/>
         <label for="scrobbleMaxDuration"></label>
       </div>
-      <div class="v-1.2 adv">
+      <div class="sub v-1.2 adv">
         <input id="disableScrobbleOnFf" type="checkbox"/>
         <label for="disableScrobbleOnFf"></label>
       </div>
-      <div class="v-2.15 exp">
+      <div class="sub v-2.15 exp">
         <input id="scrobbleRepeated" type="checkbox"/>
         <label for="scrobbleRepeated"></label>
       </div>
       <div class="v-1.2 adv">
         <input id="linkRatings" type="checkbox"/>
         <label for="linkRatings"></label>
+      </div>
+      <div class="sub v-2.24 adv">
+        <input id="linkRatingsGpm" type="checkbox"/>
+        <label for="linkRatingsGpm"></label>
       </div>
       <div class="v-2.17 miniplayer">
         <input id="showLastfmInfo" type="checkbox"/>
@@ -83,23 +87,23 @@
         <input id="toast" type="checkbox"/>
         <label for="toast"></label>
       </div>
-      <div class="v-1.6 exp">
+      <div class="sub v-1.6 exp">
         <input id="toastUseMpStyle" type="checkbox"/>
         <label for="toastUseMpStyle"></label>
       </div>
-      <div class="v-2.18">
+      <div class="sub v-2.18">
         <input id="toastDuration" type="number" min="0"/>
         <label for="toastDuration"></label>
       </div>
-      <div class="v-2.24 adv notif">
+      <div class="sub v-2.24 adv notif">
         <input id="toastProgress" type="checkbox"/>
         <label for="toastProgress"></label>
       </div>
-      <div class="v-2.6 exp miniplayer">
+      <div class="sub v-2.6 exp miniplayer">
         <input id="toastIfMpOpen" type="checkbox"/>
         <label for="toastIfMpOpen"></label>
       </div>
-      <div class="v-2.8 adv notif">
+      <div class="sub v-2.8 adv notif">
         <select id="toastClick">
           <option value=""></option>
           <option value="playPause"></option>
@@ -123,11 +127,11 @@
         </select>
         <label for="toastClick"></label>
       </div>
-      <div class="v-2.8 adv notif">
+      <div class="sub v-2.8 adv notif">
         <select id="toastButton1"></select>
         <label for="toastButton1"></label>
       </div>
-      <div class="v-2.8 adv notif">
+      <div class="sub v-2.8 adv notif">
         <select id="toastButton2"></select>
         <label for="toastButton2"></label>
       </div>
@@ -228,23 +232,23 @@
         <input id="lyrics" type="checkbox"/>
         <label for="lyrics"></label>
       </div>
-      <div class="v-2.8 exp miniplayer">
+      <div class="sub v-2.8 exp miniplayer">
         <input id="openLyricsInMiniplayer" type="checkbox"/>
         <label for="openLyricsInMiniplayer"></label>
       </div>
-      <div class="v-2.10 adv">
+      <div class="sub v-2.10 adv">
         <input id="lyricsAutoReload" type="checkbox"/>
         <label for="lyricsAutoReload"></label>
       </div>
-      <div class="v-2.9">
+      <div class="sub v-2.9">
         <input id="lyricsInGpm" type="checkbox"/>
         <label for="lyricsInGpm"></label>
       </div>
-      <div class="v-2.10 adv">
+      <div class="sub v-2.10 adv">
         <input id="lyricsFontSize" type="number" min="1"/>
         <label for="lyricsFontSize"></label>
       </div>
-      <div class="v-2.10 adv">
+      <div class="sub v-2.10 adv">
         <input id="lyricsWidth" type="number" min="50"/>
         <label for="lyricsWidth"></label>
       </div>

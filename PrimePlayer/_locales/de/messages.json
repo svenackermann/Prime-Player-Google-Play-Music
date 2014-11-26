@@ -122,6 +122,9 @@
   "setting_linkRatingsHint": {
     "message": "Titel in last.fm lieben, wenn du Daumen hoch/f\u00FCnf Sterne in Google Music gibst und umgekehrt. Bestehende Wertungen werden nicht \u00FCberschrieben. Funktioniert nicht, wenn direkt auf der Google Music oder last.fm Seite bewertet wird (nur \u00FCber Miniplayer, Tastaturk\u00FCrzel, Toast Aktionen, ...)."
   },
+  "setting_linkRatingsGpm": {
+    "message": "Auch automatisch lieben, wenn im Google Music Tab bewertet wird"
+  },
   "setting_showLovedIndicator": {
     "message": "Zeige 'geliebt'-Status im Symbol"
   },
@@ -180,7 +183,7 @@
     "message": "Aktion bei Vierfach-Klick"
   },
   "setting_iconDoubleClickTime": {
-    "message": "Klick-Geschwindigkeit f\u00FCr in ms (0=deaktiviert)"
+    "message": "Klick-Geschwindigkeit in ms (0=deaktiviert)"
   },
   "setting_iconDoubleClickTimeHint": {
     "message": "Setze dies auf einen Wert gr\u00F6\u00DFer als 0 (empfohlen: 500), um weitere Klick-Aktion oben zu aktivieren. Nachdem alle ausgew\u00E4hlten Aktion \u00FCbersprungen wurden, wird das Browser-Popup ge\u00F6ffnet. Wenn keine Aktionen aktiviert sind, wird somit immer nur das Browser-Popup ge\u00F6ffnet."

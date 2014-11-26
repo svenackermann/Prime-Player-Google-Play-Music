@@ -17,6 +17,7 @@ $(function() {
   var lyricsAutoReload = false;
   var lyricsAutoReloadTimer;
   var position;
+  var ratingContainer = $("#player-right-wrapper .player-rating-container ul.rating-container");
   
   /** send update to background page */
   function post(type, value) {
@@ -44,9 +45,9 @@ $(function() {
     return cover;
   }
   
-  function parseRating(ratingContainer, onNullRating) {
-    if (ratingContainer) {
-      var rating = parseInt(ratingContainer.dataset.rating);
+  function parseRating(container, onNullRating) {
+    if (container) {
+      var rating = parseInt(container.dataset.rating);
       return isNaN(rating) ? 0 : rating;
     }
     return (typeof onNullRating == "number") ? onNullRating : -1;
@@ -126,7 +127,7 @@ $(function() {
       $("<img id='ppLyricsButton'/>")
         .attr("src", chrome.extension.getURL("img/toast/openLyrics.png"))
         .attr("title", chrome.i18n.getMessage("command_openLyrics"))
-        .toggleClass("active", $("#playerSongInfo").find("div").length > 0)
+        .toggleClass("active", $("#playerSongInfo").find("div").length)
         .click(toggleLyrics)
         .appendTo("#player-right-wrapper");
       $("<div id='ppLyricsContainer'><div id='ppLyricsTitle'><a class='reloadLyrics'></a><div></div></div><div id='ppLyricsScroller'><div id='ppLyricsContent'></div><div id='ppLyricsCredits'></div></div></div>")
@@ -144,7 +145,8 @@ $(function() {
     sendCommand("cleanup");
     window.removeEventListener("message", onMessage);
     $("#primeplayerinjected").remove();
-    $("#main").off("DOMSubtreeModified");
+    $("#main").off("DOMSubtreeModified mouseup");
+    ratingContainer.off("click");
     $(window).off("hashchange");
     for (var i = 0; i < observers.length; i++) {
       observers[i].disconnect();
@@ -162,7 +164,7 @@ $(function() {
         init();
       }
     }
-    if ($("#primeplayerinjected").length > 0) {
+    if ($("#primeplayerinjected").length) {
       //cleanup old content script
       window.addEventListener("message", onCleanupCsDone);
       window.postMessage({ type: "FROM_PRIMEPLAYER", msg: "cleanupCs" }, location.href);
@@ -171,10 +173,9 @@ $(function() {
   
     //when rating is changed, the page gets reloaded, so no need for event listening here
     var ratingMode;
-    var ratingContainer = $("#player-right-wrapper > div.player-rating-container > ul.rating-container");
+    
     if (ratingContainer.hasClass("thumbs")) ratingMode = "thumbs";
     else if (ratingContainer.hasClass("stars")) ratingMode = "star";
-    ratingContainer = null;
     post("player-ratingMode", ratingMode);
     
     var ql = {};
@@ -191,25 +192,31 @@ $(function() {
     ql.searchPlaceholder = $.trim($("#oneGoogleWrapper input[name='q']").attr("placeholder"));
     post("player-quicklinks", ql);
     
-    function sendSong() {
-      var info = null;
-      if ($("#playerSongInfo").find("div").length > 0) {
+    function parseSongInfo(extended) {
+      if ($("#playerSongInfo").find("div").length) {
         var artist = $("#player-artist");
         var album = $("#playerSongInfo").find(".player-album");
-        var cover = parseCover($("#playingAlbumArt"));
-        info = {
-          duration: $.trim($("#time_container_duration").text()),
-          title: $.trim($("#playerSongTitle").text()),
+        var info = {
           artist: $.trim(artist.text()),
-          artistLink: getLink(artist) || "artist//" + forHash($.trim(artist.text())),
+          title: $.trim($("#playerSongTitle").text()),
           album: $.trim(album.text()),
-          albumLink: getLink(album),
-          cover: cover
+          duration: $.trim($("#time_container_duration").text())
         };
-        if (lyricsAutoReload && $("#ppLyricsContainer").is(":visible")) {
-          clearTimeout(lyricsAutoReloadTimer);
-          lyricsAutoReloadTimer = setTimeout(loadLyrics, 1000);
+        if (extended) {
+          info.artistLink = getLink(artist) || "artist//" + forHash(info.artist);
+          info.albumLink = getLink(album);
+          info.cover = parseCover($("#playingAlbumArt"));
         }
+        return info;
+      }
+      return null;
+    }
+    
+    function sendSong() {
+      var info = parseSongInfo(true);
+      if (info && lyricsAutoReload && $("#ppLyricsContainer").is(":visible")) {
+        clearTimeout(lyricsAutoReloadTimer);
+        lyricsAutoReloadTimer = setTimeout(loadLyrics, 1000);
       }
       $("#ppLyricsButton").toggleClass("active", info !== null);
       post("song-info", info);
@@ -232,11 +239,10 @@ $(function() {
       return $(el).is(":disabled") ? null : el.value;
     }
     
-    function ratingGetter(el) {
+    function ratingGetter() {
       //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
       if (listRatings) $("#main .song-row td[data-col='rating']").trigger("DOMSubtreeModified");
-      var container = $(el.parentElement);
-      if (container.is(":visible")) return parseRating(container.children("li.selected").get(0), 0);
+      if (ratingContainer.is(":visible")) return parseRating(ratingContainer.children("li.selected").get(0), 0);
       return -1;
     }
     
@@ -258,7 +264,7 @@ $(function() {
      */
     function watchContent(fn, selector, timeout) {
       var content = $(selector);
-      if (content.length > 0) {
+      if (content.length) {
         var listener = fn.bind(window, content);
         if (timeout) {
           var contentTimer;
@@ -310,7 +316,7 @@ $(function() {
     watchAttr("class disabled", "#player > div.player-middle > button[data-id='play-pause']", "player-playing", playingGetter);
     watchAttr("value", "#player > div.player-middle > button[data-id='repeat']", "player-repeat");
     watchAttr("value", "#player > div.player-middle > button[data-id='shuffle']", "player-shuffle", shuffleGetter);
-    watchAttr("class", "#player-right-wrapper > .player-rating-container ul.rating-container li", "song-rating", ratingGetter);
+    watchAttr("class", ratingContainer.selector + " li", "song-rating", ratingGetter);
     watchAttr("aria-valuenow", "#vslider", "player-volume");
     
     $("#main").on("DOMSubtreeModified", ".song-row td[data-col='rating']", function() {
@@ -328,6 +334,13 @@ $(function() {
       resumePlaylistParsingFn = null;
       pausePlaylistParsing = false;
       clearTimeout(asyncListTimer);
+    });
+    ratingContainer.on("click", "li.selected[data-rating='5']", function() {
+      post("rated5", parseSongInfo());
+    });
+    //listen for "mouseup", because "click" won't bubble up to "#main" and we can't attach this directly to ".rating-container" because it's dynamically created
+    $("#main").on("mouseup", ".song-row td[data-col='rating'] ul.rating-container li:not(.selected)[data-rating='5']", function() {
+      post("rated5", parseSongRow($(this).closest(".song-row"), true));
     });
     
     window.addEventListener("message", onMessage);
@@ -391,7 +404,7 @@ $(function() {
   }
   
   function clickListCard(listId) {
-    if ($(".card[data-id='" + listId + "'][data-type='st']").length > 0) {
+    if ($(".card[data-id='" + listId + "'][data-type='st']").length) {
       contentLoadDestination = "#/ap/queue";
       sendCommand("clickCard", {id: listId});
       return true;
@@ -423,23 +436,26 @@ $(function() {
     }
   }
   
-  function parseSongRow(song) {
-    var item = {};
-    item.index = song.data("index");
+  function parseSongRow(song, basic) {
     var title = song.find("td[data-col='title'] .content");
-    item.cover = parseCover(title.find("img"));
-    item.title = $.trim(title.text());
     var artist = song.find("td[data-col='artist']");
-    item.artist = $.trim(artist.find(".content").text());
-    var arId = artist.data("matched-id") || "";
-    if (item.artist || arId) item.artistLink = "artist/" + forHash(arId) + "/" + forHash(item.artist);
     var album = song.find("td[data-col='album']");
-    item.album = $.trim(album.find(".content").text());
-    var alAr = album.data("album-artist") || "";
-    var alId = album.data("matched-id") || "";
-    if (alId || item.album && typeof(alAr) == "string") item.albumLink = "album/" + forHash(alId) + "/" + forHash(alAr) + "/" + forHash(item.album);
+    var item = {
+      title: $.trim(title.text()),
+      artist: $.trim(artist.find(".content").text()),
+      album: $.trim(album.find(".content").text())
+    };
     var duration = $.trim(song.find("td[data-col='duration']").text());
     if (/^\d\d?(\:\d\d)*$/.test(duration)) item.duration = duration;//no real duration on recommandation page
+    if (!basic) {
+      item.index = song.data("index");
+      item.cover = parseCover(title.find("img"));
+      var arId = artist.data("matched-id") || "";
+      if (item.artist || arId) item.artistLink = "artist/" + forHash(arId) + "/" + forHash(item.artist);
+      var alAr = album.data("album-artist") || "";
+      var alId = album.data("matched-id") || "";
+      if (alId || item.album && typeof(alAr) == "string") item.albumLink = "album/" + forHash(alId) + "/" + forHash(alAr) + "/" + forHash(item.album);
+    }
     return item;
   }
   
@@ -484,13 +500,13 @@ $(function() {
           if (song.data("index") <= lastIndex) return;
           var item = parseSongRow(song);
           lastIndex = item.index;
-          if (song.find(".song-indicator").length > 0) item.current = true;
+          if (song.find(".song-indicator").length) item.current = true;
           item.rating = parseRating(song.find("td[data-col='rating']").get(0));
           listRatings.push(item.rating);
           playlist.push(item);
         });
         if (callback === false) return playlist;
-        if (!update || playlist.length > 0) {
+        if (!update || playlist.length) {
           callback(playlist, update);
           update = true;
         }
@@ -612,7 +628,7 @@ $(function() {
     if (error) return;
     function sendResume() {
       var rows = $("#main .song-row");
-      if (rows.length > 0) {
+      if (rows.length) {
         if (rows.first().data("index") !== 0) {
           $("#main").scrollTop(0);
           asyncListTimer = setTimeout(sendResume, 150);

@@ -43,6 +43,7 @@ var SETTINGS_DEFAULTS = {
   disableScrobbleOnFf: false,
   scrobbleRepeated: true,
   linkRatings: false,
+  linkRatingsGpm: false,
   showLovedIndicator: false,
   showScrobbledIndicator: true,
   showLastfmInfo: false,
@@ -411,6 +412,11 @@ function onMessageListener(message) {
       if (result.title) result.title = result.title.text().trim();
       postToGooglemusic({type: "lyrics", result: result});
     });
+  } else if (type == "rated5") {
+    if (settings.linkRatings && settings.linkRatingsGpm) {
+      if (songsEqual(song.info, val)) loveTrack();
+      else love(val, noop);
+    }
   }
 }
 
@@ -729,10 +735,12 @@ function love(songInfo, cb) {
 }
 
 function loveTrack(event) {
-  song.loved = null;
-  love(song.info, function(loved) { song.loved = loved; });
-  //auto-rate if called by click event and not rated yet
-  if (event && settings.linkRatings && song.rating === 0) executeInGoogleMusic("rate", {rating: 5});
+  if (song.loved !== true) {
+    song.loved = null;
+    love(song.info, function(loved) { song.loved = loved; });
+    //auto-rate if called by click event and not rated yet
+    if (event && settings.linkRatings && song.rating === 0) executeInGoogleMusic("rate", {rating: 5});
+  }
 }
 
 function unlove(songInfo, cb) {
@@ -1595,7 +1603,7 @@ function isRatingReset(oldRating, newRating) {
 function rate(rating) {
   if (song.rating < 0) return;//negative ratings cannot be changed
   //auto-love if no reset and not loved yet
-  if (settings.linkRatings && rating == 5 && !isRatingReset(song.rating, rating) && song.loved !== true) loveTrack();
+  if (settings.linkRatings && rating == 5 && !isRatingReset(song.rating, rating)) loveTrack();
   executeInGoogleMusic("rate", {rating: rating});
 }
 

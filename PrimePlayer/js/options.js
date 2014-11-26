@@ -39,6 +39,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#scrobble").prop("checked", val);
   }
 
+  function linkRatingsChanged() {
+    $("#linkRatingsGpm").prop("disabled", !bp.settings.linkRatings || !bp.localSettings.lastfmSessionName);
+  }
+  
   function toastChanged() {
     $("#toastIfMpOpen, #toastDuration").prop("disabled", !bp.settings.toast);
     $("#toastUseMpStyle").prop("disabled", !bp.settings.toast || !bp.localSettings.notificationsEnabled);
@@ -53,8 +57,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function lastfmUserChanged(user) {
     var action;
     var actionText;
-    $("#scrobble, #linkRatings, #showLovedIndicator").prop("disabled", user === null);
+    $("#scrobble, #linkRatings, #showLovedIndicator").prop("disabled", !user);
     scrobbleChanged(bp.settings.scrobble);
+    linkRatingsChanged();
     var links = $("#lastfmStatus").find("a");
     var userLink = links.first();
     if (user) {
@@ -306,8 +311,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("disableScrobbleOnFf");
     initHint("disableScrobbleOnFf");
     initCheckbox("scrobbleRepeated");
-    initCheckbox("linkRatings");
+    initCheckbox("linkRatings").click(linkRatingsChanged);
     initHint("linkRatings");
+    initCheckbox("linkRatingsGpm");
     initCheckbox("showLovedIndicator");
     initCheckbox("showScrobbledIndicator");
     initCheckbox("showLastfmInfo");
