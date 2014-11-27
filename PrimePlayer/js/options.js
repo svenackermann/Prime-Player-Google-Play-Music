@@ -15,13 +15,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
       {
         success: function(response) {
           status.find(".loader").hide();
-          bp.localSettings.lastfmSessionKey = response.session.key;
-          bp.localSettings.lastfmSessionName = response.session.name;
-          bp.lastfm.session = response.session;
+          bp.setLastfmSession(response.session);
           status.find(".success").attr("title", chrome.i18n.getMessage("lastfmConnectSuccess")).show();
-          bp.gaEvent("LastFM", "AuthorizeOK");
-          bp.getCurrentLastfmInfo();
-          bp.scrobbleCachedSongs();
         },
         error: function(code, message) {
           status.find(".loader").hide();

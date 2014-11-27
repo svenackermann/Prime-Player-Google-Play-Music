@@ -138,4 +138,8 @@ function LastFM(options){
       return hex_md5(string);
     }
   };
+  
+  this.getLoginUrl = function(callbackUrl) {
+    return "http://www.last.fm/api/auth?api_key=" + apiKey + "&cb=" + callbackUrl;
+  };
 }

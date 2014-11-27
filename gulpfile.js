@@ -29,7 +29,7 @@ var paths = {
 };
 paths.js_custom = paths.js_bp.concat(paths.js_single);
 
-function myUglify() { return uglify({ preserveComments: "some" }); }
+function myUglify() { return uglify({ preserveComments: "some", compress: { drop_console: !develop } }); }
 
 gulp.task("jshint", function() {
   return gulp.src(paths.js_custom)
