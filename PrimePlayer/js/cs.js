@@ -21,23 +21,21 @@ $(function() {
   
   /** send update to background page */
   function post(type, value) {
-    if (port) {
-      port.postMessage({type: type, value: value});
-    }
+    if (port) port.postMessage({type: type, value: value});
   }
   
+  /** @return converted text (e.g. from artist name) that is usable in the URL hash */
   function forHash(text) {
     return encodeURIComponent(text).replace(/%20/g, "+");
   }
   
   /** @return link (for hash) constructed from attributes data-type and data-id */
   function getLink(el) {
-    if (el.data("id")) {
-      return el.data("type") + "/" + el.data("id");
-    }
+    if (el.data("id")) return el.data("type") + "/" + el.data("id");
     return null;
   }
   
+  /** @return valid cover URL from src attribute of the element or null */
   function parseCover(el) {
     var cover = el.attr("src");
     if (cover && cover.indexOf("/default_album_med.png") > 0) return null;
@@ -45,6 +43,7 @@ $(function() {
     return cover;
   }
   
+  /** @return parsed rating from the element's 'data-rating' attribute, 0 if this attribute is missing or onNullRating/-1 if the element is missing */
   function parseRating(container, onNullRating) {
     if (container) {
       var rating = parseInt(container.dataset.rating);
@@ -53,6 +52,7 @@ $(function() {
     return (typeof onNullRating == "number") ? onNullRating : -1;
   }
   
+  /** Show the P-icon as indicator for successful connection. */
   function showConnectedIndicator() {
     //inject icon with title to mark the tab as connected
     $(".music-banner-icon")
@@ -64,10 +64,12 @@ $(function() {
       });
   }
   
+  /** Hide the P-icon as indicator for successful connection. */
   function hideConnectedIndicator() {
     $(".music-banner-icon").removeAttr("title").removeClass("ppconnected").off("click");
   }
   
+  /** Render lyrics sent from the bp if the lyrics container is visible. */
   function renderLyrics(result) {
     var lyrics = $("#ppLyricsContainer");
     if (lyrics.is(":visible")) {
@@ -88,6 +90,7 @@ $(function() {
     }
   }
   
+  /** Request lyrics from the bp. */
   function loadLyrics() {
     $("#ppLyricsTitle").children("div").removeAttr("title").empty();
     $("#ppLyricsContent").empty();
@@ -96,13 +99,14 @@ $(function() {
     post("loadLyrics");
   }
   
+  /** Adjust the music content size to make the lyrics container fit in the page. */
   function contentResize() {
-    $("#content").css("width", ($("#content-container").width() - $("#ppLyricsContainer").width() - 10) + "px");
+    $("#music-content").css("width", ($("#content-container").width() - $("#ppLyricsContainer").width() - 10) + "px");
   }
   
   function resetContentResize() {
     $(window).off("resize", contentResize);
-    $("#content").removeAttr("style");
+    $("#music-content").removeAttr("style");
   }
   
   function toggleLyrics() {
@@ -132,7 +136,7 @@ $(function() {
         .appendTo("#player-right-wrapper");
       $("<div id='ppLyricsContainer'><div id='ppLyricsTitle'><a class='reloadLyrics'></a><div></div></div><div id='ppLyricsScroller'><div id='ppLyricsContent'></div><div id='ppLyricsCredits'></div></div></div>")
         .on("click", ".reloadLyrics", loadLyrics)
-        .insertAfter("#content");
+        .insertAfter("#music-content");
     }
     $("#ppLyricsContainer").css({"font-size": fontSize + "px", width: width});
     if ($("#ppLyricsContainer").is(":visible")) {
