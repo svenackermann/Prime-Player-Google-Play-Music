@@ -3,6 +3,7 @@
  * @author Sven Ackermann (svenrecknagel@googlemail.com)
  * @license BSD license
  */
+/** @return an URL to songlyrics.com for the song or null if too little information */
 function buildLyricsSearchUrl(song) {
   var artist = "";
   var title = "";
@@ -28,7 +29,17 @@ function buildLyricsSearchUrl(song) {
   return url;
 }
 
-function fetchLyrics(song, callback) {
+/**
+ * Get lyrics for a song from songlyrics.com.
+ * The callback gets an object with either:
+ * - 'title' (jQuery h1 containing the song title), 'lyrics' (jQuery div containing the lyrics), 'credits' (jQuery p containing the credits or null)
+ * - 'noresults' set to true
+ * - 'error' set to true
+ * In addition the following attributes might be provided:
+ * - 'src': the URL to the song lyrics page
+ * - 'searchSrc': the URL to the search results page
+ */
+function fetchLyrics(song, cb) {
   var url = buildLyricsSearchUrl(song);
   if (url) {
     $.get(url)
@@ -42,29 +53,29 @@ function fetchLyrics(song, callback) {
               var trimmedLyrics = lyrics.text().trim();
               if (trimmedLyrics.length === 0 || trimmedLyrics.indexOf("We do not have the lyrics for") === 0) {
                 gaEvent("Lyrics", "NoLyrics");
-                callback({noresults: true, src: href, searchSrc: url});
+                cb({noresults: true, src: href, searchSrc: url});
               } else {
                 var credits = page.find(".albuminfo > li > p");
                 if (credits.length === 0) credits = null;
                 gaEvent("Lyrics", "OK");
-                callback({title: page.find(".pagetitle h1"), lyrics: lyrics, credits: credits, src: href, searchSrc: url});
+                cb({title: page.find(".pagetitle h1"), lyrics: lyrics, credits: credits, src: href, searchSrc: url});
               }
             })
             .fail(function() {
               gaEvent("Lyrics", "Error-GET-Result");
-              callback({error: true, src: href, searchSrc: url});
+              cb({error: true, src: href, searchSrc: url});
             });
         } else {
           gaEvent("Lyrics", "NoResult");
-          callback({noresults: true, searchSrc: url});
+          cb({noresults: true, searchSrc: url});
         }
       })
       .fail(function() {
         gaEvent("Lyrics", "Error-GET-Search");
-        callback({error: true, searchSrc: url});
+        cb({error: true, searchSrc: url});
       });
   } else {
     gaEvent("Lyrics", "Error-noURL");
-    callback({error: true});
+    cb({error: true});
   }
 }

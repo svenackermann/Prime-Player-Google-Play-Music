@@ -152,9 +152,10 @@ var timerEnd = 0;
 /* --- shared utility functions --- */
 /* -------------------------------- */
 
-function noop() {/* not interesting, but sometimes required */}
+/** does nothing, but sometimes required */
+function noop() {}
 
-/** @return time in seconds that a time string represents (e.g. 4:23 - 263) */
+/** @return time in seconds that a time string represents (e.g. 4:23 -> 263) */
 function parseSeconds(time) {
   if (typeof(time) != "string") return 0;
   time = time.split(':');
@@ -167,6 +168,7 @@ function parseSeconds(time) {
   return sec || 0;
 }
 
+/** @return time string for amount of seconds (e.g. 263 -> 4:23) */
 function toTimeString(sec) {
   if (sec > 60*60*24) return chrome.i18n.getMessage("moreThanOneDay");
   if (sec < 10) return "0:0" + sec;
@@ -181,12 +183,14 @@ function toTimeString(sec) {
   }
 }
 
+/** @return value of a named parameter in an URL query string, null if not contained or no value */
 function extractUrlParam(name, queryString) {
-  var matched = RegExp(name + "=(.+?)(&|$)").exec(queryString);
+  var matched = RegExp(name + "=(.*?)(&|$|#.*)").exec(queryString);
   if (matched === null || matched.length < 2) return null;
   return matched[1];
 }
 
+/** @return true, if the 2 song info objects match in duration (if both have one), title, artist and album or if both null */
 function songsEqual(song1, song2) {
   if (song1 == song2) return true;//both null
   if (song1 && song2 &&
@@ -213,14 +217,17 @@ function isNewerVersion(version) {
   return version.length > prev.length;//version is longer (e.g. 1.0.1 > 1.0), else same version
 }
 
+/** send an event to Google Analytics, if enabled */
 function gaEvent(category, eventName) {
   if (settings.gaEnabled) ga('send', 'event', category, eventName, currentVersion);
 }
 
+/** send a social event to Google Analytics, if enabled */
 function gaSocial(network, action) {
   if (settings.gaEnabled) ga('send', 'social', network, action);
 }
 
+/** @return true, if scrobbling is available, i.e. user is logged in and enabled scrobbling */
 function isScrobblingEnabled() {
   return settings.scrobble && localSettings.lastfmSessionKey !== null;
 }
@@ -244,71 +251,74 @@ function lastfmLogout() {
   song.loved = null;
 }
 
+/**
+ * Load song info from last.fm and provide it to given callback.
+ * The callback takes parameters loved and info, which both might be null.
+ * On errors, loved is set to a string providing the error message.
+ */
 function getLastfmInfo(songInfo, cb) {
   if (songInfo) {
     var params = { track: songInfo.title, artist: songInfo.artist };
     if (localSettings.lastfmSessionName) params.username = localSettings.lastfmSessionName;
     lastfm.track.getInfo(params, {
-        success: function(response) {
-          var loved = null;
-          var lastfmInfo = null;
-          if (response.track) {
-            lastfmInfo = {
-              listeners: response.track.listeners || 0,
-              playcount: response.track.playcount || 0,
-              userplaycount: response.track.userplaycount || 0,
-              url: response.track.url,
-              artistUrl: response.track.artist && response.track.artist.url,
-              albumUrl: response.track.album && response.track.album.url
-            };
-            if (params.username) loved = response.track.userloved == 1;
-          }
-          cb(loved, lastfmInfo);
-        },
-        error: function(code, msg) {
-          cb(msg, null);
-          gaEvent("LastFM", "getInfoError-" + code);
+      success: function(response) {
+        var loved = null;
+        var lastfmInfo = null;
+        if (response.track) {
+          lastfmInfo = {
+            listeners: response.track.listeners || 0,
+            playcount: response.track.playcount || 0,
+            userplaycount: response.track.userplaycount || 0,
+            url: response.track.url,
+            artistUrl: response.track.artist && response.track.artist.url,
+            albumUrl: response.track.album && response.track.album.url
+          };
+          if (params.username) loved = response.track.userloved == 1;
         }
+        cb(loved, lastfmInfo);
+      },
+      error: function(code, msg) {
+        cb(msg, null);
+        gaEvent("LastFM", "getInfoError-" + code);
       }
-    );
+    });
   } else cb(null, null);
 }
 
+/** Love a song in last.fm. The callback either gets true or an error message. */
 function love(songInfo, cb) {
   if (localSettings.lastfmSessionKey && songInfo) {
     lastfm.track.love({
-        track: songInfo.title,
-        artist: songInfo.artist
-      },
-      {
-        success: function() { cb(true); },
-        error: function(code, msg) {
-          cb(msg);
-          gaEvent("LastFM", "loveError-" + code);
-        }
+      track: songInfo.title,
+      artist: songInfo.artist
+    }, {
+      success: function() { cb(true); },
+      error: function(code, msg) {
+        cb(msg);
+        gaEvent("LastFM", "loveError-" + code);
       }
-    );
+    });
   }
 }
 
+/** Unlove a song in last.fm. The callback either gets false or an error message. */
 function unlove(songInfo, cb) {
   if (localSettings.lastfmSessionKey && songInfo) {
     lastfm.track.unlove({
-        track: songInfo.title,
-        artist: songInfo.artist
-      },
-      {
-        success: function() { cb(false); },
-        error: function(code, msg) {
-          cb(msg);
-          gaEvent("LastFM", "unloveError-" + code);
-        }
+      track: songInfo.title,
+      artist: songInfo.artist
+    }, {
+      success: function() { cb(false); },
+      error: function(code, msg) {
+        cb(msg);
+        gaEvent("LastFM", "unloveError-" + code);
       }
-    );
+    });
   }
 }
 
-function getCurrentLastfmInfo() {
+/** Load info/loved status for current song from last.fm. */
+function loadCurrentLastfmInfo() {
   song.loved = null;
   song.lastfmInfo = null;
   var songInfo = song.info;
@@ -323,6 +333,7 @@ function getCurrentLastfmInfo() {
   });
 }
 
+/** Get the last saved song from local storage. The callback will only be called if one exists. */
 function getLastSong(callback) {
   chrome.storage.local.get(null, function(items) {
     if (items.lastSong) {
@@ -341,18 +352,22 @@ function getLastSong(callback) {
   });
 }
 
+/** Change the volume in Google Music. */
 function setVolume(percent) {
   executeInGoogleMusic("setVolume", {percent: percent});
 }
 
+/** Change the song position in Google Music. */
 function setSongPosition(percent) {
   executeInGoogleMusic("setPosition", {percent: percent});
 }
 
+/** @return true, if a change from old to new rating would result in a rating reset in Google Music */
 function isRatingReset(oldRating, newRating) {
   return oldRating == newRating || (player.ratingMode == "thumbs" && ((oldRating == 2 && newRating == 1) || (oldRating == 4 && newRating == 5)));
 }
 
+/** Rate the current song in Google Music, if possible. For arg 5, this triggers the link-ratings logic, if not a rating reset. */
 function rate(rating) {
   if (song.rating < 0) return;//negative ratings cannot be changed
   //auto-love if no reset and not loved yet
@@ -360,6 +375,7 @@ function rate(rating) {
   executeInGoogleMusic("rate", {rating: rating});
 }
 
+/** @return the label for a quick link, if connected to Google Music, the labels from the site are used. */
 function getTextForQuicklink(link) {
   if (link == "myPlaylists") return chrome.i18n.getMessage("myPlaylists");
   var text;
@@ -370,6 +386,7 @@ function getTextForQuicklink(link) {
   return text || chrome.i18n.getMessage("quicklink_" + link.replace(/-/g, "_").replace(/\//g, "_"));
 }
 
+/** @return the label for the given command to be used in a toast button */
 function getTextForToastBtn(cmd) {
   var key;
   switch (cmd) {
@@ -396,6 +413,7 @@ function getTextForToastBtn(cmd) {
   return chrome.i18n.getMessage(key);
 }
 
+/** Open the options tab or focus it, if already opened. */
 function openOptions() {
   if (optionsTabId) {
     chrome.tabs.update(optionsTabId, {active: true});
@@ -404,6 +422,7 @@ function openOptions() {
   }
 }
 
+/** Open a songlyrics.com tab for the given (or current) song, if possible. */
 function openLyrics(aSong) {
   if (!aSong) {
     if (!song.info) return;
@@ -424,8 +443,12 @@ function openLyrics(aSong) {
 /* --- shared functions defined in private part --- */
 /* ------------------------------------------------ */
 
+/** Execute a command with options with the Google Music content script. */
 var executeInGoogleMusic;
+/** Love the current song (if it isn't already). If a non-false/0/null/undefined parameter is given, the link ratings logic will be executed. */
 var loveTrack;
+/** Unlove the current song. */
+var unloveTrack;
 
 /* -------------------- */
 /* --- private part --- */
@@ -433,14 +456,15 @@ var loveTrack;
 
 (function(exports) {
 
+//do not notify listeners, if not a real change (the content script might send the same song info multiple times)
 song.setEqualsFn("info", songsEqual);
 
 var currentVersion = chrome.runtime.getManifest().version;
 
 /** the miniplayer instance, if opened */
-var miniplayer;
+var miniplayer = null;
 /** if the toast notification is opened, its options */
-var toastOptions;
+var toastOptions = null;
 /** the toast window (if toastUseMpStyle) */
 var toastWin;
 /** the XMLHttpRequest for the toast cover */
@@ -457,7 +481,7 @@ var volumeBeforeMute;
 /** if resumeLastSong was called while not connected */
 var lastSongToResume;
 
-//wrap chrome notifications API for convenience
+/** Wrapper for chrome notifications API for convenience. */
 function Notification() {
   var that = this;
   var notifications = {};
@@ -494,8 +518,9 @@ var TIMERWARN = "pp.timerwarn";
 
 var browserIconCtx;
 var lastProgressPosition = 0;
+/** Draw the progress onto the current browserIconCtx, if enabled. */
 function drawProgress() {
-  if (settings.showProgress && browserIconCtx && song.positionSec > 0) {
+  if (settings.showProgress && browserIconCtx && song.info && song.positionSec > 0) {
     lastProgressPosition = song.positionSec;
     browserIconCtx.strokeStyle = settings.showProgressColor;
     browserIconCtx.lineWidth = 3;
@@ -507,13 +532,14 @@ function drawProgress() {
   return false;
 }
 
-function draw(backgroundSrc, imagePaths, callback) {
+/** Draw the given images onto the backgroundSrc, call cb with canvas context when ready. */
+function drawIcon(backgroundSrc, imagePaths, cb) {
   var iconCtx = $("<canvas width='19' height='19'/>").get(0).getContext("2d");
   var image = new Image();
   function loadNext() {
     var path = imagePaths.shift();
     if (path) image.src = chrome.extension.getURL(path + ".png");
-    else callback(iconCtx);
+    else cb(iconCtx);
   }
   image.onload = function() {
     iconCtx.drawImage(image, 0, 0);
@@ -522,8 +548,9 @@ function draw(backgroundSrc, imagePaths, callback) {
   image.src = chrome.extension.getURL(backgroundSrc);
 }
 
+/** Set the browser icon to the current painted image in browserIconCtx. */
 function updateBrowserIcon() {
-  chrome.browserAction.setIcon({imageData: browserIconCtx.getImageData(0, 0, 19, 19)});
+  if (browserIconCtx) chrome.browserAction.setIcon({imageData: browserIconCtx.getImageData(0, 0, 19, 19)});
 }
 
 /** handler for all events that need to update the browser action icon/title */
@@ -582,17 +609,18 @@ function updateBrowserActionInfo() {
   }
   path += ".png";
   
-  draw(path, iconPaths, function(iconCtx) {
+  drawIcon(path, iconPaths, function(iconCtx) {
     browserIconCtx = iconCtx;
     drawProgress();
     updateBrowserIcon();
   });
-  if (faviconPaths.length) draw(path, faviconPaths, function(iconCtx) {
+  if (faviconPaths.length) drawIcon(path, faviconPaths, function(iconCtx) {
     player.favicon = iconCtx.canvas.toDataURL();
   }); else player.favicon = path;
   chrome.browserAction.setTitle({title: title});
 }
 
+/** Remove the given one from parked ports. */
 function removeParkedPort(port) {
   for (var i = 0; i < parkedPorts.length; i++) {
     if (port == parkedPorts[i]) {
@@ -602,7 +630,7 @@ function removeParkedPort(port) {
   }
 }
 
-/** use the given port for the connection to Google Music */
+/** Use the given port for the connection to Google Music. */
 function connectPort(port) {
   googlemusicport = port;
   googlemusictabId = port.sender.tab.id;
@@ -612,7 +640,7 @@ function connectPort(port) {
   iconClickSettingsChanged();
 }
 
-/** Check if the given port's tab is already connected */
+/** Check if the given port's tab is already connected. */
 function isConnectedTab(port) {
   if (googlemusicport && port.sender.tab.id == googlemusicport.sender.tab.id) return true;
   for (var i = 0; i < parkedPorts.length; i++) {
@@ -621,7 +649,8 @@ function isConnectedTab(port) {
   return false;
 }
 
-/** handler for onConnect event
+/** 
+ * Handler for onConnect event:
  * - check origin
  * - check if tab already connected
  * - check if another tab is already connected
@@ -688,12 +717,14 @@ function onMessageListener(message) {
   }
 }
 
+/** Send a message to the Google Music port, if connected. */
 function postToGooglemusic(msg) {
   if (googlemusicport) {
     googlemusicport.postMessage(msg);
   }
 }
 
+/** Tell the connected Google Music port about changes in the lyrics settings. */
 function postLyricsState() {
   postToGooglemusic({type: "lyricsState",
     enabled: localSettings.lyrics && settings.lyricsInGpm,
@@ -705,7 +736,6 @@ function postLyricsState() {
 
 var loadNavlistLink;
 var loadNavlistSearch;
-/** Load the navigation list identified by 'loadNavlistLink'. If not connected, open a Google Music tab and try again. */
 function loadNavlistIfConnected() {
   if (!loadNavlistLink) return;
   if (player.connected) {
@@ -715,17 +745,20 @@ function loadNavlistIfConnected() {
   } else openGoogleMusicTab(loadNavlistLink);//when connected, we get triggered again
 }
 
+/** Load a navigation list in Google Music and wait for message from there (player.navigationList will be updated). If not connected, open a Google Music tab and try again. */
 exports.loadNavigationList = function(link, search) {
   loadNavlistLink = link;
   loadNavlistSearch = search;
   loadNavlistIfConnected();
 };
 
+/** Select a link in the Google Music tab or open it when not connected. */
 exports.selectLink = function(link) {
   postToGooglemusic({type: "selectLink", link: link});
   openGoogleMusicTab(link);
 };
 
+/** Start a playlist in Google Music. */
 exports.startPlaylist = function(link) {
   postToGooglemusic({type: "startPlaylist", link: link});
 };
@@ -739,6 +772,7 @@ function executeFeelingLuckyIfConnected() {
   } else openGoogleMusicTab();//when connected, we get triggered again
 }
 
+/** Execute "feeling lucky" in Google Music. If not connected, open a Google Music tab and try again. */
 function executeFeelingLucky() {
   feelingLucky = true;
   executeFeelingLuckyIfConnected();
@@ -758,22 +792,24 @@ function resumeLastSongIfConnected() {
   } else openGoogleMusicTab();//when connected, we get triggered again
 }
 
+/** Resume the saved last song in Google Music. If not connected, open a Google Music tab and try again. */
 exports.resumeLastSong = function(lastSong) {
   lastSongToResume = lastSong;
   resumeLastSongIfConnected();
 };
 
-/** send a command to the connected Google Music port */
+/** Send a command to the connected Google Music port. */
 executeInGoogleMusic = function(command, options) {
   postToGooglemusic({type: "execute", command: command, options: options || {}});
 };
 
+/** Shortcut to call the play/pause command in Google Music. */
 function executePlayPause() {
   executeInGoogleMusic("playPause");
 }
 exports.executePlayPause = executePlayPause;
 
-/** @return song position in seconds when the song will be scrobbled or -1 if disabled */
+/** Calculate and set the song position in seconds (song.scrobbleTime) when the song will be scrobbled or -1 if disabled */
 function calcScrobbleTime() {
   if (song.scrobbled) return;
   if (song.info &&
@@ -793,6 +829,7 @@ function calcScrobbleTime() {
   }
 }
 
+/** Write a song to local storage for a later try to scrobble it. */
 function cacheForLaterScrobbling(songInfo) {
   var scrobbleCache = localStorage.scrobbleCache;
   scrobbleCache = scrobbleCache ? JSON.parse(scrobbleCache) : {};
@@ -808,10 +845,12 @@ function cacheForLaterScrobbling(songInfo) {
   localStorage.scrobbleCache = JSON.stringify(scrobbleCache);
 }
 
+/** @return true, if the last.fm error code allows for a new try to scrobble. */
 function isScrobbleRetriable(code) {
   return code == 16 || code == 11 || code == 9 || code == -1;
 }
 
+/** Scrobble all songs that have been cached fro scrobble retry. */
 function scrobbleCachedSongs() {
   var scrobbleCache = localStorage.scrobbleCache;
   if (scrobbleCache) {
@@ -827,31 +866,31 @@ function scrobbleCachedSongs() {
         params[prop + "[" + i + "]"] = curSong[prop];
       }
     }
-    lastfm.track.scrobble(params,
-      {
-        success: function() {
-          localStorage.removeItem("scrobbleCache");
-          gaEvent("LastFM", "ScrobbleCachedOK");
-        },
-        error: function(code) {
-          console.debug("Error on cached scrobbling: " + code);
-          if (!isScrobbleRetriable(code)) localStorage.removeItem("scrobbleCache");
-          gaEvent("LastFM", "ScrobbleCachedError-" + code);
-        }
+    lastfm.track.scrobble(params, {
+      success: function() {
+        localStorage.removeItem("scrobbleCache");
+        gaEvent("LastFM", "ScrobbleCachedOK");
+      },
+      error: function(code) {
+        console.debug("Error on cached scrobbling: " + code);
+        if (!isScrobbleRetriable(code)) localStorage.removeItem("scrobbleCache");
+        gaEvent("LastFM", "ScrobbleCachedError-" + code);
       }
-    );
+    });
   }
 }
 
+/** Remember the session information after successful authentication. */
 exports.setLastfmSession = function(session) {
   localSettings.lastfmSessionKey = session.key;
   localSettings.lastfmSessionName = session.name;
   lastfm.session = session;
   gaEvent("LastFM", "AuthorizeOK");
-  getCurrentLastfmInfo();
+  loadCurrentLastfmInfo();
   scrobbleCachedSongs();
 };
 
+/** Scrobble the current song. */
 function scrobble() {
   var params = {
     track: song.info.title,
@@ -861,36 +900,33 @@ function scrobble() {
     duration: song.info.durationSec
   };
   var cloned = $.extend({}, params);//clone now, lastfm API will enrich params with additional values we don't need
-  lastfm.track.scrobble(params,
-    {
-      success: function() {
-        gaEvent("LastFM", "ScrobbleOK");
-        scrobbleCachedSongs();//try cached songs again now that the service seems to work again
-      },
-      error: function(code) {
-        console.debug("Error on scrobbling '" + params.track + "': " + code);
-        if (isScrobbleRetriable(code)) cacheForLaterScrobbling(cloned);
-        gaEvent("LastFM", "ScrobbleError-" + code);
-      }
+  lastfm.track.scrobble(params, {
+    success: function() {
+      gaEvent("LastFM", "ScrobbleOK");
+      scrobbleCachedSongs();//try cached songs again now that the service seems to work again
+    },
+    error: function(code) {
+      console.debug("Error on scrobbling '" + params.track + "': " + code);
+      if (isScrobbleRetriable(code)) cacheForLaterScrobbling(cloned);
+      gaEvent("LastFM", "ScrobbleError-" + code);
     }
-  );
+  });
 }
 
+/** Send updateNowPlaying for the current song. */
 function sendNowPlaying() {
   lastfm.track.updateNowPlaying({
-      track: song.info.title,
-      artist: song.info.artist,
-      album: song.info.album,
-      duration: song.info.durationSec
-    },
-    {
-      success: function() { gaEvent("LastFM", "NowPlayingOK"); },
-      error: function(code) {
-        console.debug("Error on now playing '" + song.info.title + "': " + code);
-        gaEvent("LastFM", "NowPlayingError-" + code);
-      }
+    track: song.info.title,
+    artist: song.info.artist,
+    album: song.info.album,
+    duration: song.info.durationSec
+  }, {
+    success: function() { gaEvent("LastFM", "NowPlayingOK"); },
+    error: function(code) {
+      console.debug("Error on now playing '" + song.info.title + "': " + code);
+      gaEvent("LastFM", "NowPlayingError-" + code);
     }
-  );
+  });
 }
 
 function updateTrackLoved(fn) {
@@ -898,7 +934,6 @@ function updateTrackLoved(fn) {
   var songInfo = song.info;
   fn(songInfo, function(loved) { if (songInfo == song.info) song.loved = loved; /* check if song meanwhile changed */ });
 }
-
 loveTrack = function(event) {
   if (song.loved !== true) {
     updateTrackLoved(love);
@@ -906,10 +941,9 @@ loveTrack = function(event) {
     if (event && settings.linkRatings && song.rating === 0) executeInGoogleMusic("rate", {rating: 5});
   }
 };
+unloveTrack = updateTrackLoved.bind(window, unlove);
 
-var unloveTrack = updateTrackLoved.bind(window, unlove);
-
-/** logout from last.fm and show a notification to login again */
+/** Logout from last.fm and show a notification to login again. */
 lastfm.sessionTimeoutCallback = function() {
   lastfmLogout();
   notifications.create(RELOGIN, {
@@ -926,6 +960,7 @@ lastfm.sessionTimeoutCallback = function() {
   });
 };
 
+/** Callbacks when toast has been closed. */
 function toastClosed() {
   toastOptions = null;
   song.removeListener("rating", drawToastImage);
@@ -935,7 +970,6 @@ function toastClosed() {
     toastCoverXhr = null;
   }
 }
-  
 function toastMpClosed(winId) {
   if (toastWin && winId == toastWin.id) {
     toastWin = null;
@@ -943,6 +977,7 @@ function toastMpClosed(winId) {
   }
 }
 
+/** Callback when toast button was clicked. */
 function toastButtonClicked(buttonIndex) {
   //check which button was clicked and that the button is valid (otherwise it is not displayed and we would execute the wrong command)
   var cmd = settings.toastButton1;
@@ -954,6 +989,7 @@ function toastButtonClicked(buttonIndex) {
   if (btn) executeCommand(cmd, "toast");
 }
 
+/** @return button information object (title, iconUrl) for a command to be provided to 'notifications.create' or null, if not available */
 function getToastBtn(cmd) {
   if (!cmd) return null;
   var icon = cmd;
@@ -982,6 +1018,7 @@ function getToastBtn(cmd) {
   return {title: getTextForToastBtn(cmd), iconUrl: chrome.extension.getURL("img/toast/" + icon + ".png")};
 }
 
+/** Updates the toast's iconUrl with the album cover and rating. */
 function drawToastImage() {
   if (!song.info || !toastOptions) return;
   var cover = new Image();
@@ -1034,6 +1071,7 @@ function drawToastImage() {
 }
 
 var closeToastTimer;
+/** Open a toast, either as miniplayer or notification. */
 function openToast() {
   clearTimeout(closeToastTimer);
   if (settings.toastUseMpStyle) {
@@ -1072,39 +1110,34 @@ function openToast() {
   }
 }
 
-function closeToast(callback) {
+/** Close the toast, if open and call an optional function when finished. */
+function closeToast(cb) {
   clearTimeout(closeToastTimer);
-  if (typeof(callback) != "function") callback = noop;
-  if (toastOptions) notifications.clear(TOAST, callback);
-  else if (toastWin) chrome.windows.remove(toastWin.id, callback);
-  else callback();
+  if (typeof(cb) != "function") cb = noop;
+  if (toastOptions) notifications.clear(TOAST, cb);
+  else if (toastWin) chrome.windows.remove(toastWin.id, cb);
+  else cb();
 }
 
-/** open toast notification */
-function toastPopup() {
-  if (!song.toasted && settings.toast && (settings.toastIfMpOpen || !miniplayer)) {
-    song.toasted = true;
-    closeToast(openToast);
-  }
-}
-
+/** Close the Google Music tab. */
 function closeGm() {
   if (googlemusictabId) chrome.tabs.remove(googlemusictabId);
 }
 
 var miniplayerReopen = false;
-/** reset state when miniplayer is closed, reopen if neccessary */
+/** Reset state when miniplayer is closed, reopen if necessary. */
 function miniplayerClosed(winId) {
-  if (miniplayer) {
-    if (winId != miniplayer.id) return;//some other window closed
+  if (miniplayer && winId == miniplayer.id) {
     chrome.windows.onRemoved.removeListener(miniplayerClosed);
     miniplayer = null;
-    if (miniplayerReopen) openMiniplayer();
-    else if (settings.mpCloseGm) closeGm();
-    miniplayerReopen = false;
+    if (miniplayerReopen) {
+      openMiniplayer();
+      miniplayerReopen = false;
+    } else if (settings.mpCloseGm) closeGm();
   }
 }
 
+/** Open new player window for the given type ("miniplayer", "popup" or "toast"). */
 function createPlayer(type, callback, focused) {
   var sizing = localSettings.miniplayerSizing[settings.layout];
   chrome.windows.create({
@@ -1119,8 +1152,9 @@ function createPlayer(type, callback, focused) {
   );
 }
 
+/** Open the miniplayer. */
 function openMiniplayer() {
-  closeToast();
+  if (!settings.toastIfMpOpen) closeToast();
   if (miniplayer) {//close first
     miniplayerReopen = true;
     chrome.windows.remove(miniplayer.id);
@@ -1137,6 +1171,7 @@ exports.openMiniplayer = openMiniplayer;
 
 var iconClickCount = 0;
 var iconClickActionTimer;
+/** Execute the icon click action corresponding to the number of clicks. */
 function iconClickActionDelayed() {
   clearTimeout(iconClickActionTimer);
   var action = settings["iconClickAction" + iconClickCount];
@@ -1152,6 +1187,7 @@ function iconClickActionDelayed() {
   } else executeCommand(action, "icon");
 }
 
+/** Callback from popup to signal that it's open. */
 exports.popupOpened = function() {
   clearTimeout(iconClickActionTimer);
   iconClickCount = 0;
@@ -1174,6 +1210,7 @@ function iconClickSettingsChanged() {
   }
 }
 
+/** Do necessary migrations on update. */
 function migrateSettings(previousVersion) {
   if (localStorage.iconClickMiniplayer !== undefined) {
     if (localStorage.iconClickMiniplayer == "btrue") settings.iconClickAction0 = "openMiniplayer";
@@ -1252,27 +1289,9 @@ function updateNotifierDone() {
 }
 exports.updateNotifierDone = updateNotifierDone;
 
-/** Google Analytics stuff */
-function gaEnabledChanged(val) {
-  if (val) {
-    settings.removeListener("gaEnabled", gaEnabledChanged);//init only once
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');//jshint ignore:line
-    ga('create', 'UA-41499181-1', 'auto');
-    ga('set', 'checkProtocolTask', function(){});
-    ga('set', 'dimension1', currentVersion);
-    ga('set', 'dimension2', localSettings.lyrics.toString());
-    ga('set', 'dimension3', isScrobblingEnabled().toString());
-    ga('set', 'dimension4', settings.toast.toString());
-    ga('set', 'dimension5', settings.layout);
-    ga('send', 'pageview', {
-      'metric1': settings.scrobblePercent,
-      'metric2': settings.toastDuration
-    });
-  }
-}
-
 var sleepTimer;
 var preNotifyTimer;
+/** Start the sleep timer, possibly with a timer end from backup. */
 function startSleepTimer(backupTimerEnd) {
   clearTimeout(sleepTimer);
   var nowSec = new Date().getTime() / 1000;
@@ -1357,6 +1376,7 @@ function startSleepTimer(backupTimerEnd) {
 }
 exports.startSleepTimer = startSleepTimer;
 
+/** Stop the sleep timer. */
 function clearSleepTimer() {
   clearTimeout(sleepTimer);
   sleepTimer = null;
@@ -1367,6 +1387,7 @@ function clearSleepTimer() {
 }
 exports.clearSleepTimer = clearSleepTimer;
 
+/** Open or activate a Google Music tab. */
 function openGoogleMusicTab(link) {
   if (googlemusictabId) {
     chrome.tabs.update(googlemusictabId, {active: true});
@@ -1379,6 +1400,7 @@ function openGoogleMusicTab(link) {
 }
 exports.openGoogleMusicTab = openGoogleMusicTab;
 
+/** Connect existing Google Music tabs on startup. */
 function connectGoogleMusicTabs() {
   chrome.tabs.query({url:"*://play.google.com/music/listen*"}, function(tabs) {
     for (var i = 0; i < tabs.length; i++) {
@@ -1390,13 +1412,35 @@ function connectGoogleMusicTabs() {
   });
 }
 
+/** Open the miniplayer if not already when a song starts playing. */
 function openMpOnPlaying(playing) {
   if (playing && miniplayer === null) openMiniplayer();
 }
 
+/** Close the miniplayer when Google Music disconnects. */
 function closeMpOnDisconnect(connected) {
   if (!connected && miniplayer) chrome.windows.remove(miniplayer.id);
 }
+
+function gaEnabledChanged(val) {
+  if (val) {
+    settings.removeListener("gaEnabled", gaEnabledChanged);//init only once
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');//jshint ignore:line
+    ga('create', 'UA-41499181-1', 'auto');
+    ga('set', 'checkProtocolTask', function(){});
+    ga('set', 'dimension1', currentVersion);
+    ga('set', 'dimension2', localSettings.lyrics.toString());
+    ga('set', 'dimension3', isScrobblingEnabled().toString());
+    ga('set', 'dimension4', settings.toast.toString());
+    ga('set', 'dimension5', settings.layout);
+    ga('send', 'pageview', {
+      'metric1': settings.scrobblePercent,
+      'metric2': settings.toastDuration
+    });
+  }
+}
+
+/* --- register listeners --- */
 
 settings.watch("gaEnabled", gaEnabledChanged);
 settings.watch("iconClickAction0", iconClickSettingsChanged);
@@ -1417,10 +1461,10 @@ settings.addListener("layout", function() {
   }
 });
 settings.addListener("hideRatings", function(val) {
-  if (!val && song.loved === null) getCurrentLastfmInfo();
+  if (!val && song.loved === null) loadCurrentLastfmInfo();
 });
 settings.addListener("showLastfmInfo", function(val) {
-  if (val && song.lastfmInfo === null) getCurrentLastfmInfo();
+  if (val && song.lastfmInfo === null) loadCurrentLastfmInfo();
 });
 settings.addListener("toastUseMpStyle", closeToast);
 settings.addListener("toastButton1", closeToast);
@@ -1521,6 +1565,7 @@ player.addListener("connected", function(val) {
   }
 });
 
+/** Backup runtime data, cleanup and reload the extension when an update is available. */
 function reloadForUpdate() {
   var backup = {};
   backup.miniplayerOpen = miniplayer !== null;
@@ -1549,6 +1594,7 @@ function reloadForUpdate() {
 
 /** true, if the position came from update backup data, needed to not set ff by mistake */
 var positionFromBackup = false;
+// restore backup, if available
 if (localStorage.updateBackup) {
   var backup = JSON.parse(localStorage.updateBackup);
   localStorage.removeItem("updateBackup");
@@ -1638,9 +1684,12 @@ song.addListener("info", function(val) {
   song.loved = null;
   song.lastfmInfo = null;
   if (val) {
-    song.info.durationSec = parseSeconds(val.duration);
-    toastPopup();
-    if (!settings.hideRatings || settings.showLastfmInfo) getCurrentLastfmInfo();
+    val.durationSec = parseSeconds(val.duration);
+    if (settings.toast && (settings.toastIfMpOpen || !miniplayer)) {
+      song.toasted = true;
+      closeToast(openToast);
+    }
+    if (!settings.hideRatings || settings.showLastfmInfo) loadCurrentLastfmInfo();
   } else {
     song.timestamp = null;
     closeToast();
@@ -1652,6 +1701,7 @@ song.addListener("info", function(val) {
   calcScrobbleTime();
 });
 
+/** Execute a command (might come from commands API, toast or browser icon action) */
 function executeCommand(command, src) {
   switch (command) {
     case "playPause":

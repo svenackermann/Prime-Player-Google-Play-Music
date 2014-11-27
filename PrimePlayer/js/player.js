@@ -691,7 +691,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function songLovedWatcher(loved) {
-    renderSongLoved(loved, {getLastfmInfo: bp.getCurrentLastfmInfo, unlove: bp.unloveTrack, love: bp.loveTrack});
+    renderSongLoved(loved, {getLastfmInfo: bp.loadCurrentLastfmInfo, unlove: bp.unloveTrack, love: bp.loveTrack});
   }
 
   function toggleVolumeControl() {
