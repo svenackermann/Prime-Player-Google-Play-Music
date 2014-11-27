@@ -104,11 +104,13 @@ $(function() {
     $("#music-content").css("width", ($("#content-container").width() - $("#ppLyricsContainer").width() - 10) + "px");
   }
   
+  /** Undo the music content resize. */
   function resetContentResize() {
     $(window).off("resize", contentResize);
     $("#music-content").removeAttr("style");
   }
   
+  /** Show/hide the lyrics container. */
   function toggleLyrics() {
     var lyrics = $("#ppLyricsContainer");
     if (lyrics.is(":visible")) {
@@ -121,13 +123,15 @@ $(function() {
     }
   }
   
+  /** Remove all artifacts for the lyrics feature from the site. */
   function disableLyrics() {
     $("#ppLyricsButton, #ppLyricsContainer").remove();
     resetContentResize();
   }
   
+  /** Setup lyrics feature on the site. */
   function enableLyrics(fontSize, width) {
-    if ($("#ppLyricsButton").length === 0) {
+    if (!$("#ppLyricsButton").length) {
       $("<img id='ppLyricsButton'/>")
         .attr("src", chrome.extension.getURL("img/toast/openLyrics.png"))
         .attr("title", chrome.i18n.getMessage("command_openLyrics"))
@@ -139,9 +143,7 @@ $(function() {
         .insertAfter("#music-content");
     }
     $("#ppLyricsContainer").css({"font-size": fontSize + "px", width: width});
-    if ($("#ppLyricsContainer").is(":visible")) {
-      contentResize();
-    }
+    if ($("#ppLyricsContainer").is(":visible")) contentResize();
   }
   
   /** remove all listeners/observers and revert DOM modifications */
@@ -196,6 +198,7 @@ $(function() {
     ql.searchPlaceholder = $.trim($("#oneGoogleWrapper input[name='q']").attr("placeholder"));
     post("player-quicklinks", ql);
     
+    /** @return info object for the current song or null if none is playing */
     function parseSongInfo(extended) {
       if ($("#playerSongInfo").find("div").length) {
         var artist = $("#player-artist");
@@ -216,6 +219,7 @@ $(function() {
       return null;
     }
     
+    /** Send current song info to bp. */
     function sendSong() {
       var info = parseSongInfo(true);
       if (info && lyricsAutoReload && $("#ppLyricsContainer").is(":visible")) {
@@ -226,6 +230,7 @@ $(function() {
       post("song-info", info);
     }
     
+    /** Send current position info to bp. */
     function sendPosition(el) {
       var parsed = $.trim(el.text());
       if (parsed != position) {
@@ -234,15 +239,18 @@ $(function() {
       }
     }
     
+    /** @return null if play button is disabled or true/false if a song is playing/paused */
     function playingGetter(el) {
       var play = $(el);
       return play.is(":disabled") ? null : play.hasClass("playing");
     }
     
+    /** @return shuffle state (NO_SHUFFLE/ALL_SHUFFLE) or null if shuffle is not available */
     function shuffleGetter(el) {
       return $(el).is(":disabled") ? null : el.value;
     }
     
+    /** @return rating for the current song (0-5) or -1 if the song is not rateable */
     function ratingGetter() {
       //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
       if (listRatings) $("#main .song-row td[data-col='rating']").trigger("DOMSubtreeModified");
@@ -250,6 +258,7 @@ $(function() {
       return -1;
     }
     
+    /** Execute 'executeOnContentLoad' (if set) when #main is changed. */
     function mainLoaded() {
       if (typeof(executeOnContentLoad) == "function") {
         if (contentLoadDestination && location.hash != contentLoadDestination) return;//wait til we are on the correct page
@@ -362,6 +371,7 @@ $(function() {
     sendConnected();
   }
   
+  /** callback for messages from the injected script */
   function onMessage(event) {
     // We only accept messages from the injected script
     if (event.source != window || event.data.type != "FROM_PRIMEPLAYER" || !event.data.msg) return;
@@ -407,6 +417,10 @@ $(function() {
     } else window.postMessage({ type: "FROM_PRIMEPLAYER", command: command, options: options }, location.href);
   }
   
+  /**
+   * Click a card to start a playlist. Should always lead to the queue.
+   * @return true, if the card was found
+   */
   function clickListCard(listId) {
     if ($(".card[data-id='" + listId + "'][data-type='st']").length) {
       contentLoadDestination = "#/ap/queue";
@@ -417,20 +431,20 @@ $(function() {
   }
   
   /** Set the hash to the given value to navigate to another page and call the function when finished. */
-  function selectAndExecute(hash, callback) {
+  function selectAndExecute(hash, cb) {
     if (location.hash == "#/" + hash) {//we're already here
-      if (callback) callback();
+      if (cb) cb();
     } else {
-      executeOnContentLoad = callback;
+      executeOnContentLoad = cb;
       contentLoadDestination = null;
       if (hash.indexOf("st/") === 0) {//setting hash does not work for type "st"
         var listId = hash.substr(3);
         if (!clickListCard(listId)) {
           selectAndExecute("rd", function() {//try to find it on the mixes page
-            executeOnContentLoad = callback;//set again (was overwritten by the recursive call)
+            executeOnContentLoad = cb;//set again (was overwritten by the recursive call)
             if (!clickListCard(listId)) {//still not found
               executeOnContentLoad = null;
-              if (callback) callback(true);
+              if (cb) cb(true);
             }
           });
         }
@@ -440,6 +454,7 @@ $(function() {
     }
   }
   
+  /** @return parsed song info for a playlist row */
   function parseSongRow(song, basic) {
     var title = song.find("td[data-col='title'] .content");
     var artist = song.find("td[data-col='artist']");
@@ -463,6 +478,7 @@ $(function() {
     return item;
   }
   
+  /** parse handlers for the different list types (playlistsList, playlist or albumContainers) */
   var parseNavigationList = {
     playlistsList: function(parent, end, callback, omitUnknownAlbums) {
       var playlists = [];
@@ -544,6 +560,7 @@ $(function() {
     }
   };
   
+  /** Send the user's playlists to bp. */
   function sendMyPlaylists() {
     var playlists = [];
     $("#playlists").children("a").each(function() {
@@ -552,6 +569,7 @@ $(function() {
     post("player-navigationList", {type: "playlistsList", link: "myPlaylists", list: playlists, empty: playlists.length === 0});
   }
   
+  /** @return the type of list for a hash value ("playlistsList" [e.g. artist page showing albums], "playlist" [e.g. album page] or "albumContainers" [e.g. genre page showing artists]) */
   function getListType(hash) {
     var i = hash.indexOf("/");
     if (i > 0) hash = hash.substring(0, i);
@@ -574,6 +592,7 @@ $(function() {
     }
   }
   
+  /** Select, parse and send a list to bp. */
   function sendNavigationList(link, omitUnknownAlbums, search) {
     selectAndExecute(link, function(error) {
       var response = {link: link, list: [], controlLink: location.hash};
@@ -600,6 +619,7 @@ $(function() {
     });
   }
   
+  /** @return parsed sublist (e.g. found albums on search page) or null if no matching content found */
   function parseSublist(searchView, type, end) {
     var cont = searchView.children("div[data-type='" + type + "']");
     if (cont.length === 0) return null;
@@ -614,6 +634,7 @@ $(function() {
     };
   }
   
+  /** Select search page and send parsed result to bp. */
   function sendSearchResult(search) {
     selectAndExecute("sr/" + forHash(search), function() {
       var response = {type: "searchresult", link: "search", search: search, lists: [], controlLink: location.hash};
@@ -628,6 +649,7 @@ $(function() {
     });
   }
   
+  /** Try to find and resume the last played song from previous session. */
   function resumeSong(msg, error) {
     if (error) return;
     function sendResume() {
