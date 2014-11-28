@@ -19,12 +19,7 @@ then
 fi
 
 echo "Building from tag/branch $tag"
-cd PrimePlayer/css
-sass -f --style compressed --update player.scss:player.css gpm.scss:gpm.css options.scss:options.css updateNotifier.scss:updateNotifier.css
-cd ..
-rm -f ../PrimePlayer.zip
-7za a -xr@../exclude.lst -tzip ../PrimePlayer.zip *
-cd ..
+gulp release
 
 git checkout -q develop
 echo "Back on branch develop"

@@ -19,8 +19,23 @@ body {
   &.f-adv .exp {
     display: none;
   }
-  &.filterTimer .timer, &.filterLastfm .lastfm, &.filterToast .toast, &.filterMiniplayer .miniplayer, &.filterLyrics .lyrics {
+  &.filterTimer .timer, &.filterLastfm .lastfm, &.filterToast .toast, &.filterMiniplayer .miniplayer, &.filterLyrics .lyrics, &.filterLookfeel .lookfeel {
     display: none;
+  }
+  select {
+    margin-right: 3px;
+    min-width: 200px;
+    &#skipRatedLower {
+      min-width: 150px;
+    }
+  }
+  fieldset {
+    > div.sub {
+      padding-left: 10px;
+      select {
+        min-width: 190px;
+      }
+    }
   }
 }
 
@@ -34,7 +49,7 @@ body {
 .info {
   padding-left: 15px;
   overflow-x: hidden;
-  min-width: 250px;
+  min-width: 350px;
   max-width: 450px;
   font-size: 11px;
   h3 {
@@ -78,13 +93,6 @@ input[type='number'] {
   margin: 2px 3px;
   text-align: right;
   padding-right: 0.5ex;
-}
-
-select {
-  min-width: 200px;
-  &#skipRatedLower {
-    min-width: 150px;
-  }
 }
 
 img.hint {
@@ -163,7 +171,7 @@ img.hint {
 div {
   margin-bottom: 0.5ex;
   &.newFeature {
-    display: initial !important;
+    display: block !important;
     color: #FF8F00;
     font-weight: bold;
     a#shortcutsLink {
@@ -182,9 +190,29 @@ div {
   label {
     margin-right: 1ex;
   }
+  > div {
+    label {
+      display: inline-block;
+      min-width: 100px;
+    }
+  }
 }
 
 #optionsMode {
   margin-bottom: 6px;
-  min-width: initial;
+}
+
+#notificationDisabledWarning {
+  display: none;
+}
+  
+.notifDisabled {
+  #notificationDisabledWarning {
+    display: block;
+    max-width: 400px;
+    color: red;
+  }
+  .notif {
+    display: none;
+  }
 }

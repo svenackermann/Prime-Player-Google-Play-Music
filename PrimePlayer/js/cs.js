@@ -3,7 +3,7 @@
  * This watches the DOM for relevant changes and notifies the background page.
  * It also delivers commands to the Google Play Music window.
  * @author Sven Ackermann (svenrecknagel@googlemail.com)
- * Licensed under the BSD license
+ * @license BSD license
  */
 $(function() {
   var port;
@@ -17,39 +17,42 @@ $(function() {
   var lyricsAutoReload = false;
   var lyricsAutoReloadTimer;
   var position;
+  var ratingContainer = $("#player-right-wrapper .player-rating-container ul.rating-container");
   
   /** send update to background page */
   function post(type, value) {
-    if (port) {
-      port.postMessage({type: type, value: value});
-    }
+    if (port) port.postMessage({type: type, value: value});
   }
   
+  /** @return converted text (e.g. from artist name) that is usable in the URL hash */
   function forHash(text) {
     return encodeURIComponent(text).replace(/%20/g, "+");
   }
   
   /** @return link (for hash) constructed from attributes data-type and data-id */
   function getLink(el) {
-    if (el.data("id")) {
-      return el.data("type") + "/" + el.data("id");
-    }
+    if (el.data("id")) return el.data("type") + "/" + el.data("id");
     return null;
   }
   
+  /** @return valid cover URL from src attribute of the element or null */
   function parseCover(el) {
     var cover = el.attr("src");
     if (cover && cover.indexOf("/default_album_med.png") > 0) return null;
-    if (cover && cover.indexOf("//") == 0) cover = "https:" + cover;
+    if (cover && cover.indexOf("//") === 0) cover = "https:" + cover;
     return cover;
   }
   
-  function parseRating(ratingContainer, onNullRating) {
-    if (ratingContainer == null) return (typeof onNullRating == "number") ? onNullRating : -1;
-    var rating = parseInt(ratingContainer.dataset.rating);
-    return isNaN(rating) ? 0 : rating;
+  /** @return parsed rating from the element's 'data-rating' attribute, 0 if this attribute is missing or onNullRating/-1 if the element is missing */
+  function parseRating(container, onNullRating) {
+    if (container) {
+      var rating = parseInt(container.dataset.rating);
+      return isNaN(rating) ? 0 : rating;
+    }
+    return (typeof onNullRating == "number") ? onNullRating : -1;
   }
   
+  /** Show the P-icon as indicator for successful connection. */
   function showConnectedIndicator() {
     //inject icon with title to mark the tab as connected
     $(".music-banner-icon")
@@ -61,10 +64,12 @@ $(function() {
       });
   }
   
+  /** Hide the P-icon as indicator for successful connection. */
   function hideConnectedIndicator() {
     $(".music-banner-icon").removeAttr("title").removeClass("ppconnected").off("click");
   }
   
+  /** Render lyrics sent from the bp if the lyrics container is visible. */
   function renderLyrics(result) {
     var lyrics = $("#ppLyricsContainer");
     if (lyrics.is(":visible")) {
@@ -85,6 +90,7 @@ $(function() {
     }
   }
   
+  /** Request lyrics from the bp. */
   function loadLyrics() {
     $("#ppLyricsTitle").children("div").removeAttr("title").empty();
     $("#ppLyricsContent").empty();
@@ -93,15 +99,18 @@ $(function() {
     post("loadLyrics");
   }
   
+  /** Adjust the music content size to make the lyrics container fit in the page. */
   function contentResize() {
-    $("#content").css("width", ($("#content-container").width() - $("#ppLyricsContainer").width() - 10) + "px");
+    $("#music-content").css("width", ($("#content-container").width() - $("#ppLyricsContainer").width() - 10) + "px");
   }
   
+  /** Undo the music content resize. */
   function resetContentResize() {
     $(window).off("resize", contentResize);
-    $("#content").removeAttr("style");
+    $("#music-content").removeAttr("style");
   }
   
+  /** Show/hide the lyrics container. */
   function toggleLyrics() {
     var lyrics = $("#ppLyricsContainer");
     if (lyrics.is(":visible")) {
@@ -114,27 +123,27 @@ $(function() {
     }
   }
   
+  /** Remove all artifacts for the lyrics feature from the site. */
   function disableLyrics() {
     $("#ppLyricsButton, #ppLyricsContainer").remove();
     resetContentResize();
   }
   
+  /** Setup lyrics feature on the site. */
   function enableLyrics(fontSize, width) {
-    if ($("#ppLyricsButton").length == 0) {
+    if (!$("#ppLyricsButton").length) {
       $("<img id='ppLyricsButton'/>")
         .attr("src", chrome.extension.getURL("img/toast/openLyrics.png"))
         .attr("title", chrome.i18n.getMessage("command_openLyrics"))
-        .toggleClass("active", $("#playerSongInfo").find("div").length > 0)
+        .toggleClass("active", $("#playerSongInfo").find("div").length)
         .click(toggleLyrics)
         .appendTo("#player-right-wrapper");
       $("<div id='ppLyricsContainer'><div id='ppLyricsTitle'><a class='reloadLyrics'></a><div></div></div><div id='ppLyricsScroller'><div id='ppLyricsContent'></div><div id='ppLyricsCredits'></div></div></div>")
         .on("click", ".reloadLyrics", loadLyrics)
-        .insertAfter("#content");
+        .insertAfter("#music-content");
     }
     $("#ppLyricsContainer").css({"font-size": fontSize + "px", width: width});
-    if ($("#ppLyricsContainer").is(":visible")) {
-      contentResize();
-    }
+    if ($("#ppLyricsContainer").is(":visible")) contentResize();
   }
   
   /** remove all listeners/observers and revert DOM modifications */
@@ -142,7 +151,8 @@ $(function() {
     sendCommand("cleanup");
     window.removeEventListener("message", onMessage);
     $("#primeplayerinjected").remove();
-    $("#main").off("DOMSubtreeModified");
+    $("#main").off("DOMSubtreeModified mouseup");
+    ratingContainer.off("click");
     $(window).off("hashchange");
     for (var i = 0; i < observers.length; i++) {
       observers[i].disconnect();
@@ -154,14 +164,14 @@ $(function() {
   
   /** add listeners/observers and extend DOM */
   function init() {
-    if ($("#primeplayerinjected").length > 0) {
-      //cleanup old content script
-      function onCleanupCsDone(event) {
-        if (event.source == window && event.data.type == "FROM_PRIMEPLAYER" && event.data.msg == "cleanupCsDone") {
-          window.removeEventListener("message", onCleanupCsDone);
-          init();
-        }
+    function onCleanupCsDone(event) {
+      if (event.source == window && event.data.type == "FROM_PRIMEPLAYER" && event.data.msg == "cleanupCsDone") {
+        window.removeEventListener("message", onCleanupCsDone);
+        init();
       }
+    }
+    if ($("#primeplayerinjected").length) {
+      //cleanup old content script
       window.addEventListener("message", onCleanupCsDone);
       window.postMessage({ type: "FROM_PRIMEPLAYER", msg: "cleanupCs" }, location.href);
       return;//wait for callback
@@ -169,10 +179,9 @@ $(function() {
   
     //when rating is changed, the page gets reloaded, so no need for event listening here
     var ratingMode;
-    var ratingContainer = $("#player-right-wrapper > div.player-rating-container > ul.rating-container");
+    
     if (ratingContainer.hasClass("thumbs")) ratingMode = "thumbs";
     else if (ratingContainer.hasClass("stars")) ratingMode = "star";
-    ratingContainer = null;
     post("player-ratingMode", ratingMode);
     
     var ql = {};
@@ -189,30 +198,39 @@ $(function() {
     ql.searchPlaceholder = $.trim($("#oneGoogleWrapper input[name='q']").attr("placeholder"));
     post("player-quicklinks", ql);
     
-    function sendSong() {
-      var info = null;
-      if ($("#playerSongInfo").find("div").length > 0) {
+    /** @return info object for the current song or null if none is playing */
+    function parseSongInfo(extended) {
+      if ($("#playerSongInfo").find("div").length) {
         var artist = $("#player-artist");
         var album = $("#playerSongInfo").find(".player-album");
-        var cover = parseCover($("#playingAlbumArt"));
-        info = {
-          duration: $.trim($("#time_container_duration").text()),
-          title: $.trim($("#playerSongTitle").text()),
+        var info = {
           artist: $.trim(artist.text()),
-          artistLink: getLink(artist) || "artist//" + forHash($.trim(artist.text())),
+          title: $.trim($("#playerSongTitle").text()),
           album: $.trim(album.text()),
-          albumLink: getLink(album),
-          cover: cover
+          duration: $.trim($("#time_container_duration").text())
         };
-        if (lyricsAutoReload && $("#ppLyricsContainer").is(":visible")) {
-          clearTimeout(lyricsAutoReloadTimer);
-          lyricsAutoReloadTimer = setTimeout(loadLyrics, 1000);
+        if (extended) {
+          info.artistLink = getLink(artist) || "artist//" + forHash(info.artist);
+          info.albumLink = getLink(album);
+          info.cover = parseCover($("#playingAlbumArt"));
         }
+        return info;
       }
-      $("#ppLyricsButton").toggleClass("active", info != null);
+      return null;
+    }
+    
+    /** Send current song info to bp. */
+    function sendSong() {
+      var info = parseSongInfo(true);
+      if (info && lyricsAutoReload && $("#ppLyricsContainer").is(":visible")) {
+        clearTimeout(lyricsAutoReloadTimer);
+        lyricsAutoReloadTimer = setTimeout(loadLyrics, 1000);
+      }
+      $("#ppLyricsButton").toggleClass("active", info !== null);
       post("song-info", info);
     }
     
+    /** Send current position info to bp. */
     function sendPosition(el) {
       var parsed = $.trim(el.text());
       if (parsed != position) {
@@ -221,23 +239,26 @@ $(function() {
       }
     }
     
+    /** @return null if play button is disabled or true/false if a song is playing/paused */
     function playingGetter(el) {
       var play = $(el);
       return play.is(":disabled") ? null : play.hasClass("playing");
     }
     
+    /** @return shuffle state (NO_SHUFFLE/ALL_SHUFFLE) or null if shuffle is not available */
     function shuffleGetter(el) {
       return $(el).is(":disabled") ? null : el.value;
     }
     
-    function ratingGetter(el) {
+    /** @return rating for the current song (0-5) or -1 if the song is not rateable */
+    function ratingGetter() {
       //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
       if (listRatings) $("#main .song-row td[data-col='rating']").trigger("DOMSubtreeModified");
-      var container = $(el.parentElement);
-      if (container.is(":visible")) return parseRating(container.children("li.selected").get(0), 0);
+      if (ratingContainer.is(":visible")) return parseRating(ratingContainer.children("li.selected").get(0), 0);
       return -1;
     }
     
+    /** Execute 'executeOnContentLoad' (if set) when #main is changed. */
     function mainLoaded() {
       if (typeof(executeOnContentLoad) == "function") {
         if (contentLoadDestination && location.hash != contentLoadDestination) return;//wait til we are on the correct page
@@ -256,7 +277,7 @@ $(function() {
      */
     function watchContent(fn, selector, timeout) {
       var content = $(selector);
-      if (content.length > 0) {
+      if (content.length) {
         var listener = fn.bind(window, content);
         if (timeout) {
           var contentTimer;
@@ -288,8 +309,8 @@ $(function() {
     function watchAttr(attrs, selector, type, getValue) {
       var element = $(selector).get(0);
       if (element) {
-        if (getValue == undefined) {
-          getValue = function(el, attr) {return el.getAttribute(attr)};
+        if (getValue === undefined) {
+          getValue = function(el, attr) { return el.getAttribute(attr); };
         }
         var observer = new MutationObserver(function (mutations) {
           mutations.forEach(function(mutation) { post(type, getValue(mutation.target, mutation.attributeName)); });
@@ -308,7 +329,7 @@ $(function() {
     watchAttr("class disabled", "#player > div.player-middle > button[data-id='play-pause']", "player-playing", playingGetter);
     watchAttr("value", "#player > div.player-middle > button[data-id='repeat']", "player-repeat");
     watchAttr("value", "#player > div.player-middle > button[data-id='shuffle']", "player-shuffle", shuffleGetter);
-    watchAttr("class", "#player-right-wrapper > .player-rating-container ul.rating-container li", "song-rating", ratingGetter);
+    watchAttr("class", ratingContainer.selector + " li", "song-rating", ratingGetter);
     watchAttr("aria-valuenow", "#vslider", "player-volume");
     
     $("#main").on("DOMSubtreeModified", ".song-row td[data-col='rating']", function() {
@@ -327,10 +348,17 @@ $(function() {
       pausePlaylistParsing = false;
       clearTimeout(asyncListTimer);
     });
+    ratingContainer.on("click", "li.selected[data-rating='5']", function() {
+      post("rated5", parseSongInfo());
+    });
+    //listen for "mouseup", because "click" won't bubble up to "#main" and we can't attach this directly to ".rating-container" because it's dynamically created
+    $("#main").on("mouseup", ".song-row td[data-col='rating'] ul.rating-container li:not(.selected)[data-rating='5']", function() {
+      post("rated5", parseSongRow($(this).closest(".song-row"), true));
+    });
     
     window.addEventListener("message", onMessage);
     //we must add this script to the DOM for the code to be executed in the correct context
-    $("<script id='primeplayerinjected' type='text/javascript'></script>").attr("src", chrome.extension.getURL("js/injected.js")).appendTo("head");
+    $("<script id='primeplayerinjected' type='text/javascript'></script>").attr("src", chrome.extension.getURL("js/injected.min.js")).appendTo("head");
     
     var sendConnectedInterval;
     function sendConnected() {
@@ -343,12 +371,14 @@ $(function() {
     sendConnected();
   }
   
+  /** callback for messages from the injected script */
   function onMessage(event) {
     // We only accept messages from the injected script
     if (event.source != window || event.data.type != "FROM_PRIMEPLAYER" || !event.data.msg) return;
     switch (event.data.msg) {
       case "playlistSongRated":
         $("#main .song-row[data-index='" + event.data.index + "']").find("td[data-col='rating']").trigger("DOMSubtreeModified");
+        /* falls through */
       case "playlistSongStarted":
       case "playlistSongError":
         pausePlaylistParsing = false;
@@ -370,6 +400,7 @@ $(function() {
       var body = $("#main .song-table > tbody");
       if (!body[0] || options.index > body.data("count") - 1) return;
       pausePlaylistParsing = true;
+      /* jshint -W082 */
       function callForRow() {//make sure row with requested index is available
         var rows = body.find(".song-row");
         var scrollToRow;
@@ -386,8 +417,12 @@ $(function() {
     } else window.postMessage({ type: "FROM_PRIMEPLAYER", command: command, options: options }, location.href);
   }
   
+  /**
+   * Click a card to start a playlist. Should always lead to the queue.
+   * @return true, if the card was found
+   */
   function clickListCard(listId) {
-    if ($(".card[data-id='" + listId + "'][data-type='st']").length > 0) {
+    if ($(".card[data-id='" + listId + "'][data-type='st']").length) {
       contentLoadDestination = "#/ap/queue";
       sendCommand("clickCard", {id: listId});
       return true;
@@ -396,20 +431,20 @@ $(function() {
   }
   
   /** Set the hash to the given value to navigate to another page and call the function when finished. */
-  function selectAndExecute(hash, callback) {
+  function selectAndExecute(hash, cb) {
     if (location.hash == "#/" + hash) {//we're already here
-      if (callback) callback();
+      if (cb) cb();
     } else {
-      executeOnContentLoad = callback;
+      executeOnContentLoad = cb;
       contentLoadDestination = null;
-      if (hash.indexOf("st/") == 0) {//setting hash does not work for type "st"
+      if (hash.indexOf("st/") === 0) {//setting hash does not work for type "st"
         var listId = hash.substr(3);
         if (!clickListCard(listId)) {
           selectAndExecute("rd", function() {//try to find it on the mixes page
-            executeOnContentLoad = callback;//set again (was overwritten by the recursive call)
+            executeOnContentLoad = cb;//set again (was overwritten by the recursive call)
             if (!clickListCard(listId)) {//still not found
               executeOnContentLoad = null;
-              if (callback) callback(true);
+              if (cb) cb(true);
             }
           });
         }
@@ -419,26 +454,31 @@ $(function() {
     }
   }
   
-  function parseSongRow(song) {
-    var item = {};
-    item.index = song.data("index");
+  /** @return parsed song info for a playlist row */
+  function parseSongRow(song, basic) {
     var title = song.find("td[data-col='title'] .content");
-    item.cover = parseCover(title.find("img"));
-    item.title = $.trim(title.text());
     var artist = song.find("td[data-col='artist']");
-    item.artist = $.trim(artist.find(".content").text());
-    var arId = artist.data("matched-id") || "";
-    if (item.artist || arId) item.artistLink = "artist/" + forHash(arId) + "/" + forHash(item.artist);
     var album = song.find("td[data-col='album']");
-    item.album = $.trim(album.find(".content").text());
-    var alAr = album.data("album-artist") || "";
-    var alId = album.data("matched-id") || "";
-    if (alId || item.album && typeof(alAr) == "string") item.albumLink = "album/" + forHash(alId) + "/" + forHash(alAr) + "/" + forHash(item.album);
+    var item = {
+      title: $.trim(title.text()),
+      artist: $.trim(artist.find(".content").text()),
+      album: $.trim(album.find(".content").text())
+    };
     var duration = $.trim(song.find("td[data-col='duration']").text());
     if (/^\d\d?(\:\d\d)*$/.test(duration)) item.duration = duration;//no real duration on recommandation page
+    if (!basic) {
+      item.index = song.data("index");
+      item.cover = parseCover(title.find("img"));
+      var arId = artist.data("matched-id") || "";
+      if (item.artist || arId) item.artistLink = "artist/" + forHash(arId) + "/" + forHash(item.artist);
+      var alAr = album.data("album-artist") || "";
+      var alId = album.data("matched-id") || "";
+      if (alId || item.album && typeof(alAr) == "string") item.albumLink = "album/" + forHash(alId) + "/" + forHash(alAr) + "/" + forHash(item.album);
+    }
     return item;
   }
   
+  /** parse handlers for the different list types (playlistsList, playlist or albumContainers) */
   var parseNavigationList = {
     playlistsList: function(parent, end, callback, omitUnknownAlbums) {
       var playlists = [];
@@ -448,7 +488,7 @@ $(function() {
         if (omitUnknownAlbums && id.substr(1).indexOf("/") < 0) return;
         var item = {};
         item.titleLink = getLink(card);
-        if (item.titleLink == null) return;
+        if (item.titleLink === null) return;
         item.cover = parseCover(card.find(".image-wrapper img"));
         item.title = $.trim(card.find(".title").text());
         var subTitle = card.find(".sub-title");
@@ -466,7 +506,7 @@ $(function() {
       var lastIndex = -1;
       function loadNextSongs() {
         var rows = parent.find(".song-row");
-        if (!update && count > 0 && rows.first().data("index") != 0) {//not yet there
+        if (!update && count > 0 && rows.first().data("index") !== 0) {//not yet there
           parent.scrollTop(0);
           asyncListTimer = setTimeout(loadNextSongs, 150);
           return;
@@ -480,17 +520,17 @@ $(function() {
           if (song.data("index") <= lastIndex) return;
           var item = parseSongRow(song);
           lastIndex = item.index;
-          if (song.find(".song-indicator").length > 0) item.current = true;
+          if (song.find(".song-indicator").length) item.current = true;
           item.rating = parseRating(song.find("td[data-col='rating']").get(0));
           listRatings.push(item.rating);
           playlist.push(item);
         });
         if (callback === false) return playlist;
-        if (!update || playlist.length > 0) {
+        if (!update || playlist.length) {
           callback(playlist, update);
           update = true;
         }
-        if (count != null && lastIndex + 1 < count && (end == undefined || lastIndex + 1 < end)) {
+        if (count !== undefined && lastIndex + 1 < count && (end === undefined || lastIndex + 1 < end)) {
           if (pausePlaylistParsing) {
             resumePlaylistParsingFn = loadNextSongs;
           } else {
@@ -520,14 +560,16 @@ $(function() {
     }
   };
   
+  /** Send the user's playlists to bp. */
   function sendMyPlaylists() {
     var playlists = [];
     $("#playlists").children("a").each(function() {
       playlists.push({title: $.trim($(this).find(".tooltip").text()), titleLink: getLink($(this))});
     });
-    post("player-navigationList", {type: "playlistsList", link: "myPlaylists", list: playlists, empty: playlists.length == 0});
+    post("player-navigationList", {type: "playlistsList", link: "myPlaylists", list: playlists, empty: playlists.length === 0});
   }
   
+  /** @return the type of list for a hash value ("playlistsList" [e.g. artist page showing albums], "playlist" [e.g. album page] or "albumContainers" [e.g. genre page showing artists]) */
   function getListType(hash) {
     var i = hash.indexOf("/");
     if (i > 0) hash = hash.substring(0, i);
@@ -550,6 +592,7 @@ $(function() {
     }
   }
   
+  /** Select, parse and send a list to bp. */
   function sendNavigationList(link, omitUnknownAlbums, search) {
     selectAndExecute(link, function(error) {
       var response = {link: link, list: [], controlLink: location.hash};
@@ -565,7 +608,7 @@ $(function() {
           parseNavigationList[type]($("#main"), undefined, function(list, update) {
             response.list = list;
             response.update = update;
-            response.empty = response.list.length == 0;
+            response.empty = response.list.length === 0;
             post("player-navigationList", response);
           }, omitUnknownAlbums);
         } else {
@@ -576,12 +619,13 @@ $(function() {
     });
   }
   
+  /** @return parsed sublist (e.g. found albums on search page) or null if no matching content found */
   function parseSublist(searchView, type, end) {
     var cont = searchView.children("div[data-type='" + type + "']");
-    if (cont.length == 0) return null;
+    if (cont.length === 0) return null;
     var listType = getListType(type);
     var list = parseNavigationList[listType](cont, end, false);
-    if (list.length == 0) return null;
+    if (list.length === 0) return null;
     return {
       list: list,
       type: listType,
@@ -590,6 +634,7 @@ $(function() {
     };
   }
   
+  /** Select search page and send parsed result to bp. */
   function sendSearchResult(search) {
     selectAndExecute("sr/" + forHash(search), function() {
       var response = {type: "searchresult", link: "search", search: search, lists: [], controlLink: location.hash};
@@ -599,17 +644,18 @@ $(function() {
       response.lists.push(parseSublist(searchView, "srar", 6));
       response.lists.push(parseSublist(searchView, "sral", 5));
       response.lists.push(parseSublist(searchView, "srs", 10));
-      response.empty = response.lists[0] == null && response.lists[1] == null && response.lists[2] == null;
+      response.empty = response.lists[0] === null && response.lists[1] === null && response.lists[2] === null;
       post("player-navigationList", response);
     });
   }
   
+  /** Try to find and resume the last played song from previous session. */
   function resumeSong(msg, error) {
     if (error) return;
     function sendResume() {
       var rows = $("#main .song-row");
-      if (rows.length > 0) {
-        if (rows.first().data("index") != 0) {
+      if (rows.length) {
+        if (rows.first().data("index") !== 0) {
           $("#main").scrollTop(0);
           asyncListTimer = setTimeout(sendResume, 150);
           return;
@@ -655,7 +701,7 @@ $(function() {
       case "startPlaylist":
         selectAndExecute(msg.link, function(error) {
           //type "im"/"st" starts automatically
-          if (!error && msg.link.indexOf("im/") != 0 && msg.link.indexOf("st/") != 0) sendCommand("startPlaylist");
+          if (!error && msg.link.indexOf("im/") !== 0 && msg.link.indexOf("st/") !== 0) sendCommand("startPlaylist");
         });
         break;
       case "resumeLastSong":
@@ -668,11 +714,11 @@ $(function() {
         init();
         break;
       case "connectedIndicator":
-        if (msg.show) showConnectedIndicator()
+        if (msg.show) showConnectedIndicator();
         else hideConnectedIndicator();
         break;
       case "lyricsState":
-        if (msg.enabled) enableLyrics(msg.fontSize, msg.width)
+        if (msg.enabled) enableLyrics(msg.fontSize, msg.width);
         else disableLyrics();
         lyricsAutoReload = msg.autoReload;
         break;

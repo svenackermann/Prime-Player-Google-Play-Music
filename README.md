@@ -21,8 +21,8 @@ If you find any bugs or would like to see new features, please file an issue her
 Please use the "develop" branch for contributing, as I use [git-flow](http://nvie.com/posts/a-successful-git-branching-model/)
 (I know, that's pushing it a bit, but I try to learn sth. on developing this).
 
-If you need to change the CSS for the popup/miniplayer/toast, you'll need [SASS](http://sass-lang.com/).
-You can use the script watch-sass.sh for convenience then.
+You'll need [Gulp](http://gulpjs.com/) for development. If you have [node.js](http://nodejs.org/) installed, just run setup.sh to install Gulp with all required plugins.
+Afterwards you can execute `gulp` in the project root directory to let Gulp watch for changes and automatically recompile artifacts (CSS/JS) as needed.
 
 ### License
 

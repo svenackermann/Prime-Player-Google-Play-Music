@@ -3,10 +3,10 @@
 <title></title>
 <link rel="stylesheet" type="text/css" href="css/options.css" />
 <script type="text/javascript" src="js/jquery-2.0.2.min.js"></script>
-<script type="text/javascript" src="js/options.js"></script>
+<script type="text/javascript" src="js/options.min.js"></script>
 </head>
 <body>
-  <div id="settings" class="f-exp">
+  <div id="settings">
     <fieldset class="timer">
       <legend id="legendTimer"></legend>
       <div class="v-2.20">
@@ -14,11 +14,11 @@
         <label for="timerMin"></label>
         <span id="timerStatus"></span>
       </div>
-      <div class="v-2.20 adv">
+      <div class="v-2.20 adv notif">
         <input id="timerNotify" type="checkbox"/>
         <label for="timerNotify"></label>
       </div>
-      <div class="v-2.22 adv">
+      <div class="v-2.22 adv notif">
         <input id="timerPreNotify" type="number" min="0"/>
         <label for="timerPreNotify"></label>
       </div>
@@ -46,24 +46,24 @@
         <input id="scrobble" type="checkbox"/>
         <label for="scrobble"></label>
       </div>
-      <div>
+      <div class="sub">
         <input id="scrobblePercent" type="range" min="1" max="100" step="1"/>
         <label for="scrobblePercent"></label>
         (<span></span>%)
       </div>
-      <div class="exp">
+      <div class="sub exp">
         <input id="scrobbleTime" type="number" min="0"/>
         <label for="scrobbleTime"></label>
       </div>
-      <div class="exp">
+      <div class="sub exp">
         <input id="scrobbleMaxDuration" type="number" min="0"/>
         <label for="scrobbleMaxDuration"></label>
       </div>
-      <div class="v-1.2 adv">
+      <div class="sub v-1.2 adv">
         <input id="disableScrobbleOnFf" type="checkbox"/>
         <label for="disableScrobbleOnFf"></label>
       </div>
-      <div class="v-2.15 exp">
+      <div class="sub v-2.15 exp">
         <input id="scrobbleRepeated" type="checkbox"/>
         <label for="scrobbleRepeated"></label>
       </div>
@@ -71,30 +71,51 @@
         <input id="linkRatings" type="checkbox"/>
         <label for="linkRatings"></label>
       </div>
+      <div class="sub v-2.24 adv">
+        <input id="linkRatingsGpm" type="checkbox"/>
+        <label for="linkRatingsGpm"></label>
+      </div>
+      <div class="sub v-2.24 adv">
+        <input id="linkRatingsAuto" type="checkbox"/>
+        <label for="linkRatingsAuto"></label>
+      </div>
       <div class="v-2.17 miniplayer">
         <input id="showLastfmInfo" type="checkbox"/>
         <label for="showLastfmInfo"></label>
       </div>
     </fieldset>
     <fieldset class="toast">
-      <legend id="legendToasting"></legend>
+      <legend id="legendToast"></legend>
+      <div id="notificationDisabledWarning"></div>
       <div>
         <input id="toast" type="checkbox"/>
         <label for="toast"></label>
       </div>
-      <div class="v-1.6 exp">
-        <input id="toastUseMpStyle" type="checkbox"/>
-        <label for="toastUseMpStyle"></label>
-      </div>
-      <div class="v-2.18">
+      <div class="sub v-2.18">
         <input id="toastDuration" type="number" min="0"/>
         <label for="toastDuration"></label>
       </div>
-      <div class="v-2.6 exp miniplayer">
+      <div class="sub v-2.6 exp miniplayer">
         <input id="toastIfMpOpen" type="checkbox"/>
         <label for="toastIfMpOpen"></label>
       </div>
-      <div class="v-2.8 adv">
+      <div class="sub v-1.6 exp">
+        <input id="toastUseMpStyle" type="checkbox"/>
+        <label for="toastUseMpStyle"></label>
+      </div>
+      <div class="sub exp v-2.24">
+        <select id="toastPriority">
+          <option value="1"></option>
+          <option value="2"></option>
+          <option value="3"></option>
+        </select>
+        <label for="toastPriority"></label>
+      </div>
+      <div class="sub v-2.24 adv notif">
+        <input id="toastProgress" type="checkbox"/>
+        <label for="toastProgress"></label>
+      </div>
+      <div class="sub v-2.8 adv notif">
         <select id="toastClick">
           <option value=""></option>
           <option value="playPause"></option>
@@ -118,17 +139,17 @@
         </select>
         <label for="toastClick"></label>
       </div>
-      <div class="v-2.8 adv">
+      <div class="sub v-2.8 adv notif">
         <select id="toastButton1"></select>
         <label for="toastButton1"></label>
       </div>
-      <div class="v-2.8 adv">
+      <div class="sub v-2.8 adv notif">
         <select id="toastButton2"></select>
         <label for="toastButton2"></label>
       </div>
     </fieldset>
     <fieldset class="miniplayer">
-      <legend id="legendMp"></legend>
+      <legend id="legendMiniplayer"></legend>
       <div class="exp">
         <select id="miniplayerType">
           <option value="normal"></option>
@@ -223,29 +244,29 @@
         <input id="lyrics" type="checkbox"/>
         <label for="lyrics"></label>
       </div>
-      <div class="v-2.8 exp miniplayer">
+      <div class="sub v-2.8 exp miniplayer">
         <input id="openLyricsInMiniplayer" type="checkbox"/>
         <label for="openLyricsInMiniplayer"></label>
       </div>
-      <div class="v-2.10 adv">
+      <div class="sub v-2.10 adv">
         <input id="lyricsAutoReload" type="checkbox"/>
         <label for="lyricsAutoReload"></label>
       </div>
-      <div class="v-2.9">
+      <div class="sub v-2.9">
         <input id="lyricsInGpm" type="checkbox"/>
         <label for="lyricsInGpm"></label>
       </div>
-      <div class="v-2.10 adv">
+      <div class="sub v-2.10 adv">
         <input id="lyricsFontSize" type="number" min="1"/>
         <label for="lyricsFontSize"></label>
       </div>
-      <div class="v-2.10 adv">
+      <div class="sub v-2.10 adv">
         <input id="lyricsWidth" type="number" min="50"/>
         <label for="lyricsWidth"></label>
       </div>
     </fieldset>
-    <fieldset>
-      <legend id="legendLf"></legend>
+    <fieldset class="lookfeel">
+      <legend id="legendLookfeel"></legend>
       <div class="v-2.18">
         <a tabindex="0" id="shortcutsLink"></a>
       </div>
@@ -373,16 +394,22 @@
         <option value="exp"></option>
       </select>
       <div>
-        <input id="filterTimer" type="checkbox" checked/>
-        <label for="filterTimer"></label>
-        <input id="filterLastfm" type="checkbox" checked/>
-        <label for="filterLastfm"></label>
-        <input id="filterToast" type="checkbox" checked/>
-        <label for="filterToast"></label>
-        <input id="filterMiniplayer" type="checkbox" checked/>
-        <label for="filterMiniplayer"></label>
-        <input id="filterLyrics" type="checkbox" checked/>
-        <label for="filterLyrics"></label>
+        <div>
+          <input id="filterTimer" type="checkbox" checked/>
+          <label for="filterTimer"></label>
+          <input id="filterLastfm" type="checkbox" checked/>
+          <label for="filterLastfm"></label>
+          <input id="filterToast" type="checkbox" checked/>
+          <label for="filterToast"></label>
+        </div>
+        <div>
+          <input id="filterMiniplayer" type="checkbox" checked/>
+          <label for="filterMiniplayer"></label>
+          <input id="filterLyrics" type="checkbox" checked/>
+          <label for="filterLyrics"></label>
+          <input id="filterLookfeel" type="checkbox" checked/>
+          <label for="filterLookfeel"></label>
+        </div>
       </div>
     </div>
     <div id="credits">
@@ -416,6 +443,17 @@
       <label for="cl-B">B</label>
       <input title="Show/hide versions" id="cl-V" type="checkbox" checked/>
       <label for="cl-V">V</label>
+      <div class="v-2.24">
+        <ul>
+          <li class="F">Option to show title progress in toasts</li>
+          <li class="F">Option to link ratings even when rated in Google Music tab</li>
+          <li class="F">Option to auto-link ratings</li>
+          <li class="F">Option to change when the toast will be moved to notification area</li>
+          <li class="I">Lots of stability, performance and usability improvements</li>
+          <li class="B">Fixed lyrics view in Google Music tab after update on the site</li>
+          <li class="B">Preserve timer upon extension update</li>
+        </ul>
+      </div>
       <div class="v-2.23">
         <ul>
           <li class="F">Options can now be filtered</li>

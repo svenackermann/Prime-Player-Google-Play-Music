@@ -100,7 +100,7 @@
     "description": "label for option to use miniplayer style for toasts"
   },
   "setting_toastUseMpStyleHint": {
-    "message": "Make toasts look like the miniplayer. Otherwise toasts will appear as Chrome notifications with less functionality.",
+    "message": "Make toasts look like the miniplayer. Otherwise toasts will appear as desktop notifications with less functionality.",
     "description": "hint for option to use miniplayer style for toasts"
   },
   "setting_toastDuration": {
@@ -108,15 +108,35 @@
     "description": "label for option to change the toast duration"
   },
   "setting_toastDurationHint": {
-    "message": "For standard toasts this sets the time after which to remove the notification (from Desktop or Chromes notification area), Chrome might move it to the notification area earlier. For miniplayer style toasts this means when to close the miniplayer.",
+    "message": "For standard toasts this sets the time after which to remove the notification (from Desktop or Chromes notification area), Chrome might move it to the notification area earlier. For miniplayer style toasts (expert mode) this means when to close the miniplayer.",
     "description": "hint for option to change the toast duration"
+  },
+  "setting_toastPriority": {
+    "message": "move to notification area",
+    "description": "label for option to change the toast priority"
+  },
+  "setting_toastPriority_1": {
+    "message": "immediately",
+    "description": "text for option 1 for toast priority"
+  },
+  "setting_toastPriority_2": {
+    "message": "after 7 seconds",
+    "description": "text for option 2 for toast priority"
+  },
+  "setting_toastPriority_3": {
+    "message": "after 25 seconds",
+    "description": "text for option 3 for toast priority"
+  },
+  "setting_toastProgress": {
+    "message": "Show song progress in toast",
+    "description": "label for option to show toast progress"
   },
   "setting_toastIfMpOpen": {
     "message": "Show toast even if the miniplayer is opened",
     "description": "label for option to show toasts while miniplayer is opened"
   },
   "setting_toastClick": {
-    "message": "Action when clicked anywhere on the toast",
+    "message": "Action when clicked on toast",
     "description": "label for option to set the action when toast is clicked"
   },
   "setting_toastButton1": {
@@ -132,11 +152,11 @@
     "description": "label for option to set the scrobble percentage"
   },
   "setting_scrobbleTime": {
-    "message": "Maximum time (seconds) after that will be scrobbled (0=inactive)",
+    "message": "Maximum time (seconds) after that will be scrobbled (0=disabled)",
     "description": "label for option to set the latest scrobble time"
   },
   "setting_scrobbleMaxDuration": {
-    "message": "Maximum duration (minutes) of a title to be scrobbled (0=inactive)",
+    "message": "Maximum title duration (minutes) for scrobbling (0=disabled)",
     "description": "label for option to set the maximum song duration for scrobbling"
   },
   "setting_disableScrobbleOnFf": {
@@ -144,7 +164,7 @@
     "description": "label for option to disable scrobbling after fast forward"
   },
   "setting_disableScrobbleOnFfHint": {
-    "message": "Does not scrobble the current song after it has been fast forwarded (at least five seconds). Useful if you only search a particaluar part of a song. Otherwise, the title will be scrobbled as soon as it passes the red scrobbling marker.",
+    "message": "Does not scrobble the current song after it has been fast forwarded (at least five seconds). Useful if you only search a particular part of a song. Otherwise, the title will be scrobbled as soon as it passes the red scrobbling marker.",
     "description": "hint for option to disable scrobbling after fast forward"
   },
   "setting_scrobbleRepeated": {
@@ -156,8 +176,20 @@
     "description": "label for option to link ratings"
   },
   "setting_linkRatingsHint": {
-    "message": "Love a song in last.fm if you give thumbs up/five stars in Google Music and vice versa. Does not override existing ratings.",
+    "message": "Love a song in last.fm if you give thumbs up/five stars in Google Music and vice versa. This will never override existing ratings and it does not work when rated directly on the Google Music or last.fm site (only via miniplayer, keyboard shortcut, toast action, ...).",
     "description": "hint for option to link ratings"
+  },
+  "setting_linkRatingsGpm": {
+    "message": "Also auto-love when rated directly on Google Music tab",
+    "description": "label for option to love song when rated on Google Music tab"
+  },
+  "setting_linkRatingsAuto": {
+    "message": "Auto-link ratings",
+    "description": "label for option to auto-link ratings"
+  },
+  "setting_linkRatingsAutoHint": {
+    "message": "When a song starts that you already rated 5 stars/thumbs up but is not loved in last.fm, it will be loved without user interaction. If it is loved already and has no rating in Google Music, it will be given 5 stars/thumbs up.",
+    "description": "hint for option to auto-link ratings"
   },
   "setting_showLovedIndicator": {
     "message": "Show loved status in icon",
@@ -267,27 +299,27 @@
     "message": "Here you can control the connection between Google Music and last.fm and adjust your scrobbling preferences.",
     "description": "hint for the lastfm settings on options page"
   },
-  "legendToasting": {
-    "message": "Toasting settings",
+  "legendToast": {
+    "message": "Toast settings",
     "description": "title for the toast settings on options page"
   },
-  "legendToastingHint": {
-    "message": "Toasts are Chrome notifications that show you the current song and allow for some actions. Whenever a new song starts, a toast notification will appear on your screen.",
+  "legendToastHint": {
+    "message": "Toasts are desktop notifications that show you the current song and allow for some actions. Whenever a new song starts, a toast will appear on your screen.",
     "description": "hint for the toast settings on options page"
   },
-  "legendMp": {
+  "legendMiniplayer": {
     "message": "Miniplayer settings",
     "description": "title for the miniplayer settings on options page"
   },
-  "legendMpHint": {
+  "legendMiniplayerHint": {
     "message": "The miniplayer is a powerful, highly customizable tool, so take your time to try the different options out. You can open the miniplayer e.g. by clicking on the note icon in the popup that shows up when you click the Prime Player icon in the Chrome toolbar.",
     "description": "hint for the miniplayer settings on options page"
   },
-  "legendLf": {
-    "message": "Look and feel",
+  "legendLookfeel": {
+    "message": "Look \u0026 feel",
     "description": "title for the look and feel settings on options page"
   },
-  "legendLfHint": {
+  "legendLookfeelHint": {
     "message": "These settings control the Prime Player icon and some other general behavior.",
     "description": "hint for the look and feel settings on options page"
   },
@@ -393,7 +425,7 @@
     "description": "label for option to sync settings"
   },
   "setting_preventCommandRatingReset": {
-    "message": "Prevent rating resets for keyboard shortcut",
+    "message": "Prevent rating resets without feedback",
     "description": "label for option to prevent rating resets"
   },
   "setting_preventCommandRatingResetHint": {
@@ -537,12 +569,16 @@
     "description": "title for notification that is shown directly after install"
   },
   "welcomeMessage": {
-    "message": "The extension has a bunch of options. Next to some of them you see a green question mark. If you hover over it with your mouse, you'll get more detailed informations. Also note the FAQ on the extension's homepage at the Chrome Store. And now have fun with Prime Player!",
+    "message": "The extension has a bunch of options that you can adjust to fit your needs. Also note the FAQ on the extension's homepage at the Chrome Store. And now have fun with Prime Player!",
     "description": "welcome message that is shown in notification directly after install"
   },
   "toOptions": {
     "message": "To the options",
     "description": "text for 'to options' button in welcome notification"
+  },
+  "toWiki": {
+    "message": "To the Wiki",
+    "description": "text for 'to wiki' button in welcome notification"
   },
   "close": {
     "message": "Close",
@@ -902,7 +938,7 @@
     "description": "label for options last.fm filter"
   },
   "setting_filterToast": {
-    "message": "Toasting",
+    "message": "Toasts",
     "description": "label for options toast filter"
   },
   "setting_filterMiniplayer": {
@@ -912,5 +948,13 @@
   "setting_filterLyrics": {
     "message": "Lyrics",
     "description": "label for options lyrics filter"
+  },
+  "setting_filterLookfeel": {
+    "message": "Look \u0026 feel",
+    "description": "label for options look and feel filter"
+  },
+  "notificationsDisabled": {
+    "message": "Notifications are disabled for Prime Player, so only miniplayer style toasts are available.",
+    "description": "warning message if notifications are disabled"
   }
 }

@@ -6,7 +6,7 @@
 $sprite-y-count: 5;
 
 @mixin sprite($x, $y, $size) {
-  background-position: -#{$x * $size}px -#{$y * $size}px;
+  background-position: #{-$x * $size}px #{-$y * $size}px;
   background-size: auto #{$sprite-y-count * $size}px;
 }
 
@@ -867,4 +867,4 @@ a#volume {
   display: block;
 }
 
-@import "layouts"
+@import "layouts";

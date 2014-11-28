@@ -2,11 +2,15 @@
  * The main code for the background page.
  * Manages connections, settings, the miniplayer and much more.
  * @author Sven Ackermann (svenrecknagel@googlemail.com)
- * Licensed under the BSD license
+ * @license BSD license
  */
 
+/* ---------------------------------- */
+/* --- global public declarations --- */
+/* ---------------------------------- */
+
 /** settings that must not be synced with Chrome sync */
-var LOCAL_SETTINGS_DEFAULTS = {
+var localSettings = new Bean({
   lastfmSessionKey: null,
   lastfmSessionName: null,
   googleAccountNo: 0,
@@ -29,12 +33,13 @@ var LOCAL_SETTINGS_DEFAULTS = {
   timerMinutes: 60,
   timerAction: "pause",
   timerNotify: true,
-  timerPreNotify: 0
-}
-var localSettings = new Bean(LOCAL_SETTINGS_DEFAULTS, true);
+  timerPreNotify: 0,
+  timerEnd: null,
+  notificationsEnabled: true
+}, true);
 
 /** settings that should be synced with Chrome sync if enabled */
-var SETTINGS_DEFAULTS = {
+var settings = new Bean({
   scrobble: true,
   scrobblePercent: 50,
   scrobbleTime: 240,
@@ -42,12 +47,16 @@ var SETTINGS_DEFAULTS = {
   disableScrobbleOnFf: false,
   scrobbleRepeated: true,
   linkRatings: false,
+  linkRatingsGpm: false,
+  linkRatingsAuto: false,
   showLovedIndicator: false,
   showScrobbledIndicator: true,
   showLastfmInfo: false,
   toast: true,
   toastUseMpStyle: false,
   toastDuration: 0,
+  toastPriority: 3,
+  toastProgress: false,
   toastIfMpOpen: false,
   toastClick: "",
   toastButton1: "nextSong",
@@ -92,44 +101,12 @@ var SETTINGS_DEFAULTS = {
   filterLastfm: true,
   filterToast: true,
   filterMiniplayer: true,
-  filterLyrics: true
-};
-var settings = new Bean(SETTINGS_DEFAULTS, true);
-
-/** the miniplayer instance, if opened */
-var miniplayer;
-/** the toast notification id or window, if opened */
-var toastId;
-var toast;
-/** the XMLHttpRequest for the toast cover */
-var toastCoverXhr;
-/** the currently connected port with its tab */
-var googlemusicport;
-var googlemusictabId;
-/** ID of the options tab, if opened */
-var optionsTabId;
-/** ports waiting for a connection when another tab was already connected (if multiple tabs with Google Music  are opened) */
-var parkedPorts = [];
-/** whether to view the update notifier (set in onInstalled event listener) */
-var viewUpdateNotifier = localStorage["viewUpdateNotifier"] || false;
-/** the previous version, if we just updated (set in onInstalled event listener, used by options page) */
-var previousVersion = localStorage["previousVersion"];
-/** the volume before mute for restoring */
-var volumeBeforeMute;
-/** true, if the position came from update backup data, needed to not set ff by mistake */
-var positionFromBackup = false;
-/** the link of navigation list to load when Google Music has just connected (if any) */
-var loadNavlistLink;
-var loadNavlistSearch;
-/** whether feelingLucky is requested */
-var feelingLucky = false;
-/** if resumeLastSong was called while not connected */
-var lastSongToResume;
-/** for correct calculation of song.ff on resume */
-var lastSongPositionSec;
+  filterLyrics: true,
+  filterLookfeel: true
+}, true);
 
 /** the song currently loaded */
-var SONG_DEFAULTS = {
+var song = new Bean({
   position: "0:00",
   positionSec: 0,
   info: null,
@@ -142,10 +119,10 @@ var SONG_DEFAULTS = {
   scrobbleTime: -1,
   timestamp: null,
   ff: false
-};
-var song = new Bean(SONG_DEFAULTS);
+});
+
 /** the current player state */
-var PLAYER_DEFAULTS = {
+var player = new Bean({
   ratingMode: null,
   shuffle: "",
   repeat: "",
@@ -156,37 +133,393 @@ var PLAYER_DEFAULTS = {
   quicklinks: null,
   connected: false,
   favicon: "img/icon/default/notconnected.png"
-};
-var player = new Bean(PLAYER_DEFAULTS);
+});
 
-var LASTFM_APIKEY = "1ecc0b24153df7dc6ac0229d6fcb8dda";
-var LASTFM_APISECRET = "fb4b74854f7a7b099c30bfe71236dfd5";
-var lastfm = new LastFM({apiKey: LASTFM_APIKEY, apiSecret: LASTFM_APISECRET});
+/** the last.fm connection */
+var lastfm = new LastFM({apiKey: "1ecc0b24153df7dc6ac0229d6fcb8dda", apiSecret: "fb4b74854f7a7b099c30bfe71236dfd5"});
 lastfm.session.key = localSettings.lastfmSessionKey;
 lastfm.session.name = localSettings.lastfmSessionName;
 lastfm.unavailableMessage = chrome.i18n.getMessage("lastfmUnavailable");
 
-var currentVersion = chrome.runtime.getManifest().version;
+/** ID of the options tab, if opened */
+var optionsTabId = null;
 
-function noop() {/* not interesting, but required */}
+/** the previous version, if we just updated (set in onInstalled event listener, used by options page) */
+var previousVersion = localStorage.previousVersion;
 
+/* -------------------------------- */
+/* --- shared utility functions --- */
+/* -------------------------------- */
+
+/** does nothing, but sometimes required */
+function noop() {}
+
+/** @return time in seconds that a time string represents (e.g. 4:23 -> 263) */
+function parseSeconds(time) {
+  if (typeof(time) != "string") return 0;
+  time = time.split(':');
+  var sec = 0;
+  var factor = 1;
+  for (var i = time.length - 1; i >= 0; i--) {
+    sec += parseInt(time[i]) * factor;
+    factor *= 60;
+  }
+  return sec || 0;
+}
+
+/** @return time string for amount of seconds (e.g. 263 -> 4:23) */
+function toTimeString(sec) {
+  if (sec > 60*60*24) return chrome.i18n.getMessage("moreThanOneDay");
+  if (sec < 10) return "0:0" + sec;
+  if (sec < 60) return "0:" + sec;
+  var time = "";
+  while (true) {
+    var cur = sec % 60;
+    time = cur + time;
+    if (sec == cur) return time;
+    time = (cur < 10 ? ":0" : ":") + time;
+    sec = (sec - cur) / 60;
+  }
+}
+
+/** @return value of a named parameter in an URL query string, null if not contained or no value */
+function extractUrlParam(name, queryString) {
+  var matched = RegExp(name + "=(.*?)(&|$|#.*)").exec(queryString);
+  if (matched === null || matched.length < 2) return null;
+  return matched[1];
+}
+
+/** @return true, if the 2 song info objects match in duration (if both have one), title, artist and album or if both null */
 function songsEqual(song1, song2) {
   if (song1 == song2) return true;//both null
-  if (song1 != null && song2 != null
-      && (song1.duration == null || song2.duration == null || song1.duration == song2.duration)
-      && song1.title == song2.title
-      && song1.artist == song2.artist
-      && song1.album == song2.album) {
+  if (song1 && song2 &&
+      (song1.duration === null || song2.duration === null || song1.duration == song2.duration) &&
+      song1.title == song2.title &&
+      song1.artist == song2.artist &&
+      song1.album == song2.album) {
     return true;
   }
   return false;
 }
+
+/** @return true, if the given version is newer than the saved previous version (used by options page and update listener) */
+function isNewerVersion(version) {
+  if (previousVersion == null) return false;//jshint ignore:line
+  var prev = previousVersion.split(".");
+  version = version.split(".");
+  for (var i = 0; i < prev.length; i++) {
+    if (version.length <= i) return false;//version is shorter (e.g. 1.0 < 1.0.1)
+    var p = parseInt(prev[i]);
+    var v = parseInt(version[i]);
+    if (p != v) return v > p;
+  }
+  return version.length > prev.length;//version is longer (e.g. 1.0.1 > 1.0), else same version
+}
+
+/** send an event to Google Analytics, if enabled */
+function gaEvent(category, eventName) {
+  if (settings.gaEnabled) ga('send', 'event', category, eventName, currentVersion);
+}
+
+/** send a social event to Google Analytics, if enabled */
+function gaSocial(network, action) {
+  if (settings.gaEnabled) ga('send', 'social', network, action);
+}
+
+/** @return true, if scrobbling is available, i.e. user is logged in and enabled scrobbling */
+function isScrobblingEnabled() {
+  return settings.scrobble && localSettings.lastfmSessionKey !== null;
+}
+
+/** open the last.fm authentication page */
+function lastfmLogin() {
+  var url = lastfm.getLoginUrl(chrome.extension.getURL("options.html"));
+  if (optionsTabId) {
+    chrome.tabs.update(optionsTabId, { url: url, active: true });
+  } else {
+    chrome.tabs.create({ url: url });
+  }
+  gaEvent("LastFM", "AuthorizeStarted");
+}
+
+/** reset last.fm session */
+function lastfmLogout() {
+  lastfm.session = {};
+  localSettings.lastfmSessionKey = null;
+  localSettings.lastfmSessionName = null;
+  song.loved = null;
+}
+
+/**
+ * Load song info from last.fm and provide it to given callback.
+ * The callback takes parameters loved and info, which both might be null.
+ * On errors, loved is set to a string providing the error message.
+ */
+function getLastfmInfo(songInfo, cb) {
+  if (songInfo) {
+    var params = { track: songInfo.title, artist: songInfo.artist };
+    if (localSettings.lastfmSessionName) params.username = localSettings.lastfmSessionName;
+    lastfm.track.getInfo(params, {
+      success: function(response) {
+        var loved = null;
+        var lastfmInfo = null;
+        if (response.track) {
+          lastfmInfo = {
+            listeners: response.track.listeners || 0,
+            playcount: response.track.playcount || 0,
+            userplaycount: response.track.userplaycount || 0,
+            url: response.track.url,
+            artistUrl: response.track.artist && response.track.artist.url,
+            albumUrl: response.track.album && response.track.album.url
+          };
+          if (params.username) loved = response.track.userloved == 1;
+        }
+        cb(loved, lastfmInfo);
+      },
+      error: function(code, msg) {
+        cb(msg, null);
+        gaEvent("LastFM", "getInfoError-" + code);
+      }
+    });
+  } else cb(null, null);
+}
+
+/** Love a song in last.fm. The callback either gets true or an error message. */
+function love(songInfo, cb) {
+  if (localSettings.lastfmSessionKey && songInfo) {
+    lastfm.track.love({
+      track: songInfo.title,
+      artist: songInfo.artist
+    }, {
+      success: function() { cb(true); },
+      error: function(code, msg) {
+        cb(msg);
+        gaEvent("LastFM", "loveError-" + code);
+      }
+    });
+  }
+}
+
+/** Unlove a song in last.fm. The callback either gets false or an error message. */
+function unlove(songInfo, cb) {
+  if (localSettings.lastfmSessionKey && songInfo) {
+    lastfm.track.unlove({
+      track: songInfo.title,
+      artist: songInfo.artist
+    }, {
+      success: function() { cb(false); },
+      error: function(code, msg) {
+        cb(msg);
+        gaEvent("LastFM", "unloveError-" + code);
+      }
+    });
+  }
+}
+
+/** Load info/loved status for current song from last.fm. */
+function loadCurrentLastfmInfo() {
+  song.loved = null;
+  song.lastfmInfo = null;
+  var songInfo = song.info;
+  getLastfmInfo(songInfo, function(loved, lastfmInfo) {
+    if (songInfo != song.info) return;//song meanwhile changed
+    song.loved = loved;
+    song.lastfmInfo = lastfmInfo;
+    if (settings.linkRatings && settings.linkRatingsAuto) {
+      if (loved === true && song.rating === 0) executeInGoogleMusic("rate", {rating: 5});
+      else if (loved === false && song.rating == 5) loveTrack();
+    }
+  });
+}
+
+/** Get the last saved song from local storage. The callback will only be called if one exists. */
+function getLastSong(callback) {
+  chrome.storage.local.get(null, function(items) {
+    if (items.lastSong) {
+      var lastSong = {
+        info: items.lastSong,
+        position: items.lastPosition,
+        positionSec: parseSeconds(items.lastPosition),
+        rating: items.rating,
+        ratingMode: items.ratingMode,
+        scrobbled: items.scrobbled,
+        scrobbleTime: items.scrobbleTime,
+        ff: items.ff
+      };
+      callback(lastSong);
+    }
+  });
+}
+
+/** Change the volume in Google Music. */
+function setVolume(percent) {
+  executeInGoogleMusic("setVolume", {percent: percent});
+}
+
+/** Change the song position in Google Music. */
+function setSongPosition(percent) {
+  executeInGoogleMusic("setPosition", {percent: percent});
+}
+
+/** @return true, if a change from old to new rating would result in a rating reset in Google Music */
+function isRatingReset(oldRating, newRating) {
+  return oldRating == newRating || (player.ratingMode == "thumbs" && ((oldRating == 2 && newRating == 1) || (oldRating == 4 && newRating == 5)));
+}
+
+/** Rate the current song in Google Music, if possible. For arg 5, this triggers the link-ratings logic, if not a rating reset. */
+function rate(rating) {
+  if (song.rating < 0) return;//negative ratings cannot be changed
+  //auto-love if no reset and not loved yet
+  if (settings.linkRatings && rating == 5 && !isRatingReset(song.rating, rating)) loveTrack();
+  executeInGoogleMusic("rate", {rating: rating});
+}
+
+/** @return the label for a quick link, if connected to Google Music, the labels from the site are used. */
+function getTextForQuicklink(link) {
+  if (link == "myPlaylists") return chrome.i18n.getMessage("myPlaylists");
+  var text;
+  if (link && player.quicklinks) {//try to get text from Google site
+    text = player.quicklinks[link];
+  }
+  //use default
+  return text || chrome.i18n.getMessage("quicklink_" + link.replace(/-/g, "_").replace(/\//g, "_"));
+}
+
+/** @return the label for the given command to be used in a toast button */
+function getTextForToastBtn(cmd) {
+  var key;
+  switch (cmd) {
+    case "playPause":
+    case "prevSong":
+    case "nextSong":
+    case "openMiniplayer":
+    case "feelingLucky":
+      key = cmd;
+      break;
+    case "rate-1":
+      if (player.ratingMode == "star") key = "command_star1";
+      else if (player.ratingMode == "thumbs") key = "command_thumbsDown";
+      else key = "command_rate1";
+      break;
+    case "rate-5":
+      if (player.ratingMode == "star") key = "command_star5";
+      else if (player.ratingMode == "thumbs") key = "command_thumbsUp";
+      else key = "command_rate5";
+      break;
+    default:
+      key = "command_" + cmd.replace(/-/g, "");
+  }
+  return chrome.i18n.getMessage(key);
+}
+
+/** Open the options tab or focus it, if already opened. */
+function openOptions() {
+  if (optionsTabId) {
+    chrome.tabs.update(optionsTabId, {active: true});
+  } else {
+    chrome.tabs.create({url: chrome.extension.getURL("options.html")});
+  }
+}
+
+/** Open a songlyrics.com tab for the given (or current) song, if possible. */
+function openLyrics(aSong) {
+  if (!aSong) {
+    if (!song.info) return;
+    aSong = {artist: song.info.artist, title: song.info.title};
+  }
+  var url = buildLyricsSearchUrl(aSong);
+  if (url) {
+    chrome.tabs.create({url: url}, function(tab) {
+      chrome.tabs.executeScript(tab.id, {file: "js/cs-songlyrics.min.js", runAt: "document_end"});
+    });
+    gaEvent("Lyrics", "Open");
+  } else {
+    gaEvent("Lyrics", "Error-noURL");
+  }
+}
+
+/* ------------------------------------------------ */
+/* --- shared functions defined in private part --- */
+/* ------------------------------------------------ */
+
+/** Execute a command with options with the Google Music content script. */
+var executeInGoogleMusic;
+/** Love the current song (if it isn't already). If a non-false/0/null/undefined parameter is given, the link ratings logic will be executed. */
+var loveTrack;
+/** Unlove the current song. */
+var unloveTrack;
+
+/* -------------------- */
+/* --- private part --- */
+/* -------------------- */
+
+(function(exports) {
+
+//do not notify listeners, if not a real change (the content script might send the same song info multiple times)
 song.setEqualsFn("info", songsEqual);
+
+var currentVersion = chrome.runtime.getManifest().version;
+
+/** the miniplayer instance, if opened */
+var miniplayer = null;
+/** if the toast notification is opened, its options */
+var toastOptions = null;
+/** the toast window (if toastUseMpStyle) */
+var toastWin;
+/** the XMLHttpRequest for the toast cover */
+var toastCoverXhr;
+/** the currently connected port with its tab */
+var googlemusicport;
+var googlemusictabId;
+/** ports waiting for a connection when another tab was already connected (if multiple tabs with Google Music are opened) */
+var parkedPorts = [];
+/** whether to view the update notifier (set in onInstalled event listener) */
+var viewUpdateNotifier = localStorage.viewUpdateNotifier || false;
+/** the volume before mute for restoring */
+var volumeBeforeMute;
+/** if resumeLastSong was called while not connected */
+var lastSongToResume;
+
+/** Wrapper for chrome notifications API for convenience. */
+function Notification() {
+  var that = this;
+  var notifications = {};
+  function globalNotificationListener(evt, id, arg2) {
+    var forId = notifications[id];
+    if (forId && forId[evt]) for (var i = 0; i < forId[evt].length; i++) forId[evt][i](arg2);
+  }
+  var globalClickListener = globalNotificationListener.bind(window, "click");
+  var globalBtnClickListener = globalNotificationListener.bind(window, "btnClick");
+  var globalCloseListener = globalNotificationListener.bind(window, "close");
+  
+  this.create = function(id, options, cb) {
+    if (localSettings.notificationsEnabled) chrome.notifications.create(id, options, function(nid) {
+      notifications[nid] = {click: [], btnClick: [], close: []};
+      cb(nid);
+      that.addListener("close", nid, function() { delete(notifications[nid]); });
+    });
+  };
+  this.update = function(id, options, cb) { if (localSettings.notificationsEnabled) chrome.notifications.update(id, options, cb || noop); };
+  this.clear = function(id, cb) { if (localSettings.notificationsEnabled) chrome.notifications.clear(id, cb || noop); };
+  this.addListener = function(evt, id, cb) { notifications[id][evt].push(cb); };
+  this.init = function() {
+    if (!chrome.notifications.onClicked.hasListener(globalClickListener)) chrome.notifications.onClicked.addListener(globalClickListener);
+    if (!chrome.notifications.onButtonClicked.hasListener(globalBtnClickListener)) chrome.notifications.onButtonClicked.addListener(globalBtnClickListener);
+    if (!chrome.notifications.onClosed.hasListener(globalCloseListener)) chrome.notifications.onClosed.addListener(globalCloseListener);
+  };
+}
+var notifications = new Notification();
+var RELOGIN = "pp.relogin";
+var TOAST = "pp.toast";
+var WELCOME = "pp.welcome";
+var TIMEREND = "pp.timerEnd";
+var TIMERWARN = "pp.timerwarn";
 
 var browserIconCtx;
 var lastProgressPosition = 0;
+/** Draw the progress onto the current browserIconCtx, if enabled. */
 function drawProgress() {
-  if (settings.showProgress && browserIconCtx && song.positionSec > 0) {
+  if (settings.showProgress && browserIconCtx && song.info && song.positionSec > 0) {
     lastProgressPosition = song.positionSec;
     browserIconCtx.strokeStyle = settings.showProgressColor;
     browserIconCtx.lineWidth = 3;
@@ -198,13 +531,14 @@ function drawProgress() {
   return false;
 }
 
-function draw(backgroundSrc, imagePaths, callback) {
+/** Draw the given images onto the backgroundSrc, call cb with canvas context when ready. */
+function drawIcon(backgroundSrc, imagePaths, cb) {
   var iconCtx = $("<canvas width='19' height='19'/>").get(0).getContext("2d");
   var image = new Image();
   function loadNext() {
     var path = imagePaths.shift();
-    if (path) image.src = chrome.extension.getURL(path + ".png")
-    else callback(iconCtx);
+    if (path) image.src = chrome.extension.getURL(path + ".png");
+    else cb(iconCtx);
   }
   image.onload = function() {
     iconCtx.drawImage(image, 0, 0);
@@ -213,8 +547,9 @@ function draw(backgroundSrc, imagePaths, callback) {
   image.src = chrome.extension.getURL(backgroundSrc);
 }
 
+/** Set the browser icon to the current painted image in browserIconCtx. */
 function updateBrowserIcon() {
-  chrome.browserAction.setIcon({imageData: browserIconCtx.getImageData(0, 0, 19, 19)});
+  if (browserIconCtx) chrome.browserAction.setIcon({imageData: browserIconCtx.getImageData(0, 0, 19, 19)});
 }
 
 /** handler for all events that need to update the browser action icon/title */
@@ -273,17 +608,18 @@ function updateBrowserActionInfo() {
   }
   path += ".png";
   
-  draw(path, iconPaths, function(iconCtx) {
+  drawIcon(path, iconPaths, function(iconCtx) {
     browserIconCtx = iconCtx;
     drawProgress();
     updateBrowserIcon();
   });
-  if (faviconPaths.length) draw(path, faviconPaths, function(iconCtx) {
+  if (faviconPaths.length) drawIcon(path, faviconPaths, function(iconCtx) {
     player.favicon = iconCtx.canvas.toDataURL();
   }); else player.favicon = path;
   chrome.browserAction.setTitle({title: title});
 }
 
+/** Remove the given one from parked ports. */
 function removeParkedPort(port) {
   for (var i = 0; i < parkedPorts.length; i++) {
     if (port == parkedPorts[i]) {
@@ -293,7 +629,7 @@ function removeParkedPort(port) {
   }
 }
 
-/** use the given port for the connection to Google Music */
+/** Use the given port for the connection to Google Music. */
 function connectPort(port) {
   googlemusicport = port;
   googlemusictabId = port.sender.tab.id;
@@ -303,7 +639,7 @@ function connectPort(port) {
   iconClickSettingsChanged();
 }
 
-/** Check if the given port's tab is already connected */
+/** Check if the given port's tab is already connected. */
 function isConnectedTab(port) {
   if (googlemusicport && port.sender.tab.id == googlemusicport.sender.tab.id) return true;
   for (var i = 0; i < parkedPorts.length; i++) {
@@ -312,14 +648,15 @@ function isConnectedTab(port) {
   return false;
 }
 
-/** handler for onConnect event
+/** 
+ * Handler for onConnect event:
  * - check origin
  * - check if tab already connected
  * - check if another tab is already connected
  * - otherwise connect the port
  */
 function onConnectListener(port) {
-  console.assert(port.name == "googlemusic");
+  if (port.name != "googlemusic") throw "invalid port: " + port.name;
   if (isConnectedTab(port)) {
     port.postMessage({type: "alreadyConnected"});
   } else {
@@ -358,10 +695,10 @@ function onDisconnectListener() {
 function onMessageListener(message) {
   var val = message.value;
   var type = message.type;
-  if (type.indexOf("song-") == 0) {
-    if (type == "song-position" && val == "") val = SONG_DEFAULTS.position;
+  if (type.indexOf("song-") === 0) {
+    if (type == "song-position" && val === "") val = "0:00";
     song[type.substring(5)] = val;
-  } else if (type.indexOf("player-") == 0) {
+  } else if (type.indexOf("player-") === 0) {
     player[type.substring(7)] = val;
   } else if (type == "loadLyrics") {
     if (song.info) fetchLyrics(song.info, function(result) {
@@ -371,15 +708,22 @@ function onMessageListener(message) {
       if (result.title) result.title = result.title.text().trim();
       postToGooglemusic({type: "lyrics", result: result});
     });
+  } else if (type == "rated5") {
+    if (settings.linkRatings && settings.linkRatingsGpm) {
+      if (songsEqual(song.info, val)) loveTrack();
+      else love(val, noop);
+    }
   }
 }
 
+/** Send a message to the Google Music port, if connected. */
 function postToGooglemusic(msg) {
   if (googlemusicport) {
     googlemusicport.postMessage(msg);
   }
 }
 
+/** Tell the connected Google Music port about changes in the lyrics settings. */
 function postLyricsState() {
   postToGooglemusic({type: "lyricsState",
     enabled: localSettings.lyrics && settings.lyricsInGpm,
@@ -389,7 +733,8 @@ function postLyricsState() {
   });
 }
 
-/** Load the navigation list identified by 'loadNavlistLink'. If not connected, open a Google Music tab and try again. */
+var loadNavlistLink;
+var loadNavlistSearch;
 function loadNavlistIfConnected() {
   if (!loadNavlistLink) return;
   if (player.connected) {
@@ -399,21 +744,25 @@ function loadNavlistIfConnected() {
   } else openGoogleMusicTab(loadNavlistLink);//when connected, we get triggered again
 }
 
-function loadNavigationList(link, search) {
+/** Load a navigation list in Google Music and wait for message from there (player.navigationList will be updated). If not connected, open a Google Music tab and try again. */
+exports.loadNavigationList = function(link, search) {
   loadNavlistLink = link;
   loadNavlistSearch = search;
   loadNavlistIfConnected();
-}
+};
 
-function selectLink(link) {
+/** Select a link in the Google Music tab or open it when not connected. */
+exports.selectLink = function(link) {
   postToGooglemusic({type: "selectLink", link: link});
   openGoogleMusicTab(link);
-}
+};
 
-function startPlaylist(link) {
+/** Start a playlist in Google Music. */
+exports.startPlaylist = function(link) {
   postToGooglemusic({type: "startPlaylist", link: link});
-}
+};
 
+var feelingLucky = false;
 function executeFeelingLuckyIfConnected() {
   if (!feelingLucky) return;
   if (player.connected) {
@@ -422,10 +771,12 @@ function executeFeelingLuckyIfConnected() {
   } else openGoogleMusicTab();//when connected, we get triggered again
 }
 
+/** Execute "feeling lucky" in Google Music. If not connected, open a Google Music tab and try again. */
 function executeFeelingLucky() {
   feelingLucky = true;
   executeFeelingLuckyIfConnected();
 }
+exports.executeFeelingLucky = executeFeelingLucky;
 
 function resumeLastSongIfConnected() {
   if (!lastSongToResume) return;
@@ -440,32 +791,31 @@ function resumeLastSongIfConnected() {
   } else openGoogleMusicTab();//when connected, we get triggered again
 }
 
-function resumeLastSong(lastSong) {
+/** Resume the saved last song in Google Music. If not connected, open a Google Music tab and try again. */
+exports.resumeLastSong = function(lastSong) {
   lastSongToResume = lastSong;
   resumeLastSongIfConnected();
-}
+};
 
-/** send a command to the connected Google Music port */
-function executeInGoogleMusic(command, options) {
+/** Send a command to the connected Google Music port. */
+executeInGoogleMusic = function(command, options) {
   postToGooglemusic({type: "execute", command: command, options: options || {}});
-}
+};
 
+/** Shortcut to call the play/pause command in Google Music. */
 function executePlayPause() {
   executeInGoogleMusic("playPause");
 }
+exports.executePlayPause = executePlayPause;
 
-function isScrobblingEnabled() {
-  return settings.scrobble && localSettings.lastfmSessionName != null;
-}
-
-/** @return song position in seconds when the song will be scrobbled or -1 if disabled */
+/** Calculate and set the song position in seconds (song.scrobbleTime) when the song will be scrobbled or -1 if disabled */
 function calcScrobbleTime() {
   if (song.scrobbled) return;
-  if (song.info
-  && song.info.durationSec > 0
-  && isScrobblingEnabled()
-  && !(song.ff && settings.disableScrobbleOnFf)
-  && !(settings.scrobbleMaxDuration > 0 && song.info.durationSec > (settings.scrobbleMaxDuration * 60))) {
+  if (song.info &&
+    song.info.durationSec > 0 &&
+    isScrobblingEnabled() &&
+    !(song.ff && settings.disableScrobbleOnFf) &&
+    !(settings.scrobbleMaxDuration > 0 && song.info.durationSec > (settings.scrobbleMaxDuration * 60))) {
     var scrobbleTime = song.info.durationSec * (settings.scrobblePercent / 100);
     if (settings.scrobbleTime > 0 && scrobbleTime > settings.scrobbleTime) {
       scrobbleTime = settings.scrobbleTime;
@@ -478,71 +828,9 @@ function calcScrobbleTime() {
   }
 }
 
-/** @return time in seconds that a time string represents (e.g. 4:23 - 263) */
-function parseSeconds(time) {
-  if (typeof(time) != "string") return 0;
-  time = time.split(':');
-  var sec = 0;
-  var factor = 1;
-  for (var i = time.length - 1; i >= 0; i--) {
-    sec += parseInt(time[i], 10) * factor;
-    factor *= 60;
-  }
-  return sec || 0;
-}
-
-function toTimeString(sec) {
-  if (sec > 60*60*24) return chrome.i18n.getMessage("moreThanOneDay");
-  if (sec < 10) return "0:0" + sec;
-  if (sec < 60) return "0:" + sec;
-  var time = "";
-  while (true) {
-    var cur = sec % 60;
-    time = cur + time;
-    if (sec == cur) return time;
-    time = (cur < 10 ? ":0" : ":") + time;
-    sec = (sec - cur) / 60;
-  }
-}
-
-function getTextForQuicklink(link) {
-  if (link == "myPlaylists") return chrome.i18n.getMessage("myPlaylists");
-  var text;
-  if (link && player.quicklinks) {//try to get text from Google site
-    text = player.quicklinks[link];
-  }
-  //use default
-  return text || chrome.i18n.getMessage("quicklink_" + link.replace(/-/g, "_").replace(/\//g, "_"));
-}
-
-function getTextForToastBtn(cmd) {
-  var key;
-  switch (cmd) {
-    case "playPause":
-    case "prevSong":
-    case "nextSong":
-    case "openMiniplayer":
-    case "feelingLucky":
-      key = cmd;
-      break;
-    case "rate-1":
-      if (player.ratingMode == "star") key = "command_star1"
-      else if (player.ratingMode == "thumbs") key = "command_thumbsDown"
-      else key = "command_rate1";
-      break;
-    case "rate-5":
-      if (player.ratingMode == "star") key = "command_star5"
-      else if (player.ratingMode == "thumbs") key = "command_thumbsUp"
-      else key = "command_rate5";
-      break;
-    default:
-      key = "command_" + cmd.replace(/-/g, "");
-  }
-  return chrome.i18n.getMessage(key);
-}
-
+/** Write a song to local storage for a later try to scrobble it. */
 function cacheForLaterScrobbling(songInfo) {
-  var scrobbleCache = localStorage["scrobbleCache"];
+  var scrobbleCache = localStorage.scrobbleCache;
   scrobbleCache = scrobbleCache ? JSON.parse(scrobbleCache) : {};
   if (scrobbleCache.user != localSettings.lastfmSessionName) {
     scrobbleCache.songs = [];
@@ -553,15 +841,17 @@ function cacheForLaterScrobbling(songInfo) {
     scrobbleCache.songs.shift();
   }
   scrobbleCache.songs.push(songInfo);
-  localStorage["scrobbleCache"] = JSON.stringify(scrobbleCache);
+  localStorage.scrobbleCache = JSON.stringify(scrobbleCache);
 }
 
+/** @return true, if the last.fm error code allows for a new try to scrobble. */
 function isScrobbleRetriable(code) {
   return code == 16 || code == 11 || code == 9 || code == -1;
 }
 
+/** Scrobble all songs that have been cached fro scrobble retry. */
 function scrobbleCachedSongs() {
-  var scrobbleCache = localStorage["scrobbleCache"];
+  var scrobbleCache = localStorage.scrobbleCache;
   if (scrobbleCache) {
     scrobbleCache = JSON.parse(scrobbleCache);
     if (scrobbleCache.user != localSettings.lastfmSessionName) {
@@ -575,22 +865,31 @@ function scrobbleCachedSongs() {
         params[prop + "[" + i + "]"] = curSong[prop];
       }
     }
-    lastfm.track.scrobble(params,
-      {
-        success: function() {
-          localStorage.removeItem("scrobbleCache");
-          gaEvent("LastFM", "ScrobbleCachedOK");
-        },
-        error: function(code) {
-          console.debug("Error on cached scrobbling: " + code);
-          if (!isScrobbleRetriable(code)) localStorage.removeItem("scrobbleCache");
-          gaEvent("LastFM", "ScrobbleCachedError-" + code);
-        }
+    lastfm.track.scrobble(params, {
+      success: function() {
+        localStorage.removeItem("scrobbleCache");
+        gaEvent("LastFM", "ScrobbleCachedOK");
+      },
+      error: function(code) {
+        console.debug("Error on cached scrobbling: " + code);
+        if (!isScrobbleRetriable(code)) localStorage.removeItem("scrobbleCache");
+        gaEvent("LastFM", "ScrobbleCachedError-" + code);
       }
-    );
+    });
   }
 }
 
+/** Remember the session information after successful authentication. */
+exports.setLastfmSession = function(session) {
+  localSettings.lastfmSessionKey = session.key;
+  localSettings.lastfmSessionName = session.name;
+  lastfm.session = session;
+  gaEvent("LastFM", "AuthorizeOK");
+  loadCurrentLastfmInfo();
+  scrobbleCachedSongs();
+};
+
+/** Scrobble the current song. */
 function scrobble() {
   var params = {
     track: song.info.title,
@@ -600,211 +899,103 @@ function scrobble() {
     duration: song.info.durationSec
   };
   var cloned = $.extend({}, params);//clone now, lastfm API will enrich params with additional values we don't need
-  lastfm.track.scrobble(params,
-    {
-      success: function() {
-        gaEvent("LastFM", "ScrobbleOK");
-        scrobbleCachedSongs();//try cached songs again now that the service seems to work again
-      },
-      error: function(code) {
-        console.debug("Error on scrobbling '" + params.track + "': " + code);
-        if (isScrobbleRetriable(code)) cacheForLaterScrobbling(cloned);
-        gaEvent("LastFM", "ScrobbleError-" + code);
-      }
-    }
-  );
-}
-
-function sendNowPlaying() {
-  lastfm.track.updateNowPlaying({
-      track: song.info.title,
-      artist: song.info.artist,
-      album: song.info.album,
-      duration: song.info.durationSec
+  lastfm.track.scrobble(params, {
+    success: function() {
+      gaEvent("LastFM", "ScrobbleOK");
+      scrobbleCachedSongs();//try cached songs again now that the service seems to work again
     },
-    {
-      success: function() { gaEvent("LastFM", "NowPlayingOK"); },
-      error: function(code) {
-        console.debug("Error on now playing '" + song.info.title + "': " + code);
-        gaEvent("LastFM", "NowPlayingError-" + code);
-      }
+    error: function(code) {
+      console.debug("Error on scrobbling '" + params.track + "': " + code);
+      if (isScrobbleRetriable(code)) cacheForLaterScrobbling(cloned);
+      gaEvent("LastFM", "ScrobbleError-" + code);
     }
-  );
-}
-
-function getLastfmInfo(songInfo, callback) {
-  if (songInfo) {
-    var params = { track: songInfo.title, artist: songInfo.artist };
-    if (localSettings.lastfmSessionName) params.username = localSettings.lastfmSessionName;
-    lastfm.track.getInfo(params, {
-        success: function(response) {
-          var loved = null;
-          var lastfmInfo = null;
-          if (response.track) {
-            lastfmInfo = {
-              listeners: response.track.listeners || 0,
-              playcount: response.track.playcount || 0,
-              userplaycount: response.track.userplaycount || 0,
-              url: response.track.url,
-              artistUrl: response.track.artist && response.track.artist.url,
-              albumUrl: response.track.album && response.track.album.url
-            };
-            if (params.username) loved = response.track.userloved == 1;
-          }
-          callback(loved, lastfmInfo);
-        },
-        error: function(code, msg) {
-          callback(msg, null);
-          gaEvent("LastFM", "getInfoError-" + code);
-        }
-      }
-    );
-  } else callback(null, null);
-}
-
-function getCurrentLastfmInfo() {
-  song.loved = null;
-  song.lastfmInfo = null;
-  getLastfmInfo(song.info, function(loved, lastfmInfo) {
-    song.loved = loved;
-    song.lastfmInfo = lastfmInfo;
   });
 }
 
-function love(songInfo, callback) {
-  if (localSettings.lastfmSessionKey && songInfo) {
-    lastfm.track.love({
-        track: songInfo.title,
-        artist: songInfo.artist
-      },
-      {
-        success: function() { callback(true); },
-        error: function(code, msg) {
-          callback(msg);
-          gaEvent("LastFM", "loveError-" + code);
-        }
-      }
-    );
-  }
+/** Send updateNowPlaying for the current song. */
+function sendNowPlaying() {
+  lastfm.track.updateNowPlaying({
+    track: song.info.title,
+    artist: song.info.artist,
+    album: song.info.album,
+    duration: song.info.durationSec
+  }, {
+    success: function() { gaEvent("LastFM", "NowPlayingOK"); },
+    error: function(code) {
+      console.debug("Error on now playing '" + song.info.title + "': " + code);
+      gaEvent("LastFM", "NowPlayingError-" + code);
+    }
+  });
 }
 
-function loveTrack(event, aSong) {
-  if (aSong == undefined) aSong = song;
-  aSong.loved = null;
-  love(aSong.info, function(loved) { aSong.loved = loved; });
-  //auto-rate if called by click event and not rated yet
-  if (event != null && settings.linkRatings && aSong.rating == 0) executeInGoogleMusic("rate", {rating: 5});
-}
-
-function unlove(songInfo, callback) {
-  if (localSettings.lastfmSessionKey && songInfo) {
-    lastfm.track.unlove({
-        track: songInfo.title,
-        artist: songInfo.artist
-      },
-      {
-        success: function() { callback(false); },
-        error: function(code, msg) {
-          callback(msg);
-          gaEvent("LastFM", "unloveError-" + code);
-        }
-      }
-    );
-  }
-}
-
-function unloveTrack() {
+function updateTrackLoved(fn) {
   song.loved = null;
-  unlove(song.info, function(loved) { song.loved = loved; });
+  var songInfo = song.info;
+  fn(songInfo, function(loved) { if (songInfo == song.info) song.loved = loved; /* check if song meanwhile changed */ });
 }
-
-/** open the last.fm authentication page */
-function lastfmLogin() {
-  var callbackUrl = chrome.extension.getURL("options.html");
-  var url = "http://www.last.fm/api/auth?api_key=" + LASTFM_APIKEY + "&cb=" + callbackUrl;
-  if (optionsTabId) {
-    chrome.tabs.update(optionsTabId, { url: url, active: true });
-  } else {
-    chrome.tabs.create({ url: url });
+loveTrack = function(event) {
+  if (song.loved !== true) {
+    updateTrackLoved(love);
+    //auto-rate if called by click event and not rated yet
+    if (event && settings.linkRatings && song.rating === 0) executeInGoogleMusic("rate", {rating: 5});
   }
-  gaEvent("LastFM", "AuthorizeStarted");
-}
+};
+unloveTrack = updateTrackLoved.bind(window, unlove);
 
-/** reset last.fm session */
-function lastfmLogout() {
-  lastfm.session = {};
-  localSettings.lastfmSessionKey = null;
-  localSettings.lastfmSessionName = null;
-  song.loved = null;
-}
-
-var lastfmReloginNotificationId;
-function lastfmReloginClicked(notificationId) {
-  if (notificationId == lastfmReloginNotificationId) {
-    chrome.notifications.onClicked.removeListener(lastfmReloginClicked);
-    lastfmReloginNotificationId = null;
-    lastfmLogin();
-    chrome.notifications.clear(notificationId, noop);
-  }
-}
-
-/** logout from last.fm and show a notification to login again */
-function relogin() {
+/** Logout from last.fm and show a notification to login again. */
+lastfm.sessionTimeoutCallback = function() {
   lastfmLogout();
-  chrome.notifications.create("", {
+  notifications.create(RELOGIN, {
     type: "basic",
     title: chrome.i18n.getMessage("lastfmSessionTimeout"),
     message: chrome.i18n.getMessage("lastfmRelogin"),
-    iconUrl: chrome.extension.getURL("img/icon-48x48.png")
-  }, function(notificationId) {
-    lastfmReloginNotificationId = notificationId;
-    chrome.notifications.onClicked.addListener(lastfmReloginClicked);
+    iconUrl: chrome.extension.getURL("img/icon-48x48.png"),
+    priority: 1,
+    isClickable: true
+  }, function(nid) {
+    notifications.addListener("click", nid, function() {
+      notifications.clear(nid);
+      lastfmLogin();
+    });
   });
-}
-lastfm.sessionTimeoutCallback = relogin;
+};
 
-function toastClosed(notificationOrWinId) {
-  if (notificationOrWinId == toastId) {
-    toastId = null;
-    song.removeListener("rating", drawToastImage);
-    song.removeListener("loved", drawToastImage);
-    if (toastCoverXhr) {
-      toastCoverXhr.abort();
-      toastCoverXhr = null;
-    }
-    chrome.notifications.onClosed.removeListener(toastClosed);
-    chrome.notifications.onClicked.removeListener(toastClicked);
-    chrome.notifications.onButtonClicked.removeListener(toastButtonClicked);
+/** Callbacks when toast has been closed. */
+function toastClosed() {
+  toastOptions = null;
+  song.removeListener("rating", drawToastImage);
+  song.removeListener("loved", drawToastImage);
+  if (toastCoverXhr) {
+    toastCoverXhr.abort();
+    toastCoverXhr = null;
   }
-  if (toast && notificationOrWinId == toast.id) {
-    toast = null;
-    chrome.windows.onRemoved.removeListener(toastClosed);
+}
+function toastMpClosed(winId) {
+  if (toastWin && winId == toastWin.id) {
+    toastWin = null;
+    chrome.windows.onRemoved.removeListener(toastMpClosed);
   }
 }
 
-function toastClicked(notificationId) {
-  if (notificationId == toastId && settings.toastClick) executeCommand(settings.toastClick);
-}
-
-function toastButtonClicked(notificationId, buttonIndex) {
-  if (notificationId == toastId) {
-    //check which button was clicked that the button is valid (otherwise it is not displayed and we would execute the wrong command)
-    var cmd = settings.toastButton1;
-    var btn = getToastBtn(cmd);
-    if (!btn || buttonIndex == 1) {
-      cmd = settings.toastButton2;
-      btn = getToastBtn(cmd);
-    }
-    if (btn) executeCommand(cmd);
+/** Callback when toast button was clicked. */
+function toastButtonClicked(buttonIndex) {
+  //check which button was clicked and that the button is valid (otherwise it is not displayed and we would execute the wrong command)
+  var cmd = settings.toastButton1;
+  var btn = getToastBtn(cmd);
+  if (!btn || buttonIndex == 1) {
+    cmd = settings.toastButton2;
+    btn = getToastBtn(cmd);
   }
+  if (btn) executeCommand(cmd, "toast");
 }
 
+/** @return button information object (title, iconUrl) for a command to be provided to 'notifications.create' or null, if not available */
 function getToastBtn(cmd) {
   if (!cmd) return null;
   var icon = cmd;
   switch (cmd) {
     case "loveUnloveSong":
-      if (!localSettings.lastfmSessionName) return null;
+      if (!localSettings.lastfmSessionKey) return null;
       break;
     case "toggleRepeat":
       if (!player.repeat) return null;
@@ -813,10 +1004,10 @@ function getToastBtn(cmd) {
       if (!player.shuffle) return null;
       break;
     case "rate-1":
-      if (player.ratingMode == "thumbs") icon = "thumbsDown"
+      if (player.ratingMode == "thumbs") icon = "thumbsDown";
       break;
     case "rate-5":
-      if (player.ratingMode == "thumbs") icon = "thumbsUp"
+      if (player.ratingMode == "thumbs") icon = "thumbsUp";
       break;
     case "rate-2":
     case "rate-3":
@@ -827,18 +1018,20 @@ function getToastBtn(cmd) {
   return {title: getTextForToastBtn(cmd), iconUrl: chrome.extension.getURL("img/toast/" + icon + ".png")};
 }
 
+/** Updates the toast's iconUrl with the album cover and rating. */
 function drawToastImage() {
-  if (!song.info || !toastId) return;
+  if (!song.info || !toastOptions) return;
   var cover = new Image();
   var rating = new Image();
   var coverReady = false;
   var ratingReady = false;
   function draw() {
+    if (!toastOptions) return;//might be closed already
     var ctx = $("<canvas width='100' height='100'/>").get(0).getContext("2d");
     ctx.drawImage(cover, 0, 0, 100, 100);
-    if (cover.src.indexOf("blob") == 0) URL.revokeObjectURL(cover.src);
+    if (cover.src.indexOf("blob") === 0) URL.revokeObjectURL(cover.src);
     if (player.ratingMode == "thumbs") {
-      if (song.rating == 1 || song.rating == 2) ctx.drawImage(rating, 16, 0, 16, 16, 0, 84, 16, 16)
+      if (song.rating == 1 || song.rating == 2) ctx.drawImage(rating, 16, 0, 16, 16, 0, 84, 16, 16);
       else if (song.rating >= 4) ctx.drawImage(rating, 0, 0, 16, 16, 0, 84, 16, 16);
     } else if (player.ratingMode == "star") {
       for (i = 0; i < song.rating; i++) {
@@ -848,8 +1041,9 @@ function drawToastImage() {
     if (song.loved === true) {
       ctx.drawImage(rating, 48, 0, 16, 16, 84, 84, 16, 16);
     }
-    chrome.notifications.update(toastId, getToastOptions(ctx.canvas.toDataURL()), noop);
-  };
+    toastOptions.iconUrl = ctx.canvas.toDataURL();
+    notifications.update(TOAST, toastOptions);
+  }
   
   if (song.rating > 0 || song.loved === true) {
     rating.onload = function() { ratingReady = true;  if (coverReady) draw(); };
@@ -876,29 +1070,14 @@ function drawToastImage() {
   }
 }
 
-function getToastOptions(iconUrl) {
-  var btns = [];
-  var btn = getToastBtn(settings.toastButton1);
-  if (btn) btns.push(btn);
-  btn = getToastBtn(settings.toastButton2);
-  if (btn) btns.push(btn);
-  return {
-    type: "basic",
-    title: song.info.title,
-    message: song.info.artist,
-    contextMessage: song.info.album,
-    iconUrl: iconUrl,
-    buttons: btns
-  };
-}
-
 var closeToastTimer;
+/** Open a toast, either as miniplayer or notification. */
 function openToast() {
   clearTimeout(closeToastTimer);
   if (settings.toastUseMpStyle) {
     createPlayer("toast", function(win) {
-      toast = win;
-      chrome.windows.onRemoved.addListener(toastClosed);
+      toastWin = win;
+      chrome.windows.onRemoved.addListener(toastMpClosed);
     }, false);
   } else {
     var btns = [];
@@ -906,12 +1085,23 @@ function openToast() {
     if (btn) btns.push(btn);
     btn = getToastBtn(settings.toastButton2);
     if (btn) btns.push(btn);
-    var options = getToastOptions(chrome.extension.getURL("img/cover.png"));
-    chrome.notifications.create("", options, function(notificationId) {
-      toastId = notificationId;
-      chrome.notifications.onClosed.addListener(toastClosed);
-      chrome.notifications.onClicked.addListener(toastClicked);
-      chrome.notifications.onButtonClicked.addListener(toastButtonClicked);
+    
+    var options = {
+      type: settings.toastProgress ? "progress" : "basic",
+      title: song.info.title,
+      message: song.info.artist,
+      contextMessage: song.info.album,
+      iconUrl: chrome.extension.getURL("img/cover.png"),
+      buttons: btns,
+      priority: settings.toastPriority - 2,
+      isClickable: settings.toastClick !== ""
+    };
+    if (settings.toastProgress) options.progress = Math.floor(song.positionSec * 100 / song.info.durationSec);
+    notifications.create(TOAST, options, function(nid) {
+      toastOptions = options;
+      notifications.addListener("close", nid, toastClosed);
+      notifications.addListener("click", nid, function() { if (settings.toastClick) executeCommand(settings.toastClick, "toast"); });
+      notifications.addListener("btnClick", nid, toastButtonClicked);
       song.watch("rating", drawToastImage);
       song.addListener("loved", drawToastImage);
     });
@@ -921,39 +1111,34 @@ function openToast() {
   }
 }
 
-function closeToast(callback) {
+/** Close the toast, if open and call an optional function when finished. */
+function closeToast(cb) {
   clearTimeout(closeToastTimer);
-  if (typeof(callback) != "function") callback = noop;
-  if (toastId) chrome.notifications.clear(toastId, callback)
-  else if (toast) chrome.windows.remove(toast.id, callback)
-  else callback();
+  if (typeof(cb) != "function") cb = noop;
+  if (toastOptions) notifications.clear(TOAST, cb);
+  else if (toastWin) chrome.windows.remove(toastWin.id, cb);
+  else cb();
 }
 
-/** open toast notification */
-function toastPopup() {
-  if (!song.toasted && settings.toast && (settings.toastIfMpOpen || !miniplayer)) {
-    song.toasted = true;
-    closeToast(openToast);
-  }
-}
-
+/** Close the Google Music tab. */
 function closeGm() {
   if (googlemusictabId) chrome.tabs.remove(googlemusictabId);
 }
 
 var miniplayerReopen = false;
-/** reset state when miniplayer is closed, reopen if neccessary */
+/** Reset state when miniplayer is closed, reopen if necessary. */
 function miniplayerClosed(winId) {
-  if (miniplayer) {
-    if (winId != miniplayer.id) return;//some other window closed
+  if (miniplayer && winId == miniplayer.id) {
     chrome.windows.onRemoved.removeListener(miniplayerClosed);
     miniplayer = null;
-    if (miniplayerReopen) openMiniplayer();
-    else if (settings.mpCloseGm) closeGm();
-    miniplayerReopen = false;
+    if (miniplayerReopen) {
+      openMiniplayer();
+      miniplayerReopen = false;
+    } else if (settings.mpCloseGm) closeGm();
   }
 }
 
+/** Open new player window for the given type ("miniplayer", "popup" or "toast"). */
 function createPlayer(type, callback, focused) {
   var sizing = localSettings.miniplayerSizing[settings.layout];
   chrome.windows.create({
@@ -968,8 +1153,9 @@ function createPlayer(type, callback, focused) {
   );
 }
 
+/** Open the miniplayer. */
 function openMiniplayer() {
-  closeToast();
+  if (!settings.toastIfMpOpen) closeToast();
   if (miniplayer) {//close first
     miniplayerReopen = true;
     chrome.windows.remove(miniplayer.id);
@@ -982,9 +1168,11 @@ function openMiniplayer() {
     chrome.windows.onRemoved.addListener(miniplayerClosed);
   }, true);
 }
+exports.openMiniplayer = openMiniplayer;
 
 var iconClickCount = 0;
 var iconClickActionTimer;
+/** Execute the icon click action corresponding to the number of clicks. */
 function iconClickActionDelayed() {
   clearTimeout(iconClickActionTimer);
   var action = settings["iconClickAction" + iconClickCount];
@@ -995,16 +1183,17 @@ function iconClickActionDelayed() {
     iconClickActionTimer = setTimeout(function() {
       chrome.browserAction.setPopup({popup: ""});
       iconClickCount = 0;
-      executeCommand(action);
+      executeCommand(action, "icon");
     }, settings.iconDoubleClickTime);
-  } else executeCommand(action);
+  } else executeCommand(action, "icon");
 }
 
-function popupOpened() {
+/** Callback from popup to signal that it's open. */
+exports.popupOpened = function() {
   clearTimeout(iconClickActionTimer);
   iconClickCount = 0;
   iconClickSettingsChanged();
-}
+};
 
 /** handler for all settings changes that need to update the browser action */
 function iconClickSettingsChanged() {
@@ -1022,32 +1211,19 @@ function iconClickSettingsChanged() {
   }
 }
 
-/** @return true, if the given version is newer than the saved previous version (used by options page and update listener) */
-function isNewerVersion(version) {
-  if (previousVersion == null) return false;
-  var prev = previousVersion.split(".");
-  version = version.split(".");
-  for (var i = 0; i < prev.length; i++) {
-    if (version.length <= i) return false;//version is shorter (e.g. 1.0 < 1.0.1)
-    var p = parseInt(prev[i]);
-    var v = parseInt(version[i]);
-    if (p != v) return v > p;
-  }
-  return version.length > prev.length;//version is longer (e.g. 1.0.1 > 1.0), else same version
-}
-
+/** Do necessary migrations on update. */
 function migrateSettings(previousVersion) {
-  if (localStorage["iconClickMiniplayer"] !== undefined) {
-    if (localStorage["iconClickMiniplayer"] == "btrue") settings.iconClickAction0 = "openMiniplayer";
-    else if (localStorage["iconClickPlayPause"] == "btrue") settings.iconClickAction0 = "playPause";
+  if (localStorage.iconClickMiniplayer !== undefined) {
+    if (localStorage.iconClickMiniplayer == "btrue") settings.iconClickAction0 = "openMiniplayer";
+    else if (localStorage.iconClickPlayPause == "btrue") settings.iconClickAction0 = "playPause";
     localStorage.removeItem("iconClickMiniplayer");
     localStorage.removeItem("iconClickPlayPause");
   }
   if (previousVersion < 2.18 && !settings.toastUseMpStyle) {
     settings.toastDuration = 0;
   }
-  if (localStorage["skipDislikedSongs"] !== undefined) {
-    settings.skipRatedLower = localStorage["skipDislikedSongs"] == "btrue" ? 1 : 0;
+  if (localStorage.skipDislikedSongs !== undefined) {
+    settings.skipRatedLower = localStorage.skipDislikedSongs == "btrue" ? 1 : 0;
     localStorage.removeItem("skipDislikedSongs");
   }
   if (previousVersion < 2.23) {
@@ -1062,9 +1238,9 @@ function updatedListener(details) {
     if (settings.updateNotifier) {
       previousVersion = details.previousVersion;
       if (isNewerVersion(currentVersion)) {
-        localStorage["previousVersion"] = previousVersion;
+        localStorage.previousVersion = previousVersion;
         viewUpdateNotifier = true;
-        localStorage["viewUpdateNotifier"] = viewUpdateNotifier;
+        localStorage.viewUpdateNotifier = viewUpdateNotifier;
         iconClickSettingsChanged();
         updateBrowserActionInfo();
       } else {
@@ -1073,46 +1249,36 @@ function updatedListener(details) {
     }
     migrateSettings(parseFloat(details.previousVersion));
   } else if (details.reason == "install") {
-    chrome.notifications.create("", {
+    notifications.create(WELCOME, {
       type: "basic",
       title: chrome.i18n.getMessage("welcomeTitle"),
       message: chrome.i18n.getMessage("welcomeMessage"),
-      buttons: [{title: chrome.i18n.getMessage("toOptions")}],
-      iconUrl: chrome.extension.getURL("img/icon-48x48.png"),
-      priority: 2
-    }, function(notificationId) {
-      function checkNotId(notId) {
-        if (notId == notificationId) {
-          chrome.notifications.onClicked.removeListener(notifClicked);
-          chrome.notifications.onButtonClicked.removeListener(notifClicked);
-          chrome.notifications.onClosed.removeListener(notifClosed);
-          return true;
-        }
-        return false;
-      }
-      function notifClicked(notId) {
-        if (checkNotId(notId)) {
+      buttons: [{title: chrome.i18n.getMessage("toOptions")}, {title: chrome.i18n.getMessage("toWiki")}],
+      iconUrl: chrome.extension.getURL("img/icon-48x48.png")
+    }, function(nid) {
+      function notifOrBtnClicked(buttonIndex) {
+        notifications.clear(nid);
+        if (buttonIndex == 1) {
+          gaEvent("Options", "welcome-toWiki");
+          chrome.tabs.create({url: "https://github.com/svenackermann/Prime-Player-Google-Play-Music/wiki"});
+        } else {//button 0 or notification clicked
           gaEvent("Options", "welcome-toOptions");
-          chrome.notifications.clear(notId, noop);
           openOptions();
         }
       }
-      function notifClosed(notId, byUser) {
-        if (checkNotId(notId) && byUser) gaEvent("Options", "welcome-close");
-      }
-      chrome.notifications.onClicked.addListener(notifClicked);
-      chrome.notifications.onButtonClicked.addListener(notifClicked);
-      chrome.notifications.onClosed.addListener(notifClosed);
+      notifications.addListener("click", nid, notifOrBtnClicked);
+      notifications.addListener("btnClick", nid, notifOrBtnClicked);
+      notifications.addListener("close", nid, function(byUser) { if (byUser) gaEvent("Options", "welcome-close"); });
     });
   }
 }
 
 /** called by options page when it is first opened after an update */
-function updateInfosViewed() {
+exports.updateInfosViewed = function() {
   previousVersion = null;
   localStorage.removeItem("previousVersion");
   updateNotifierDone();
-}
+};
 
 /** called by update notifier page when it is first opened after an update */
 function updateNotifierDone() {
@@ -1121,42 +1287,21 @@ function updateNotifierDone() {
   iconClickSettingsChanged();
   updateBrowserActionInfo();
 }
+exports.updateNotifierDone = updateNotifierDone;
 
-/** Google Analytics stuff */
-function gaEvent(category, eventName) {
-  if (settings.gaEnabled) ga('send', 'event', category, eventName, currentVersion);
-}
-function gaSocial(network, action) {
-  if (settings.gaEnabled) ga('send', 'social', network, action);
-}
-function gaEnabledChanged(val) {
-  if (val) {
-    settings.removeListener("gaEnabled", gaEnabledChanged);//init only once
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-    ga('create', 'UA-41499181-1', 'auto');
-    ga('set', 'checkProtocolTask', function(){});
-    ga('set', 'dimension1', currentVersion);
-    ga('set', 'dimension2', localSettings.lyrics.toString());
-    ga('set', 'dimension3', isScrobblingEnabled().toString());
-    ga('set', 'dimension4', settings.toast.toString());
-    ga('set', 'dimension5', settings.layout);
-    ga('send', 'pageview', {
-      'metric1': settings.scrobblePercent,
-      'metric2': settings.toastDuration
-    });
-  }
-}
-
-var timerEnd = 0;
 var sleepTimer;
 var preNotifyTimer;
+/** Start the sleep timer. */
 function startSleepTimer() {
   clearTimeout(sleepTimer);
-  timerEnd = (new Date().getTime() / 1000) + (localSettings.timerMinutes * 60);
+  clearTimeout(preNotifyTimer);
+  notifications.clear(TIMERWARN);
+  var nowSec = new Date().getTime() / 1000;
+  var countdownSec = Math.max(0, localSettings.timerEnd - nowSec);
   sleepTimer = setTimeout(function() {
-    chrome.notifications.clear("preNotifyTimer", noop);
+    notifications.clear(TIMERWARN);
     sleepTimer = null;
-    timerEnd = 0;
+    localSettings.timerEnd = 0;
     var msg, btnTitle, undoAction;
     switch (localSettings.timerAction) {
       case "pause":
@@ -1177,34 +1322,29 @@ function startSleepTimer() {
         break;
     }
     if (localSettings.timerNotify && msg) {
-      chrome.notifications.create("", {
+      notifications.create(TIMEREND, {
         type: "basic",
         title: chrome.i18n.getMessage("timerNotificationTitle"),
         message: msg,
         buttons: [{title: btnTitle}],
         iconUrl: chrome.extension.getURL("img/icon-48x48.png"),
-        priority: 2
-      }, function(notificationId) {
-        function clearNotification() {
-          chrome.notifications.clear(notificationId, noop);
-          chrome.notifications.onButtonClicked.removeListener(btnClicked);
+        isClickable: false
+      }, function(nid) {
+        function clearNotification() { notifications.clear(nid); }
+        function btnClicked() {
+          clearNotification();
+          undoAction();
         }
-        function btnClicked(notId) {
-          if (notId == notificationId) {
-            clearNotification();
-            undoAction();
-          }
-        }
-        chrome.notifications.onButtonClicked.addListener(btnClicked);
+        notifications.addListener("btnClick", nid, btnClicked);
         setTimeout(clearNotification, 10000);
       });
     }
-  }, localSettings.timerMinutes * 60000);
-  if (localSettings.timerPreNotify > 0) {
+  }, countdownSec * 1000);
+  if (localSettings.timerPreNotify > 0 && countdownSec > 0) {
     preNotifyTimer = setTimeout(function() {
       preNotifyTimer = null;
       function getWarningMessage() {
-        return chrome.i18n.getMessage(localSettings.timerAction == "pause" ? "timerWarningMsgPause" : "timerWarningMsgCloseGm", "" + Math.max(0, Math.floor(timerEnd - new Date().getTime() / 1000)));
+        return chrome.i18n.getMessage(localSettings.timerAction == "pause" ? "timerWarningMsgPause" : "timerWarningMsgCloseGm", "" + Math.max(0, Math.floor(localSettings.timerEnd - new Date().getTime() / 1000)));
       }
       var preNotifyOptions = {
         type: "basic",
@@ -1212,56 +1352,42 @@ function startSleepTimer() {
         message: getWarningMessage(),
         buttons: [{title: chrome.i18n.getMessage("cancelTimer")}],
         iconUrl: chrome.extension.getURL("img/icon-48x48.png"),
-        priority: 1
+        priority: 1,
+        isClickable: false
       };
-      chrome.notifications.create("preNotifyTimer", preNotifyOptions, function(notificationId) {
+      notifications.create(TIMERWARN, preNotifyOptions, function(nid) {
         var preNotifyInterval;
-        function btnClicked(notId) {
-          if (notId == notificationId) {
-            clearSleepTimer();
-            chrome.notifications.clear(notId, noop);
-          }
+        function btnClicked() {
+          clearSleepTimer();
+          notifications.clear(nid);
         }
-        function preNotifyClosed(notId) {
-          if (notId == notificationId) {
-            clearInterval(preNotifyInterval);
-            chrome.notifications.onButtonClicked.removeListener(btnClicked);
-            chrome.notifications.onClosed.removeListener(preNotifyClosed);
-          }
+        function preNotifyClosed() {
+          clearInterval(preNotifyInterval);
         }
-        chrome.notifications.onButtonClicked.addListener(btnClicked);
-        chrome.notifications.onClosed.addListener(preNotifyClosed);
+        notifications.addListener("btnClick", nid, btnClicked);
+        notifications.addListener("close", nid, preNotifyClosed);
         preNotifyInterval = setInterval(function() {
           preNotifyOptions.message = getWarningMessage();
-          chrome.notifications.update(notificationId, preNotifyOptions, noop);
+          notifications.update(nid, preNotifyOptions);
         }, 1000);
       });
-    }, (localSettings.timerMinutes * 60 - localSettings.timerPreNotify) * 1000);
+    }, Math.max(0, (countdownSec - localSettings.timerPreNotify) * 1000));
   }
 }
+exports.startSleepTimer = startSleepTimer;
+
+/** Stop the sleep timer. */
 function clearSleepTimer() {
   clearTimeout(sleepTimer);
   sleepTimer = null;
   clearTimeout(preNotifyTimer);
   preNotifyTimer = null;
-  chrome.notifications.clear("preNotifyTimer", noop);
-  timerEnd = 0;
+  notifications.clear(TIMERWARN);
+  localSettings.timerEnd = player.connected ? 0 : null;
 }
+exports.clearSleepTimer = clearSleepTimer;
 
-function extractUrlParam(name, queryString) {
-  var matched = RegExp(name + "=(.+?)(&|$)").exec(queryString);
-  if (matched == null || matched.length < 2) return null;
-  return matched[1];
-}
-
-function openOptions() {
-  if (optionsTabId) {
-    chrome.tabs.update(optionsTabId, {active: true});
-  } else {
-    chrome.tabs.create({url: chrome.extension.getURL("options.html")});
-  }
-}
-
+/** Open or activate a Google Music tab. */
 function openGoogleMusicTab(link) {
   if (googlemusictabId) {
     chrome.tabs.update(googlemusictabId, {active: true});
@@ -1272,41 +1398,49 @@ function openGoogleMusicTab(link) {
     chrome.tabs.create({url: url, pinned: settings.openGoogleMusicPinned});
   }
 }
+exports.openGoogleMusicTab = openGoogleMusicTab;
 
+/** Connect existing Google Music tabs on startup. */
 function connectGoogleMusicTabs() {
   chrome.tabs.query({url:"*://play.google.com/music/listen*"}, function(tabs) {
     for (var i = 0; i < tabs.length; i++) {
       var tabId = tabs[i].id;
       chrome.tabs.insertCSS(tabId, {file: "css/gpm.css"});
       chrome.tabs.executeScript(tabId, {file: "js/jquery-2.0.2.min.js"});
-      chrome.tabs.executeScript(tabId, {file: "js/cs.js"});
+      chrome.tabs.executeScript(tabId, {file: "js/cs.min.js"});
     }
   });
 }
 
+/** Open the miniplayer if not already when a song starts playing. */
 function openMpOnPlaying(playing) {
-  if (playing && miniplayer == null) openMiniplayer();
+  if (playing && miniplayer === null) openMiniplayer();
 }
 
+/** Close the miniplayer when Google Music disconnects. */
 function closeMpOnDisconnect(connected) {
   if (!connected && miniplayer) chrome.windows.remove(miniplayer.id);
 }
 
-function openLyrics(aSong) {
-  if (!aSong) {
-    if (!song.info) return;
-    aSong = {artist: song.info.artist, title: song.info.title};
-  }
-  var url = buildLyricsSearchUrl(aSong);
-  if (url) {
-    chrome.tabs.create({url: url}, function(tab) {
-      chrome.tabs.executeScript(tab.id, {file: "js/cs-songlyrics.js", runAt: "document_end"});
+function gaEnabledChanged(val) {
+  if (val) {
+    settings.removeListener("gaEnabled", gaEnabledChanged);//init only once
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');//jshint ignore:line
+    ga('create', 'UA-41499181-1', 'auto');
+    ga('set', 'checkProtocolTask', function(){});
+    ga('set', 'dimension1', currentVersion);
+    ga('set', 'dimension2', localSettings.lyrics.toString());
+    ga('set', 'dimension3', isScrobblingEnabled().toString());
+    ga('set', 'dimension4', settings.toast.toString());
+    ga('set', 'dimension5', settings.layout);
+    ga('send', 'pageview', {
+      'metric1': settings.scrobblePercent,
+      'metric2': settings.toastDuration
     });
-    gaEvent("Lyrics", "Open");
-  } else {
-    gaEvent("Lyrics", "Error-noURL");
   }
 }
+
+/* --- register listeners --- */
 
 settings.watch("gaEnabled", gaEnabledChanged);
 settings.watch("iconClickAction0", iconClickSettingsChanged);
@@ -1327,14 +1461,15 @@ settings.addListener("layout", function() {
   }
 });
 settings.addListener("hideRatings", function(val) {
-  if (!val && song.loved == null) getCurrentLastfmInfo();
+  if (!val && song.loved === null) loadCurrentLastfmInfo();
 });
 settings.addListener("showLastfmInfo", function(val) {
-  if (val && song.lastfmInfo == null) getCurrentLastfmInfo();
+  if (val && song.lastfmInfo === null) loadCurrentLastfmInfo();
 });
 settings.addListener("toastUseMpStyle", closeToast);
 settings.addListener("toastButton1", closeToast);
 settings.addListener("toastButton2", closeToast);
+settings.addListener("toastProgress", closeToast);
 settings.addListener("scrobble", calcScrobbleTime);
 settings.addListener("scrobbleMaxDuration", calcScrobbleTime);
 settings.addListener("scrobblePercent", calcScrobbleTime);
@@ -1346,32 +1481,32 @@ settings.addListener("connectedIndicator", function(val) {
   postToGooglemusic({type: "connectedIndicator", show: val});
 });
 settings.watch("mpAutoOpen", function(val) {
-  if (val) player.watch("playing", openMpOnPlaying)
+  if (val) player.watch("playing", openMpOnPlaying);
   else player.removeListener("playing", openMpOnPlaying);
 });
 settings.watch("mpAutoClose", function(val) {
-  if (val) player.addListener("connected", closeMpOnDisconnect)
+  if (val) player.addListener("connected", closeMpOnDisconnect);
   else player.removeListener("connected", closeMpOnDisconnect);
 });
 settings.addListener("lyricsInGpm", postLyricsState);
 settings.addListener("lyricsAutoReload", postLyricsState);
 settings.watch("showPlayingIndicator", function(val) {
-  if (val) player.addListener("playing", updateBrowserActionInfo)
+  if (val) player.addListener("playing", updateBrowserActionInfo);
   else player.removeListener("playing", updateBrowserActionInfo);
   updateBrowserActionInfo();
 });
 settings.watch("showScrobbledIndicator", function(val) {
-  if (val) song.addListener("scrobbled", updateBrowserActionInfo)
+  if (val) song.addListener("scrobbled", updateBrowserActionInfo);
   else song.removeListener("scrobbled", updateBrowserActionInfo);
   updateBrowserActionInfo();
 });
 settings.watch("showLovedIndicator", function(val) {
-  if (val) song.addListener("loved", updateBrowserActionInfo)
+  if (val) song.addListener("loved", updateBrowserActionInfo);
   else song.removeListener("loved", updateBrowserActionInfo);
   updateBrowserActionInfo();
 });
 settings.watch("showRatingIndicator", function(val) {
-  if (val) song.addListener("rating", updateBrowserActionInfo)
+  if (val) song.addListener("rating", updateBrowserActionInfo);
   else song.removeListener("rating", updateBrowserActionInfo);
   updateBrowserActionInfo();
 });
@@ -1412,6 +1547,10 @@ localSettings.addListener("lastfmSessionName", calcScrobbleTime);
 localSettings.addListener("lyrics", postLyricsState);
 localSettings.addListener("lyricsFontSize", postLyricsState);
 localSettings.addListener("lyricsWidth", postLyricsState);
+localSettings.watch("notificationsEnabled", function(val) {
+  if (val) notifications.init();
+  else gaEvent("Options", "notifications-disabled");
+});
 
 player.addListener("connected", function(val) {
   updateBrowserActionInfo();
@@ -1421,14 +1560,16 @@ player.addListener("connected", function(val) {
     resumeLastSongIfConnected();
     if (settings.connectedIndicator) postToGooglemusic({type: "connectedIndicator", show: true});
     if (localSettings.lyrics && settings.lyricsInGpm) postLyricsState();
+    localSettings.timerEnd = 0;
   } else {
     clearSleepTimer();
   }
 });
 
+/** Backup runtime data, cleanup and reload the extension when an update is available. */
 function reloadForUpdate() {
   var backup = {};
-  backup.miniplayerOpen = miniplayer != null;
+  backup.miniplayerOpen = miniplayer !== null;
   backup.nowPlayingSent = song.nowPlayingSent;
   backup.scrobbled = song.scrobbled;
   backup.toasted = song.toasted;
@@ -1438,7 +1579,7 @@ function reloadForUpdate() {
   backup.songTimestamp = song.timestamp;
   backup.loved = song.loved;
   backup.volumeBeforeMute = volumeBeforeMute;
-  localStorage["updateBackup"] = JSON.stringify(backup);
+  localStorage.updateBackup = JSON.stringify(backup);
   //sometimes the onDisconnect listener in the content script is not triggered on reload(), so explicitely disconnect here
   if (googlemusicport) {
     googlemusicport.onDisconnect.removeListener(onDisconnectListener);
@@ -1451,24 +1592,32 @@ function reloadForUpdate() {
   setTimeout(function() { chrome.runtime.reload(); }, 1000);//wait a second til port cleanup is finished
 }
 
-if (localStorage["updateBackup"] != null) {
-  var updateBackup = JSON.parse(localStorage["updateBackup"]);
+/** true, if the position came from update backup data, needed to not set ff by mistake */
+var positionFromBackup = false;
+// restore backup, if available
+if (localStorage.updateBackup) {
+  var backup = JSON.parse(localStorage.updateBackup);
   localStorage.removeItem("updateBackup");
-  song.timestamp = updateBackup.songTimestamp;
-  song.toasted = updateBackup.toasted;
-  song.info = updateBackup.songInfo;
-  song.positionSec = parseSeconds(updateBackup.songPosition);
-  song.position = updateBackup.songPosition;
-  song.nowPlayingSent = updateBackup.nowPlayingSent;
-  song.ff = updateBackup.songFf;
+  song.timestamp = backup.songTimestamp;
+  song.toasted = backup.toasted;
+  song.info = backup.songInfo;
+  song.positionSec = parseSeconds(backup.songPosition);
+  song.position = backup.songPosition;
+  song.nowPlayingSent = backup.nowPlayingSent;
+  song.ff = backup.songFf;
   calcScrobbleTime();
-  song.scrobbled = updateBackup.scrobbled;
-  song.loved = updateBackup.loved;
+  song.scrobbled = backup.scrobbled;
+  song.loved = backup.loved;
   positionFromBackup = true;
-  volumeBeforeMute = updateBackup.volumeBeforeMute;
-  if (updateBackup.miniplayerOpen) openMiniplayer();
+  volumeBeforeMute = backup.volumeBeforeMute;
+  if (localSettings.timerEnd) {
+    startSleepTimer();
+  }
+  if (backup.miniplayerOpen) openMiniplayer();
 }
 
+/** for correct calculation of song.ff on resume */
+var lastSongPositionSec;
 song.addListener("position", function(val) {
   var oldPos = lastSongPositionSec || song.positionSec;
   song.positionSec = parseSeconds(val);
@@ -1493,14 +1642,23 @@ song.addListener("position", function(val) {
         song.scrobbled = false;
         calcScrobbleTime();
       }
-    } else if (song.positionSec >= 3 && isScrobblingEnabled()) {
-      if (!song.nowPlayingSent) {
-        song.nowPlayingSent = true;
-        sendNowPlaying();
+    } else if (song.positionSec >= 3) {
+      if (isScrobblingEnabled()) {
+        if (!song.nowPlayingSent) {
+          song.nowPlayingSent = true;
+          sendNowPlaying();
+        }
+        if (!song.scrobbled && song.scrobbleTime >= 0 && song.positionSec >= song.scrobbleTime) {
+          song.scrobbled = true;
+          scrobble();
+        }
       }
-      if (!song.scrobbled && song.scrobbleTime >= 0 && song.positionSec >= song.scrobbleTime) {
-        song.scrobbled = true;
-        scrobble();
+      if (settings.toastProgress && toastOptions) {
+        var progress = Math.floor(song.positionSec * 100 / song.info.durationSec);
+        if (progress > toastOptions.progress) {//avoid update on noop
+          toastOptions.progress = progress;
+          notifications.update(TOAST, toastOptions);
+        }
       }
     }
     if (settings.saveLastPosition && googlemusicport) {
@@ -1525,9 +1683,12 @@ song.addListener("info", function(val) {
   song.loved = null;
   song.lastfmInfo = null;
   if (val) {
-    song.info.durationSec = parseSeconds(val.duration);
-    toastPopup();
-    if (!settings.hideRatings || settings.showLastfmInfo) getCurrentLastfmInfo();
+    val.durationSec = parseSeconds(val.duration);
+    if (settings.toast && (settings.toastIfMpOpen || !miniplayer)) {
+      song.toasted = true;
+      closeToast(openToast);
+    }
+    if (!settings.hideRatings || settings.showLastfmInfo) loadCurrentLastfmInfo();
   } else {
     song.timestamp = null;
     closeToast();
@@ -1539,46 +1700,8 @@ song.addListener("info", function(val) {
   calcScrobbleTime();
 });
 
-function getLastSong(callback) {
-  chrome.storage.local.get(null, function(items) {
-    if (items.lastSong) {
-      var lastSong = {
-        info: items.lastSong,
-        position: items.lastPosition,
-        positionSec: parseSeconds(items.lastPosition),
-        rating: items.rating,
-        ratingMode: items.ratingMode,
-        scrobbled: items.scrobbled,
-        scrobbleTime: items.scrobbleTime,
-        ff: items.ff
-      };
-      callback(lastSong);
-    }
-  });
-}
-
-function setVolume(percent) {
-  executeInGoogleMusic("setVolume", {percent: percent});
-}
-
-function setSongPosition(percent) {
-  executeInGoogleMusic("setPosition", {percent: percent});
-}
-
-function isRatingReset(oldRating, newRating) {
-  return oldRating == newRating
-    || (player.ratingMode == "thumbs" && ((oldRating == 2 && newRating == 1) || (oldRating == 4 && newRating == 5)));
-}
-
-function rate(rating) {
-  if (song.rating < 0) return;//negative ratings cannot be changed
-  //auto-love if called by click event, no reset and not loved yet
-  var reset = isRatingReset(song.rating, rating);
-  if (settings.linkRatings && rating == 5 && !reset && song.loved !== true) loveTrack();
-  executeInGoogleMusic("rate", {rating: rating});
-}
-
-function executeCommand(command) {
+/** Execute a command (might come from commands API, toast or browser icon action) */
+function executeCommand(command, src) {
   switch (command) {
     case "playPause":
     case "nextSong":
@@ -1597,18 +1720,18 @@ function executeCommand(command) {
       if (song.info) closeToast(openToast);
       break;
     case "loveUnloveSong":
-      if (song.loved === true) unloveTrack()
+      if (song.loved === true) unloveTrack();
       else loveTrack(true);
       break;
     case "volumeUp":
-      if (player.volume != null && player.volume != "100") setVolume(Math.min(100, parseInt(player.volume) + 10) / 100);
+      if (player.volume !== null && player.volume != "100") setVolume(Math.min(100, parseInt(player.volume) + 10) / 100);
       break;
     case "volumeDown":
-      if (player.volume != null && player.volume != "0") setVolume(Math.max(0, parseInt(player.volume) - 10) / 100);
+      if (player.volume !== null && player.volume != "0") setVolume(Math.max(0, parseInt(player.volume) - 10) / 100);
       break;
     case "volumeMute":
-      if (player.volume != null) {
-        if (volumeBeforeMute != null && player.volume == "0") {
+      if (player.volume !== null) {
+        if (volumeBeforeMute !== null && player.volume == "0") {
           setVolume(parseInt(volumeBeforeMute) / 100);
           volumeBeforeMute = null;
         } else if (player.volume != "0") {
@@ -1624,11 +1747,15 @@ function executeCommand(command) {
       if (localSettings.lyrics) openLyrics();
       break;
     default:
-      if (command.indexOf("rate-") == 0 && song.info) {
+      if (command.indexOf("rate-") === 0 && song.info) {
         var rating = parseInt(command.substr(5, 1));
-        if (!settings.preventCommandRatingReset || !isRatingReset(song.rating, rating)) rate(rating);
+        if ((src == "icon" && settings.showRatingIndicator) || !settings.preventCommandRatingReset || !isRatingReset(song.rating, rating)) rate(rating);
       }
   }
+}
+
+function updateNotificationsEnabled(level) {
+  localSettings.notificationsEnabled = level == "granted";
 }
 
 chrome.commands.onCommand.addListener(executeCommand);
@@ -1639,6 +1766,11 @@ chrome.runtime.onUpdateAvailable.addListener(reloadForUpdate);
 chrome.runtime.onSuspend.addListener(function() {
   chrome.runtime.onUpdateAvailable.removeListener(reloadForUpdate);
 });
+chrome.notifications.onShowSettings.addListener(openOptions);
+chrome.notifications.getPermissionLevel(updateNotificationsEnabled);
+chrome.notifications.onPermissionLevelChanged.addListener(updateNotificationsEnabled);
 
 connectGoogleMusicTabs();
 if (isScrobblingEnabled()) scrobbleCachedSongs();
+
+})(this);

@@ -2,7 +2,7 @@
  * This script is injected directly to the Google Play Music window to run in its context.
  * Handles commands from content script.
  * @author Sven Ackermann (svenrecknagel@googlemail.com)
- * Licensed under the BSD license
+ * @license BSD license
  */
 (function() {
   function dispatchMouseEvent(eventname, element, clientX, clientY) {
@@ -99,13 +99,14 @@
   
   function ratePlaylistSong(options) {
     withPlaylistCols(options.index, function(cols) {
+      function rateCol(col) {
+        rate(col, options.rating);
+        setTimeout(sendPlaylistSongResult.bind(window, "playlistSongRated", options.index), 250);
+      }
       for (var i = cols.length - 1; i >= 0; i--) {
         if (cols[i].dataset.col == "rating") {
           dispatchMouseEvent("mouseover", cols[i]);
-          setTimeout(function() {
-            rate(cols[i], options.rating);
-            setTimeout(sendPlaylistSongResult.bind(window, "playlistSongRated", options.index), 250);
-          }, 250);
+          setTimeout(rateCol.bind(window, cols[i]), 250);
           return;
         }
       }
