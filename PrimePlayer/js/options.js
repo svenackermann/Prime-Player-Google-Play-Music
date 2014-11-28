@@ -257,6 +257,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     return cl.substring(start, end < 0 ? cl.length : end);
   }
   
+  /** Setup UI and logic for the timer. */
   function initTimer() {
     function updatePreNotifyMax() {
       $("#timerPreNotify").attr("max", $("#timerMin").val() * 60);
@@ -283,6 +284,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     updatePreNotifyMax();
   }
   
+  /** Setup UI and logic for the options filter. */
   function initFilter() {
     function optionsModeChanged() {
       $("#settings").removeClass("f-beg f-adv f-exp").addClass("f-" + bp.settings.optionsMode);
@@ -304,6 +306,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
   }
   
+  /** Set labels and hints for the legends. */
   function initLegends() {
     $("#settings legend").each(function() {
       $(this).text(chrome.i18n.getMessage(this.id));
@@ -316,8 +319,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initLegends();
     
     $("#lastfmStatus").find("span").text(chrome.i18n.getMessage("lastfmUser"));
-    var bugfeatureinfo = chrome.i18n.getMessage("bugfeatureinfo", "<a target='_blank' href='https://github.com/svenackermann/Prime-Player-Google-Play-Music/issues' data-network='github' data-action='issue'>GitHub</a>");
-    $("#bugfeatureinfo").html(bugfeatureinfo);
+    $("#bugfeatureinfo").html(chrome.i18n.getMessage("bugfeatureinfo", "<a target='_blank' href='https://github.com/svenackermann/Prime-Player-Google-Play-Music/issues' data-network='github' data-action='issue'>GitHub</a>"));
     
     initTimer();
     
@@ -502,5 +504,4 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.player.removeAllListeners("options");
     if (bp.optionsTabId == thisTabId) bp.optionsTabId = null;
   });
-
 });
