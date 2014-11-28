@@ -55,7 +55,7 @@ var settings = new Bean({
   toast: true,
   toastUseMpStyle: false,
   toastDuration: 0,
-  toastPriority: 1,
+  toastPriority: 3,
   toastProgress: false,
   toastIfMpOpen: false,
   toastClick: "",
@@ -1093,7 +1093,7 @@ function openToast() {
       contextMessage: song.info.album,
       iconUrl: chrome.extension.getURL("img/cover.png"),
       buttons: btns,
-      priority: settings.toastPriority,
+      priority: settings.toastPriority - 2,
       isClickable: settings.toastClick !== ""
     };
     if (settings.toastProgress) options.progress = Math.floor(song.positionSec * 100 / song.info.durationSec);
