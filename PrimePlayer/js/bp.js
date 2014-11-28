@@ -54,6 +54,7 @@ var settings = new Bean({
   toast: true,
   toastUseMpStyle: false,
   toastDuration: 0,
+  toastPriority: 1,
   toastProgress: false,
   toastIfMpOpen: false,
   toastClick: "",
@@ -951,6 +952,7 @@ lastfm.sessionTimeoutCallback = function() {
     title: chrome.i18n.getMessage("lastfmSessionTimeout"),
     message: chrome.i18n.getMessage("lastfmRelogin"),
     iconUrl: chrome.extension.getURL("img/icon-48x48.png"),
+    priority: 1,
     isClickable: true
   }, function(nid) {
     notifications.addListener("click", nid, function() {
@@ -1093,6 +1095,7 @@ function openToast() {
       contextMessage: song.info.album,
       iconUrl: chrome.extension.getURL("img/cover.png"),
       buttons: btns,
+      priority: settings.toastPriority,
       isClickable: settings.toastClick !== ""
     };
     if (settings.toastProgress) options.progress = Math.floor(song.positionSec * 100 / song.info.durationSec);
@@ -1253,8 +1256,7 @@ function updatedListener(details) {
       title: chrome.i18n.getMessage("welcomeTitle"),
       message: chrome.i18n.getMessage("welcomeMessage"),
       buttons: [{title: chrome.i18n.getMessage("toOptions")}, {title: chrome.i18n.getMessage("toWiki")}],
-      iconUrl: chrome.extension.getURL("img/icon-48x48.png"),
-      priority: 2
+      iconUrl: chrome.extension.getURL("img/icon-48x48.png")
     }, function(nid) {
       function notifOrBtnClicked(buttonIndex) {
         notifications.clear(nid);
@@ -1327,7 +1329,6 @@ function startSleepTimer(backupTimerEnd) {
         message: msg,
         buttons: [{title: btnTitle}],
         iconUrl: chrome.extension.getURL("img/icon-48x48.png"),
-        priority: 2,
         isClickable: false
       }, function(nid) {
         function clearNotification() { notifications.clear(nid); }

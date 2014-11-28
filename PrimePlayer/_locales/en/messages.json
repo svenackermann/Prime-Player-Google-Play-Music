@@ -100,7 +100,7 @@
     "description": "label for option to use miniplayer style for toasts"
   },
   "setting_toastUseMpStyleHint": {
-    "message": "Make toasts look like the miniplayer. Otherwise toasts will appear as Chrome notifications with less functionality.",
+    "message": "Make toasts look like the miniplayer. Otherwise toasts will appear as desktop notifications with less functionality.",
     "description": "hint for option to use miniplayer style for toasts"
   },
   "setting_toastDuration": {
@@ -111,6 +111,18 @@
     "message": "For standard toasts this sets the time after which to remove the notification (from Desktop or Chromes notification area), Chrome might move it to the notification area earlier. For miniplayer style toasts (expert mode) this means when to close the miniplayer.",
     "description": "hint for option to change the toast duration"
   },
+  "setting_toastPriority": {
+    "message": "move to notification area",
+    "description": "label for option to change the toast priority"
+  },
+  "setting_toastPriority_0": {
+    "message": "after 7 seconds",
+    "description": "text for option 0 for toast priority"
+  },
+  "setting_toastPriority_1": {
+    "message": "after 25 seconds",
+    "description": "text for option 1 for toast priority"
+  },
   "setting_toastProgress": {
     "message": "Show song progress in toast",
     "description": "label for option to show toast progress"
@@ -120,7 +132,7 @@
     "description": "label for option to show toasts while miniplayer is opened"
   },
   "setting_toastClick": {
-    "message": "Action when clicked anywhere on the toast",
+    "message": "Action when clicked on toast",
     "description": "label for option to set the action when toast is clicked"
   },
   "setting_toastButton1": {
@@ -136,11 +148,11 @@
     "description": "label for option to set the scrobble percentage"
   },
   "setting_scrobbleTime": {
-    "message": "Maximum time (seconds) after that will be scrobbled (0=inactive)",
+    "message": "Maximum time (seconds) after that will be scrobbled (0=disabled)",
     "description": "label for option to set the latest scrobble time"
   },
   "setting_scrobbleMaxDuration": {
-    "message": "Maximum duration (minutes) of a title to be scrobbled (0=inactive)",
+    "message": "Maximum title duration (minutes) for scrobbling (0=disabled)",
     "description": "label for option to set the maximum song duration for scrobbling"
   },
   "setting_disableScrobbleOnFf": {
@@ -288,7 +300,7 @@
     "description": "title for the toast settings on options page"
   },
   "legendToastHint": {
-    "message": "Toasts are Chrome notifications that show you the current song and allow for some actions. Whenever a new song starts, a toast notification will appear on your screen.",
+    "message": "Toasts are desktop notifications that show you the current song and allow for some actions. Whenever a new song starts, a toast will appear on your screen.",
     "description": "hint for the toast settings on options page"
   },
   "legendMiniplayer": {

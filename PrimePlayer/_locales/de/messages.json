@@ -75,13 +75,22 @@
     "message": "Benutze Stil des Miniplayers f\u00FCr Toasts"
   },
   "setting_toastUseMpStyleHint": {
-    "message": "Wenn aktiviert, sehen Toasts genauso aus, wie der Miniplayer. Ansonsten werden Chrome Benachrichtigungen verwendet, die weniger Funktionen bieten."
+    "message": "Wenn aktiviert, sehen Toasts genauso aus, wie der Miniplayer. Ansonsten werden Desktop-Benachrichtigungen verwendet, die weniger Funktionen bieten."
   },
   "setting_toastDuration": {
     "message": "Toast Dauer in Sekunden (0=nicht schlie\u00DFen)"
   },
   "setting_toastDurationHint": {
     "message": "Bei normalen Toasts ist das die Zeit, nach der die Benachrichtigung entfernt wird (vom Desktop oder Chromes Benachrichtigungs-Leiste), Chrome verschiebt die Nachricht evtl. vorher schon in die Benachrichtigungs-Leiste. Bei Toasts im Miniplayer-Stil (Experten-Modus) ist das die Zeit, nach der der Miniplayer geschlossen wird."
+  },
+  "setting_toastPriority": {
+    "message": "in Benachrichtigungs-Leiste verschieben"
+  },
+  "setting_toastPriority_0": {
+    "message": "nach 7 Sekunden"
+  },
+  "setting_toastPriority_1": {
+    "message": "nach 25 Sekunden"
   },
   "setting_toastProgress": {
     "message": "Zeige Titel-Fortschritt in Toast"
@@ -90,7 +99,7 @@
     "message": "Toast auch zeigen, wenn der Miniplayer ge\u00F6ffnet ist"
   },
   "setting_toastClick": {
-    "message": "Aktion beim Klick auf die Toast-Nachricht"
+    "message": "Aktion beim Klick auf den Toast"
   },
   "setting_toastButton1": {
     "message": "Aktion Toast Button 1"
@@ -105,7 +114,7 @@
     "message": "Maximale Zeit (Sekunden), nach der gescrobbelt wird (0=deaktiviert)"
   },
   "setting_scrobbleMaxDuration": {
-    "message": "Maximale L\u00E4nge (Minuten), bis zu der ein Titel gescrobbelt wird (0=deaktiviert)"
+    "message": "Maximale Titel-L\u00E4nge (Minuten) zum scrobbeln (0=deaktiviert)"
   },
   "setting_disableScrobbleOnFf": {
     "message": "Scrobbeln nach Vorspulen deaktivieren"
@@ -216,7 +225,7 @@
     "message": "Toast Einstellungen"
   },
   "legendToastHint": {
-    "message": "Toasts sind Chrome-Benachrichtigungen, die den aktuellen Titel anzeigen und ein paar Aktionen erlauben. Immer wenn ein neuer Titel startet, erscheint eine Toast-Benachrichtigung auf dem Bildschirm."
+    "message": "Toasts sind Desktop-Benachrichtigungen, die den aktuellen Titel anzeigen und ein paar Aktionen erlauben. Immer wenn ein neuer Titel startet, erscheint ein Toast auf dem Bildschirm."
   },
   "legendMiniplayer": {
     "message": "Miniplayer Einstellungen"

@@ -41,7 +41,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function toastChanged() {
     $("#toastIfMpOpen, #toastDuration").prop("disabled", !bp.settings.toast);
     $("#toastUseMpStyle").prop("disabled", !bp.settings.toast || !bp.localSettings.notificationsEnabled);
-    $("#toastClick, #toastButton1, #toastButton2, #toastProgress").prop("disabled", !bp.settings.toast || bp.settings.toastUseMpStyle);
+    $("#toastClick, #toastButton1, #toastButton2, #toastProgress, #toastPriority").prop("disabled", !bp.settings.toast || bp.settings.toastUseMpStyle);
+    $("#toast").siblings(".hint").toggle(!bp.settings.toastIfMpOpen);
   }
   
   function lyricsChanged() {
@@ -76,21 +77,15 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function stringUpdater(prop) {
-    return function() {
-      bp.settings[prop] = $(this).val();
-    };
+    return function() { bp.settings[prop] = $(this).val(); };
   }
 
   function numberUpdater(prop, settings) {
-    return function() {
-      settings[prop] = parseFloat($(this).val());
-    };
+    return function() { settings[prop] = parseFloat($(this).val()); };
   }
 
   function boolUpdater(prop, settings) {
-    return function() {
-      settings[prop] = !settings[prop];
-    };
+    return function() { settings[prop] = !settings[prop]; };
   }
 
   function appendHint(container) {
@@ -113,7 +108,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function initCheckbox(prop, settings) {
-    if (!settings) settings = bp.settings;
+    settings = settings || bp.settings;
     var input = $("#" + prop);
     input
       .prop("checked", settings[prop])
@@ -123,7 +118,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function initNumberInput(prop, settings) {
-    if (!settings) settings = bp.settings;
+    settings = settings || bp.settings;
     var input = $("#" + prop);
     input
       .val(settings[prop])
@@ -134,14 +129,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   /** the i18n key for option "<opt>" for property "<prop>" is "setting_<prop>_<opt>" */
   function initSelect(prop, getOptionText, updater) {
-    if (typeof(getOptionText) != "function") {
-      getOptionText = function(val) {return chrome.i18n.getMessage("setting_" + prop + "_" + val);};
-    }
-    if (typeof(updater) != "function") updater = stringUpdater;
+    getOptionText = getOptionText || function(val) {return chrome.i18n.getMessage("setting_" + prop + "_" + val);};
+    updater = updater || stringUpdater;
     var input = $("#" + prop);
     input
       .val(bp.settings[prop])
-      .change(updater(prop))
+      .change(updater(prop, bp.settings))
       .find("option").each(function() {
         $(this).text(getOptionText($(this).attr("value")));
       });
@@ -153,7 +146,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var input = $("#" + prop);
     input
       .val(bp.settings[prop])
-      .change(stringUpdater(prop, bp.settings));
+      .change(stringUpdater(prop));
     setLabel(prop);
     return input;
   }
@@ -256,11 +249,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function initFilter() {
-    function updateOptionsMode() {
+    function optionsModeChanged() {
       $("#settings").removeClass("f-beg f-adv f-exp").addClass("f-" + bp.settings.optionsMode);
     }
-    initSelect("optionsMode").change(updateOptionsMode);
-    updateOptionsMode();
+    initSelect("optionsMode").change(optionsModeChanged);
+    optionsModeChanged();
     
     $("#filter p").text(chrome.i18n.getMessage("filterHint"));
     $("#filter > div > div > input[type='checkbox']").each(function() {
@@ -322,8 +315,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initHint("toastUseMpStyle");
     initNumberInput("toastDuration");
     initHint("toastDuration");
+    initSelect("toastPriority", null, numberUpdater);
     initCheckbox("toastProgress");
-    initCheckbox("toastIfMpOpen");
+    initCheckbox("toastIfMpOpen").click(toastChanged);
     initSelect("toastClick", bp.getTextForToastBtn);
     initSelect("toastButton1")
       .append($("#toastClick").children().clone())

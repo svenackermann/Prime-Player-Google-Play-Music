@@ -29,8 +29,13 @@ body {
       min-width: 150px;
     }
   }
-  fieldset > div.sub {
-    padding-left: 10px;
+  fieldset {
+    > div.sub {
+      padding-left: 10px;
+      select {
+        min-width: 190px;
+      }
+    }
   }
 }
 
