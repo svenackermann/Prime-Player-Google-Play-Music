@@ -70,14 +70,49 @@ chrome.runtime.getBackgroundPage(function(bp) {
     links.last().text(actionText).unbind().click(action);
   }
 
+  function iconClickChanged() {
+    if (!bp.settings.iconClickAction0) bp.settings.iconClickAction1 = "";
+    if (!bp.settings.iconClickAction1) bp.settings.iconClickAction2 = "";
+    if (!bp.settings.iconClickAction2) bp.settings.iconClickAction3 = "";
+    var ict = $("#iconDoubleClickTime").prop("disabled", !bp.settings.iconClickAction0).val();
+    $("#iconClickAction1").prop("disabled", !bp.settings.iconClickAction0 || ict === 0).val(bp.settings.iconClickAction1);
+    $("#iconClickAction2").prop("disabled", !bp.settings.iconClickAction1 || ict === 0).val(bp.settings.iconClickAction2);
+    $("#iconClickAction3").prop("disabled", !bp.settings.iconClickAction2 || ict === 0).val(bp.settings.iconClickAction3);
+  }
+  
+  function showProgressChanged() {
+    $("#showProgressColor").prop("disabled", !bp.settings.showProgress);
+  }
+
   function notificationsEnabledChanged(val) {
     $("#settings").toggleClass("notifDisabled", !val);
     if (!val && bp.settings.toast && !bp.settings.toastUseMpStyle) $("#toastUseMpStyle").click();
     else toastChanged();
   }
   
-  function stringUpdater(prop) {
-    return function() { bp.settings[prop] = $(this).val(); };
+  var countdownInterval;
+  function updateTimerStatus(timerEnd) {
+    var countdown = Math.floor((timerEnd || 0) - (new Date().getTime() / 1000));
+    if (countdown > 0) {
+      $("#timerStatus").text(chrome.i18n.getMessage("timerAction_" + bp.localSettings.timerAction) + " in " + bp.toTimeString(countdown));
+    } else {
+      $("#timerStatus").empty();
+      clearInterval(countdownInterval);
+    }
+  }
+  
+  function timerEndChanged(timerEnd) {
+    clearInterval(countdownInterval);
+    if (timerEnd) {
+      countdownInterval = setInterval(updateTimerStatus.bind(window, timerEnd), 1000);
+    }
+    updateTimerStatus(timerEnd);
+    $("#startTimer, #timerMin, #timerNotify, #timerPreNotify, #timerAction").prop("disabled", timerEnd === null || timerEnd !== 0);
+    $("#stopTimer").prop("disabled", timerEnd === null || timerEnd === 0);
+  }
+  
+  function stringUpdater(prop, settings) {
+    return function() { settings[prop] = $(this).val(); };
   }
 
   function numberUpdater(prop, settings) {
@@ -88,13 +123,21 @@ chrome.runtime.getBackgroundPage(function(bp) {
     return function() { settings[prop] = !settings[prop]; };
   }
 
+  /**
+   * Appends a question mark symbol to the container and links it with a new element for the hint text.
+   * @return the empty jQuery <p> element for the hint text, NOT added to the DOM yet
+   */
   function appendHint(container) {
     var hint = $("<p class='hint-text'></p>");
     $("<img src='img/hint.png' class='hint'/>").click(function() {hint.slideToggle("fast");}).appendTo(container);
     return hint;
   }
   
-  /** the i18n key for the hint for property "<prop>" is "setting_<prop>Hint" */
+  /**
+   * Adds a question mark symbol for an option and an element containing the hint text, that will be toggled on click on the symbol.
+   * The i18n key for the hint is "setting_" + prop + "Hint".
+   * @return the added hint element
+   */
   function initHint(prop) {
     var container = $("#" + prop).parent();
     var hint = appendHint(container);
@@ -102,39 +145,51 @@ chrome.runtime.getBackgroundPage(function(bp) {
     return hint;
   }
 
-  /** the i18n key for the label for property "<prop>" is "setting_<prop>" */
+  /** the i18n key for the label is "setting_" + prop */
   function setLabel(prop) {
     $("label[for='" + prop + "']").text(chrome.i18n.getMessage("setting_" + prop));
   }
   
+  /**
+   * Initialize a checkbox input for an option.
+   * @param prop the option name
+   * @param settings the settings object, defaults to bp.settings
+   * @return the checkbox input element
+   */
   function initCheckbox(prop, settings) {
     settings = settings || bp.settings;
     var input = $("#" + prop);
-    input
-      .prop("checked", settings[prop])
-      .click(boolUpdater(prop, settings));
+    input.prop("checked", settings[prop]).click(boolUpdater(prop, settings));
     setLabel(prop);
     return input;
   }
 
+  /**
+   * Initialize a number input for an option.
+   * @param prop the option name
+   * @param settings the settings object, defaults to bp.settings
+   * @return the number input element
+   */
   function initNumberInput(prop, settings) {
     settings = settings || bp.settings;
     var input = $("#" + prop);
-    input
-      .val(settings[prop])
-      .blur(numberUpdater(prop, settings));
+    input.val(settings[prop]).blur(numberUpdater(prop, settings));
     setLabel(prop);
     return input;
   }
 
-  /** the i18n key for option "<opt>" for property "<prop>" is "setting_<prop>_<opt>" */
+  /**
+   * Initialize a select input for an option.
+   * @param prop the option name in bp.settings
+   * @param getOptionText function that takes the option's value as argument and returns the label for the option, the default i18n key for option "<opt>" is "setting_" + prop + "_<opt>"
+   * @param updater a custom updater for the option's value, defaults to "stringUpdater"
+   * @return the select input element
+   */
   function initSelect(prop, getOptionText, updater) {
     getOptionText = getOptionText || function(val) {return chrome.i18n.getMessage("setting_" + prop + "_" + val);};
     updater = updater || stringUpdater;
     var input = $("#" + prop);
-    input
-      .val(bp.settings[prop])
-      .change(updater(prop, bp.settings))
+    input.val(bp.settings[prop]).change(updater(prop, bp.settings))
       .find("option").each(function() {
         $(this).text(getOptionText($(this).attr("value")));
       });
@@ -142,21 +197,28 @@ chrome.runtime.getBackgroundPage(function(bp) {
     return input;
   }
   
+  /**
+   * Initialize a color input for an option.
+   * @param prop the option name in bp.settings
+   * @return the color input element
+   */
   function initColorInput(prop) {
     var input = $("#" + prop);
     input
       .val(bp.settings[prop])
-      .change(stringUpdater(prop));
+      .change(stringUpdater(prop, bp.settings));
     setLabel(prop);
     return input;
   }
   
+  /** Initialize the icon style radio buttons. */
   function initIconStyle() {
     setLabel("iconStyle");
     $("#iconStyle").find("input[value='" + bp.settings.iconStyle + "']").prop("checked", true);
-    $("#iconStyle").find("input").click(stringUpdater("iconStyle"));
+    $("#iconStyle").find("input").click(stringUpdater("iconStyle", bp.settings));
   }
   
+  /** Handle the optional lyrics permission. */
   function initLyrics() {
     var lyrics = initCheckbox("lyrics", bp.localSettings).unbind();
     function enableCheckBox() {
@@ -167,6 +229,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
       if (result) {
         enableCheckBox();
       } else {
+        //just to be sure, reset here (e.g. switching to another Chrome channel keeps the settings, but loses the permissions)
+        bp.localSettings.lyrics = false;
+        lyrics.prop("checked", false);
         lyrics.click(function() {
           alert(chrome.i18n.getMessage("lyricsAlert"));
           chrome.permissions.request(perm, function(granted) {
@@ -182,20 +247,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
       }
     });
   }
-
-  function iconClickChanged() {
-    if (!bp.settings.iconClickAction0) bp.settings.iconClickAction1 = "";
-    if (!bp.settings.iconClickAction1) bp.settings.iconClickAction2 = "";
-    if (!bp.settings.iconClickAction2) bp.settings.iconClickAction3 = "";
-    var ict = $("#iconDoubleClickTime").prop("disabled", !bp.settings.iconClickAction0).val();
-    $("#iconClickAction1").prop("disabled", !bp.settings.iconClickAction0 || ict === 0).val(bp.settings.iconClickAction1);
-    $("#iconClickAction2").prop("disabled", !bp.settings.iconClickAction1 || ict === 0).val(bp.settings.iconClickAction2);
-    $("#iconClickAction3").prop("disabled", !bp.settings.iconClickAction2 || ict === 0).val(bp.settings.iconClickAction3);
-  }
-  
-  function showProgressChanged() {
-    $("#showProgressColor").prop("disabled", !bp.settings.showProgress);
-  }
   
   /** @return version from a class attribute (e.g. for an element with class "abc v-1.2.3 def" this returns "1.2.3") */
   function extractVersionFromClass(el) {
@@ -204,18 +255,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     if (start < 0) return null;
     var end = cl.indexOf(" ", start);
     return cl.substring(start, end < 0 ? cl.length : end);
-  }
-  
-  function updateTimerStatus() {
-    var countDown = Math.floor(bp.timerEnd - (new Date().getTime() / 1000));
-    if (countDown > 0) {
-      $("#timerStatus").text(chrome.i18n.getMessage("timerAction_" + bp.localSettings.timerAction) + " in " + bp.toTimeString(countDown));
-      setTimeout(updateTimerStatus, 1000);
-    } else {
-      $("#timerStatus").empty();
-    }
-    $("#startTimer, #timerMin, #timerNotify, #timerPreNotify, #timerAction").prop("disabled", !bp.player.connected || countDown > 0);
-    $("#stopTimer").prop("disabled", !bp.player.connected || countDown <= 0);
   }
   
   function initTimer() {
@@ -236,16 +275,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
         bp.localSettings.timerAction = $("#timerAction").val();
         bp.localSettings.timerNotify = $("#timerNotify").prop("checked");
         bp.localSettings.timerPreNotify = $("#timerPreNotify").val();
+        bp.localSettings.timerEnd = (new Date().getTime() / 1000) + (min * 60);
         bp.startSleepTimer();
-        updateTimerStatus();
       }
     });
-    $("#stopTimer").text(chrome.i18n.getMessage("stopTimer")).click(function() {
-      bp.clearSleepTimer();
-      updateTimerStatus();
-    });
+    $("#stopTimer").text(chrome.i18n.getMessage("stopTimer")).click(bp.clearSleepTimer);
     updatePreNotifyMax();
-    updateTimerStatus();
   }
   
   function initFilter() {
@@ -407,8 +442,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     //we must watch this as the session could be expired
     bp.localSettings.watch("lastfmSessionName", lastfmUserChanged, "options");
     bp.localSettings.watch("notificationsEnabled", notificationsEnabledChanged, "options");
-    //watch for timer status
-    bp.player.addListener("connected", updateTimerStatus, "options");
+    bp.localSettings.watch("timerEnd", timerEndChanged, "options");
     
     //disable inputs if neccessary
     toastChanged();

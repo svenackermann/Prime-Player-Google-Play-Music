@@ -34,6 +34,7 @@ var localSettings = new Bean({
   timerAction: "pause",
   timerNotify: true,
   timerPreNotify: 0,
+  timerEnd: null,
   notificationsEnabled: true
 }, true);
 
@@ -145,9 +146,6 @@ var optionsTabId = null;
 
 /** the previous version, if we just updated (set in onInstalled event listener, used by options page) */
 var previousVersion = localStorage.previousVersion;
-
-/** the end timestamp (in seconds) for the timer set on the options page */
-var timerEnd = 0;
 
 /* -------------------------------- */
 /* --- shared utility functions --- */
@@ -1293,16 +1291,17 @@ exports.updateNotifierDone = updateNotifierDone;
 
 var sleepTimer;
 var preNotifyTimer;
-/** Start the sleep timer, possibly with a timer end from backup. */
-function startSleepTimer(backupTimerEnd) {
+/** Start the sleep timer. */
+function startSleepTimer() {
   clearTimeout(sleepTimer);
+  clearTimeout(preNotifyTimer);
+  notifications.clear(TIMERWARN);
   var nowSec = new Date().getTime() / 1000;
-  timerEnd = backupTimerEnd || nowSec + (localSettings.timerMinutes * 60);
-  var countdownSec = Math.max(0, timerEnd - nowSec);
+  var countdownSec = Math.max(0, localSettings.timerEnd - nowSec);
   sleepTimer = setTimeout(function() {
     notifications.clear(TIMERWARN);
     sleepTimer = null;
-    timerEnd = 0;
+    localSettings.timerEnd = 0;
     var msg, btnTitle, undoAction;
     switch (localSettings.timerAction) {
       case "pause":
@@ -1345,7 +1344,7 @@ function startSleepTimer(backupTimerEnd) {
     preNotifyTimer = setTimeout(function() {
       preNotifyTimer = null;
       function getWarningMessage() {
-        return chrome.i18n.getMessage(localSettings.timerAction == "pause" ? "timerWarningMsgPause" : "timerWarningMsgCloseGm", "" + Math.max(0, Math.floor(timerEnd - new Date().getTime() / 1000)));
+        return chrome.i18n.getMessage(localSettings.timerAction == "pause" ? "timerWarningMsgPause" : "timerWarningMsgCloseGm", "" + Math.max(0, Math.floor(localSettings.timerEnd - new Date().getTime() / 1000)));
       }
       var preNotifyOptions = {
         type: "basic",
@@ -1384,7 +1383,7 @@ function clearSleepTimer() {
   clearTimeout(preNotifyTimer);
   preNotifyTimer = null;
   notifications.clear(TIMERWARN);
-  timerEnd = 0;
+  localSettings.timerEnd = player.connected ? 0 : null;
 }
 exports.clearSleepTimer = clearSleepTimer;
 
@@ -1561,6 +1560,7 @@ player.addListener("connected", function(val) {
     resumeLastSongIfConnected();
     if (settings.connectedIndicator) postToGooglemusic({type: "connectedIndicator", show: true});
     if (localSettings.lyrics && settings.lyricsInGpm) postLyricsState();
+    localSettings.timerEnd = 0;
   } else {
     clearSleepTimer();
   }
@@ -1579,7 +1579,6 @@ function reloadForUpdate() {
   backup.songTimestamp = song.timestamp;
   backup.loved = song.loved;
   backup.volumeBeforeMute = volumeBeforeMute;
-  backup.timerEnd = timerEnd;
   localStorage.updateBackup = JSON.stringify(backup);
   //sometimes the onDisconnect listener in the content script is not triggered on reload(), so explicitely disconnect here
   if (googlemusicport) {
@@ -1611,9 +1610,8 @@ if (localStorage.updateBackup) {
   song.loved = backup.loved;
   positionFromBackup = true;
   volumeBeforeMute = backup.volumeBeforeMute;
-  timerEnd = backup.timerEnd;
-  if (timerEnd) {
-    startSleepTimer(timerEnd);
+  if (localSettings.timerEnd) {
+    startSleepTimer();
   }
   if (backup.miniplayerOpen) openMiniplayer();
 }
