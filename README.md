@@ -1,5 +1,7 @@
 # Prime Player for Google Play Music
 
+[![Build Status](https://travis-ci.org/svenackermann/Prime-Player-Google-Play-Music.svg?branch=develop)](https://travis-ci.org/svenackermann/Prime-Player-Google-Play-Music)
+
 ### Description
 
 This is the repository for the Chrome extension for Google Play Music.
