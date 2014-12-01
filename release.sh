@@ -23,4 +23,3 @@ gulp release
 
 git checkout -q develop
 echo "Back on branch develop"
-

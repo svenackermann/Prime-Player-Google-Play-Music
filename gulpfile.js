@@ -1,4 +1,4 @@
-var gulp = require("gulp");  
+var gulp = require("gulp");
 var jshint = require("gulp-jshint");
 var concat = require("gulp-concat");
 var uglify = require("gulp-uglify");
@@ -12,7 +12,6 @@ var merge = require("merge-stream");
 var htmlminify = require("gulp-minify-html");
 var jsonedit = require("gulp-json-transform");
 var n2a = require("gulp-native2ascii");
-var imagemin = require("gulp-imagemin");
 var runSequence = require('run-sequence');
 var gulpif = require("gulp-if");
 var develop = true;
@@ -102,7 +101,7 @@ gulp.task("zip", function() {
       return JSON.stringify(json, replacer);
     }))
     .pipe(n2a({ reverse: false }));
-  
+
   var json_manifest = gulp.src(["PrimePlayer/manifest.json"])
     .pipe(jsonedit(function(json) {
       if (!develop) {
@@ -116,13 +115,13 @@ gulp.task("zip", function() {
       return json;
     }))
     .pipe(n2a({ reverse: false }));
-  
+
   var html = gulp.src(["PrimePlayer/**/*.html"])
     .pipe(htmlminify({ empty: true }));
-  
+
   var rest = ["PrimePlayer/**", "!**/*.scss", "!**/*.json", "!**/*.html"];
   paths.js_custom.forEach(function(el) { rest.push("!" + el); });
-  
+
   return merge(json_locale, json_manifest, html, gulp.src(rest))
     .pipe(zip("PrimePlayer.zip"))
     .pipe(gulp.dest("./"));
