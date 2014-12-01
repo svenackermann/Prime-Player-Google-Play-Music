@@ -98,6 +98,9 @@
   "setting_toastProgress": {
     "message": "Zeige Titel-Fortschritt in Toast"
   },
+  "setting_toastRating": {
+    "message": "Zeige Titel-Bewertung in Toast"
+  },
   "setting_toastIfMpOpen": {
     "message": "Toast auch zeigen, wenn der Miniplayer ge\u00F6ffnet ist"
   },

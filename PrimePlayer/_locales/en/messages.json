@@ -131,6 +131,10 @@
     "message": "Show song progress in toast",
     "description": "label for option to show toast progress"
   },
+  "setting_toastRating": {
+    "message": "Show song rating in toast",
+    "description": "label for option to show rating in toast"
+  },
   "setting_toastIfMpOpen": {
     "message": "Show toast even if the miniplayer is opened",
     "description": "label for option to show toasts while miniplayer is opened"
