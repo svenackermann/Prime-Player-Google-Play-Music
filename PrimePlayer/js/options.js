@@ -354,6 +354,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initHint("toastDuration");
     initSelect("toastPriority", null, numberUpdater);
     initCheckbox("toastProgress");
+    initCheckbox("toastRating");
     initCheckbox("toastIfMpOpen").click(toastChanged);
     initSelect("toastClick", bp.getTextForToastBtn);
     initSelect("toastButton1")
