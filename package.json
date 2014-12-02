@@ -1,6 +1,6 @@
 {
   "name": "primeplayer",
-  "version": "2.24.0",
+  "version": "2.25.0",
   "devDependencies": {
     "del": "^1.0.0",
     "gulp": "^3.8.10",
