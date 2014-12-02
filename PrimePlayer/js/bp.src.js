@@ -219,7 +219,7 @@ function isNewerVersion(version) {
 
 /** send an event to Google Analytics, if enabled */
 function gaEvent(category, eventName) {
-  if (settings.gaEnabled) ga('send', 'event', category, eventName, currentVersion);
+  if (settings.gaEnabled) ga('send', 'event', category, eventName);
 }
 
 /** send a social event to Google Analytics, if enabled */
@@ -431,7 +431,7 @@ function openLyrics(aSong) {
   var url = buildLyricsSearchUrl(aSong);
   if (url) {
     chrome.tabs.create({url: url}, function(tab) {
-      chrome.tabs.executeScript(tab.id, {file: "js/cs-songlyrics.min.js", runAt: "document_end"});
+      chrome.tabs.executeScript(tab.id, {file: "js/cs-songlyrics.js", runAt: "document_end"});
     });
     gaEvent("Lyrics", "Open");
   } else {
@@ -1424,7 +1424,7 @@ function connectGoogleMusicTabs() {
       var tabId = tabs[i].id;
       chrome.tabs.insertCSS(tabId, {file: "css/gpm.css"});
       chrome.tabs.executeScript(tabId, {file: "js/jquery-2.0.2.min.js"});
-      chrome.tabs.executeScript(tabId, {file: "js/cs.min.js"});
+      chrome.tabs.executeScript(tabId, {file: "js/cs.js"});
     }
   });
 }

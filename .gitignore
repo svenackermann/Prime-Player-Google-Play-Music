@@ -1,12 +1,6 @@
 *.map
 *.css
-PrimePlayer/js/bp.min.js
-PrimePlayer/js/cs-songlyrics.min.js
-PrimePlayer/js/cs.min.js
-PrimePlayer/js/injected.min.js
-PrimePlayer/js/options.min.js
-PrimePlayer/js/player.min.js
-PrimePlayer/js/updateNotifier.min.js
+build
 .sass-cache
 PrimePlayer.crx
 PrimePlayer.pem

@@ -358,7 +358,7 @@ $(function() {
     
     window.addEventListener("message", onMessage);
     //we must add this script to the DOM for the code to be executed in the correct context
-    $("<script id='primeplayerinjected' type='text/javascript'></script>").attr("src", chrome.extension.getURL("js/injected.min.js")).appendTo("head");
+    $("<script id='primeplayerinjected' type='text/javascript'></script>").attr("src", chrome.extension.getURL("js/injected.js")).appendTo("head");
     
     var sendConnectedInterval;
     function sendConnected() {
