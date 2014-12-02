@@ -17,18 +17,18 @@ var gulpif = require("gulp-if");
 var develop = true;
 
 var paths = {
-  js_bp: ["PrimePlayer/js/md5-min.src.js", "PrimePlayer/js/lastfm.api.src.js", "PrimePlayer/js/beans.src.js", "PrimePlayer/js/lyrics.src.js", "PrimePlayer/js/bp.src.js"],
-  js_single: ["PrimePlayer/js/cs.src.js", "PrimePlayer/js/cs-songlyrics.src.js", "PrimePlayer/js/injected.src.js", "PrimePlayer/js/options.src.js", "PrimePlayer/js/player.src.js", "PrimePlayer/js/updateNotifier.src.js"],
-  scss: ["PrimePlayer/css/*.scss", "!PrimePlayer/css/layouts.scss"],
-  scss_all: "PrimePlayer/css/*.*",
-  other: ["PrimePlayer/**/*.*", "!PrimePlayer/css/*.*", "!PrimePlayer/js/*.src.js"],
+  js_bp: ["src/js/md5-min.src.js", "src/js/lastfm.api.src.js", "src/js/beans.src.js", "src/js/lyrics.src.js", "src/js/bp.src.js"],
+  js_single: ["src/js/cs.src.js", "src/js/cs-songlyrics.src.js", "src/js/injected.src.js", "src/js/options.src.js", "src/js/player.src.js", "src/js/updateNotifier.src.js"],
+  scss: ["src/css/*.scss", "!src/css/layouts.scss"],
+  scss_all: "src/css/*.*",
+  other: ["src/**/*.*", "!src/css/*.*", "!src/js/*.src.js"],
   dest: "build/"
 };
 
 function myUglify() { return uglify({ preserveComments: "some", compress: { drop_console: !develop } }); }
 
 gulp.task("jshint", function() {
-  return gulp.src(["PrimePlayer/js/*.src.js", "!PrimePlayer/js/md5-min.src.js"])
+  return gulp.src(["src/js/*.src.js", "!src/js/md5-min.src.js"])
     .pipe(jshint())
     .pipe(jshint.reporter("jshint-stylish"))
     .pipe(jshint.reporter("fail"));
@@ -48,7 +48,7 @@ gulp.task("compile-js-bp", function() {
 });
 
 gulp.task("compile-js-single", function() {
-  /*return gulp.src(paths.js_single, { base: "PrimePlayer" })
+  /*return gulp.src(paths.js_single, { base: "src" })
     .pipe(rename({suffix: ".min"}))//TODO
     .pipe(changed(paths.dest, { extension: ".min.js" }))//TODO
     .pipe(gulpif(develop, sourcemaps.init()))
@@ -72,7 +72,7 @@ gulp.task("compile-js-single", function() {
 });
 
 gulp.task("compile-css", function () {
-  return gulp.src(paths.scss, { base: "PrimePlayer" })
+  return gulp.src(paths.scss, { base: "src" })
     .pipe(gulpif(develop, sourcemaps.init()))
     .pipe(sass({outputStyle: "compressed"}))
     .pipe(gulpif(develop, sourcemaps.write("./")))
@@ -80,7 +80,8 @@ gulp.task("compile-css", function () {
 });
 
 gulp.task("copy-other", function () {
-  return gulp.src(paths.other, { base: "PrimePlayer" })
+  return gulp.src(paths.other, { base: "src" })
+    .pipe(changed(paths.dest))
     .pipe(gulp.dest(paths.dest));
 });
 
