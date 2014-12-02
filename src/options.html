@@ -3,7 +3,7 @@
 <title></title>
 <link rel="stylesheet" type="text/css" href="css/options.css" />
 <script type="text/javascript" src="js/jquery-2.0.2.min.js"></script>
-<script type="text/javascript" src="js/options.min.js"></script>
+<script type="text/javascript" src="js/options.js"></script>
 </head>
 <body>
   <div id="settings">
@@ -103,7 +103,7 @@
         <input id="toastUseMpStyle" type="checkbox"/>
         <label for="toastUseMpStyle"></label>
       </div>
-      <div class="sub exp v-2.24">
+      <div class="sub exp v-2.24 notif">
         <select id="toastPriority">
           <option value="1"></option>
           <option value="2"></option>
@@ -114,6 +114,10 @@
       <div class="sub v-2.24 adv notif">
         <input id="toastProgress" type="checkbox"/>
         <label for="toastProgress"></label>
+      </div>
+      <div class="sub v-2.25 adv notif">
+        <input id="toastRating" type="checkbox"/>
+        <label for="toastRating"></label>
       </div>
       <div class="sub v-2.8 adv notif">
         <select id="toastClick">
@@ -443,6 +447,12 @@
       <label for="cl-B">B</label>
       <input title="Show/hide versions" id="cl-V" type="checkbox" checked/>
       <label for="cl-V">V</label>
+      <div class="v-2.25">
+        <ul>
+          <li class="F">Option to hide ratings in toast</li>
+          <li class="B">Fixed missing currentVersion error</li>
+        </ul>
+      </div>
       <div class="v-2.24">
         <ul>
           <li class="F">Option to show title progress in toasts</li>

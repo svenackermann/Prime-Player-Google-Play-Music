@@ -53,11 +53,12 @@ var settings = new Bean({
   showScrobbledIndicator: true,
   showLastfmInfo: false,
   toast: true,
-  toastUseMpStyle: false,
   toastDuration: 0,
+  toastIfMpOpen: false,
+  toastUseMpStyle: false,
   toastPriority: 3,
   toastProgress: false,
-  toastIfMpOpen: false,
+  toastRating: true,
   toastClick: "",
   toastButton1: "nextSong",
   toastButton2: "playPause",
@@ -218,7 +219,7 @@ function isNewerVersion(version) {
 
 /** send an event to Google Analytics, if enabled */
 function gaEvent(category, eventName) {
-  if (settings.gaEnabled) ga('send', 'event', category, eventName, currentVersion);
+  if (settings.gaEnabled) ga('send', 'event', category, eventName);
 }
 
 /** send a social event to Google Analytics, if enabled */
@@ -430,7 +431,7 @@ function openLyrics(aSong) {
   var url = buildLyricsSearchUrl(aSong);
   if (url) {
     chrome.tabs.create({url: url}, function(tab) {
-      chrome.tabs.executeScript(tab.id, {file: "js/cs-songlyrics.min.js", runAt: "document_end"});
+      chrome.tabs.executeScript(tab.id, {file: "js/cs-songlyrics.js", runAt: "document_end"});
     });
     gaEvent("Lyrics", "Open");
   } else {
@@ -960,35 +961,6 @@ lastfm.sessionTimeoutCallback = function() {
   });
 };
 
-/** Callbacks when toast has been closed. */
-function toastClosed() {
-  toastOptions = null;
-  song.removeListener("rating", drawToastImage);
-  song.removeListener("loved", drawToastImage);
-  if (toastCoverXhr) {
-    toastCoverXhr.abort();
-    toastCoverXhr = null;
-  }
-}
-function toastMpClosed(winId) {
-  if (toastWin && winId == toastWin.id) {
-    toastWin = null;
-    chrome.windows.onRemoved.removeListener(toastMpClosed);
-  }
-}
-
-/** Callback when toast button was clicked. */
-function toastButtonClicked(buttonIndex) {
-  //check which button was clicked and that the button is valid (otherwise it is not displayed and we would execute the wrong command)
-  var cmd = settings.toastButton1;
-  var btn = getToastBtn(cmd);
-  if (!btn || buttonIndex == 1) {
-    cmd = settings.toastButton2;
-    btn = getToastBtn(cmd);
-  }
-  if (btn) executeCommand(cmd, "toast");
-}
-
 /** @return button information object (title, iconUrl) for a command to be provided to 'notifications.create' or null, if not available */
 function getToastBtn(cmd) {
   if (!cmd) return null;
@@ -1030,22 +1002,24 @@ function drawToastImage() {
     var ctx = $("<canvas width='100' height='100'/>").get(0).getContext("2d");
     ctx.drawImage(cover, 0, 0, 100, 100);
     if (cover.src.indexOf("blob") === 0) URL.revokeObjectURL(cover.src);
-    if (player.ratingMode == "thumbs") {
-      if (song.rating == 1 || song.rating == 2) ctx.drawImage(rating, 16, 0, 16, 16, 0, 84, 16, 16);
-      else if (song.rating >= 4) ctx.drawImage(rating, 0, 0, 16, 16, 0, 84, 16, 16);
-    } else if (player.ratingMode == "star") {
-      for (i = 0; i < song.rating; i++) {
-        ctx.drawImage(rating, 32, 0, 16, 16, i * 16, 84, 16, 16);
+    if (settings.toastRating) {
+      if (player.ratingMode == "thumbs") {
+        if (song.rating == 1 || song.rating == 2) ctx.drawImage(rating, 16, 0, 16, 16, 0, 84, 16, 16);
+        else if (song.rating >= 4) ctx.drawImage(rating, 0, 0, 16, 16, 0, 84, 16, 16);
+      } else if (player.ratingMode == "star") {
+        for (i = 0; i < song.rating; i++) {
+          ctx.drawImage(rating, 32, 0, 16, 16, i * 16, 84, 16, 16);
+        }
       }
-    }
-    if (song.loved === true) {
-      ctx.drawImage(rating, 48, 0, 16, 16, 84, 84, 16, 16);
+      if (song.loved === true) {
+        ctx.drawImage(rating, 48, 0, 16, 16, 84, 84, 16, 16);
+      }
     }
     toastOptions.iconUrl = ctx.canvas.toDataURL();
     notifications.update(TOAST, toastOptions);
   }
   
-  if (song.rating > 0 || song.loved === true) {
+  if (settings.toastRating && (song.rating > 0 || song.loved === true)) {
     rating.onload = function() { ratingReady = true;  if (coverReady) draw(); };
     rating.src = chrome.extension.getURL("img/rating.png");
   } else ratingReady = true;
@@ -1070,6 +1044,56 @@ function drawToastImage() {
   }
 }
 
+/** Callbacks when toast has been closed. */
+function toastClosed() {
+  toastOptions = null;
+  song.removeListener("rating", drawToastImage);
+  song.removeListener("loved", drawToastImage);
+  if (toastCoverXhr) {
+    toastCoverXhr.abort();
+    toastCoverXhr = null;
+  }
+}
+function toastMpClosed(winId) {
+  if (toastWin && winId == toastWin.id) {
+    toastWin = null;
+    chrome.windows.onRemoved.removeListener(toastMpClosed);
+  }
+}
+
+/** Callback when toast button was clicked. */
+function toastButtonClicked(buttonIndex) {
+  //check which button was clicked and that the button is valid (otherwise it is not displayed and we would execute the wrong command)
+  var cmd = settings.toastButton1;
+  var btn = getToastBtn(cmd);
+  if (!btn || buttonIndex == 1) {
+    cmd = settings.toastButton2;
+    btn = getToastBtn(cmd);
+  }
+  if (btn) executeCommand(cmd, "toast");
+}
+
+function getToastOptions() {
+  var btns = [];
+  var btn = getToastBtn(settings.toastButton1);
+  if (btn) btns.push(btn);
+  btn = getToastBtn(settings.toastButton2);
+  if (btn) btns.push(btn);
+  
+  var options = {
+    type: settings.toastProgress ? "progress" : "basic",
+    title: song.info.title,
+    message: song.info.artist,
+    contextMessage: song.info.album,
+    iconUrl: chrome.extension.getURL("img/cover.png"),
+    buttons: btns,
+    priority: settings.toastPriority - 2,
+    isClickable: settings.toastClick !== ""
+  };
+  if (settings.toastProgress) options.progress = Math.floor(song.positionSec * 100 / song.info.durationSec);
+  return options;
+}
+
 var closeToastTimer;
 /** Open a toast, either as miniplayer or notification. */
 function openToast() {
@@ -1080,23 +1104,7 @@ function openToast() {
       chrome.windows.onRemoved.addListener(toastMpClosed);
     }, false);
   } else {
-    var btns = [];
-    var btn = getToastBtn(settings.toastButton1);
-    if (btn) btns.push(btn);
-    btn = getToastBtn(settings.toastButton2);
-    if (btn) btns.push(btn);
-    
-    var options = {
-      type: settings.toastProgress ? "progress" : "basic",
-      title: song.info.title,
-      message: song.info.artist,
-      contextMessage: song.info.album,
-      iconUrl: chrome.extension.getURL("img/cover.png"),
-      buttons: btns,
-      priority: settings.toastPriority - 2,
-      isClickable: settings.toastClick !== ""
-    };
-    if (settings.toastProgress) options.progress = Math.floor(song.positionSec * 100 / song.info.durationSec);
+    var options = getToastOptions();
     notifications.create(TOAST, options, function(nid) {
       toastOptions = options;
       notifications.addListener("close", nid, toastClosed);
@@ -1118,6 +1126,15 @@ function closeToast(cb) {
   if (toastOptions) notifications.clear(TOAST, cb);
   else if (toastWin) chrome.windows.remove(toastWin.id, cb);
   else cb();
+}
+
+function updateToast() {
+  if (toastOptions) {
+    var iconUrl = toastOptions.iconUrl;
+    toastOptions = getToastOptions();
+    toastOptions.iconUrl = iconUrl;
+    notifications.update(TOAST, toastOptions);
+  }
 }
 
 /** Close the Google Music tab. */
@@ -1407,7 +1424,7 @@ function connectGoogleMusicTabs() {
       var tabId = tabs[i].id;
       chrome.tabs.insertCSS(tabId, {file: "css/gpm.css"});
       chrome.tabs.executeScript(tabId, {file: "js/jquery-2.0.2.min.js"});
-      chrome.tabs.executeScript(tabId, {file: "js/cs.min.js"});
+      chrome.tabs.executeScript(tabId, {file: "js/cs.js"});
     }
   });
 }
@@ -1467,9 +1484,11 @@ settings.addListener("showLastfmInfo", function(val) {
   if (val && song.lastfmInfo === null) loadCurrentLastfmInfo();
 });
 settings.addListener("toastUseMpStyle", closeToast);
-settings.addListener("toastButton1", closeToast);
-settings.addListener("toastButton2", closeToast);
-settings.addListener("toastProgress", closeToast);
+settings.addListener("toastClick", updateToast);
+settings.addListener("toastButton1", updateToast);
+settings.addListener("toastButton2", updateToast);
+settings.addListener("toastProgress", updateToast);
+settings.addListener("toastRating", drawToastImage);
 settings.addListener("scrobble", calcScrobbleTime);
 settings.addListener("scrobbleMaxDuration", calcScrobbleTime);
 settings.addListener("scrobblePercent", calcScrobbleTime);
@@ -1749,7 +1768,7 @@ function executeCommand(command, src) {
     default:
       if (command.indexOf("rate-") === 0 && song.info) {
         var rating = parseInt(command.substr(5, 1));
-        if ((src == "icon" && settings.showRatingIndicator) || !settings.preventCommandRatingReset || !isRatingReset(song.rating, rating)) rate(rating);
+        if (!settings.preventCommandRatingReset || !isRatingReset(song.rating, rating) || (src == "icon" && settings.showRatingIndicator) || (src == "toast" && settings.toastRating)) rate(rating);
       }
   }
 }

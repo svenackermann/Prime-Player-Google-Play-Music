@@ -41,7 +41,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function toastChanged() {
     $("#toastIfMpOpen, #toastDuration").prop("disabled", !bp.settings.toast);
     $("#toastUseMpStyle").prop("disabled", !bp.settings.toast || !bp.localSettings.notificationsEnabled);
-    $("#toastClick, #toastButton1, #toastButton2, #toastProgress, #toastPriority").prop("disabled", !bp.settings.toast || bp.settings.toastUseMpStyle);
+    $("fieldset.toast > .notif").children("input, select").prop("disabled", !bp.settings.toast || bp.settings.toastUseMpStyle);
     $("#toast").siblings(".hint").toggle(!bp.settings.toastIfMpOpen);
   }
   
@@ -86,8 +86,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function notificationsEnabledChanged(val) {
     $("#settings").toggleClass("notifDisabled", !val);
-    if (!val && bp.settings.toast && !bp.settings.toastUseMpStyle) $("#toastUseMpStyle").click();
-    else toastChanged();
+    if (!val && bp.settings.toast && !bp.settings.toastUseMpStyle) bp.settings.toastUseMpStyle = true;
+    toastChanged();
   }
   
   var countdownInterval;
@@ -354,6 +354,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initHint("toastDuration");
     initSelect("toastPriority", null, numberUpdater);
     initCheckbox("toastProgress");
+    initCheckbox("toastRating");
     initCheckbox("toastIfMpOpen").click(toastChanged);
     initSelect("toastClick", bp.getTextForToastBtn);
     initSelect("toastButton1")

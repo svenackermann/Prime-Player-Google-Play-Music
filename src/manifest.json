@@ -3,7 +3,7 @@
   "name": "Prime Player for Google Play Music\u2122",
   "short_name": "__MSG_extTitle__",
   "description": "__MSG_extDesc__",
-  "version": "2.24",
+  "version": "2.25",
   "author": "Sven Ackermann",
   "minimum_chrome_version": "31.0.1650.48",
   "default_locale": "en",
@@ -24,29 +24,29 @@
     "default_popup": "player.html"
   },
   "background": {
-    "scripts": ["js/jquery-2.0.2.min.js", "js/md5-min.js", "js/bp.min.js"],
+    "scripts": ["js/jquery-2.0.2.min.js", "js/bp.js"],
     "persistent": false
   },
   "options_page": "options.html",
   "content_scripts": [ 
     {
-      "js": ["js/jquery-2.0.2.min.js", "js/cs.min.js"],
+      "js": ["js/jquery-2.0.2.min.js", "js/cs.js"],
       "css": ["css/gpm.css"],
       "matches": ["*://play.google.com/music/listen*"]
     }
   ],
   "content_security_policy": "script-src 'self' https://www.google-analytics.com; object-src 'self'",
   "web_accessible_resources": [
-    "js/injected.min.js",
+    "js/injected.js",
     "img/icon-tabconnected.png",
     "img/toast/openLyrics.png",
     "img/icon-48x48.png",
     "img/ajax-loader.gif",
     "img/reload.png",
     "options.html",
-    "js/injected.min.js.map",
-    "js/cs.min.js.map",
-    "js/cs-songlyrics.min.js.map",
+    "js/injected.js.map",
+    "js/cs.js.map",
+    "js/cs-songlyrics.js.map",
     "css/gpm.css.map"
   ],
   "commands": {
