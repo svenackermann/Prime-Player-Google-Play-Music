@@ -37,7 +37,8 @@ var localSettings = new Bean({
   timerEnd: null,
   notificationsEnabled: true,
   allinc: false,
-  ratingMode: null
+  ratingMode: null,
+  quicklinks: null
 }, true);
 
 /** settings that should be synced with Chrome sync if enabled */
@@ -132,7 +133,6 @@ var player = new Bean({
   volume: null,
   navigationList: null,
   listrating: null,
-  quicklinks: null,
   connected: false,
   favicon: "img/icon/default/notconnected.png"
 });
@@ -379,8 +379,8 @@ function rate(rating) {
 function getTextForQuicklink(link) {
   if (link == "myPlaylists") return chrome.i18n.getMessage("myPlaylists");
   var text;
-  if (link && player.quicklinks) {//try to get text from Google site
-    text = player.quicklinks[link];
+  if (link && localSettings.quicklinks) {//try to get text from Google site
+    text = localSettings.quicklinks[link];
   }
   //use default
   return text || chrome.i18n.getMessage("quicklink_" + link.replace(/-/g, "_").replace(/\//g, "_"));
@@ -705,6 +705,7 @@ function onMessageListener(message) {
     player.connected = true;
     localSettings.allinc = val.allinc;
     localSettings.ratingMode = val.ratingMode;
+    localSettings.quicklinks = val.quicklinks;
   } else if (type == "loadLyrics") {
     if (song.info) fetchLyrics(song.info, function(result) {
       //we cannot send jQuery objects with a post, so send plain html

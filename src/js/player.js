@@ -797,14 +797,15 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.localSettings.watch("lyricsFontSize", lyricsFontSizeWatcher, typeClass);
     bp.localSettings.watch("allinc", allincWatcher, typeClass);
     bp.localSettings.watch("ratingMode", ratingModeWatcher, typeClass);
+    bp.localSettings.watch("quicklinks", renderQuicklinks, typeClass);
     
     bp.settings.watch("scrobble", scrobbleWatcher, typeClass);
     bp.settings.watch("showLastfmInfo", showLastfmInfoWatcher, typeClass);
     bp.settings.watch("color", colorWatcher, typeClass);
     bp.settings.watch("mpBgColor", mpBgColorWatcher, typeClass);
     bp.settings.watch("mpTextColor", mpTextColorWatcher, typeClass);
-    bp.settings.watch("coverClickLink", updateCoverClickLink, typeClass);
-    bp.settings.watch("titleClickLink", updateTitleClickLink, typeClass);
+    bp.settings.addListener("coverClickLink", updateCoverClickLink, typeClass);
+    bp.settings.addListener("titleClickLink", updateTitleClickLink, typeClass);
     bp.settings.watch("hideSearchfield", hideSearchfieldWatcher, typeClass);
 
     bp.player.watch("repeat", repeatWatcher, typeClass);
@@ -812,7 +813,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.player.watch("playing", playingWatcher, typeClass);
     bp.player.watch("volume", volumeWatcher, typeClass);
     bp.player.watch("connected", connectedWatcher, typeClass);
-    bp.player.watch("quicklinks", renderQuicklinks, typeClass);
     bp.player.addListener("navigationList", renderNavigationList, typeClass);
     bp.player.addListener("listrating", updateListrating, typeClass);
 

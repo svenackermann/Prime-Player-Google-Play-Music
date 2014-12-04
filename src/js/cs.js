@@ -182,19 +182,6 @@ $(function() {
       return;//wait for callback
     }
   
-    var ql = {};
-    var nav = $("#nav_collections");
-    ql.now = $.trim(nav.children("a[data-type='now']").text());
-    ql.rd = $.trim(nav.children("a[data-type='rd']").text());
-    $("#header-tabs-container .tab-container a[data-type]").each(function() {
-      ql[$(this).data("type")] = $.trim($(this).text());
-    });
-    $("#auto-playlists").children("a").each(function() {
-      ql[getLink($(this))] = $.trim($(this).find(".tooltip").text());
-    });
-    ql.searchPlaceholder = $.trim($("#oneGoogleWrapper input[name='q']").attr("placeholder"));
-    post("player-quicklinks", ql);
-    
     /** @return info object for the current song or null if none is playing */
     function parseSongInfo(extended) {
       if ($("#playerSongInfo").find("div").length) {
@@ -364,9 +351,21 @@ $(function() {
     function sendConnected() {
       if (!$("#loading-progress").is(":visible")) {
         clearInterval(sendConnectedInterval);
+        var ql = {};
+        var nav = $("#nav_collections");
+        ql.now = $.trim(nav.children("a[data-type='now']").text());
+        ql.rd = $.trim(nav.children("a[data-type='rd']").text());
+        $("#header-tabs-container .tab-container a[data-type]").each(function() {
+          ql[$(this).data("type")] = $.trim($(this).text());
+        });
+        $("#auto-playlists").children("a").each(function() {
+          ql[getLink($(this))] = $.trim($(this).find(".tooltip").text());
+        });
+        ql.searchPlaceholder = $.trim($("#oneGoogleWrapper input[name='q']").attr("placeholder"));
         post("connected", {
           allinc: !!$.trim($("#music-banner-subtitle").text()).length,
-          ratingMode: ratingContainer.hasClass("stars") ? "star" : "thumbs"
+          ratingMode: ratingContainer.hasClass("stars") ? "star" : "thumbs",
+          quicklinks: ql
         });
       }
     }
