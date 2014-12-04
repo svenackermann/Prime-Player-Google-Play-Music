@@ -157,7 +157,7 @@ function Bean(defaults, useLocalStorage) {
     }
     var value = localStorage[name];
     var type = value.substr(0, 1);
-    value = value.substring(1, value.length);
+    value = value.substr(1);
     switch (type) {
       case "o": return merge(JSON.parse(value), defaultValue);
       case "b": return value == "true";

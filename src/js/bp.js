@@ -1236,22 +1236,40 @@ function iconClickSettingsChanged() {
 
 /** Do necessary migrations on update. */
 function migrateSettings(previousVersion) {
-  if (localStorage.iconClickMiniplayer !== undefined) {
-    if (localStorage.iconClickMiniplayer == "btrue") settings.iconClickAction0 = "openMiniplayer";
+  //--- 2.15 ---
+  //if "open miniplayer" or "play/pause" was set as click action, keep it in click action 0
+  var icmp = localStorage.iconClickMiniplayer;
+  if (icmp) {
+    if (icmp == "btrue") settings.iconClickAction0 = "openMiniplayer";
     else if (localStorage.iconClickPlayPause == "btrue") settings.iconClickAction0 = "playPause";
     localStorage.removeItem("iconClickMiniplayer");
     localStorage.removeItem("iconClickPlayPause");
   }
+  
+  //--- 2.18 ---
+  //toast duration now has an effect on notifications, so reset to default
   if (previousVersion < 2.18 && !settings.toastUseMpStyle) {
     settings.toastDuration = 0;
   }
-  if (localStorage.skipDislikedSongs !== undefined) {
-    settings.skipRatedLower = localStorage.skipDislikedSongs == "btrue" ? 1 : 0;
+  
+  //--- 2.19 ---
+  //convert boolean value to number
+  var sds = localStorage.skipDislikedSongs;
+  if (sds) {
+    settings.skipRatedLower = sds == "btrue" ? 1 : 0;
     localStorage.removeItem("skipDislikedSongs");
   }
-  if (previousVersion < 2.23) {
-    //use expert mode for existing users
-    settings.optionsMode = "exp";
+  
+  //--- 2.23 ---
+  //use expert mode for existing users
+  if (previousVersion < 2.23) settings.optionsMode = "exp";
+  
+  //--- 2.26 ---
+  //renamed "searchresult" to "mixed" (mixed display is now supported for other views than search results)
+  var srs = localStorage.searchresultSizing;
+  if (srs) {
+    localSettings.mixedSizing = JSON.parse(srs.substr(1));
+    localStorage.removeItem("searchresultSizing");
   }
 }
 
