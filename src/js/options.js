@@ -1,6 +1,6 @@
 /**
  * This is the script for the options page.
- * @author Sven Ackermann (svenrecknagel@googlemail.com)
+ * @author Sven Ackermann (svenrecknagel@gmail.com)
  * @license BSD license
  */
 chrome.runtime.getBackgroundPage(function(bp) {

@@ -4,7 +4,7 @@
  * We also use jQuery to save some code and store the session info and a sessionTimeoutCallback in the object.
  *
  * @license Copyright (c) 2008-2010, Felix Bruns <felixbruns@web.de>
- * @author Sven Ackermann (svenrecknagel@googlemail.com)
+ * @author Sven Ackermann (svenrecknagel@gmail.com)
  */
 function LastFM(options){
   /* Set default values for required options. */

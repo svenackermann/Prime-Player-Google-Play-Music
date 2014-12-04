@@ -3,7 +3,7 @@
  * This also includes the ability to sync the properties with localstorage.
  * @param defaults object with default values, every value in this object will be observable using "addListener" or "watch"
  * @param useLocalStorage whether to save values in localStorage, defaults to false
- * @author Sven Ackermann (svenrecknagel@googlemail.com)
+ * @author Sven Ackermann (svenrecknagel@gmail.com)
  * @license BSD license
  */
 function Bean(defaults, useLocalStorage) {
