@@ -153,9 +153,6 @@ var previousVersion = localStorage.previousVersion;
 /* --- shared utility functions --- */
 /* -------------------------------- */
 
-/** does nothing, but sometimes required */
-function noop() {}
-
 /** @return time in seconds that a time string represents (e.g. 4:23 -> 263) */
 function parseSeconds(time) {
   if (typeof(time) != "string") return 0;
@@ -456,8 +453,9 @@ var unloveTrack;
 
 (function(exports) {
 
-//do not notify listeners, if not a real change (the content script might send the same song info multiple times)
+//do not notify listeners, if not a real change (the content script might send the same song info multiple times, quicklinks are sent on each connect)
 song.setEqualsFn("info", songsEqual);
+localSettings.setEqualsFn("quicklinks", Bean.objectEquals);
 
 var currentVersion = chrome.runtime.getManifest().version;
 
@@ -500,8 +498,8 @@ function Notification() {
       that.addListener("close", nid, function() { delete(notifications[nid]); });
     });
   };
-  this.update = function(id, options, cb) { if (localSettings.notificationsEnabled) chrome.notifications.update(id, options, cb || noop); };
-  this.clear = function(id, cb) { if (localSettings.notificationsEnabled) chrome.notifications.clear(id, cb || noop); };
+  this.update = function(id, options, cb) { if (localSettings.notificationsEnabled) chrome.notifications.update(id, options, cb || $.noop); };
+  this.clear = function(id, cb) { if (localSettings.notificationsEnabled) chrome.notifications.clear(id, cb || $.noop); };
   this.addListener = function(evt, id, cb) { notifications[id][evt].push(cb); };
   this.init = function() {
     if (!chrome.notifications.onClicked.hasListener(globalClickListener)) chrome.notifications.onClicked.addListener(globalClickListener);
@@ -717,7 +715,7 @@ function onMessageListener(message) {
   } else if (type == "rated5") {
     if (settings.linkRatings && settings.linkRatingsGpm) {
       if (songsEqual(song.info, val)) loveTrack();
-      else love(val, noop);
+      else love(val, $.noop);
     }
   }
 }
@@ -1129,7 +1127,7 @@ function openToast() {
 /** Close the toast, if open and call an optional function when finished. */
 function closeToast(cb) {
   clearTimeout(closeToastTimer);
-  if (typeof(cb) != "function") cb = noop;
+  if (!$.isFunction(cb)) cb = $.noop;
   if (toastOptions) notifications.clear(TOAST, cb);
   else if (toastWin) chrome.windows.remove(toastWin.id, cb);
   else cb();
@@ -1345,7 +1343,7 @@ function startSleepTimer() {
   clearTimeout(sleepTimer);
   clearTimeout(preNotifyTimer);
   notifications.clear(TIMERWARN);
-  var nowSec = new Date().getTime() / 1000;
+  var nowSec = $.now() / 1000;
   var countdownSec = Math.max(0, localSettings.timerEnd - nowSec);
   sleepTimer = setTimeout(function() {
     notifications.clear(TIMERWARN);
@@ -1393,7 +1391,7 @@ function startSleepTimer() {
     preNotifyTimer = setTimeout(function() {
       preNotifyTimer = null;
       function getWarningMessage() {
-        return chrome.i18n.getMessage(localSettings.timerAction == "pause" ? "timerWarningMsgPause" : "timerWarningMsgCloseGm", "" + Math.max(0, Math.floor(localSettings.timerEnd - new Date().getTime() / 1000)));
+        return chrome.i18n.getMessage(localSettings.timerAction == "pause" ? "timerWarningMsgPause" : "timerWarningMsgCloseGm", "" + Math.max(0, Math.floor(localSettings.timerEnd - $.now() / 1000)));
       }
       var preNotifyOptions = {
         type: "basic",
@@ -1682,7 +1680,7 @@ song.addListener("position", function(val) {
         return;
       }
       song.nowPlayingSent = false;
-      song.timestamp = Math.round(new Date().getTime() / 1000) - 2;
+      song.timestamp = Math.round($.now() / 1000) - 2;
       if (settings.scrobbleRepeated) {
         song.scrobbled = false;
         calcScrobbleTime();

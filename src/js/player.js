@@ -650,7 +650,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         var cluster = getClusterIndex(div);
         var e = currentNavList.list[cluster].titleList[index];
         if (e.rating < 0) return;//negative ratings cannot be changed
-        if (rating == 5 && bp.settings.linkRatings && !bp.isRatingReset(e.rating, rating)) bp.love({ title: e.title, artist: e.artist}, bp.noop);
+        if (rating == 5 && bp.settings.linkRatings && !bp.isRatingReset(e.rating, rating)) bp.love({ title: e.title, artist: e.artist}, $.noop);
         bp.executeInGoogleMusic("ratePlaylistSong", {link: currentNavList.controlLink, index: index, cluster: cluster, rating: rating});
       }
     });

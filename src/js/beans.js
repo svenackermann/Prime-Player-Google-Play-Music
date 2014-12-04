@@ -35,9 +35,7 @@ function Bean(defaults, useLocalStorage) {
     if (ls) ls.push({listener: listener, src: src || null});
   };
   
-  /**
-   * Removes a listener function for the given property.
-   */
+  /** Removes a listener function for the given property. */
   this.removeListener = function(prop, listener) {
     var ls = listeners[prop];
     if (ls) {
@@ -50,9 +48,7 @@ function Bean(defaults, useLocalStorage) {
     }
   };
   
-  /**
-   * Removes all listeners for the given source.
-   */
+  /** Removes all listeners for the given source. */
   this.removeAllListeners = function(src) {
     src = src || null;
     for (var prop in listeners) {
@@ -65,9 +61,7 @@ function Bean(defaults, useLocalStorage) {
     }
   };
   
-  /**
-   * Same as addListener, except that the listener will be called immediately with the current value for old and new value.
-   */
+  /** Same as addListener, except that the listener will be called immediately with the current value for old and new value. */
   this.watch = function(prop, listener, src) {
     listener(cache[prop], cache[prop], prop);
     that.addListener(prop, listener, src);
@@ -82,7 +76,8 @@ function Bean(defaults, useLocalStorage) {
     equalsFn[prop] = equals;
   };
   
-  function loadSyncStorage(doneCallback) {
+  /** Load properties from synced storage, call cb when done. */
+  function loadSyncStorage(cb) {
     chrome.storage.sync.get(null, function(items) {
       var error = chrome.runtime.lastError;
       if (error) {
@@ -92,11 +87,12 @@ function Bean(defaults, useLocalStorage) {
         for (var prop in items) {
           that[prop] = items[prop];
         }
-        if (typeof(doneCallback) == "function") doneCallback();
+        if (typeof(cb) == "function") cb();
       }
     });
   }
   
+  /** Save current values to synced storage. */
   function saveSyncStorage() {
     clearTimeout(saveSyncStorageTimer);
     saveSyncStorageTimer = setTimeout(function() {
@@ -140,6 +136,7 @@ function Bean(defaults, useLocalStorage) {
   
   /**
    * Adds all properties from defaultValue to value that do not yet exist there.
+   * @return value
    */
   function merge(value, defaultValue) {
     for (var prop in defaultValue) {
@@ -148,9 +145,7 @@ function Bean(defaults, useLocalStorage) {
     return value;
   }
   
-  /**
-   * Convert string value to correct type.
-   */
+  /** @return value from localStorage converted to correct type */
   function parse(name, defaultValue) {
     if (!syncLocalStorage || localStorage[name] === undefined) {
       return defaultValue;
@@ -166,10 +161,13 @@ function Bean(defaults, useLocalStorage) {
     }
   }
   
+  /** @return true, if both values are the same, for objects always returns false (except for null==null) */
   function defaultEquals(val, old) {
-    return typeof(val) != "object" && val === old || (val === null && old === null);//typeof(null) is object
+    //setting the same object again should always trigger notify, except for setting null to null (typeof(null) is object)
+    return val === old && (typeof(val) != "object" || val === null);
   }
   
+  /** Setup an object property with the given name */
   function setting(name, defaultValue) {
     cache[name] = parse(name, defaultValue);
     listeners[name] = [];
@@ -206,3 +204,21 @@ function Bean(defaults, useLocalStorage) {
     setting(prop, defaults[prop]);
   }
 }
+
+/**
+ * Compares 2 objects. This method has some limitations, but should work in most cases.
+ * This is no deep-equals, so properties are only compared at the root level.
+ * Also, if one object has a property with value "undefined" and the other does not have that property at all, false will be returned.
+ * @return true, if all properties of both objects match
+ */
+Bean.objectEquals = function(o1, o2) {
+  if (o1 === o2) return true;//same or both null
+  if (!o1 || !o2) return false;//one is null, the other not
+  var props = Object.getOwnPropertyNames(o1);
+  if (props.length != Object.getOwnPropertyNames(o2).length) return false;//different properties
+  for (var i = 0; i < props.length; i++) {
+    var prop = props[i];
+    if (o1[prop] !== o2[prop]) return false;//different value for this property or o2 does not have it at all
+  }
+  return true;
+};

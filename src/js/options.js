@@ -92,7 +92,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   
   var countdownInterval;
   function updateTimerStatus(timerEnd) {
-    var countdown = Math.floor((timerEnd || 0) - (new Date().getTime() / 1000));
+    var countdown = Math.floor((timerEnd || 0) - ($.now() / 1000));
     if (countdown > 0) {
       $("#timerStatus").text(chrome.i18n.getMessage("timerAction_" + bp.localSettings.timerAction) + " in " + bp.toTimeString(countdown));
     } else {
@@ -280,7 +280,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         bp.localSettings.timerAction = $("#timerAction").val();
         bp.localSettings.timerNotify = $("#timerNotify").prop("checked");
         bp.localSettings.timerPreNotify = $("#timerPreNotify").val();
-        bp.localSettings.timerEnd = (new Date().getTime() / 1000) + (min * 60);
+        bp.localSettings.timerEnd = ($.now() / 1000) + (min * 60);
         bp.startSleepTimer();
       }
     });

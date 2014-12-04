@@ -49,7 +49,7 @@ $(function() {
       var rating = parseInt(container.dataset.rating);
       return isNaN(rating) ? 0 : rating;
     }
-    return (typeof onNullRating == "number") ? onNullRating : -1;
+    return $.isNumeric(onNullRating) ? onNullRating : -1;
   }
   
   /** Show the P-icon as indicator for successful connection. */
@@ -244,7 +244,7 @@ $(function() {
     
     /** Execute 'executeOnContentLoad' (if set) when #main is changed. */
     function mainLoaded() {
-      if (typeof(executeOnContentLoad) == "function") {
+      if ($.isFunction(executeOnContentLoad)) {
         if (contentLoadDestination && location.hash != contentLoadDestination) return;//wait til we are on the correct page
         var fn = executeOnContentLoad;
         executeOnContentLoad = null;
@@ -384,7 +384,7 @@ $(function() {
       case "playlistSongStarted":
       case "playlistSongError":
         pausePlaylistParsing = false;
-        if (typeof(resumePlaylistParsingFn) == "function") resumePlaylistParsingFn();
+        if ($.isFunction(resumePlaylistParsingFn)) resumePlaylistParsingFn();
         resumePlaylistParsingFn = null;
         break;
       case "cleanupCs":

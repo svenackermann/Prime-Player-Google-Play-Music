@@ -27,17 +27,17 @@ function LastFM(options){
       timeout: 10000
     }).done(function(response) {
       if (response.error) {
-        if (typeof(callbacks.error) == "function") {
+        if ($.isFunction(callbacks.error)) {
           callbacks.error(response.error, response.message);
         }
-        if (response.error == 9 && typeof(that.sessionTimeoutCallback) == "function") {
+        if (response.error == 9 && $.isFunction(that.sessionTimeoutCallback)) {
           that.sessionTimeoutCallback();
         }
       } else {
         callbacks.success(response);
       }
     }).fail(function(jqXHR, textStatus, errorThrown) {
-      if (typeof(callbacks.error) == "function") {
+      if ($.isFunction(callbacks.error)) {
         var msg = textStatus;
         if (jqXHR.status) msg += " " + jqXHR.status;
         if (errorThrown && errorThrown != textStatus) msg += " " + errorThrown;
