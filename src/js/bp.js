@@ -1272,6 +1272,13 @@ function migrateSettings(previousVersion) {
     localSettings.mixedSizing = JSON.parse(srs.substr(1));
     localStorage.removeItem("searchresultSizing");
   }
+  //moved ratingMode from player to localSettings
+  chrome.storage.local.get("ratingMode", function(items) {
+    if (items.ratingMode) {
+      localSettings.ratingMode = items.ratingMode;
+      chrome.storage.local.remove("ratingMode");
+    }
+  });
 }
 
 /** handler for onInstalled event (show the orange icon on update / notification on install) */
