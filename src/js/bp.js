@@ -36,7 +36,8 @@ var localSettings = new Bean({
   timerPreNotify: 0,
   timerEnd: null,
   notificationsEnabled: true,
-  allinc: false
+  allinc: false,
+  ratingMode: null
 }, true);
 
 /** settings that should be synced with Chrome sync if enabled */
@@ -125,7 +126,6 @@ var song = new Bean({
 
 /** the current player state */
 var player = new Bean({
-  ratingMode: null,
   shuffle: "",
   repeat: "",
   playing: null,
@@ -335,7 +335,7 @@ function loadCurrentLastfmInfo() {
 }
 
 /** Get the last saved song from local storage. The callback will only be called if one exists. */
-function getLastSong(callback) {
+function getLastSong(cb) {
   chrome.storage.local.get(null, function(items) {
     if (items.lastSong) {
       var lastSong = {
@@ -343,12 +343,11 @@ function getLastSong(callback) {
         position: items.lastPosition,
         positionSec: parseSeconds(items.lastPosition),
         rating: items.rating,
-        ratingMode: items.ratingMode,
         scrobbled: items.scrobbled,
         scrobbleTime: items.scrobbleTime,
         ff: items.ff
       };
-      callback(lastSong);
+      cb(lastSong);
     }
   });
 }
@@ -365,7 +364,7 @@ function setSongPosition(percent) {
 
 /** @return true, if a change from old to new rating would result in a rating reset in Google Music */
 function isRatingReset(oldRating, newRating) {
-  return oldRating == newRating || (player.ratingMode == "thumbs" && ((oldRating == 2 && newRating == 1) || (oldRating == 4 && newRating == 5)));
+  return oldRating == newRating || (localSettings.ratingMode == "thumbs" && ((oldRating == 2 && newRating == 1) || (oldRating == 4 && newRating == 5)));
 }
 
 /** Rate the current song in Google Music, if possible. For arg 5, this triggers the link-ratings logic, if not a rating reset. */
@@ -399,13 +398,13 @@ function getTextForToastBtn(cmd) {
       key = cmd;
       break;
     case "rate-1":
-      if (player.ratingMode == "star") key = "command_star1";
-      else if (player.ratingMode == "thumbs") key = "command_thumbsDown";
+      if (localSettings.ratingMode == "star") key = "command_star1";
+      else if (localSettings.ratingMode == "thumbs") key = "command_thumbsDown";
       else key = "command_rate1";
       break;
     case "rate-5":
-      if (player.ratingMode == "star") key = "command_star5";
-      else if (player.ratingMode == "thumbs") key = "command_thumbsUp";
+      if (localSettings.ratingMode == "star") key = "command_star5";
+      else if (localSettings.ratingMode == "thumbs") key = "command_thumbsUp";
       else key = "command_rate5";
       break;
     default:
@@ -579,9 +578,9 @@ function updateBrowserActionInfo() {
         faviconPaths.push(iconPath + "loved");
       }
       if (song.rating && settings.showRatingIndicator) {
-        if (player.ratingMode == "star") {
+        if (localSettings.ratingMode == "star") {
           chrome.browserAction.setBadgeText({text: "" + song.rating});
-        } else if (player.ratingMode == "thumbs") {
+        } else if (localSettings.ratingMode == "thumbs") {
           if (song.rating >= 4) {
             iconPaths.push(iconPath + "thumbsUp");
             faviconPaths.push(iconPath + "thumbsUp");
@@ -705,6 +704,7 @@ function onMessageListener(message) {
   } else if (type == "connected") {
     player.connected = true;
     localSettings.allinc = val.allinc;
+    localSettings.ratingMode = val.ratingMode;
   } else if (type == "loadLyrics") {
     if (song.info) fetchLyrics(song.info, function(result) {
       //we cannot send jQuery objects with a post, so send plain html
@@ -980,15 +980,15 @@ function getToastBtn(cmd) {
       if (!player.shuffle) return null;
       break;
     case "rate-1":
-      if (player.ratingMode == "thumbs") icon = "thumbsDown";
+      if (localSettings.ratingMode == "thumbs") icon = "thumbsDown";
       break;
     case "rate-5":
-      if (player.ratingMode == "thumbs") icon = "thumbsUp";
+      if (localSettings.ratingMode == "thumbs") icon = "thumbsUp";
       break;
     case "rate-2":
     case "rate-3":
     case "rate-4":
-      if (player.ratingMode == "thumbs") return null;
+      if (localSettings.ratingMode == "thumbs") return null;
       break;
   }
   return {title: getTextForToastBtn(cmd), iconUrl: chrome.extension.getURL("img/toast/" + icon + ".png")};
@@ -1007,10 +1007,10 @@ function drawToastImage() {
     ctx.drawImage(cover, 0, 0, 100, 100);
     if (cover.src.indexOf("blob") === 0) URL.revokeObjectURL(cover.src);
     if (settings.toastRating) {
-      if (player.ratingMode == "thumbs") {
+      if (localSettings.ratingMode == "thumbs") {
         if (song.rating == 1 || song.rating == 2) ctx.drawImage(rating, 16, 0, 16, 16, 0, 84, 16, 16);
         else if (song.rating >= 4) ctx.drawImage(rating, 0, 0, 16, 16, 0, 84, 16, 16);
-      } else if (player.ratingMode == "star") {
+      } else if (localSettings.ratingMode == "star") {
         for (i = 0; i < song.rating; i++) {
           ctx.drawImage(rating, 32, 0, 16, 16, i * 16, 84, 16, 16);
         }
@@ -1554,9 +1554,6 @@ settings.watch("showRatingIndicator", function(val) {
 });
 settings.addListener("showProgress", updateBrowserActionInfo);
 settings.addListener("showProgressColor", updateBrowserActionInfo);
-function saveRatingMode(ratingMode) {
-  if (ratingMode) chrome.storage.local.set({"ratingMode": ratingMode});
-}
 function saveRating(rating) {
   if (googlemusicport && song.info) chrome.storage.local.set({"rating": rating});
 }
@@ -1571,12 +1568,10 @@ settings.watch("saveLastPosition", function(val) {
     song.addListener("rating", saveRating);
     song.addListener("scrobbled", saveScrobbled);
     song.addListener("ff", saveFf);
-    player.addListener("ratingMode", saveRatingMode);
   } else {
     song.removeListener("rating", saveRating);
     song.removeListener("scrobbled", saveScrobbled);
     song.removeListener("ff", saveFf);
-    player.removeListener("ratingMode", saveRatingMode);
   }
 });
 
@@ -1674,7 +1669,7 @@ song.addListener("position", function(val) {
     }
     positionFromBackup = false;
     if (song.positionSec == 2) {//new song, repeat single or rewinded
-      if (settings.skipRatedLower > 0 && song.rating > 0 && (song.rating <= settings.skipRatedLower || (song.rating == 2 && player.ratingMode == "thumbs"))) {
+      if (settings.skipRatedLower > 0 && song.rating > 0 && (song.rating <= settings.skipRatedLower || (song.rating == 2 && localSettings.ratingMode == "thumbs"))) {
         executeInGoogleMusic("nextSong");
         return;
       }

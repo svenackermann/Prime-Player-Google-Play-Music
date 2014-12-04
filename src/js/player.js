@@ -144,7 +144,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("body").addClass("hasLastSong");
     renderSongInfo(lastSong.info);
     renderPosition(lastSong.positionSec, lastSong.info.durationSec, lastSong.position);
-    ratingModeWatcher(lastSong.ratingMode);
     renderRating(lastSong.rating);
     
     function updateSongInfo(updateFn) {
@@ -797,6 +796,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.localSettings.watch("lyrics", lyricsWatcher, typeClass);
     bp.localSettings.watch("lyricsFontSize", lyricsFontSizeWatcher, typeClass);
     bp.localSettings.watch("allinc", allincWatcher, typeClass);
+    bp.localSettings.watch("ratingMode", ratingModeWatcher, typeClass);
     
     bp.settings.watch("scrobble", scrobbleWatcher, typeClass);
     bp.settings.watch("showLastfmInfo", showLastfmInfoWatcher, typeClass);
@@ -809,7 +809,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
     bp.player.watch("repeat", repeatWatcher, typeClass);
     bp.player.watch("shuffle", shuffleWatcher, typeClass);
-    bp.player.watch("ratingMode", ratingModeWatcher, typeClass);
     bp.player.watch("playing", playingWatcher, typeClass);
     bp.player.watch("volume", volumeWatcher, typeClass);
     bp.player.watch("connected", connectedWatcher, typeClass);

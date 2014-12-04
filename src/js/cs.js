@@ -182,13 +182,6 @@ $(function() {
       return;//wait for callback
     }
   
-    //when rating is changed, the page gets reloaded, so no need for event listening here
-    var ratingMode;
-    
-    if (ratingContainer.hasClass("thumbs")) ratingMode = "thumbs";
-    else if (ratingContainer.hasClass("stars")) ratingMode = "star";
-    post("player-ratingMode", ratingMode);
-    
     var ql = {};
     var nav = $("#nav_collections");
     ql.now = $.trim(nav.children("a[data-type='now']").text());
@@ -372,7 +365,8 @@ $(function() {
       if (!$("#loading-progress").is(":visible")) {
         clearInterval(sendConnectedInterval);
         post("connected", {
-          allinc: !!$.trim($("#music-banner-subtitle").text()).length
+          allinc: !!$.trim($("#music-banner-subtitle").text()).length,
+          ratingMode: ratingContainer.hasClass("stars") ? "star" : "thumbs"
         });
       }
     }
