@@ -466,13 +466,13 @@
     "message": "Genres"
   },
   "quicklink_rd": {
-    "message": "Schnellmixe"
+    "message": "Schnellmixe/Radio"
   },
   "quicklink_ap_queue": {
     "message": "Wiedergabeliste"
   },
   "quicklink_ap_auto_playlist_thumbs_up": {
-    "message": "Hoch bewertet"
+    "message": "Hoch bewertet/Mag ich"
   },
   "quicklink_ap_auto_playlist_recent": {
     "message": "Zuletzt hinzugef\u00FCgt"
@@ -485,6 +485,15 @@
   },
   "quicklink_ap_google_play_recommends": {
     "message": "Empfehlungen auf Play"
+  },
+  "quicklink_exptop": {
+    "message": "Angesagt"
+  },
+  "quicklink_expnew": {
+    "message": "Neuerscheinungen"
+  },
+  "quicklink_exprec": {
+    "message": "Empfehlungen"
   },
   "openLink": {
     "message": "\u00D6ffne '$LINK$'",

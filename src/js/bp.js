@@ -28,14 +28,15 @@ var localSettings = new Bean({
   playlistSizing: {width: 500, height: 295},
   quicklinksSizing: {width: 280, height: 160},
   albumContainersSizing: {width: 220, height: 320},
-  searchresultSizing: {width: 350, height: 320},
+  mixedSizing: {width: 350, height: 320},
   lyricsSizing: {width: 400, height: 400},
   timerMinutes: 60,
   timerAction: "pause",
   timerNotify: true,
   timerPreNotify: 0,
   timerEnd: null,
-  notificationsEnabled: true
+  notificationsEnabled: true,
+  allinc: false
 }, true);
 
 /** settings that should be synced with Chrome sync if enabled */
@@ -697,10 +698,13 @@ function onMessageListener(message) {
   var val = message.value;
   var type = message.type;
   if (type.indexOf("song-") === 0) {
-    if (type == "song-position" && val === "") val = "0:00";
+    if (type == "song-position" && !val) val = "0:00";
     song[type.substring(5)] = val;
   } else if (type.indexOf("player-") === 0) {
     player[type.substring(7)] = val;
+  } else if (type == "connected") {
+    player.connected = true;
+    localSettings.allinc = val.allinc;
   } else if (type == "loadLyrics") {
     if (song.info) fetchLyrics(song.info, function(result) {
       //we cannot send jQuery objects with a post, so send plain html
@@ -1049,6 +1053,7 @@ function toastClosed() {
   toastOptions = null;
   song.removeListener("rating", drawToastImage);
   song.removeListener("loved", drawToastImage);
+  settings.removeListener("toastRating", drawToastImage);
   if (toastCoverXhr) {
     toastCoverXhr.abort();
     toastCoverXhr = null;
@@ -1088,7 +1093,7 @@ function getToastOptions() {
     iconUrl: chrome.extension.getURL("img/cover.png"),
     buttons: btns,
     priority: settings.toastPriority - 2,
-    isClickable: settings.toastClick !== ""
+    isClickable: !!settings.toastClick
   };
   if (settings.toastProgress) options.progress = Math.floor(song.positionSec * 100 / song.info.durationSec);
   return options;
@@ -1112,6 +1117,7 @@ function openToast() {
       notifications.addListener("btnClick", nid, toastButtonClicked);
       song.watch("rating", drawToastImage);
       song.addListener("loved", drawToastImage);
+      settings.addListener("toastRating", drawToastImage);
     });
     if (settings.toastDuration > 0) {
       closeToastTimer = setTimeout(closeToast, settings.toastDuration * 1000);
@@ -1488,7 +1494,6 @@ settings.addListener("toastClick", updateToast);
 settings.addListener("toastButton1", updateToast);
 settings.addListener("toastButton2", updateToast);
 settings.addListener("toastProgress", updateToast);
-settings.addListener("toastRating", drawToastImage);
 settings.addListener("scrobble", calcScrobbleTime);
 settings.addListener("scrobbleMaxDuration", calcScrobbleTime);
 settings.addListener("scrobblePercent", calcScrobbleTime);
@@ -1750,7 +1755,7 @@ function executeCommand(command, src) {
       break;
     case "volumeMute":
       if (player.volume !== null) {
-        if (volumeBeforeMute !== null && player.volume == "0") {
+        if (volumeBeforeMute && player.volume == "0") {
           setVolume(parseInt(volumeBeforeMute) / 100);
           volumeBeforeMute = null;
         } else if (player.volume != "0") {

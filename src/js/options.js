@@ -86,7 +86,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function notificationsEnabledChanged(val) {
     $("#settings").toggleClass("notifDisabled", !val);
-    if (!val && bp.settings.toast && !bp.settings.toastUseMpStyle) bp.settings.toastUseMpStyle = true;
+    if (!val && bp.settings.toast) bp.settings.toastUseMpStyle = true;
     toastChanged();
   }
   
@@ -109,6 +109,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     updateTimerStatus(timerEnd);
     $("#startTimer, #timerMin, #timerNotify, #timerPreNotify, #timerAction").prop("disabled", timerEnd === null || timerEnd !== 0);
     $("#stopTimer").prop("disabled", timerEnd === null || timerEnd === 0);
+  }
+  
+  function allincChanged(val) {
+    $("#settings").toggleClass("allinc", val);
   }
   
   function stringUpdater(prop, settings) {
@@ -446,6 +450,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.localSettings.watch("lastfmSessionName", lastfmUserChanged, "options");
     bp.localSettings.watch("notificationsEnabled", notificationsEnabledChanged, "options");
     bp.localSettings.watch("timerEnd", timerEndChanged, "options");
+    bp.localSettings.watch("allinc", allincChanged, "options");
     
     //disable inputs if neccessary
     toastChanged();

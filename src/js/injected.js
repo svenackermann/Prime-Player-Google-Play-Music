@@ -53,9 +53,10 @@
     }
   }
   
-  function withPlaylistCols(index, callback) {
+  function withPlaylistCols(index, cluster, callback) {
     var main = document.getElementById("main");
     if (!main) return callback([]);
+    main = main.getElementsByClassName("cluster")[cluster] || main;
     var rows = main.getElementsByClassName("song-row");
     if (!rows[0]) return callback([]);
     index = index - rows[0].dataset.index;
@@ -82,7 +83,7 @@
   }
   
   function startPlaylistSong(options) {
-    withPlaylistCols(options.index, function(cols) {
+    withPlaylistCols(options.index, options.cluster, function(cols) {
       if (!startPlaylistRow(cols, sendPlaylistSongResult.bind(window, "playlistSongStarted", options.index))) {
         sendPlaylistSongResult("playlistSongError", options.index);
       }
@@ -90,7 +91,7 @@
   }
   
   function resumePlaylistSong(options) {
-    withPlaylistCols(options.index, function(cols) {
+    withPlaylistCols(options.index, 0, function(cols) {
       startPlaylistRow(cols, function() {
         if (options.position > 0) setTimeout(setPositionPercent.bind(window, "slider", options.position), 1000);
       });
@@ -98,7 +99,7 @@
   }
   
   function ratePlaylistSong(options) {
-    withPlaylistCols(options.index, function(cols) {
+    withPlaylistCols(options.index, options.cluster, function(cols) {
       function rateCol(col) {
         rate(col, options.rating);
         setTimeout(sendPlaylistSongResult.bind(window, "playlistSongRated", options.index), 250);

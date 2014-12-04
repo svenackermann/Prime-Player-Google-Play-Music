@@ -162,6 +162,11 @@ $(function() {
     port = null;
   }
   
+  function getClusterIndex(el) {
+    var cluster = el.closest(".cluster");
+    return cluster.length ? cluster.index() : 0;
+  }
+  
   /** add listeners/observers and extend DOM */
   function init() {
     function onCleanupCsDone(event) {
@@ -186,14 +191,13 @@ $(function() {
     
     var ql = {};
     var nav = $("#nav_collections");
-    ql.now = $.trim(nav.children("li[data-type='now']").text());
-    ql.rd = $.trim(nav.children("li[data-type='rd']").text());
-    var br = $("#browse-tabs");
-    ql.artists = $.trim(br.children("div[data-type='artists']").text());
-    ql.albums = $.trim(br.children("div[data-type='albums']").text());
-    ql.genres = $.trim(br.children("div[data-type='genres']").text());
-    $("#auto-playlists").children("li").each(function() {
-      ql[getLink($(this))] = $.trim($(this).find("div.tooltip").text());
+    ql.now = $.trim(nav.children("a[data-type='now']").text());
+    ql.rd = $.trim(nav.children("a[data-type='rd']").text());
+    $("#header-tabs-container .tab-container a[data-type]").each(function() {
+      ql[$(this).data("type")] = $.trim($(this).text());
+    });
+    $("#auto-playlists").children("a").each(function() {
+      ql[getLink($(this))] = $.trim($(this).find(".tooltip").text());
     });
     ql.searchPlaceholder = $.trim($("#oneGoogleWrapper input[name='q']").attr("placeholder"));
     post("player-quicklinks", ql);
@@ -335,10 +339,13 @@ $(function() {
     $("#main").on("DOMSubtreeModified", ".song-row td[data-col='rating']", function() {
       if (listRatings) {
         var rating = parseRating(this);
-        var index = $(this.parentNode).data("index");
-        if (listRatings[index] != rating) {
-          listRatings[index] = rating;
-          post("player-listrating", {index: index, rating: rating, controlLink: location.hash});
+        var td = $(this);
+        var index = td.closest(".song-row").data("index");
+        var cluster = getClusterIndex(td);
+        var clusterRatings = listRatings[cluster];
+        if (clusterRatings && clusterRatings[index] != rating) {
+          clusterRatings[index] = rating;
+          post("player-listrating", {index: index, cluster: cluster, rating: rating, controlLink: location.hash});
         }
       }
     });
@@ -364,7 +371,9 @@ $(function() {
     function sendConnected() {
       if (!$("#loading-progress").is(":visible")) {
         clearInterval(sendConnectedInterval);
-        post("player-connected", true);
+        post("connected", {
+          allinc: !!$.trim($("#music-banner-subtitle").text()).length
+        });
       }
     }
     sendConnectedInterval = setInterval(sendConnected, 500);
@@ -395,9 +404,11 @@ $(function() {
   
   /** Send a command to the injected script. */
   function sendCommand(command, options) {
-    if (command == "startPlaylistSong" || command == "ratePlaylistSong") {
+    if (command == "startPlaylistSong" || command == "ratePlaylistSong" || command == "resumePlaylistSong") {
       if (location.hash != options.link) return;
-      var body = $("#main .song-table > tbody");
+      var body = $("#main");
+      body = body.find(".cluster")[options.cluster || 0] || body[0];
+      body = $(body).find(".song-table > tbody");
       if (!body[0] || options.index > body.data("count") - 1) return;
       pausePlaylistParsing = true;
       /* jshint -W082 */
@@ -421,10 +432,12 @@ $(function() {
    * Click a card to start a playlist. Should always lead to the queue.
    * @return true, if the card was found
    */
-  function clickListCard(listId) {
-    if ($(".card[data-id='" + listId + "'][data-type='st']").length) {
+  function clickListCard(hash) {
+    var id = hash.substr(hash.indexOf("/") + 1);
+    var type = hash.substr(0, hash.indexOf("/"));
+    if ($(".card[data-id='" + id + "'][data-type='" + type + "']").length) {
       contentLoadDestination = "#/ap/queue";
-      sendCommand("clickCard", {id: listId});
+      sendCommand("clickCard", {id: id});
       return true;
     }
     return false;
@@ -436,13 +449,12 @@ $(function() {
       if (cb) cb();
     } else {
       executeOnContentLoad = cb;
-      contentLoadDestination = null;
-      if (hash.indexOf("st/") === 0) {//setting hash does not work for type "st"
-        var listId = hash.substr(3);
-        if (!clickListCard(listId)) {
+      contentLoadDestination = hash.indexOf("im/") === 0 ? "#/ap/queue" : null;//type im is automatically started
+      if (hash.indexOf("st/") === 0 || hash.indexOf("im/") === 0 || hash.indexOf("situations/") === 0) {//setting hash does not work for these types
+        if (!clickListCard(hash)) {
           selectAndExecute("rd", function() {//try to find it on the mixes page
             executeOnContentLoad = cb;//set again (was overwritten by the recursive call)
-            if (!clickListCard(listId)) {//still not found
+            if (!clickListCard(hash)) {//still not found
               executeOnContentLoad = null;
               if (cb) cb(true);
             }
@@ -500,7 +512,8 @@ $(function() {
       callback(playlists);
     },
     playlist: function(parent, end, callback) {
-      listRatings = [];
+      listRatings = listRatings || [];
+      var clusterRatings = listRatings[getClusterIndex(parent)] = [];
       var count = parent.find(".song-row").parent().data("count");
       var update = false;
       var lastIndex = -1;
@@ -522,7 +535,7 @@ $(function() {
           lastIndex = item.index;
           if (song.find(".song-indicator").length) item.current = true;
           item.rating = parseRating(song.find("td[data-col='rating']").get(0));
-          listRatings.push(item.rating);
+          clusterRatings.push(item.rating);
           playlist.push(item);
         });
         if (callback === false) return playlist;
@@ -577,6 +590,7 @@ $(function() {
       case "artists":
       case "genres":
       case "srar":
+      case "srp":
         return "albumContainers";
       case "now":
       case "albums":
@@ -586,10 +600,48 @@ $(function() {
       case "tg":
       case "sral":
       case "ar":
+      case "expnew":
         return "playlistsList";
+      case "exptop": //depend on content
+      case "expgenremore":
+        return $("#main .song-table").length ? "playlist" : "playlistsList";
       default:
         return "playlist";
     }
+  }
+  
+  /** @return parsed sublist (e.g. found albums on search page) or null if no matching content found */
+  function parseSublist(cont) {
+    var type;
+    if (cont.find(".song-table").length) type = "playlist";
+    else {
+      //look at first ".card" and check its type, our type must be one step higher in the hierarchy
+      var cardType = cont.find(".card").first().data("type");
+      if (!cardType) return null;//maybe no ".card" found
+      type = getListType(cardType) == "playlist" ? "playlistsList" : "albumContainers";
+    }
+    var list = parseNavigationList[type](cont, 10, false);
+    if (!list.length) return null;
+    return {
+      list: list,
+      type: type,
+      header: $.trim(cont.find(".header .title").text()) || $.trim(cont.find(".section-header").text()),
+      moreLink: cont.hasClass("has-more") ? getLink(cont) : null,
+      cluster: getClusterIndex(cont)
+    };
+  }
+  
+  function sendMixed(response, view) {
+    response.type = "mixed";
+    response.lists = [];
+    response.moreText = $.trim(view.find("div .header .more:visible").first().text());
+    response.header = $.trim($("#header-tabs-container .header-tab-title.selected:visible").text()) || $.trim($("#breadcrumbs .tab-text:visible").text()) || $.trim($("#header-tabs-container .genre-dropdown-title .dropdown-title-text:visible").text());
+    view.children(".cluster, .genre-stations-container").each(function() {
+      var list = parseSublist($(this));
+      if (list) response.lists.push(list);
+    });
+    response.empty = !response.lists.length;
+    post("player-navigationList", response);
   }
   
   /** Select, parse and send a list to bp. */
@@ -598,6 +650,12 @@ $(function() {
       var response = {link: link, list: [], controlLink: location.hash};
       if (error) {
         response.error = true;
+      } else if (link == "exptop" || link == "exprec") {
+        sendMixed(response, $("#" + link + "-main-panel"));
+      } else if (link == "rd") {
+        sendMixed(response, $("#music-content .radio-view"));
+      } else if (link.indexOf("expgenres/") === 0) {
+        sendMixed(response, $("#exprec-main-panel"));
       } else {
         var type = getListType(link);
         //check if we are on a page with correct type
@@ -608,7 +666,7 @@ $(function() {
           parseNavigationList[type]($("#main"), undefined, function(list, update) {
             response.list = list;
             response.update = update;
-            response.empty = response.list.length === 0;
+            response.empty = !response.list.length;
             post("player-navigationList", response);
           }, omitUnknownAlbums);
         } else {
@@ -619,33 +677,15 @@ $(function() {
     });
   }
   
-  /** @return parsed sublist (e.g. found albums on search page) or null if no matching content found */
-  function parseSublist(searchView, type, end) {
-    var cont = searchView.children("div[data-type='" + type + "']");
-    if (cont.length === 0) return null;
-    var listType = getListType(type);
-    var list = parseNavigationList[listType](cont, end, false);
-    if (list.length === 0) return null;
-    return {
-      list: list,
-      type: listType,
-      header: $.trim(cont.find(".header .title").text()),
-      moreLink: cont.hasClass("has-more") ? getLink(cont) : null
-    };
-  }
-  
   /** Select search page and send parsed result to bp. */
   function sendSearchResult(search) {
     selectAndExecute("sr/" + forHash(search), function() {
-      var response = {type: "searchresult", link: "search", search: search, lists: [], controlLink: location.hash};
-      response.header = $.trim($("#breadcrumbs").find(".tab-text").text());
-      var searchView = $("#main .search-view");
-      response.moreText = $.trim(searchView.find("div .header .more:visible").first().text());
-      response.lists.push(parseSublist(searchView, "srar", 6));
-      response.lists.push(parseSublist(searchView, "sral", 5));
-      response.lists.push(parseSublist(searchView, "srs", 10));
-      response.empty = response.lists[0] === null && response.lists[1] === null && response.lists[2] === null;
-      post("player-navigationList", response);
+      var response = {
+        link: "search",
+        search: search,
+        controlLink: location.hash
+      };
+      sendMixed(response, $("#main .search-view"));
     });
   }
   

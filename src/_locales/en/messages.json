@@ -621,16 +621,16 @@
     "description": "text for click action option 'genres' (will be replaced with text from Google Music if connected)"
   },
   "quicklink_rd": {
-    "message": "Instant Mixes",
-    "description": "text for click action option 'instant mixes' (will be replaced with text from Google Music if connected)"
+    "message": "Instant Mixes/Radio",
+    "description": "text for click action option 'instant mixes/radio' (will be replaced with text from Google Music if connected)"
   },
   "quicklink_ap_queue": {
     "message": "Queue",
     "description": "text for click action option 'queue' (will be replaced with text from Google Music if connected)"
   },
   "quicklink_ap_auto_playlist_thumbs_up": {
-    "message": "Highly rated",
-    "description": "text for click action option 'higly rated' (will be replaced with text from Google Music if connected)"
+    "message": "Highly rated/Thumbs up",
+    "description": "text for click action option 'higly rated/thumbs up' (will be replaced with text from Google Music if connected)"
   },
   "quicklink_ap_auto_playlist_recent": {
     "message": "Last added",
@@ -646,6 +646,18 @@
   },
   "quicklink_ap_google_play_recommends": {
     "message": "Google Play recommends",
+    "description": "text for click action option 'Google Play recommends' (will be replaced with text from Google Music if connected)"
+  },
+  "quicklink_exptop": {
+    "message": "Featured",
+    "description": "text for click action option 'features' (will be replaced with text from Google Music if connected)"
+  },
+  "quicklink_expnew": {
+    "message": "New Releases",
+    "description": "text for click action option 'new releases' (will be replaced with text from Google Music if connected)"
+  },
+  "quicklink_exprec": {
+    "message": "Recommendations",
     "description": "text for click action option 'recommendations' (will be replaced with text from Google Music if connected)"
   },
   "openLink": {

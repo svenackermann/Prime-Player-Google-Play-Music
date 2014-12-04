@@ -579,7 +579,7 @@ a {
   }
 }
 
-#navlist.searchresult {
+#navlist.mixed {
   > h2 {
     margin: 0;
     padding: 2px;
@@ -588,6 +588,9 @@ a {
     clear: both;
     background-color: #ccc;
     border-top: 1px solid white;
+    > span.duration {
+      margin-left: 0.5ex;
+    }
     a {
       float: right;
       font-style: normal;
@@ -603,6 +606,7 @@ a {
   }
   .albumContainers > div {
     width: 50%;
+    overflow: hidden;
     float: left;
     &:nth-child(even) {
       background-color: inherit;
@@ -615,6 +619,17 @@ a {
 
 #quickLinks {
   display: none;
+  .allinc {
+    display: none;
+  }
+  &.allinc {
+    .noallinc {
+      display: none;
+    }
+    .allinc {
+      display: block;
+    }
+  }
   > div {
     width: 47%;
     margin: 3px;
