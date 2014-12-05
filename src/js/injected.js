@@ -56,7 +56,9 @@
   function withPlaylistCols(index, cluster, callback) {
     var main = document.getElementById("main");
     if (!main) return callback([]);
-    main = main.getElementsByClassName("cluster")[cluster] || main;
+    if (cluster) main = main.getElementsByClassName("cluster")[cluster] || main;
+    main = main.getElementsByClassName("song-table")[0];
+    if (!main) return callback([]);
     var rows = main.getElementsByClassName("song-row");
     if (!rows[0]) return callback([]);
     index = index - rows[0].dataset.index;
@@ -132,13 +134,14 @@
   }
   
   function cleanup() {
-    console.debug("Cleanup injected script for Prime Player...");
+    console.info("Cleanup injected script for Prime Player...");
     window.removeEventListener("message", onMessage);
   }
   
   function onMessage(event) {
     // We only accept messages from ourselves
     if (event.source != window || event.data.type != "FROM_PRIMEPLAYER" || !event.data.command) return;
+    console.debug("cs->inj: ", event.data);
     switch (event.data.command) {
       case "playPause":
         clickPlayerButton("play-pause");
@@ -189,5 +192,5 @@
   }
   
   window.addEventListener("message", onMessage);
-  console.debug("Prime Player extension connected.");
+  console.info("Prime Player extension connected.");
 })();

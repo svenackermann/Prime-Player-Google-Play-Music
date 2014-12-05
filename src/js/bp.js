@@ -724,6 +724,7 @@ function onDisconnectListener() {
 
 /** handler for messages from connected port - set song or player state */
 function onMessageListener(message) {
+  console.debug("cs->bp", message);
   var val = message.value;
   var type = message.type;
   if (type.indexOf("song-") === 0) {
@@ -893,7 +894,7 @@ function scrobbleCachedSongs() {
         gaEvent("LastFM", "ScrobbleCachedOK");
       },
       error: function(code) {
-        console.debug("Error on cached scrobbling: " + code);
+        console.warn("Error on cached scrobbling: " + code);
         if (!isScrobbleRetriable(code)) localStorage.removeItem("scrobbleCache");
         gaEvent("LastFM", "ScrobbleCachedError-" + code);
       }
@@ -927,7 +928,7 @@ function scrobble() {
       scrobbleCachedSongs();//try cached songs again now that the service seems to work again
     },
     error: function(code) {
-      console.debug("Error on scrobbling '" + params.track + "': " + code);
+      console.warn("Error on scrobbling '" + params.track + "': " + code);
       if (isScrobbleRetriable(code)) cacheForLaterScrobbling(cloned);
       gaEvent("LastFM", "ScrobbleError-" + code);
     }
@@ -944,7 +945,7 @@ function sendNowPlaying() {
   }, {
     success: function() { gaEvent("LastFM", "NowPlayingOK"); },
     error: function(code) {
-      console.debug("Error on now playing '" + song.info.title + "': " + code);
+      console.warn("Error on now playing '" + song.info.title + "': " + code);
       gaEvent("LastFM", "NowPlayingError-" + code);
     }
   });

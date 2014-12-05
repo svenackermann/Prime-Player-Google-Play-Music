@@ -378,6 +378,7 @@ $(function() {
   function onMessage(event) {
     // We only accept messages from the injected script
     if (event.source != window || event.data.type != "FROM_PRIMEPLAYER" || !event.data.msg) return;
+    console.debug("inj->cs: ", event.data);
     switch (event.data.msg) {
       case "playlistSongRated":
         $("#main .song-row[data-index='" + event.data.index + "']").find("td[data-col='rating']").trigger("DOMSubtreeModified");
@@ -401,7 +402,7 @@ $(function() {
     if (command == "startPlaylistSong" || command == "ratePlaylistSong" || command == "resumePlaylistSong") {
       if (location.hash != options.link) return;
       var body = $("#main");
-      body = body.find(".cluster")[options.cluster || 0] || body[0];
+      if (options.cluster) body = body.find(".cluster")[options.cluster] || body[0];//ok if cluster is 0 or undefined, because the first .song-table in #main is the same as in the first cluster
       body = $(body).find(".song-table > tbody");
       if (!body[0] || options.index > body.data("count") - 1) return;
       pausePlaylistParsing = true;
@@ -699,7 +700,7 @@ $(function() {
           var song = parseSongRow($(this));
           if (song.title == msg.title && song.duration == msg.duration && (!song.artist || !msg.artist || song.artist == msg.artist)) {
             found = true;
-            sendCommand("resumePlaylistSong", {index: song.index, position: msg.position});
+            sendCommand("resumePlaylistSong", {index: song.index, position: msg.position, link: location.hash});
             return false;
           }
         });
@@ -716,6 +717,7 @@ $(function() {
   port = chrome.runtime.connect({name: "googlemusic"});
   port.onDisconnect.addListener(cleanup);
   port.onMessage.addListener(function(msg) {
+    console.debug("bp->cs: ", msg);
     switch (msg.type) {
       case "execute":
         sendCommand(msg.command, msg.options);

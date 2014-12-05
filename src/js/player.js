@@ -72,7 +72,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function clusterFilter(cluster) {
-    return $(this).data("cluster") === cluster;
+    return function() {
+      return $(this).data("cluster") === cluster;
+    };
   }
   
   function songInfoWatcher(val) {
@@ -100,6 +102,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
     if (currentNavList.list) {
       var playlists = $("#navlistContainer").find(".playlist:visible");
+      if (!playlists.length) return;
       //clear currents
       var currents = playlists.children("div.current");
       currents.each(function() {
@@ -114,7 +117,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         for (var c = 0; c < currentNavList.list.length; c++) {
           if (currentNavList.list[c]) {
             var pl = currentNavList.list[c].titleList;
-            playlist = playlists.filter(clusterFilter.bind(window, c));
+            var playlist = playlists.filter(clusterFilter(c));
             for (var i = 0; i < pl.length; i++) {
               if (bp.songsEqual(pl[i], val)) {
                 playlist.children("div[data-index='" + i + "']").addClass("current");
@@ -436,7 +439,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var e = clusterList && clusterList.titleList[val.index];
     if (e) {
       $("#navlistContainer .playlist")
-        .filter(clusterFilter.bind(window, val.cluster))
+        .filter(clusterFilter(val.cluster))
         .children("div[data-index='" + val.index + "']")
         .children("div.rating").removeClass("r" + e.rating).addClass("r" + val.rating);
       e.rating = val.rating;
