@@ -297,12 +297,19 @@ $(function() {
         if (getValue === undefined) {
           getValue = function(el, attr) { return el.getAttribute(attr); };
         }
+        var value = getValue(element, attrs);
         var observer = new MutationObserver(function (mutations) {
-          mutations.forEach(function(mutation) { post(type, getValue(mutation.target, mutation.attributeName)); });
+          mutations.forEach(function(mutation) {
+            var newValue = getValue(mutation.target, mutation.attributeName);
+            if (newValue !== value) {
+              value = newValue;
+              post(type, value);
+            }
+          });
         });
         observers.push(observer);
         observer.observe(element, { attributes: true, attributeFilter: attrs.split(" ") });
-        post(type, getValue(element, attrs));//trigger once to initialize the info
+        post(type, value);//trigger once to initialize the info
       } else {
         console.error("element does not exist (did Google change their site?): " + selector);
       }

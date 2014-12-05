@@ -19,6 +19,7 @@ function LastFM(options){
 
   /* Internal call (POST, GET). */
   var internalCall = function(params, callbacks, requestMethod){
+    console.debug("last.fm call:", params.method);
     params.format = 'json';
     $.ajax({
       type: requestMethod,
