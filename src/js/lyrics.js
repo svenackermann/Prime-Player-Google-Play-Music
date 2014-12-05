@@ -40,12 +40,13 @@ function buildLyricsSearchUrl(song) {
  * - 'searchSrc': the URL to the search results page
  */
 function fetchLyrics(song, cb) {
+  function stripImages(data) {
+    //remove images to avoid them to be loaded
+    return data.replace(/<img [^>]*src\s*=\s*\"[^\"]*\"[^>]*>/gi, "");
+  }
+  
   var url = buildLyricsSearchUrl(song);
   if (url) {
-    function stripImages(data) {
-      //remove images to avoid them to be loaded
-      return data.replace(/<img [^>]*src\s*=\s*\"[^\"]*\"[^>]*>/gi, "");
-    }
     $.get(url)
       .done(function(resultPage) {
         var href = $(stripImages(resultPage)).find(".serpresult > a").attr("href");
