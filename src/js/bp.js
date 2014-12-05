@@ -512,14 +512,6 @@ var WELCOME = "pp.welcome";
 var TIMEREND = "pp.timerEnd";
 var TIMERWARN = "pp.timerwarn";
 
-function createNotification(id, options, cb) {
-  if (localSettings.notificationsEnabled) chromeNotifications.create(id, options, function(nid) {
-    notifications[nid] = {click: [], btnClick: [], close: []};
-    cb(nid);
-    that.addListener("close", nid, function() { delete(notifications[nid]); });
-  });
-}
-
 function updateNotification(id, options, cb) {
   if (localSettings.notificationsEnabled) chromeNotifications.update(id, options, cb || $.noop);
 }
@@ -530,6 +522,14 @@ function clearNotification(id, cb) {
 
 function addNotificationListener(evt, id, cb) {
   notifications[id][evt].push(cb);
+}
+
+function createNotification(id, options, cb) {
+  if (localSettings.notificationsEnabled) chromeNotifications.create(id, options, function(nid) {
+    notifications[nid] = {click: [], btnClick: [], close: []};
+    cb(nid);
+    addNotificationListener("close", nid, function() { delete(notifications[nid]); });
+  });
 }
 
 function globalNotificationListener(evt, id, arg2) {
@@ -724,9 +724,9 @@ function onDisconnectListener() {
 
 /** handler for messages from connected port - set song or player state */
 function onMessageListener(message) {
-  console.debug("cs->bp", message);
   var val = message.value;
   var type = message.type;
+  console.debug("cs->bp", type, val);
   if (type.indexOf("song-") === 0) {
     if (type == "song-position" && !val) val = "0:00";
     song[type.substring(5)] = val;
