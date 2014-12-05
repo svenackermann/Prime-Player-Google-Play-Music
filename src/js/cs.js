@@ -343,8 +343,9 @@ $(function() {
       pausePlaylistParsing = false;
       clearTimeout(asyncListTimer);
     });
-    ratingContainer.on("click", "li.selected[data-rating='5']", function() {
-      post("rated5", parseSongInfo());
+    ratingContainer.on("click", "li.selected[data-rating='5']", function(e) {
+      //when click is simulated by injected script, clientX will be 0
+      if (e.clientX) post("rated5", parseSongInfo());
     });
     //listen for "mouseup", because "click" won't bubble up to "#main" and we can't attach this directly to ".rating-container" because it's dynamically created
     $("#main").on("mouseup", ".song-row td[data-col='rating'] ul.rating-container li:not(.selected)[data-rating='5']", function() {
