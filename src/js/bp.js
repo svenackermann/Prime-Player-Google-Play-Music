@@ -1675,7 +1675,7 @@ song.addListener("position", function(val) {
     }
     positionFromBackup = false;
     if (song.positionSec == 2) {//new song, repeat single or rewinded
-      if (settings.skipRatedLower > 0 && song.rating > 0 && (song.rating <= settings.skipRatedLower || (song.rating == 2 && localSettings.ratingMode == "thumbs"))) {
+      if (settings.skipRatedLower && song.rating > 0 && song.rating <= settings.skipRatedLower) {
         executeInGoogleMusic("nextSong");
         return;
       }

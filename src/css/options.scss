@@ -22,6 +22,7 @@ body {
   &.filterTimer .timer, &.filterLastfm .lastfm, &.filterToast .toast, &.filterMiniplayer .miniplayer, &.filterLyrics .lyrics, &.filterLookfeel .lookfeel {
     display: none;
   }
+  
   .allinc {
     display: none;
   }
@@ -33,6 +34,14 @@ body {
       display: block;
     }
   }
+  
+  &.thumbs .stars, &.star .thumbs, .thumbsOnly, .starsOnly {
+    display: none;
+  }
+  &.thumbs .thumbsOnly, &.star .starsOnly {
+    display: block;
+  }
+  
   select {
     margin-right: 3px;
     min-width: 200px;

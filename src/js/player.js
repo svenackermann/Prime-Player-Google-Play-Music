@@ -170,9 +170,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function ratingModeWatcher(val) {
     var body = $("body");
     body.removeClass("star-rating thumbs-rating");
-    if (val) {
-      body.addClass(val + "-rating");
-    }
+    if (val) body.addClass(val + "-rating");
     ratingHtml = "";
     if (val == "star") {
       ratingHtml = "<div></div>";

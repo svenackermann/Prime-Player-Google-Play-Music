@@ -477,12 +477,16 @@
     "description": "text for low rated option 'disabled'"
   },
   "setting_skipRatedLower_1": {
-    "message": "1 star/thumbs down",
+    "message": "1 star",
     "description": "text for low rated option '1'"
   },
   "setting_skipRatedLower_2": {
-    "message": "2 stars",
+    "message": "2 stars/thumbs down",
     "description": "text for low rated option '2'"
+  },
+  "setting_skipRatedLower_2_stars": {
+    "message": "2 stars",
+    "description": "text for low rated option '2' if in star rating mode"
   },
   "setting_skipRatedLower_3": {
     "message": "3 stars",
@@ -491,6 +495,10 @@
   "setting_skipRatedLower_4": {
     "message": "4 stars",
     "description": "text for low rated option '4'"
+  },
+  "setting_skipRatedThumbsDown": {
+    "message": "Skip songs rated thumbs down",
+    "description": "label for option to skip songs that are rated thumbs down"
   },
   "setting_hideRatings": {
     "message": "Hide rating icons (last.fm and thumbs/stars)",

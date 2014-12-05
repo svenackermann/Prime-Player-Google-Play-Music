@@ -134,9 +134,9 @@
           <option value="toggleShuffle"></option>
           <option value="loveUnloveSong" class="lastfm"></option>
           <option value="rate-1"></option>
-          <option value="rate-2"></option>
-          <option value="rate-3"></option>
-          <option value="rate-4"></option>
+          <option class="stars" value="rate-2"></option>
+          <option class="stars" value="rate-3"></option>
+          <option class="stars" value="rate-4"></option>
           <option value="rate-5"></option>
           <option value="feelingLucky"></option>
           <option value="openLyrics" class="lyrics"></option>
@@ -349,7 +349,7 @@
         <input id="saveLastPosition" type="checkbox"/>
         <label for="saveLastPosition"></label>
       </div>
-      <div class="v-2.19 adv">
+      <div class="v-2.19 adv stars">
         <select id="skipRatedLower">
           <option value="0"></option>
           <option value="1"></option>
@@ -358,6 +358,10 @@
           <option value="4"></option>
         </select>
         <label for="skipRatedLower"></label>
+      </div>
+      <div class="adv thumbsOnly">
+        <input id="skipRatedThumbsDown" type="checkbox"/>
+        <label for="skipRatedThumbsDown"></label>
       </div>
       <div class="v-1.1 exp">
         <input id="openGoogleMusicPinned" type="checkbox"/>
