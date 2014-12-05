@@ -383,13 +383,13 @@ var executeInGoogleMusic = exports.executeInGoogleMusic = function(command, opti
 
 /** Load info/loved status for current song from last.fm. */
 var loadCurrentLastfmInfo = exports.loadCurrentLastfmInfo = function() {
-  song.loved = null;
   song.lastfmInfo = null;
+  song.loved = null;
   var songInfo = song.info;
   getLastfmInfo(songInfo, function(loved, lastfmInfo) {
     if (songInfo != song.info) return;//song meanwhile changed
-    song.loved = loved;
     song.lastfmInfo = lastfmInfo;
+    song.loved = loved;
     if (settings.linkRatings && settings.linkRatingsAuto) {
       if (loved === true && song.rating === 0) executeInGoogleMusic("rate", {rating: 5});
       else if (loved === false && song.rating == 5) loveTrack();
@@ -1733,8 +1733,8 @@ song.addListener("info", function(val) {
   song.toasted = false;
   song.nowPlayingSent = false;
   positionFromBackup = false;
-  song.loved = null;
   song.lastfmInfo = null;
+  song.loved = null;
   if (val) {
     val.durationSec = parseSeconds(val.duration);
     if (settings.toast && (settings.toastIfMpOpen || !miniplayer)) {

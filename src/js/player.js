@@ -716,6 +716,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     if (typeof(loved) == "string") {
       rat.addClass("error");
       a.data("msg", i18n("lastfmError") + loved).click(actions.getLastfmInfo);
+      a.data("lastfmInfo", "");
     } else if (loved === true) {
       rat.addClass("loved");
       a.data("msg", i18n("lastfmUnlove")).click(actions.unlove);
