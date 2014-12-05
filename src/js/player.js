@@ -13,6 +13,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   var ratingHtml;
   var getLastSongInfo;
   var lastSongInfo = false;
+  var i18n = chrome.i18n.getMessage;
 
   if (typeClass == "popup") {
     bp.popupOpened();
@@ -65,7 +66,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#album").text(info.album).attr("title", info.album).data("link", info.albumLink).toggleClass("nav", info.albumLink !== null);
     $("#cover").attr("src", info.cover || "img/cover.png");
     $("#showlyrics")
-      .attr("title", chrome.i18n.getMessage("lyricsFor", info.title))
+      .attr("title", i18n("lyricsFor", info.title))
       .addClass("nav")
       .data("options", {artist: info.artist, title: info.title});
   }
@@ -91,7 +92,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       if (bp.settings.lyricsAutoReload && $("#lyrics").is(":visible")) {
         var song = val.title;
         if (val.artist) song = val.artist + " - " + song;
-        switchView(chrome.i18n.getMessage("lyricsTitle", song), "lyrics", null, {artist: val.artist, title: val.title});
+        switchView(i18n("lyricsTitle", song), "lyrics", null, {artist: val.artist, title: val.title});
       }
     } else {
       $("#cover").attr("src", "img/cover.png");
@@ -241,7 +242,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     target.toggleClass("nav", !!link);
     if (link) {
       var text = bp.getTextForQuicklink(link);
-      target.data({link: link, text: text}).attr("title", chrome.i18n.getMessage("openLink", text));
+      target.data({link: link, text: text}).attr("title", i18n("openLink", text));
     } else {
       target.removeData("link text").removeAttr("title");
     }
@@ -308,7 +309,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("body").toggleClass("lastfm", user !== null);
     if (user) {
       $("#lastfmUser")
-        .attr("title", chrome.i18n.getMessage("lastfmUser") + user)
+        .attr("title", i18n("lastfmUser") + user)
         .attr("href", "http://last.fm/user/" + user);
       if (!bp.settings.hideRatings && getLastSongInfo) getLastSongInfo();
     }
@@ -386,7 +387,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         var info = $("<div class='info'></div>");
         var title;
         if (bp.localSettings.lyrics) {
-          title = $("<a tabindex='0' class='nav' data-link='lyrics'></a>").data("options", {artist: e.artist, title: e.title}).attr("title", chrome.i18n.getMessage("lyricsFor", e.title));
+          title = $("<a tabindex='0' class='nav' data-link='lyrics'></a>").data("options", {artist: e.artist, title: e.title}).attr("title", i18n("lyricsFor", e.title));
         } else {
           title = $("<span></span>").attr("title", e.title);
         }
@@ -493,8 +494,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
       content.html(result.lyrics.html());
       if (result.credits) credits.html(result.credits.html() + "<br/>");
     }
-    if (result.src) credits.append($("<a target='_blank'></a>").attr("href", result.src).text(chrome.i18n.getMessage("lyricsSrc"))).append($("<br/>"));
-    if (result.searchSrc) credits.append($("<a target='_blank'></a>").attr("href", result.searchSrc).text(chrome.i18n.getMessage("lyricsSearchResult")));
+    if (result.src) credits.append($("<a target='_blank'></a>").attr("href", result.src).text(i18n("lyricsSrc"))).append($("<br/>"));
+    if (result.searchSrc) credits.append($("<a target='_blank'></a>").attr("href", result.searchSrc).text(i18n("lyricsSearchResult")));
   }
   
   function switchView(title, link, search, options) {
@@ -551,7 +552,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function updateNavHead(title) {
-    var backHint = navHistory.length > 0 ? chrome.i18n.getMessage("backToLink", navHistory[navHistory.length - 1].title) : chrome.i18n.getMessage("backToPlayer");
+    var backHint = navHistory.length > 0 ? i18n("backToLink", navHistory[navHistory.length - 1].title) : i18n("backToPlayer");
     $("#navHead").children(".back").attr("title", backHint).end().children("span").text(title);
   }
   
@@ -565,14 +566,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
         switchView(current.title, current.link, current.search, current.options);
       }
     });
-    $("#navHead").find(".close").attr("title", chrome.i18n.getMessage("close")).click(restorePlayer);
+    $("#navHead").find(".close").attr("title", i18n("close")).click(restorePlayer);
     
     var searchInputTimer;
     $("#navHead > input").keyup(function() {
       clearTimeout(searchInputTimer);
       searchInputTimer = setTimeout(function() {
         var text = $.trim($("#navHead > input").val());
-        if (text.length > 1) switchView(chrome.i18n.getMessage("searchResults"), "search", text);
+        if (text.length > 1) switchView(i18n("searchResults"), "search", text);
       }, 500);
     });
 
@@ -605,7 +606,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
           }
           var song = options.title;
           if (options.artist) song = options.artist + " - " + song;
-          title = chrome.i18n.getMessage("lyricsTitle", song);
+          title = i18n("lyricsTitle", song);
         } else title = $(this).data("text") || $(this).text();
         
         if (bp.settings.openLinksInMiniplayer == e.shiftKey && link != "quicklinks" && link != "lyrics") bp.selectLink(link);
@@ -619,7 +620,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       } else if (e.keyCode == 81 && !bp.settings.hideSearchfield) {//q
         var inp = $("#navHead > input");
         if (!inp.is(":focus") && !inp.is(":disabled")) {
-          if (!inp.is(":visible")) switchView(chrome.i18n.getMessage("quicklinks"), "quicklinks");
+          if (!inp.is(":visible")) switchView(i18n("quicklinks"), "quicklinks");
           $("#navHead > input").focus();
         }
       } else if (e.keyCode == 32 && !$("#navHead > input").is(":focus")) {//space
@@ -662,13 +663,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function renderPlayControls() {
     $(".playPause").click(googleMusicExecutor("playPause")).each(function() {
-      $(this).attr("title", chrome.i18n.getMessage(this.id + "Song"));
+      $(this).attr("title", i18n(this.id + "Song"));
     });
-    $("#prev").click(googleMusicExecutor("prevSong")).attr("title", chrome.i18n.getMessage("prevSong"));
-    $("#next").click(googleMusicExecutor("nextSong")).attr("title", chrome.i18n.getMessage("nextSong"));
-    $("#repeat").click(googleMusicExecutor("toggleRepeat")).attr("title", chrome.i18n.getMessage("command_toggleRepeat"));
-    $("#shuffle").click(googleMusicExecutor("toggleShuffle")).attr("title", chrome.i18n.getMessage("command_toggleShuffle"));
-    $("#volume").click(toggleVolumeControl).attr("title", chrome.i18n.getMessage("volumeControl"));
+    $("#prev").click(googleMusicExecutor("prevSong")).attr("title", i18n("prevSong"));
+    $("#next").click(googleMusicExecutor("nextSong")).attr("title", i18n("nextSong"));
+    $("#repeat").click(googleMusicExecutor("toggleRepeat")).attr("title", i18n("command_toggleRepeat"));
+    $("#shuffle").click(googleMusicExecutor("toggleShuffle")).attr("title", i18n("command_toggleShuffle"));
+    $("#volume").click(toggleVolumeControl).attr("title", i18n("volumeControl"));
     $("#volumeBarBorder").click(setVolume);
   }
 
@@ -690,9 +691,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function renderLastfmInfo(lastfmInfo) {
     var infoText = "";
     if (lastfmInfo) {
-      infoText = chrome.i18n.getMessage("lastfmInfo_userplaycount", lastfmInfo.userplaycount + "") +
-        "\n" + chrome.i18n.getMessage("lastfmInfo_playcount", lastfmInfo.playcount + "") +
-        "\n" + chrome.i18n.getMessage("lastfmInfo_listeners", lastfmInfo.listeners + "");
+      infoText = i18n("lastfmInfo_userplaycount", lastfmInfo.userplaycount + "") +
+        "\n" + i18n("lastfmInfo_playcount", lastfmInfo.playcount + "") +
+        "\n" + i18n("lastfmInfo_listeners", lastfmInfo.listeners + "");
       $("#lastfmInfo").addClass("hasInfo")
               .find(".userplaycount > span").text(lastfmInfo.userplaycount)
         .end().find(".playcount > span").text(lastfmInfo.playcount)
@@ -711,13 +712,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var a = rat.find("a").unbind();
     if (typeof(loved) == "string") {
       rat.addClass("error");
-      a.data("msg", chrome.i18n.getMessage("lastfmError") + loved).click(actions.getLastfmInfo);
+      a.data("msg", i18n("lastfmError") + loved).click(actions.getLastfmInfo);
     } else if (loved === true) {
       rat.addClass("loved");
-      a.data("msg", chrome.i18n.getMessage("lastfmUnlove")).click(actions.unlove);
+      a.data("msg", i18n("lastfmUnlove")).click(actions.unlove);
     } else if (loved === false) {
       rat.addClass("notloved");
-      a.data("msg", chrome.i18n.getMessage("lastfmLove")).click(actions.love);
+      a.data("msg", i18n("lastfmLove")).click(actions.love);
     }
     renderLastfmTitle(a);
   }
@@ -738,7 +739,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
     updateCoverClickLink(bp.settings.coverClickLink);
     updateTitleClickLink(bp.settings.titleClickLink);
-    var searchPlaceholder = val && val.searchPlaceholder ? val.searchPlaceholder : chrome.i18n.getMessage("searchPlaceholder");
+    var searchPlaceholder = val && val.searchPlaceholder ? val.searchPlaceholder : i18n("searchPlaceholder");
     $("#navHead > input").attr("placeholder", searchPlaceholder);
   }
 
@@ -752,35 +753,35 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   $(function() {
     $("html").addClass(typeClass);
-    $("head > title").first().text(chrome.i18n.getMessage("extTitle"));
+    $("head > title").first().text(i18n("extTitle"));
 
     setupGoogleRating();
     renderPlayControls();
 
     $("#miniplayerlink")
       .click(bp.openMiniplayer)
-      .attr("title", chrome.i18n.getMessage("openMiniplayer"));
+      .attr("title", i18n("openMiniplayer"));
 
     $("#feelingLucky")
       .click(bp.executeFeelingLucky)
-      .attr("title", chrome.i18n.getMessage("feelingLucky"));
+      .attr("title", i18n("feelingLucky"));
 
-    $("#nosong").children("a:first-child").text(chrome.i18n.getMessage("nothingPlaying"))
+    $("#nosong").children("a:first-child").text(i18n("nothingPlaying"))
       .end().children("a:last-child")
         .click(bp.openGoogleMusicTab)
-        .text(chrome.i18n.getMessage("gotoGmusic"));
+        .text(i18n("gotoGmusic"));
 
-    $("#scrobblePosition").attr("title", chrome.i18n.getMessage("scrobblePosition"));
+    $("#scrobblePosition").attr("title", i18n("scrobblePosition"));
     $("#timeBarHolder").click(setSongPosition);
 
     $("#quicklinksBtn")
-      .data("text", chrome.i18n.getMessage("quicklinks"))
-      .attr("title", chrome.i18n.getMessage("showQuicklinks"));
+      .data("text", i18n("quicklinks"))
+      .attr("title", i18n("showQuicklinks"));
 
     $("#lastfmInfo")
-            .find(".userplaycount").html(chrome.i18n.getMessage("lastfmInfo_userplaycount", "<span></span>"))
-      .end().find(".playcount").html(chrome.i18n.getMessage("lastfmInfo_playcount", "<span></span>"))
-      .end().find(".listeners").html(chrome.i18n.getMessage("lastfmInfo_listeners", "<span></span>"));
+            .find(".userplaycount").html(i18n("lastfmInfo_userplaycount", "<span></span>"))
+      .end().find(".playcount").html(i18n("lastfmInfo_playcount", "<span></span>"))
+      .end().find(".listeners").html(i18n("lastfmInfo_listeners", "<span></span>"));
 
     $("#lastfmUser")
       .on("contextmenu", function(e) {

@@ -18,6 +18,7 @@ $(function() {
   var lyricsAutoReloadTimer;
   var position;
   var ratingContainer = $("#player-right-wrapper .player-rating-container ul.rating-container");
+  var i18n = chrome.i18n.getMessage;
   
   /** send update to background page */
   function post(type, value) {
@@ -57,7 +58,7 @@ $(function() {
     //inject icon with title to mark the tab as connected
     $(".music-banner-icon")
       .addClass("ppconnected")
-      .attr("title", chrome.i18n.getMessage("connected"))
+      .attr("title", i18n("connected"))
       .unbind().click(function() {
         port.disconnect();
         cleanup();
@@ -85,8 +86,8 @@ $(function() {
         content.html(result.lyrics);
         if (result.credits) credits.html(result.credits + "<br/>");
       }
-      if (result.src) credits.append($("<a target='_blank'></a>").attr("href", result.src).text(chrome.i18n.getMessage("lyricsSrc"))).append($("<br/>"));
-      if (result.searchSrc) credits.append($("<a target='_blank'></a>").attr("href", result.searchSrc).text(chrome.i18n.getMessage("lyricsSearchResult")));
+      if (result.src) credits.append($("<a target='_blank'></a>").attr("href", result.src).text(i18n("lyricsSrc"))).append($("<br/>"));
+      if (result.searchSrc) credits.append($("<a target='_blank'></a>").attr("href", result.searchSrc).text(i18n("lyricsSearchResult")));
     }
   }
   
@@ -134,7 +135,7 @@ $(function() {
     if (!$("#ppLyricsButton").length) {
       $("<img id='ppLyricsButton'/>")
         .attr("src", chrome.extension.getURL("img/toast/openLyrics.png"))
-        .attr("title", chrome.i18n.getMessage("command_openLyrics"))
+        .attr("title", i18n("command_openLyrics"))
         .toggleClass("active", $("#playerSongInfo").find("div").length)
         .click(toggleLyrics)
         .appendTo("#player-right-wrapper");
