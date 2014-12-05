@@ -310,7 +310,7 @@ $(function() {
     
     watchContent(sendSong, "#playerSongInfo", 500);
     watchContent(sendPosition, "#time_container_current");
-    watchContent(mainLoaded, "#main", 500);
+    watchContent(mainLoaded, "#main", 1000);
     watchAttr("class disabled", "#player > div.player-middle > button[data-id='play-pause']", "player-playing", playingGetter);
     watchAttr("value", "#player > div.player-middle > button[data-id='repeat']", "player-repeat");
     watchAttr("value", "#player > div.player-middle > button[data-id='shuffle']", "player-shuffle", shuffleGetter);
@@ -595,6 +595,7 @@ $(function() {
       case "tg":
       case "sral":
       case "ar":
+      case "exprec":
       case "expnew":
         return "playlistsList";
       case "exptop": //depend on content
@@ -642,9 +643,13 @@ $(function() {
   /** Select, parse and send a list to bp. */
   function sendNavigationList(link, omitUnknownAlbums, search) {
     selectAndExecute(link, function(error) {
-      var response = {link: link, list: [], controlLink: location.hash};
-      if (error) {
+      var response = {link: link, controlLink: location.hash};
+      function sendError() {
         response.error = true;
+        post("player-navigationList", response);
+      }
+      if (error) {
+        sendError();
       } else if (link == "exptop" || link == "exprec") {
         sendMixed(response, $("#" + link + "-main-panel"));
       } else if (link == "rd") {
@@ -661,12 +666,11 @@ $(function() {
           parseNavigationList[type]($("#main"), undefined, function(list, update) {
             response.list = list;
             response.update = update;
-            response.empty = !response.list.length;
+            response.empty = !list.length;
             post("player-navigationList", response);
           }, omitUnknownAlbums);
         } else {
-          response.error = true;
-          post("player-navigationList", response);
+          sendError();
         }
       }
     });
