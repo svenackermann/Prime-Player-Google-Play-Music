@@ -42,13 +42,17 @@ function buildLyricsSearchUrl(song) {
 function fetchLyrics(song, cb) {
   var url = buildLyricsSearchUrl(song);
   if (url) {
+    function stripImages(data) {
+      //remove images to avoid them to be loaded
+      return data.replace(/<img [^>]*src\s*=\s*\"[^\"]*\"[^>]*>/gi, "");
+    }
     $.get(url)
-      .done(function(data) {
-        var href = $(data).find(".serpresult > a").attr("href");
+      .done(function(resultPage) {
+        var href = $(stripImages(resultPage)).find(".serpresult > a").attr("href");
         if (href) {
           $.get(href)
-            .done(function(data) {
-              var page = $(data);
+            .done(function(lyricsPage) {
+              var page = $(stripImages(lyricsPage));
               var lyrics = page.find("#songLyricsDiv");
               var trimmedLyrics = lyrics.text().trim();
               if (trimmedLyrics.length === 0 || trimmedLyrics.indexOf("We do not have the lyrics for") === 0) {
