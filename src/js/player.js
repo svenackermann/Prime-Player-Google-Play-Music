@@ -113,33 +113,25 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("#cover").attr("src", "img/cover.png");
       $("#showlyrics").removeAttr("title").removeClass("nav").removeData("options");
     }
-    if (currentNavList.cluster && currentNavList.cluster.length) {
-      var playlists = getVisiblePlaylists();
-      if (!playlists.length) return;
+    
+    var playlists = getVisiblePlaylists();
+    if (playlists.length) {
       //clear currents
-      var currents = playlists.children("div.current");
-      currents.each(function() {
+      playlists.children("div.current").each(function() {
         var cur = $(this);
-        var cluster = cur.closest(".playlist").data("cluster");
-        var pl = currentNavList.cluster[cluster].titleList;
         cur.removeClass("current");
-        pl[parseInt(cur.data("index"))].current = false;
+        cur.data("song").current = false;
       });
       if (val) {
         //mark new currents
-        for (var c = 0; c < currentNavList.cluster.length; c++) {
-          if (currentNavList.cluster[c]) {
-            var pl = currentNavList.cluster[c].titleList;
-            var playlist = playlists.filter(clusterFilter(c));
-            for (var i = 0; i < pl.length; i++) {
-              if (bp.songsEqual(pl[i], val)) {
-                playlist.children("div[data-index='" + i + "']").addClass("current");
-                pl[i].current = true;
-                break;
-              }
-            }
+        playlists.children("div").each(function() {
+          var songRow = $(this);
+          var song = songRow.data("song");
+          if (bp.songsEqual(song, val)) {
+            songRow.addClass("current");
+            song.current = true;
           }
-        }
+        });
       }
     }
   }
@@ -357,78 +349,79 @@ chrome.runtime.getBackgroundPage(function(bp) {
   var renderNavList = {
     playlistsList: function(navlist, list) {
       for (var i = 0; i < list.length; i++) {
-        var e = list[i];
+        var pl = list[i];
         var row = $("<div></div>");
-        $("<img></img>").attr("src", e.cover || "img/cover.png").appendTo(row);
-        $("<a tabindex='0' class='album nav'></a>").data("link", e.titleLink).text(e.title).attr("title", e.title).appendTo(row);
-        if (e.subTitleLink) {
-          $("<a tabindex='0' class='nav'></a>").data("link", e.subTitleLink).text(e.subTitle).attr("title", e.subTitle).appendTo(row);
-        } else if (e.subTitle) {
-          $("<span></span>").text(e.subTitle).attr("title", e.subTitle).appendTo(row);
+        $("<img></img>").attr("src", pl.cover || "img/cover.png").appendTo(row);
+        $("<a tabindex='0' class='album nav'></a>").data("link", pl.titleLink).text(pl.title).attr("title", pl.title).appendTo(row);
+        if (pl.subTitleLink) {
+          $("<a tabindex='0' class='nav'></a>").data("link", pl.subTitleLink).text(pl.subTitle).attr("title", pl.subTitle).appendTo(row);
+        } else if (pl.subTitle) {
+          $("<span></span>").text(pl.subTitle).attr("title", pl.subTitle).appendTo(row);
         }
         navlist.append(row);
       }
     },
     playlist: function(navlist, list, update, cluster, header) {
       navlist.data("cluster", cluster);
-      clusterList = currentNavList.cluster[cluster];
-      if (!clusterList) clusterList = currentNavList.cluster[cluster] = [];
-      if (!update) {
-        clusterList.titleList = [];
-        clusterList.noAlbum = true;
-        clusterList.noRating = true;
-        clusterList.duration = 0;
-        header.append("<span class='duration'></span>");
-      }
+      var noAlbum = true;
+      var noRating = true;
+      var duration = 0;
+      if (update) {
+        noAlbum = navlist.hasClass("noalbum");
+        noRating = navlist.hasClass("norating");
+        duration = navlist.data("duration");
+      } else header.append("<span class='duration'></span>");
       var current;
       for (var i = 0; i < list.length; i++) {
-        var e = list[i];
-        if (clusterList.titleList.length > e.index) continue;
-        var row = $("<div data-index='" + e.index + (e.current ? "' class='current'>" : "'></div>"));
-        $("<img></img>").attr("src", e.cover || "img/cover.png").appendTo(row);
-        $("<div class='rating r" + e.rating + "'>" + ratingHtml + "</div>").appendTo(row);
-        if (e.rating >= 0) clusterList.noRating = false;
+        var song = list[i];
+        if (navlist.children().length > song.index) continue;
+        var row = $("<div data-index='" + song.index + (song.current ? "' class='current'>" : "'></div>"));
+        $("<img></img>").attr("src", song.cover || "img/cover.png").appendTo(row);
+        $("<div class='rating r" + song.rating + "'>" + ratingHtml + "</div>").appendTo(row);
+        if (song.rating >= 0) noRating = false;
         var info = $("<div class='info'></div>");
         var title;
         if (bp.localSettings.lyrics) {
-          title = $("<a tabindex='0' class='nav' data-link='lyrics'></a>").data("options", {artist: e.artist, title: e.title}).attr("title", i18n("lyricsFor", e.title));
+          title = $("<a tabindex='0' class='nav' data-link='lyrics'></a>").data("options", {artist: song.artist, title: song.title}).attr("title", i18n("lyricsFor", song.title));
         } else {
-          title = $("<span></span>").attr("title", e.title);
+          title = $("<span></span>").attr("title", song.title);
         }
-        title.text(e.title).appendTo(info);
-        $("<span class='duration'></span>").text(e.duration).appendTo(info);
-        clusterList.duration += bp.parseSeconds(e.duration);
-        if (e.artistLink) {
-          $("<a tabindex='0' class='nav'></a>").data("link", e.artistLink).text(e.artist).attr("title", e.artist).appendTo(info);
+        title.text(song.title).appendTo(info);
+        $("<span class='duration'></span>").text(song.duration).appendTo(info);
+        duration += bp.parseSeconds(song.duration);
+        if (song.artistLink) {
+          $("<a tabindex='0' class='nav'></a>").data("link", song.artistLink).text(song.artist).attr("title", song.artist).appendTo(info);
         } else {
-          $("<span></span>").text(e.artist).attr("title", e.artist).appendTo(info);
+          $("<span></span>").text(song.artist).attr("title", song.artist).appendTo(info);
         }
-        if (e.albumLink) {
-          if (e.albumLink != currentNavList.link) {
-            $("<a tabindex='0' class='album nav'></a>").data("link", e.albumLink).text(e.album).attr("title", e.album).appendTo(info);
-            clusterList.noAlbum = false;
+        if (song.albumLink) {
+          if (song.albumLink != currentNavList.link) {
+            $("<a tabindex='0' class='album nav'></a>").data("link", song.albumLink).text(song.album).attr("title", song.album).appendTo(info);
+            noAlbum = false;
           }
-        } else if (e.album) {
-          $("<span class='album'></span>").text(e.album).attr("title", e.album).appendTo(info);
-          clusterList.noAlbum = false;
+        } else if (song.album) {
+          $("<span class='album'></span>").text(song.album).attr("title", song.album).appendTo(info);
+          noAlbum = false;
         }
         row.append(info);
+        
+        row.data("song", song);
         navlist.append(row);
-        clusterList.titleList.push(e);
-        if (e.current) current = row.get(0);
+        if (song.current) current = row.get(0);
       }
-      navlist.toggleClass("noalbum", clusterList.noAlbum);
-      navlist.toggleClass("norating", clusterList.noRating);
-      navlist.toggleClass("noduration", clusterList.duration === 0);
-      if (clusterList.duration > 0) header.find("span.duration").text("(" + bp.toTimeString(clusterList.duration) + ")");
+      navlist.toggleClass("noalbum", noAlbum);
+      navlist.toggleClass("norating", noRating);
+      navlist.data("duration", duration);
+      navlist.toggleClass("noduration", !duration);
+      if (duration) header.find("span.duration").text("(" + bp.toTimeString(duration) + ")");
       if (current) current.scrollIntoView(true);
     },
     albumContainers: function(navlist, list) {
       for (var i = 0; i < list.length; i++) {
-        var e = list[i];
+        var ac = list[i];
         var row = $("<div></div>");
-        $("<img></img>").attr("src", e.cover || "img/cover.png").appendTo(row);
-        $("<a tabindex='0' class='nav'></a>").data("link", e.link).text(e.title).attr("title", e.title).appendTo(row);
+        $("<img></img>").attr("src", ac.cover || "img/cover.png").appendTo(row);
+        $("<a tabindex='0' class='nav'></a>").data("link", ac.link).text(ac.title).attr("title", ac.title).appendTo(row);
         navlist.append(row);
       }
     }
@@ -436,14 +429,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function updateListrating(val) {
     if (val === null || val.controlLink != currentNavList.controlLink) return;
-    var clusterList = currentNavList.cluster[val.cluster];
-    var e = clusterList && clusterList.titleList[val.index];
-    if (e) {
-      getVisiblePlaylists()
-        .filter(clusterFilter(val.cluster))
-        .children("div[data-index='" + val.index + "']")
-        .children("div.rating").removeClass("r" + e.rating).addClass("r" + val.rating);
-      e.rating = val.rating;
+    var songRow = getVisiblePlaylists().filter(clusterFilter(val.cluster)).children("div[data-index='" + val.index + "']");
+    if (songRow.length) {
+      var song = songRow.data("song");
+      songRow.children("div.rating").removeClass("r" + song.rating).addClass("r" + val.rating);
+      song.rating = val.rating;
     }
   }
 
@@ -468,7 +458,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
       if (!val.update) {
         navlist.empty().removeClass().addClass(val.type);
         resize(bp.localSettings[val.type + "Sizing"]);
-        currentNavList.cluster = [];
       }
       var header = $("#navHead").children("span");
       if (val.type == "mixed") {
@@ -513,7 +502,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
     $("#player").hide();
     if (currentNavList.link && currentNavList.link != link) {
-      currentNavList.cluster = null;//free memory
       navHistory.push(currentNavList);
     }
     currentNavList = { link: link, title: title, search: search, options: options };
@@ -648,11 +636,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
         bp.rate(rating);
       } else {
         var index = songRow.data("index");
-        var cluster = getClusterIndex(songRow);
-        var e = currentNavList.cluster[cluster].titleList[index];
-        if (e.rating < 0) return;//negative ratings cannot be changed
-        if (rating == 5 && bp.settings.linkRatings && !bp.isRatingReset(e.rating, rating)) bp.love({ title: e.title, artist: e.artist }, $.noop);
-        bp.executeInGoogleMusic("ratePlaylistSong", { link: currentNavList.controlLink, index: index, cluster: cluster, rating: rating });
+        var song = songRow.data("song");
+        if (song.rating < 0) return;//negative ratings cannot be changed
+        if (rating == 5 && bp.settings.linkRatings && !bp.isRatingReset(song.rating, rating)) bp.love({ title: song.title, artist: song.artist }, $.noop);
+        bp.executeInGoogleMusic("ratePlaylistSong", { link: currentNavList.controlLink, index: index, cluster: getClusterIndex(songRow), rating: rating });
       }
     });
   }
