@@ -19,7 +19,7 @@ var develop = true;
 var full = argv.full;
 
 var paths = {
-  js_bp: ["src/js/md5-min.js", "src/js/lastfm.api.js", "src/js/beans.js", "src/js/lyrics.js", "src/js/bp.js"],
+  js_bp: ["src/js/md5.min.js", "src/js/lastfm.api.js", "src/js/beans.js", "src/js/lyrics.js", "src/js/bp.js"],
   js_single: ["src/js/cs.js", "src/js/cs-songlyrics.js", "src/js/injected.js", "src/js/options.js", "src/js/player.js", "src/js/updateNotifier.js"],
   scss: ["src/css/*.scss", "!src/css/layouts.scss"],
   scss_all: "src/css/*.*",
@@ -33,7 +33,7 @@ var paths = {
 function myUglify() { return gulpif(!full, uglify({ preserveComments: "some", compress: { drop_console: !develop } })); }
 
 gulp.task("jshint", function() {
-  return gulp.src(paths.js_single.concat(["src/js/lastfm.api.js", "src/js/beans.js", "src/js/lyrics.js", "src/js/bp.js"]))
+  return gulp.src(["src/js/*.js", "!src/js/*.min.js"])
     .pipe(jshint())
     .pipe(jshint.reporter("jshint-stylish"))
     .pipe(jshint.reporter("fail"));
