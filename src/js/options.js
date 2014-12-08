@@ -32,13 +32,18 @@ chrome.runtime.getBackgroundPage(function(bp) {
     );
   }
 
+  function setSubsEnabled(el, enabled) {
+    el.parent().nextUntil("*:not(.sub)").children("input").prop("disabled", !enabled);
+  }
+  
   function scrobbleChanged(val) {
-    $("#scrobblePercent, #scrobbleTime, #scrobbleMaxDuration, #disableScrobbleOnFf, #showScrobbledIndicator, #scrobbleRepeated").prop("disabled", !bp.isScrobblingEnabled());
-    $("#scrobble").prop("checked", val);
+    var se = bp.isScrobblingEnabled();
+    $("#showScrobbledIndicator").prop("disabled", !se);
+    setSubsEnabled($("#scrobble").prop("checked", val), se);
   }
 
   function linkRatingsChanged() {
-    $("#linkRatingsGpm, #linkRatingsAuto").prop("disabled", !bp.settings.linkRatings || !bp.localSettings.lastfmSessionName);
+    setSubsEnabled($("#linkRatings"), bp.settings.linkRatings && bp.localSettings.lastfmSessionName);
   }
   
   function toastChanged() {
@@ -49,8 +54,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function lyricsChanged() {
-    $("#openLyricsInMiniplayer, #lyricsInGpm, #lyricsAutoReload").prop("disabled", !bp.localSettings.lyrics);
-    $("#lyricsFontSize, #lyricsWidth").prop("disabled", !bp.localSettings.lyrics || !bp.settings.lyricsInGpm);
+    setSubsEnabled($("#lyrics"), bp.localSettings.lyrics);
+    $("#lyricsWidth").prop("disabled", !bp.localSettings.lyrics || !bp.settings.lyricsInGpm);
   }
   
   function lastfmUserChanged(user) {
@@ -84,7 +89,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function showProgressChanged() {
-    $("#showProgressColor").prop("disabled", !bp.settings.showProgress);
+    setSubsEnabled($("#showProgress"), bp.settings.showProgress);
   }
 
   function notificationsEnabledChanged(val) {
@@ -359,6 +364,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("scrobbleRepeated");
     initCheckbox("linkRatings").click(linkRatingsChanged);
     initHint("linkRatings");
+    initNumberInput("linkRatingsMin");
     initCheckbox("linkRatingsGpm");
     initCheckbox("linkRatingsAuto");
     initHint("linkRatingsAuto");

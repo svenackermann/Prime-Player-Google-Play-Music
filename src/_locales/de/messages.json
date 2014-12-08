@@ -137,6 +137,9 @@
   "setting_linkRatingsHint": {
     "message": "Titel in last.fm lieben, wenn du Daumen hoch/f\u00FCnf Sterne in Google Music gibst und umgekehrt. Bestehende Wertungen werden nicht \u00FCberschrieben. Funktioniert nicht, wenn direkt auf der Google Music oder last.fm Seite bewertet wird (nur \u00FCber Miniplayer, Tastaturk\u00FCrzel, Toast Aktionen, ...)."
   },
+  "setting_linkRatingsMin": {
+    "message": "Mindest-Stern-Anzahl zum automatisch lieben"
+  },
   "setting_linkRatingsGpm": {
     "message": "Auch automatisch lieben, wenn im Google Music Tab bewertet wird"
   },

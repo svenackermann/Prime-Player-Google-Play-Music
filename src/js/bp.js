@@ -123,6 +123,7 @@ var settings = exports.settings = new Bean({
   linkRatings: false,
   linkRatingsGpm: false,
   linkRatingsAuto: false,
+  linkRatingsMin: 5,
   showLovedIndicator: false,
   showScrobbledIndicator: true,
   showLastfmInfo: false,
@@ -392,7 +393,7 @@ var loadCurrentLastfmInfo = exports.loadCurrentLastfmInfo = function() {
     song.loved = loved;
     if (settings.linkRatings && settings.linkRatingsAuto) {
       if (loved === true && song.rating === 0) executeInGoogleMusic("rate", {rating: 5});
-      else if (loved === false && song.rating == 5) loveTrack();
+      else if (loved === false && (song.rating >= settings.linkRatingsMin || (localSettings.ratingMode == "thumbs" && song.rating >= 4))) loveTrack();
     }
   });
 };
@@ -434,7 +435,7 @@ var isRatingReset = exports.isRatingReset = function(oldRating, newRating) {
 var rate = exports.rate = function(rating) {
   if (song.rating < 0) return;//negative ratings cannot be changed
   //auto-love if no reset and not loved yet
-  if (settings.linkRatings && rating == 5 && !isRatingReset(song.rating, rating)) loveTrack();
+  if (settings.linkRatings && rating >= settings.linkRatingsMin && !isRatingReset(song.rating, rating)) loveTrack();
   executeInGoogleMusic("rate", {rating: rating});
 };
 
@@ -745,10 +746,10 @@ function onMessageListener(message) {
       if (result.title) result.title = result.title.text().trim();
       postToGooglemusic({type: "lyrics", result: result});
     });
-  } else if (type == "rated5") {
-    if (settings.linkRatings && settings.linkRatingsGpm) {
-      if (songsEqual(song.info, val)) loveTrack();
-      else love(val, $.noop);
+  } else if (type == "rated") {
+    if (settings.linkRatings && settings.linkRatingsGpm && val.rating >= settings.linkRatingsMin) {
+      if (songsEqual(song.info, val.song)) loveTrack();
+      else love(val.song, $.noop);
     }
   }
 }

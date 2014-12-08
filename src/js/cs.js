@@ -343,13 +343,13 @@ $(function() {
       pausePlaylistParsing = false;
       clearTimeout(asyncListTimer);
     });
-    ratingContainer.on("click", "li.selected[data-rating='5']", function(e) {
+    ratingContainer.on("click", "li.selected[data-rating]", function(e) {
       //when click is simulated by injected script, clientX will be 0
-      if (e.clientX) post("rated5", parseSongInfo());
+      if (e.clientX) post("rated", { song: parseSongInfo(), rating: parseRating(this) });
     });
     //listen for "mouseup", because "click" won't bubble up to "#main" and we can't attach this directly to ".rating-container" because it's dynamically created
-    $("#main").on("mouseup", ".song-row td[data-col='rating'] ul.rating-container li:not(.selected)[data-rating='5']", function() {
-      post("rated5", parseSongRow($(this).closest(".song-row"), true));
+    $("#main").on("mouseup", ".song-row td[data-col='rating'] ul.rating-container li:not(.selected)[data-rating]", function() {
+      post("rated", { song: parseSongRow($(this).closest(".song-row"), true), rating: parseRating(this) });
     });
     
     window.addEventListener("message", onMessage);
