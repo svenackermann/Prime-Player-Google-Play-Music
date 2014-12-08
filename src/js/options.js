@@ -94,8 +94,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function notificationsEnabledChanged(val) {
     settingsView.toggleClass("notifDisabled", !val);
-    if (!val && bp.settings.toast) bp.settings.toastUseMpStyle = true;
-    toastChanged();
+    if (!val && bp.settings.toast && !bp.settings.toastUseMpStyle) $("#toastUseMpStyle").click();//use click here to change the checkbox value
+    else toastChanged();//in if clause this is triggered by the click listener on #toastUseMpStyle
   }
   
   var countdownInterval;
