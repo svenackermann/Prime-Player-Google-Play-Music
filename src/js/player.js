@@ -334,10 +334,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function connectedWatcher(val) {
     $("body").toggleClass("connected", val);
-    if (!val) {
-      restorePlayer();
-      if (bp.settings.saveLastPosition) bp.getLastSong(renderLastSong);
-    }
+    if (!val) restorePlayer();
+    if (bp.settings.saveLastPosition && lastSongInfo === false && (!val || !bp.song.info)) bp.getLastSong(renderLastSong);
   }
 
   function resize(sizing) {
@@ -817,8 +815,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     if (typeClass == "miniplayer" || typeClass == "toast") setupResizeMoveListeners();
     if (typeClass == "toast" && bp.settings.toastDuration > 0) setToastAutocloseTimer();
 
-    if (bp.settings.saveLastPosition && bp.player.connected && bp.song.info === null) bp.getLastSong(renderLastSong);
-    
     $(window).unload(function() {
       bp.localSettings.removeAllListeners(typeClass);
       bp.settings.removeAllListeners(typeClass);
