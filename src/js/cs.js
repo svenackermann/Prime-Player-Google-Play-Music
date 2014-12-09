@@ -2,6 +2,8 @@
  * Content script to be injected to Google Play Music.
  * This watches the DOM for relevant changes and notifies the background page.
  * It also delivers commands to the Google Play Music window.
+ */
+/**
  * @author Sven Ackermann (svenrecknagel@gmail.com)
  * @license BSD license
  */

@@ -2,7 +2,8 @@
  * This script is based on Felix Bruns' work.
  * Here just everything that is not needed for Prime Player has been removed.
  * We also use jQuery to save some code and store the session info and a sessionTimeoutCallback in the object.
- *
+ */
+/**
  * @license Copyright (c) 2008-2010, Felix Bruns <felixbruns@web.de>
  * @author Sven Ackermann (svenrecknagel@gmail.com)
  */

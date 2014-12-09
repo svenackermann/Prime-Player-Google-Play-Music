@@ -1,8 +1,11 @@
 /**
  * Functions to handle lyrics.
+ */
+/**
  * @author Sven Ackermann (svenrecknagel@gmail.com)
  * @license BSD license
  */
+
 /** @return an URL to songlyrics.com for the song or null if too little information */
 function buildLyricsSearchUrl(song) {
   var artist = "";
