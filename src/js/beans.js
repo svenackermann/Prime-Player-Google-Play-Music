@@ -18,10 +18,9 @@ function Bean(defaults, useLocalStorage) {
   var that = this;
   
   function notify(prop, old, val) {
-    var ls = listeners[prop];
-    for (var i = 0; i < ls.length; i++) {
-      ls[i].listener(val, old, prop);
-    }
+    listeners[prop].forEach(function(ls) {
+      ls.listener(val, old, prop);
+    });
   }
   
   /**

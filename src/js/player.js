@@ -348,8 +348,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   var renderNavList = {
     playlistsList: function(navlist, list) {
-      for (var i = 0; i < list.length; i++) {
-        var pl = list[i];
+      list.forEach(function(pl) {
         var row = $("<div></div>");
         $("<img></img>").attr("src", pl.cover || "img/cover.png").appendTo(row);
         $("<a tabindex='0' class='album nav'></a>").data("link", pl.titleLink).text(pl.title).attr("title", pl.title).appendTo(row);
@@ -359,7 +358,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
           $("<span></span>").text(pl.subTitle).attr("title", pl.subTitle).appendTo(row);
         }
         navlist.append(row);
-      }
+      });
     },
     playlist: function(navlist, list, update, cluster, header) {
       navlist.data("cluster", cluster);
@@ -372,9 +371,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
         duration = navlist.data("duration");
       } else header.append("<span class='duration'></span>");
       var current;
-      for (var i = 0; i < list.length; i++) {
-        var song = list[i];
-        if (navlist.children().length > song.index) continue;
+      list.forEach(function(song) {
+        if (navlist.children().length > song.index) return;
         var row = $("<div data-index='" + song.index + (song.current ? "' class='current'>" : "'></div>"));
         $("<img></img>").attr("src", song.cover || "img/cover.png").appendTo(row);
         $("<div class='rating r" + song.rating + "'>" + ratingHtml + "</div>").appendTo(row);
@@ -408,7 +406,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         row.data("song", song);
         navlist.append(row);
         if (song.current) current = row.get(0);
-      }
+      });
       navlist.toggleClass("noalbum", noAlbum);
       navlist.toggleClass("norating", noRating);
       navlist.data("duration", duration);
@@ -417,13 +415,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
       if (current) current.scrollIntoView(true);
     },
     albumContainers: function(navlist, list) {
-      for (var i = 0; i < list.length; i++) {
-        var ac = list[i];
+      list.forEach(function(ac) {
         var row = $("<div></div>");
         $("<img></img>").attr("src", ac.cover || "img/cover.png").appendTo(row);
         $("<a tabindex='0' class='nav'></a>").data("link", ac.link).text(ac.title).attr("title", ac.title).appendTo(row);
         navlist.append(row);
-      }
+      });
     }
   };
 
@@ -463,10 +460,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       if (val.type == "mixed") {
         navlist.removeData("cluster");
         header.text(val.header);
-        for (var i = 0; i < val.lists.length; i++) {
-          var list = val.lists[i];
-          renderSubNavigationList(list, navlist);
-        }
+        val.lists.forEach(function(list) { renderSubNavigationList(list, navlist); });
         navlist.find("h2 a.nav").data("text", val.header).data("search", val.search).text(val.moreText);
       } else {
         renderNavList[val.type](navlist, val.list, val.update, 0, header);

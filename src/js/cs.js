@@ -157,9 +157,7 @@ $(function() {
     $("#main").off("DOMSubtreeModified mouseup");
     ratingContainer.off("click");
     $(window).off("hashchange");
-    for (var i = 0; i < observers.length; i++) {
-      observers[i].disconnect();
-    }
+    observers.forEach(function(o) { o.disconnect(); });
     hideConnectedIndicator();
     disableLyrics();
     port = null;
