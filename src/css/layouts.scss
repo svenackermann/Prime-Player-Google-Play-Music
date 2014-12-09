@@ -16,7 +16,7 @@
   .playing #timeBarHolder {
     border-color: lighten($color, 50%);
   }
-  #quickLinksBtn, #miniplayerlink, .scrobbleEnabled #lastfmUser, #feelingLucky {
+  #quicklinksBtn, #miniplayerlink, .scrobbleEnabled #lastfmUser, #feelingLucky {
     background-color: $color;
     border-top-color: lighten($color, 20%);
   }
@@ -172,7 +172,7 @@
   #miniplayerlink {
     @include sprite(9, 0, 15);
   }
-  #quickLinksBtn {
+  #quicklinksBtn {
     @include sprite(12, 0, 15);
   }
   #lastfmUser {

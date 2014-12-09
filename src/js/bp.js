@@ -483,7 +483,7 @@ var getTextForToastBtn = exports.getTextForToastBtn = function(cmd) {
 /** Open the options tab or focus it, if already opened. */
 var openOptions = exports.openOptions = function() {
   if (optionsTabId) {
-    chromeTabs.update(optionsTabId, {active: true});
+    chromeTabs.update(optionsTabId, { active: true });
   } else {
     chromeTabs.create({url: getExtensionUrl("options.html")});
   }
@@ -497,8 +497,8 @@ var openLyrics = exports.openLyrics = function(aSong) {
   }
   var url = buildLyricsSearchUrl(aSong);
   if (url) {
-    chromeTabs.create({url: url}, function(tab) {
-      chromeTabs.executeScript(tab.id, {file: "js/cs-songlyrics.js", runAt: "document_end"});
+    chromeTabs.create({ url: url }, function(tab) {
+      chromeTabs.executeScript(tab.id, { file: "js/cs-songlyrics.js", runAt: "document_end" });
     });
     gaEvent("Lyrics", "Open");
   } else {
@@ -1314,7 +1314,7 @@ function updatedListener(details) {
         clearNotification(nid);
         if (buttonIndex == 1) {
           gaEvent("Options", "welcome-toWiki");
-          chromeTabs.create({url: "https://github.com/svenackermann/Prime-Player-Google-Play-Music/wiki"});
+          chromeTabs.create({ url: "http://goo.gl/9gEuI7" });
         } else {//button 0 or notification clicked
           gaEvent("Options", "welcome-toOptions");
           openOptions();
@@ -1441,7 +1441,7 @@ var clearSleepTimer = exports.clearSleepTimer = function() {
 /** Open or activate a Google Music tab. */
 var openGoogleMusicTab = exports.openGoogleMusicTab = function(link) {
   if (googlemusictabId) {
-    chromeTabs.update(googlemusictabId, {active: true});
+    chromeTabs.update(googlemusictabId, { active: true });
   } else {
     var url = "http://play.google.com/music/listen";
     if (localSettings.googleAccountNo) url += "?u=" + localSettings.googleAccountNo;

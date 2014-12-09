@@ -265,12 +265,12 @@ a {
   display: none;
 }
 
-#quickLinksBtn {
+#quicklinksBtn {
   display: block;
   @include sprite(12, 0, 13);
 }
 
-.toast #quickLinksBtn {
+.toast #quicklinksBtn {
   display: none;
 }
 
@@ -617,7 +617,7 @@ a {
   }
 }
 
-#quickLinks {
+#quicklinks {
   display: none;
   .allinc {
     display: none;
