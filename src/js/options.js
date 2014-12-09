@@ -466,6 +466,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initHint("iconDoubleClickTime");
     initCheckbox("iconClickConnect");
     initCheckbox("openGoogleMusicPinned");
+    initCheckbox("openGmBackground");
     initNumberInput("googleAccountNo", bp.localSettings);
     initHint("googleAccountNo");
     initCheckbox("connectedIndicator");

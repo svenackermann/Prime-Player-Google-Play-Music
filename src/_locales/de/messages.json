@@ -318,6 +318,9 @@
   "setting_openGoogleMusicPinned": {
     "message": "Google Music in einem angehefteten Tab \u00F6ffnen"
   },
+  "setting_openGmBackground": {
+    "message": "Google Music Tab im Hintergrund \u00F6ffnen"
+  },
   "setting_googleAccountNo": {
     "message": "Index des zu \u00F6ffnenden Google Kontos"
   },

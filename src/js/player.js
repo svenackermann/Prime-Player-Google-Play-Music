@@ -583,7 +583,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("body").on("click", ".nav", function(e) {
       var link = $(this).data("link");
       if (link) {
-        e.preventDefault();
         var options = $(this).data("options");
         var title;
         if (link == "lyrics") {
@@ -602,6 +601,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         
         if (bp.settings.openLinksInMiniplayer == e.shiftKey && link != "quicklinks" && link != "lyrics") bp.selectLink(link);
         else switchView(title, link, $(this).data("search"), options);
+        return false;
       }
     });
     
@@ -775,8 +775,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
     $("#lastfmUser")
       .on("contextmenu", function(e) {
-        e.preventDefault();
         bp.settings.scrobble = !bp.settings.scrobble;
+        return false;
       });
 
     setupNavigationEvents();

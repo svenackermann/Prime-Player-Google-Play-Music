@@ -171,6 +171,7 @@ var settings = exports.settings = new Bean({
   iconDoubleClickTime: 0,
   iconClickConnect: false,
   openGoogleMusicPinned: false,
+  openGmBackground: false,
   connectedIndicator: true,
   preventCommandRatingReset: true,
   updateNotifier: true,
@@ -537,7 +538,7 @@ function createNotification(id, options, cb) {
 
 function globalNotificationListener(evt, id, arg2) {
   var forId = notifications[id];
-  if (forId && forId[evt]) for (var i = 0; i < forId[evt].length; i++) forId[evt][i](arg2);
+  if (forId && forId[evt]) forId[evt].forEach(function(listener) { listener(arg2); });
 }
 var globalClickListener = globalNotificationListener.bind(window, "click");
 var globalBtnClickListener = globalNotificationListener.bind(window, "btnClick");
@@ -787,7 +788,7 @@ exports.loadNavigationList = function(link, search) {
 /** Select a link in the Google Music tab or open it when not connected. */
 exports.selectLink = function(link) {
   postToGooglemusic({type: "selectLink", link: link});
-  openGoogleMusicTab(link);
+  openGoogleMusicTab(link, true);//if already opened focus the tab, else open & focus a new one
 };
 
 /** Start a playlist in Google Music. */
@@ -885,12 +886,11 @@ function scrobbleCachedSongs() {
       return;
     }
     var params = {};
-    for (var i = 0; i < scrobbleCache.songs.length; i++) {
-      var curSong = scrobbleCache.songs[i];
+    scrobbleCache.songs.forEach(function(curSong, i) {
       for (var prop in curSong) {
         params[prop + "[" + i + "]"] = curSong[prop];
       }
-    }
+    });
     lastfm.track.scrobble(params, {
       success: function() {
         localStorage.removeItem("scrobbleCache");
@@ -1440,26 +1440,26 @@ var clearSleepTimer = exports.clearSleepTimer = function() {
 };
 
 /** Open or activate a Google Music tab. */
-var openGoogleMusicTab = exports.openGoogleMusicTab = function(link) {
+var openGoogleMusicTab = exports.openGoogleMusicTab = function(link, forceActive) {
+  var active = forceActive === true || !settings.openGmBackground;
   if (googlemusictabId) {
-    chromeTabs.update(googlemusictabId, { active: true });
+    if (active) chromeTabs.update(googlemusictabId, { active: true });
   } else {
     var url = "http://play.google.com/music/listen";
     if (localSettings.googleAccountNo) url += "?u=" + localSettings.googleAccountNo;
-    if (link) url += "#/" + link;
-    chromeTabs.create({url: url, pinned: settings.openGoogleMusicPinned});
+    if (typeof(link) == "string") url += "#/" + link;
+    chromeTabs.create({url: url, pinned: settings.openGoogleMusicPinned, active: active });
   }
 };
 
 /** Connect existing Google Music tabs on startup. */
 function connectGoogleMusicTabs() {
   chromeTabs.query({url:"*://play.google.com/music/listen*"}, function(tabs) {
-    for (var i = 0; i < tabs.length; i++) {
-      var tabId = tabs[i].id;
-      chromeTabs.insertCSS(tabId, {file: "css/gpm.css"});
-      chromeTabs.executeScript(tabId, {file: "js/jquery-2.0.2.min.js"});
-      chromeTabs.executeScript(tabId, {file: "js/cs.js"});
-    }
+    tabs.forEach(function(tab) {
+      chromeTabs.insertCSS(tab.id, {file: "css/gpm.css"});
+      chromeTabs.executeScript(tab.id, {file: "js/jquery-2.0.2.min.js"});
+      chromeTabs.executeScript(tab.id, {file: "js/cs.js"});
+    });
   });
 }
 
@@ -1641,10 +1641,10 @@ function reloadForUpdate() {
     googlemusicport.onDisconnect.removeListener(onDisconnectListener);
     googlemusicport.disconnect();
   }
-  for (var i = 0; i < parkedPorts.length; i++) {
-    parkedPorts[i].onDisconnect.removeListener(removeParkedPort);
-    parkedPorts[i].disconnect();
-  }
+  parkedPorts.forEach(function(port) {
+    port.onDisconnect.removeListener(removeParkedPort);
+    port.disconnect();
+  });
   setTimeout(function() { chromeRuntime.reload(); }, 1000);//wait a second til port cleanup is finished
 }
 

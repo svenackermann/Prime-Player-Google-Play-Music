@@ -424,6 +424,10 @@
     "message": "Open Google Music in a pinned tab",
     "description": "label for option to open Google Music in a pinned tab"
   },
+  "setting_openGmBackground": {
+    "message": "Open Google Music tab in the background",
+    "description": "label for option to open Google Music in the background"
+  },
   "setting_googleAccountNo": {
     "message": "Index of Google account to open",
     "description": "label for option to select Google account number"
