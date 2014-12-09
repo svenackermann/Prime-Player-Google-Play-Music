@@ -49,7 +49,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function toastChanged() {
-    $("#toastIfMpOpen, #toastDuration").prop("disabled", !bp.settings.toast);
+    $("#toastIfMpOpen, #toastNotIfGmActive, #toastDuration").prop("disabled", !bp.settings.toast);
     $("#toastUseMpStyle").prop("disabled", !bp.settings.toast || !bp.localSettings.notificationsEnabled);
     $("fieldset.toast > .notif").children("input, select").prop("disabled", !bp.settings.toast || bp.settings.toastUseMpStyle);
     $("#toast").siblings(".hint").toggle(!bp.settings.toastIfMpOpen);
@@ -385,6 +385,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("toastProgress");
     initCheckbox("toastRating");
     initCheckbox("toastIfMpOpen").click(toastChanged);
+    initCheckbox("toastNotIfGmActive");
     initSelect("toastClick", bp.getTextForToastBtn);
     initSelect("toastButton1")
       .append($("#toastClick").children().clone())

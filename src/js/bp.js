@@ -132,6 +132,7 @@ var settings = exports.settings = new Bean({
   toast: true,
   toastDuration: 0,
   toastIfMpOpen: false,
+  toastNotIfGmActive: false,
   toastUseMpStyle: false,
   toastPriority: 3,
   toastProgress: false,
@@ -193,7 +194,6 @@ var song = exports.song = new Bean({
   lastfmInfo: null,
   nowPlayingSent: false,
   scrobbled: false,
-  toasted: false,
   scrobbleTime: -1,
   timestamp: null,
   ff: false
@@ -1107,31 +1107,6 @@ function getToastOptions() {
 }
 
 var closeToastTimer;
-/** Open a toast, either as miniplayer or notification. */
-function openToast() {
-  clearTimeout(closeToastTimer);
-  if (settings.toastUseMpStyle) {
-    createPlayer("toast", function(win) {
-      toastWin = win;
-      chromeWindows.onRemoved.addListener(toastMpClosed);
-    }, false);
-  } else {
-    var options = getToastOptions();
-    createNotification(TOAST, options, function(nid) {
-      toastOptions = options;
-      addNotificationListener("close", nid, toastClosed);
-      addNotificationListener("click", nid, function() { if (settings.toastClick) executeCommand(settings.toastClick, "toast"); });
-      addNotificationListener("btnClick", nid, toastButtonClicked);
-      song.watch("rating", drawToastImage);
-      song.addListener("loved", drawToastImage);
-      settings.addListener("toastRating", drawToastImage);
-    });
-    if (settings.toastDuration > 0) {
-      closeToastTimer = setTimeout(closeToast, settings.toastDuration * 1000);
-    }
-  }
-}
-
 /** Close the toast, if open and call an optional function when finished. */
 function closeToast(cb) {
   clearTimeout(closeToastTimer);
@@ -1139,6 +1114,32 @@ function closeToast(cb) {
   if (toastOptions) clearNotification(TOAST, cb);
   else if (toastWin) chromeWindows.remove(toastWin.id, cb);
   else cb();
+}
+
+/** Open a toast, either as miniplayer or notification. */
+function openToast() {
+  closeToast(function() {
+    if (settings.toastUseMpStyle) {
+      createPlayer("toast", function(win) {
+        toastWin = win;
+        chromeWindows.onRemoved.addListener(toastMpClosed);
+      }, false);
+    } else {
+      var options = getToastOptions();
+      createNotification(TOAST, options, function(nid) {
+        toastOptions = options;
+        addNotificationListener("close", nid, toastClosed);
+        addNotificationListener("click", nid, function() { if (settings.toastClick) executeCommand(settings.toastClick, "toast"); });
+        addNotificationListener("btnClick", nid, toastButtonClicked);
+        song.watch("rating", drawToastImage);
+        song.addListener("loved", drawToastImage);
+        settings.addListener("toastRating", drawToastImage);
+      });
+      if (settings.toastDuration > 0) {
+        closeToastTimer = setTimeout(closeToast, settings.toastDuration * 1000);
+      }
+    }
+  });
 }
 
 function updateToast() {
@@ -1445,7 +1446,7 @@ var openGoogleMusicTab = exports.openGoogleMusicTab = function(link) {
   } else {
     var url = "http://play.google.com/music/listen";
     if (localSettings.googleAccountNo) url += "?u=" + localSettings.googleAccountNo;
-    if (typeof(link) == "string") url += "#/" + link;
+    if (link) url += "#/" + link;
     chromeTabs.create({url: url, pinned: settings.openGoogleMusicPinned});
   }
 };
@@ -1628,7 +1629,6 @@ function reloadForUpdate() {
   backup.miniplayerOpen = miniplayer !== null;
   backup.nowPlayingSent = song.nowPlayingSent;
   backup.scrobbled = song.scrobbled;
-  backup.toasted = song.toasted;
   backup.songFf = song.ff;
   backup.songPosition = song.position;
   backup.songInfo = song.info;
@@ -1655,7 +1655,6 @@ if (localStorage.updateBackup) {
   var backup = JSON.parse(localStorage.updateBackup);
   localStorage.removeItem("updateBackup");
   song.timestamp = backup.songTimestamp;
-  song.toasted = backup.toasted;
   song.info = backup.songInfo;
   song.positionSec = parseSeconds(backup.songPosition);
   song.position = backup.songPosition;
@@ -1733,16 +1732,19 @@ song.addListener("info", function(val) {
     song.scrobbled = false;
   }
   lastSongToResume = null;
-  song.toasted = false;
   song.nowPlayingSent = false;
   positionFromBackup = false;
   song.lastfmInfo = null;
   song.loved = null;
+  
   if (val) {
     val.durationSec = parseSeconds(val.duration);
     if (settings.toast && (settings.toastIfMpOpen || !miniplayer)) {
-      song.toasted = true;
-      closeToast(openToast);
+      if (!settings.toastNotIfGmActive) openToast();
+      else chromeTabs.get(googlemusictabId, function(tab) {
+        if (tab.active) chromeWindows.get(tab.windowId, function(win) { if (!win.focused) openToast(); });
+        else openToast();
+      });
     }
     if (!settings.hideRatings || settings.showLastfmInfo) loadCurrentLastfmInfo();
   } else {
@@ -1773,7 +1775,7 @@ function executeCommand(command, src) {
       executeFeelingLucky();
       break;
     case "showToast":
-      if (song.info) closeToast(openToast);
+      if (song.info) openToast();
       break;
     case "loveUnloveSong":
       if (song.loved === true) unloveTrack();
@@ -1829,4 +1831,4 @@ chromeNotifications.onPermissionLevelChanged.addListener(updateNotificationsEnab
 connectGoogleMusicTabs();
 if (isScrobblingEnabled()) scrobbleCachedSongs();
 
-})(window);
+})(this);

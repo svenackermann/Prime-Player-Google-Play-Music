@@ -139,6 +139,10 @@
     "message": "Show toast even if the miniplayer is opened",
     "description": "label for option to show toasts while miniplayer is opened"
   },
+  "setting_toastNotIfGmActive": {
+    "message": "Do not show toast if Google Music tab has focus",
+    "description": "label for option to not show toasts while the Google Music tab has focus"
+  },
   "setting_toastClick": {
     "message": "Action when clicked on toast",
     "description": "label for option to set the action when toast is clicked"
