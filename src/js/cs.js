@@ -154,7 +154,7 @@ $(function() {
     sendCommand("cleanup");
     window.removeEventListener("message", onMessage);
     $("#primeplayerinjected").remove();
-    $("#main").off("DOMSubtreeModified mouseup");
+    $("#music-content").off("DOMSubtreeModified mouseup");
     ratingContainer.off("click");
     $(window).off("hashchange");
     observers.forEach(function(o) { o.disconnect(); });
@@ -238,13 +238,13 @@ $(function() {
     /** @return rating for the current song (0-5) or -1 if the song is not rateable */
     function ratingGetter() {
       //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
-      if (listRatings) $("#main .song-row td[data-col='rating']").trigger("DOMSubtreeModified");
+      if (listRatings) $("#music-content .song-row td[data-col='rating']").trigger("DOMSubtreeModified");
       if (ratingContainer.is(":visible")) return parseRating(ratingContainer.children("li.selected").get(0), 0);
       return -1;
     }
     
-    /** Execute 'executeOnContentLoad' (if set) when #main is changed. */
-    function mainLoaded() {
+    /** Execute 'executeOnContentLoad' (if set) when #music-content is changed. */
+    function musicContentLoaded() {
       if ($.isFunction(executeOnContentLoad)) {
         if (contentLoadDestination && location.hash != contentLoadDestination) return;//wait til we are on the correct page
         var fn = executeOnContentLoad;
@@ -317,14 +317,14 @@ $(function() {
     
     watchContent(sendSong, "#playerSongInfo", 500);
     watchContent(sendPosition, "#time_container_current");
-    watchContent(mainLoaded, "#main", 1000);
+    watchContent(musicContentLoaded, "#music-content", 750);
     watchAttr("class disabled", "#player > div.player-middle > button[data-id='play-pause']", "player-playing", playingGetter);
     watchAttr("value", "#player > div.player-middle > button[data-id='repeat']", "player-repeat");
     watchAttr("value", "#player > div.player-middle > button[data-id='shuffle']", "player-shuffle", shuffleGetter);
     watchAttr("class", ratingContainer.selector + " li", "song-rating", ratingGetter);
     watchAttr("aria-valuenow", "#vslider", "player-volume");
     
-    $("#main").on("DOMSubtreeModified", ".song-row td[data-col='rating']", function() {
+    $("#music-content").on("DOMSubtreeModified", ".song-row td[data-col='rating']", function() {
       if (listRatings) {
         var rating = parseRating(this);
         var td = $(this);
@@ -347,8 +347,8 @@ $(function() {
       //when click is simulated by injected script, clientX will be 0
       if (e.clientX) post("rated", { song: parseSongInfo(), rating: parseRating(this) });
     });
-    //listen for "mouseup", because "click" won't bubble up to "#main" and we can't attach this directly to ".rating-container" because it's dynamically created
-    $("#main").on("mouseup", ".song-row td[data-col='rating'] ul.rating-container li:not(.selected)[data-rating]", function() {
+    //listen for "mouseup", because "click" won't bubble up to "#music-content" and we can't attach this directly to ".rating-container" because it's dynamically created
+    $("#music-content").on("mouseup", ".song-row td[data-col='rating'] ul.rating-container li:not(.selected)[data-rating]", function() {
       post("rated", { song: parseSongRow($(this).closest(".song-row"), true), rating: parseRating(this) });
     });
     
@@ -389,7 +389,7 @@ $(function() {
     console.debug("inj->cs: ", event.data);
     switch (event.data.msg) {
       case "playlistSongRated":
-        $("#main .song-row[data-index='" + event.data.index + "']").find("td[data-col='rating']").trigger("DOMSubtreeModified");
+        $("#music-content .song-row[data-index='" + event.data.index + "']").find("td[data-col='rating']").trigger("DOMSubtreeModified");
         /* falls through */
       case "playlistSongStarted":
       case "playlistSongError":
@@ -413,8 +413,8 @@ $(function() {
   /** Send a command for a playlist row to the injected script. Ensures that the row is visible. */
   function sendPlaylistRowCommand(command, options) {
     if (location.hash != options.link) return;
-    var body = $("#main");
-    if (options.cluster) body = body.find(".cluster")[options.cluster] || body[0];//ok if cluster is 0 or undefined, because the first .song-table in #main is the same as in the first cluster
+    var body = $("#music-content");
+    if (options.cluster) body = body.find(".cluster")[options.cluster] || body[0];//ok if cluster is 0 or undefined, because the first .song-table in #music-content is the same as in the first cluster
     body = $(body).find(".song-table > tbody");
     if (!body[0] || options.index > body.data("count") - 1) return;
     pausePlaylistParsing = true;
@@ -456,7 +456,7 @@ $(function() {
     } else {
       executeOnContentLoad = cb;
       contentLoadDestination = hash.indexOf("im/") === 0 ? "#/ap/queue" : null;//type im is automatically started
-      if (hash.indexOf("st/") === 0 || hash.indexOf("im/") === 0 || hash.indexOf("situations/") === 0) {//setting hash does not work for these types
+      if (hash.indexOf("st/") === 0 || hash.indexOf("sm/") === 0 || hash.indexOf("situations/") === 0) {//setting hash does not work for these types
         if (!clickListCard(hash)) {
           selectAndExecute("rd", function() {//try to find it on the mixes page
             executeOnContentLoad = cb;//set again (was overwritten by the recursive call)
@@ -466,9 +466,7 @@ $(function() {
             }
           });
         }
-      } else {
-        location.hash = "/" + hash;
-      }
+      } else location.hash = "/" + hash;
     }
   }
   
@@ -618,7 +616,7 @@ $(function() {
         return "playlistsList";
       case "exptop": //depend on content
       case "expgenremore":
-        return $("#main .song-table").length ? "playlist" : "playlistsList";
+        return $("#music-content .song-table").length ? "playlist" : "playlistsList";
       default:
         return "playlist";
     }
@@ -707,10 +705,10 @@ $(function() {
   function resumeSong(msg, error) {
     if (error) return;
     function sendResume() {
-      var rows = $("#main .song-row");
+      var rows = $("#music-content .song-row");
       if (rows.length) {
         if (rows.first().data("index") !== 0) {
-          $("#main").scrollTop(0);
+          $("#music-content").scrollTop(0);
           asyncListTimer = setTimeout(sendResume, 150);
           return;
         }
