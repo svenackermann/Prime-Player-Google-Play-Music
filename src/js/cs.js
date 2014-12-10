@@ -7,6 +7,9 @@
  * @author Sven Ackermann (svenrecknagel@gmail.com)
  * @license BSD license
  */
+
+/* global chrome */
+
 $(function() {
   var port;
   var observers = [];
@@ -239,7 +242,7 @@ $(function() {
     function ratingGetter() {
       //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
       if (listRatings) $("#music-content .song-row td[data-col='rating']").trigger("DOMSubtreeModified");
-      if (ratingContainer.is(":visible")) return parseRating(ratingContainer.children("li.selected").get(0), 0);
+      if (ratingContainer.is(":visible")) return parseRating(ratingContainer.children("li.selected")[0], 0);
       return -1;
     }
     
@@ -277,7 +280,7 @@ $(function() {
         
         var observer = new MutationObserver(function (mutations) { mutations.forEach(listener); });
         observers.push(observer);
-        observer.observe(content.get(0), { childList: true, subtree: true });
+        observer.observe(content[0], { childList: true, subtree: true });
         listener();
       } else {
         console.error("element(s) do(es) not exist (did Google change their site?): " + selector);
@@ -292,7 +295,7 @@ $(function() {
      * @param getValue an optional special function to get the value (default is to return the changed attribute value)
      */
     function watchAttr(attrs, selector, type, getValue) {
-      var element = $(selector).get(0);
+      var element = $(selector)[0];
       if (element) {
         if (getValue === undefined) {
           getValue = function(el, attr) { return el.getAttribute(attr); };
@@ -388,11 +391,11 @@ $(function() {
     if (event.source != window || event.data.type != "FROM_PRIMEPLAYER" || !event.data.msg) return;
     console.debug("inj->cs: ", event.data);
     switch (event.data.msg) {
-      case "playlistSongRated":
+      case "plSongRated":
         $("#music-content .song-row[data-index='" + event.data.index + "']").find("td[data-col='rating']").trigger("DOMSubtreeModified");
         /* falls through */
-      case "playlistSongStarted":
-      case "playlistSongError":
+      case "plSongStarted":
+      case "plSongError":
         pausePlaylistParsing = false;
         if ($.isFunction(resumePlaylistParsingFn)) resumePlaylistParsingFn();
         resumePlaylistParsingFn = null;
@@ -416,7 +419,7 @@ $(function() {
     var body = $("#music-content");
     if (options.cluster) body = body.find(".cluster")[options.cluster] || body[0];//ok if cluster is 0 or undefined, because the first .song-table in #music-content is the same as in the first cluster
     body = $(body).find(".song-table > tbody");
-    if (!body[0] || options.index > body.data("count") - 1) return;
+    if (!body.length || options.index > body.data("count") - 1) return;
     pausePlaylistParsing = true;
     /* jshint -W082 */
     function callForRow() {//make sure row with requested index is available
@@ -540,7 +543,7 @@ $(function() {
           if (song.data("index") <= lastIndex) return;
           var item = parseSongRow(song);
           if (song.find(".song-indicator").length) item.current = true;
-          item.rating = parseRating(song.find("td[data-col='rating']").get(0));
+          item.rating = parseRating(song.find("td[data-col='rating']")[0]);
           lastIndex = item.index;
           clusterRatings.push(item.rating);
           playlist.push(item);
@@ -723,7 +726,7 @@ $(function() {
         });
         var last = found || rows.last();
         if (!found && last.data("index") < last.parent().data("count") - 1) {
-          last.get(0).scrollIntoView(true);
+          last[0].scrollIntoView(true);
           asyncListTimer = setTimeout(sendResume, 150);
         }
       }

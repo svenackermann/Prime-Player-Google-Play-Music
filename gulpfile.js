@@ -34,7 +34,7 @@ function myUglify() { return gulpif(!full, uglify({ preserveComments: "some", co
 
 gulp.task("jshint", function() {
   return gulp.src(["src/js/*.js", "!src/js/*.min.js"])
-    .pipe(jshint())
+    .pipe(jshint({ undef: true, browser: true, jquery: true, unused: true, devel: true, bitwise: true, quotmark: "double" }))
     .pipe(jshint.reporter("jshint-stylish"))
     .pipe(jshint.reporter("fail"));
 });

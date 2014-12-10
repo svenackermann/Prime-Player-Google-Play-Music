@@ -5,6 +5,9 @@
  * @author Sven Ackermann (svenrecknagel@gmail.com)
  * @license BSD license
  */
+
+/* global chrome */
+
 chrome.runtime.getBackgroundPage(function(bp) {
 
   /** "popup", "miniplayer" or "toast" */
@@ -195,7 +198,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     return parseInt(el.closest(".playlist").data("cluster")) || 0;
   }
   
-  function ratingWatcher(val, old) {
+  function ratingWatcher(val) {
     if (!$("body").hasClass("hasLastSong")) renderRating(val);
   }
 
@@ -768,7 +771,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       .end().find(".listeners").html(i18n("lastfmInfo_listeners", "<span></span>"));
 
     $("#lastfmUser")
-      .on("contextmenu", function(e) {
+      .on("contextmenu", function() {
         bp.settings.scrobble = !bp.settings.scrobble;
         return false;
       });

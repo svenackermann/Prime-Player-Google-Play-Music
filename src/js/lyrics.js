@@ -6,6 +6,9 @@
  * @license BSD license
  */
 
+/* global gaEvent */
+/* exported buildLyricsSearchUrl, fetchLyrics */
+
 /** @return an URL to songlyrics.com for the song or null if too little information */
 function buildLyricsSearchUrl(song) {
   var artist = "";

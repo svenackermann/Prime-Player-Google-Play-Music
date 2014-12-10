@@ -7,6 +7,9 @@
  * @license BSD license
  */
 
+/* global chrome, Bean, LastFM, buildLyricsSearchUrl, fetchLyrics, ga */
+/* exported toTimeString, extractUrlParam */
+
 /* ---------------------------------- */
 /* --- global public declarations --- */
 /* ---------------------------------- */
@@ -213,7 +216,7 @@ var player = exports.player = new Bean({
 });
 
 /** the last.fm connection */
-var lastfm = exports.lastfm = new LastFM({apiKey: "1ecc0b24153df7dc6ac0229d6fcb8dda", apiSecret: "fb4b74854f7a7b099c30bfe71236dfd5"});
+var lastfm = exports.lastfm = new LastFM("1ecc0b24153df7dc6ac0229d6fcb8dda", "fb4b74854f7a7b099c30bfe71236dfd5");
 lastfm.session.key = localSettings.lastfmSessionKey;
 lastfm.session.name = localSettings.lastfmSessionName;
 lastfm.unavailableMessage = i18n("lastfmUnavailable");
@@ -225,7 +228,7 @@ lastfm.unavailableMessage = i18n("lastfmUnavailable");
 /** @return time in seconds that a time string represents (e.g. 4:23 -> 263) */
 var parseSeconds = exports.parseSeconds = function(time) {
   if (typeof(time) != "string") return 0;
-  return time.split(':').reverse().reduceRight(function(prev, cur, i) {
+  return time.split(":").reverse().reduceRight(function(prev, cur, i) {
     return parseInt(cur) * Math.pow(60, i) + prev;
   }, 0) || 0;//empty string or invalid characters would lead to NaN, return 0 in this case
 };
@@ -651,12 +654,12 @@ function updateBrowserActionInfo() {
 
 /** Remove the given one from parked ports. */
 function removeParkedPort(port) {
-  for (var i = 0; i < parkedPorts.length; i++) {
-    if (port == parkedPorts[i]) {
+  parkedPorts.some(function(parkedPort, i) {
+    if (port == parkedPort) {
       parkedPorts.splice(i, 1);
-      return;
+      return true;
     }
-  }
+  });
 }
 
 /** Use the given port for the connection to Google Music. */
@@ -671,11 +674,9 @@ function connectPort(port) {
 
 /** Check if the given port's tab is already connected. */
 function isConnectedTab(port) {
-  if (googlemusicport && port.sender.tab.id == googlemusicport.sender.tab.id) return true;
-  for (var i = 0; i < parkedPorts.length; i++) {
-    if (port.sender.tab.id == parkedPorts[i].sender.tab.id) return true;
-  }
-  return false;
+  var portTabId = port.sender.tab.id;
+  if (googlemusicport && portTabId == googlemusicport.sender.tab.id) return true;
+  return parkedPorts.some(function(parkedPort) { return portTabId == parkedPort.sender.tab.id; });
 }
 
 /** 
@@ -882,9 +883,7 @@ function scrobbleCachedSongs() {
     }
     var params = {};
     scrobbleCache.songs.forEach(function(curSong, i) {
-      for (var prop in curSong) {
-        params[prop + "[" + i + "]"] = curSong[prop];
-      }
+      for (var prop in curSong) params[prop + "[" + i + "]"] = curSong[prop];
     });
     lastfm.track.scrobble(params, {
       success: function() {
@@ -1013,7 +1012,7 @@ function drawToastImage() {
         if (song.rating == 1 || song.rating == 2) ctx.drawImage(rating, 16, 0, 16, 16, 0, 84, 16, 16);
         else if (song.rating >= 4) ctx.drawImage(rating, 0, 0, 16, 16, 0, 84, 16, 16);
       } else if (localSettings.ratingMode == "star") {
-        for (i = 0; i < song.rating; i++) {
+        for (var i = 0; i < song.rating; i++) {
           ctx.drawImage(rating, 32, 0, 16, 16, i * 16, 84, 16, 16);
         }
       }
@@ -1470,28 +1469,28 @@ function closeMpOnDisconnect(connected) {
 
 /** send an event to Google Analytics, if enabled */
 var gaEvent = exports.gaEvent = function(category, eventName) {
-  if (settings.gaEnabled) ga('send', 'event', category, eventName);
+  if (settings.gaEnabled) ga("send", "event", category, eventName);
 };
 
 /** send a social event to Google Analytics, if enabled */
 exports.gaSocial = function(network, action) {
-  if (settings.gaEnabled) ga('send', 'social', network, action);
+  if (settings.gaEnabled) ga("send", "social", network, action);
 };
 
 function gaEnabledChanged(val) {
   if (val) {
     settings.removeListener("gaEnabled", gaEnabledChanged);//init only once
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');//jshint ignore:line
-    ga('create', 'UA-41499181-1', 'auto');
-    ga('set', 'checkProtocolTask', function(){});
-    ga('set', 'dimension1', currentVersion);
-    ga('set', 'dimension2', localSettings.lyrics.toString());
-    ga('set', 'dimension3', isScrobblingEnabled().toString());
-    ga('set', 'dimension4', settings.toast.toString());
-    ga('set', 'dimension5', settings.layout);
-    ga('send', 'pageview', {
-      'metric1': settings.scrobblePercent,
-      'metric2': settings.toastDuration
+    ga("create", "UA-41499181-1", "auto");
+    ga("set", "checkProtocolTask", function(){});
+    ga("set", "dimension1", currentVersion);
+    ga("set", "dimension2", localSettings.lyrics.toString());
+    ga("set", "dimension3", isScrobblingEnabled().toString());
+    ga("set", "dimension4", settings.toast.toString());
+    ga("set", "dimension5", settings.layout);
+    ga("send", "pageview", {
+      "metric1": settings.scrobblePercent,
+      "metric2": settings.toastDuration
     });
   }
 }

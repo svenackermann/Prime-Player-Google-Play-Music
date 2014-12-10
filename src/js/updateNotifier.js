@@ -5,6 +5,9 @@
  * @author Sven Ackermann (svenrecknagel@gmail.com)
  * @license BSD license
  */
+
+/* global chrome */
+
 chrome.runtime.getBackgroundPage(function(bp) {
   $(function() {
     var i18n = chrome.i18n.getMessage;

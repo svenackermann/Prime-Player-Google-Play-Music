@@ -7,11 +7,12 @@
  * @license Copyright (c) 2008-2010, Felix Bruns <felixbruns@web.de>
  * @author Sven Ackermann (svenrecknagel@gmail.com)
  */
-function LastFM(options){
-  /* Set default values for required options. */
-  var apiKey    = options.apiKey    || '';
-  var apiSecret = options.apiSecret || '';
-  var apiUrl    = options.apiUrl    || 'https://ws.audioscrobbler.com/2.0/';
+
+/* global hex_md5 */
+/* exported LastFM */
+
+function LastFM(apiKey, apiSecret) {
+  var apiUrl    = "https://ws.audioscrobbler.com/2.0/";
 
   this.session = {};
   this.sessionTimeoutCallback = null;
@@ -19,9 +20,9 @@ function LastFM(options){
   var that = this;
 
   /* Internal call (POST, GET). */
-  var internalCall = function(params, callbacks, requestMethod){
+  var internalCall = function(params, callbacks, requestMethod) {
     console.debug("last.fm call:", params.method);
-    params.format = 'json';
+    params.format = "json";
     $.ajax({
       type: requestMethod,
       url: apiUrl,
@@ -50,11 +51,11 @@ function LastFM(options){
   };
 
   /* Normal method call. */
-	var call = function(method, params, callbacks, requestMethod){
+	var call = function(method, params, callbacks, requestMethod) {
 		/* Set default values. */
 		params        = params        || {};
 		callbacks     = callbacks     || {};
-		requestMethod = requestMethod || 'GET';
+		requestMethod = requestMethod || "GET";
 
 		/* Add parameters. */
 		params.method  = method;
@@ -65,18 +66,18 @@ function LastFM(options){
 	};
   
   /* Signed method call. */
-  var signedCall = function(method, params, callbacks, requestMethod){
+  var signedCall = function(method, params, callbacks, requestMethod) {
     /* Set default values. */
     params        = params        || {};
     callbacks     = callbacks     || {};
-    requestMethod = requestMethod || 'GET';
+    requestMethod = requestMethod || "GET";
 
     /* Add parameters. */
     params.method  = method;
     params.api_key = apiKey;
 
     /* Add session key. */
-    if(that.session.key){
+    if(that.session.key) {
       params.sk = that.session.key;
     }
 
@@ -89,47 +90,47 @@ function LastFM(options){
 
   /* Auth methods. */
   this.auth = {
-    getSession : function(params, callbacks){
-      signedCall('auth.getSession', params, callbacks);
+    getSession : function(params, callbacks) {
+      signedCall("auth.getSession", params, callbacks);
     }
   };
 
   /* Track methods. */
   this.track = {
-    getInfo : function(params, callbacks){
-      call('track.getInfo', params, callbacks);
+    getInfo : function(params, callbacks) {
+      call("track.getInfo", params, callbacks);
     },
 
-    love : function(params, callbacks){
-      signedCall('track.love', params, callbacks, 'POST');
+    love : function(params, callbacks) {
+      signedCall("track.love", params, callbacks, "POST");
     },
 
-    scrobble : function(params, callbacks){
-      signedCall('track.scrobble', params, callbacks, 'POST');
+    scrobble : function(params, callbacks) {
+      signedCall("track.scrobble", params, callbacks, "POST");
     },
 
-    unlove : function(params, callbacks){
-      signedCall('track.unlove', params, callbacks, 'POST');
+    unlove : function(params, callbacks) {
+      signedCall("track.unlove", params, callbacks, "POST");
     },
 
-    updateNowPlaying : function(params, callbacks){
-      signedCall('track.updateNowPlaying', params, callbacks, 'POST');
+    updateNowPlaying : function(params, callbacks) {
+      signedCall("track.updateNowPlaying", params, callbacks, "POST");
     }
   };
 
   /* Private auth methods. */
   var auth = {
-    getApiSignature : function(params){
+    getApiSignature : function(params) {
       var keys   = [];
-      var string = '';
+      var string = "";
 
-      for(var param in params){
+      for(var param in params) {
         keys.push(param);
       }
 
       keys.sort();
 
-      for(var index in keys){
+      for(var index in keys) {
         var key = keys[index];
 
         string += key + params[key];
