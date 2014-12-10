@@ -225,14 +225,9 @@ lastfm.unavailableMessage = i18n("lastfmUnavailable");
 /** @return time in seconds that a time string represents (e.g. 4:23 -> 263) */
 var parseSeconds = exports.parseSeconds = function(time) {
   if (typeof(time) != "string") return 0;
-  time = time.split(':');
-  var sec = 0;
-  var factor = 1;
-  for (var i = time.length - 1; i >= 0; i--) {
-    sec += parseInt(time[i]) * factor;
-    factor *= 60;
-  }
-  return sec || 0;
+  return time.split(':').reverse().reduceRight(function(prev, cur, i) {
+    return parseInt(cur) * Math.pow(60, i) + prev;
+  }, 0) || 0;//empty string or invalid characters would lead to NaN, return 0 in this case
 };
 
 /** @return true, if the 2 song info objects match in duration (if both have one), title, artist and album or if both null */
