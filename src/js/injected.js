@@ -56,12 +56,12 @@
   }
   
   function withPlaylistCols(index, cluster, callback) {
-    var main = document.getElementById("main");
-    if (!main) return callback([]);
-    if (cluster) main = main.getElementsByClassName("cluster")[cluster] || main;
-    main = main.getElementsByClassName("song-table")[0];
-    if (!main) return callback([]);
-    var rows = main.getElementsByClassName("song-row");
+    var content = document.getElementById("music-content");
+    if (!content) return callback([]);
+    if (cluster) content = content.getElementsByClassName("cluster")[cluster] || content;
+    content = content.getElementsByClassName("song-table")[0];
+    if (!content) return callback([]);
+    var rows = content.getElementsByClassName("song-row");
     if (!rows[0]) return callback([]);
     index = index - rows[0].dataset.index;
     if (index < 0 || index > rows.length - 1) return callback([]);
