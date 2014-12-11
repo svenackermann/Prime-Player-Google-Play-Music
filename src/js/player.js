@@ -603,16 +603,22 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
     
     $(window).keyup(function(e) {
-      if (e.keyCode == 27 && !$("#player").is(":visible")) {//ESC
-        restorePlayer();
-      } else if (e.keyCode == 81 && !bp.settings.hideSearchfield) {//q
-        var inp = $("#navHead > input");
-        if (!inp.is(":focus") && !inp.is(":disabled")) {
-          if (!inp.is(":visible")) switchView(i18n("quicklinks"), "quicklinks");
-          $("#navHead > input").focus();
+      var kc = e.keyCode;
+      if (kc == 27) {//ESC
+        if (!$("#player").is(":visible")) restorePlayer();
+      } else {
+        if ($("input").is(":focus")) return;//avoid shortcut behavior when typing
+        if (kc == 81) {//q
+          if (!bp.settings.hideSearchfield) {
+            var searchField = $("#navHead > input");
+            if (!searchField.is(":focus") && !searchField.is(":disabled")) {
+              if (!searchField.is(":visible")) switchView(i18n("quicklinks"), "quicklinks");
+              searchField.focus();
+            }
+          }
+        } else if (kc == 32) {//space
+          bp.executePlayPause();
         }
-      } else if (e.keyCode == 32 && !$("#navHead > input").is(":focus")) {//space
-        bp.executePlayPause();
       }
     });
 
