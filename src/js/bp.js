@@ -1716,8 +1716,8 @@ song.addListener("position", function(val) {
     if (Math.abs(song.positionSec - lastProgressPosition) > 3 && drawProgress()) updateBrowserIcon();
   }
 });
-song.addListener("info", function(val) {
-  if (lastSongToResume && songsEqual(lastSongToResume.info, val)) {
+song.addListener("info", function(info) {
+  if (lastSongToResume && songsEqual(lastSongToResume.info, info)) {
     song.scrobbled = lastSongToResume.scrobbled;
     song.ff = lastSongToResume.ff;
     lastSongPositionSec = lastSongToResume.positionSec;
@@ -1731,9 +1731,9 @@ song.addListener("info", function(val) {
   song.lastfmInfo = null;
   song.loved = null;
   
-  if (val) {
-    val.durationSec = parseSeconds(val.duration);
-    if (settings.toast && (settings.toastIfMpOpen || !miniplayer)) {
+  if (info) {
+    info.durationSec = parseSeconds(info.duration);
+    if (settings.toast && ((!miniplayer && (player.playing || !settings.mpAutoOpen)) || settings.toastIfMpOpen)) {
       if (!settings.toastNotIfGmActive) openToast();
       else chromeTabs.get(googlemusictabId, function(tab) {
         if (tab.active) chromeWindows.get(tab.windowId, function(win) { if (!win.focused) openToast(); });
@@ -1746,7 +1746,7 @@ song.addListener("info", function(val) {
     closeToast();
   }
   if (settings.saveLastPosition && googlemusicport) {
-    chromeLocalStorage.set({"lastSong": val, "rating": song.rating});
+    chromeLocalStorage.set({"lastSong": info, "rating": song.rating});
   }
   updateBrowserActionInfo();
   calcScrobbleTime();
