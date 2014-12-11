@@ -410,7 +410,8 @@ exports.getLastSong = function(cb) {
         rating: items.rating,
         scrobbled: items.scrobbled,
         scrobbleTime: items.scrobbleTime,
-        ff: items.ff
+        ff: items.ff,
+        timestamp: items.timestamp
       };
       cb(lastSong);
     }
@@ -1665,61 +1666,77 @@ if (localStorage.updateBackup) {
   if (backup.miniplayerOpen) openMiniplayer();
 }
 
-/** for correct calculation of song.ff on resume */
+/** for correct calculation of song.ff and keeping the timestamp on resume */
 var lastSongPositionSec;
-song.addListener("position", function(val) {
+var lastSongTimestamp = null;
+song.addListener("position", function(position) {
   var oldPos = lastSongPositionSec || song.positionSec;
-  song.positionSec = parseSeconds(val);
+  var newPos = song.positionSec = parseSeconds(position);
+  
   if (song.info) {
-    if (lastSongPositionSec && (song.positionSec >= lastSongPositionSec || song.positionSec > 5)) lastSongPositionSec = null;
-    if (!positionFromBackup && !song.ff && song.positionSec > oldPos + 5) {
+    //check for fast forward
+    if (lastSongPositionSec && (newPos >= lastSongPositionSec || newPos > 5)) lastSongPositionSec = null;
+    if (!positionFromBackup && !song.ff && newPos > oldPos + 5) {
       song.ff = true;
       if (settings.disableScrobbleOnFf && !song.scrobbled) song.scrobbleTime = -1;
-    } else if (song.ff && song.positionSec <= 5) {//prev pressed or gone back
+    } else if (song.ff && newPos <= 5) {//prev pressed or gone back
       song.ff = false;
       if (settings.disableScrobbleOnFf) calcScrobbleTime();
     }
     positionFromBackup = false;
-    if (song.positionSec == 2) {//new song, repeat single or rewinded
+
+    if (newPos == 2) {//new/resumed song, repeat single or rewinded -> reset some properties
       if (settings.skipRatedLower && song.rating > 0 && song.rating <= settings.skipRatedLower) {
         executeInGoogleMusic("nextSong");
         return;
       }
+      song.timestamp = null;
       song.nowPlayingSent = false;
-      song.timestamp = Math.round($.now() / 1000) - 2;
       if (settings.scrobbleRepeated) {
         song.scrobbled = false;
         calcScrobbleTime();
       }
-    } else if (song.positionSec >= 3) {
+    } else if (newPos >= 3) {//information (song info, rating, position, ...) should be in sync from here
       if (isScrobblingEnabled()) {
+        if (!song.timestamp) {//keep timestamp once it's set (here or from backup)
+          song.timestamp = lastSongTimestamp || Math.round($.now() / 1000) - newPos;
+          lastSongTimestamp = null;
+          if (settings.saveLastPosition) chromeLocalStorage.set({ timestamp: song.timestamp });
+        }
+        
         if (!song.nowPlayingSent) {
           song.nowPlayingSent = true;
           sendNowPlaying();
         }
-        if (!song.scrobbled && song.scrobbleTime >= 0 && song.positionSec >= song.scrobbleTime) {
+        
+        if (!song.scrobbled && song.scrobbleTime >= 0 && newPos >= song.scrobbleTime) {
           song.scrobbled = true;
           scrobble();
         }
       }
+      
       if (settings.toastProgress && toastOptions) {
-        var progress = Math.floor(song.positionSec * 100 / song.info.durationSec);
+        var progress = Math.floor(newPos * 100 / song.info.durationSec);
         if (progress > toastOptions.progress) {//avoid update on noop
           toastOptions.progress = progress;
           updateNotification(TOAST, toastOptions);
         }
       }
+      
+      if (Math.abs(newPos - lastProgressPosition) > 3 && drawProgress()) updateBrowserIcon();
     }
+    
     if (settings.saveLastPosition && googlemusicport) {
-      chromeLocalStorage.set({"lastPosition": val});
+      chromeLocalStorage.set({"lastPosition": position});
     }
-    if (Math.abs(song.positionSec - lastProgressPosition) > 3 && drawProgress()) updateBrowserIcon();
   }
 });
+
 song.addListener("info", function(info) {
   if (lastSongToResume && songsEqual(lastSongToResume.info, info)) {
     song.scrobbled = lastSongToResume.scrobbled;
     song.ff = lastSongToResume.ff;
+    lastSongTimestamp = lastSongToResume.timestamp;
     lastSongPositionSec = lastSongToResume.positionSec;
     if (song.scrobbled) song.scrobbleTime = lastSongToResume.scrobbleTime;
   } else {
@@ -1730,6 +1747,7 @@ song.addListener("info", function(info) {
   positionFromBackup = false;
   song.lastfmInfo = null;
   song.loved = null;
+  song.timestamp = null;
   
   if (info) {
     info.durationSec = parseSeconds(info.duration);
@@ -1741,12 +1759,10 @@ song.addListener("info", function(info) {
       });
     }
     if (!settings.hideRatings || settings.showLastfmInfo) loadCurrentLastfmInfo();
-  } else {
-    song.timestamp = null;
-    closeToast();
-  }
-  if (settings.saveLastPosition && googlemusicport) {
-    chromeLocalStorage.set({"lastSong": info, "rating": song.rating});
+  } else closeToast();
+  
+  if (settings.saveLastPosition && googlemusicport) {//if info is null but we are still connected (playlist finished), clear the lastSong storage
+    chromeLocalStorage.set({ "lastSong": info, "rating": song.rating });
   }
   updateBrowserActionInfo();
   calcScrobbleTime();
