@@ -96,7 +96,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     };
   }
   
-  function addPlaylistSongTimerbars(playlists) {
+  function addPlaylistSongTimebars(playlists) {
     var timebar = $("<div class='timebar'><div></div></div>");
     var duration = bp.song.info ? bp.song.info.durationSec : 0;
     renderPlaylistPosition(timebar, duration ? bp.song.positionSec / duration * 100 : 0);
@@ -143,7 +143,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
             song.current = true;
           }
         });
-        addPlaylistSongTimerbars(playlists);
+        addPlaylistSongTimebars(playlists);
       }
     }
   }
@@ -429,7 +429,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       navlist.toggleClass("noduration", !duration);
       if (duration) header.find("span.duration").text("(" + bp.toTimeString(duration) + ")");
       if (current) {
-        addPlaylistSongTimerbars(navlist);
+        addPlaylistSongTimebars(navlist);
         current.scrollIntoView(true);
       }
     },
