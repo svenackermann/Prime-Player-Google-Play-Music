@@ -96,6 +96,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
     };
   }
   
+  function addPlaylistSongTimerbars(playlists) {
+    var timebar = $("<div class='timebar'><div></div></div>");
+    var duration = bp.song.info ? bp.song.info.durationSec : 0;
+    renderPlaylistPosition(timebar, duration ? bp.song.positionSec / duration * 100 : 0);
+    timebar.appendTo(playlists.find(".current"));
+  }
+  
   function songInfoWatcher(val) {
     if ($("body").hasClass("hasLastSong")) {
       $("body").removeClass("hasLastSong");
@@ -122,11 +129,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var playlists = getVisiblePlaylists();
     if (playlists.length) {
       //clear currents
-      playlists.children("div.current").each(function() {
-        var cur = $(this);
-        cur.removeClass("current");
-        cur.data("song").current = false;
-      });
+      var current = playlists.children(".current");
+      current.data("song").current = false;
+      current.children(".timebar").remove();
+      current.removeClass("current");
       if (val) {
         //mark new currents
         playlists.children("div").each(function() {
@@ -137,17 +143,24 @@ chrome.runtime.getBackgroundPage(function(bp) {
             song.current = true;
           }
         });
+        addPlaylistSongTimerbars(playlists);
       }
     }
   }
 
+  function renderPlaylistPosition(timebar, percent) {
+    timebar.children("div").css({ width: percent + "%" });
+  }
+
   function renderPosition(positionSec, durationSec, position) {
     $("#currentTime").text(position);
-    $("#timeBar").css({width: durationSec > 0 ? (positionSec / durationSec * 100) + "%" : 0});
+    var percent = durationSec ? positionSec / durationSec * 100 : 0;
+    $("#timeBar").css({ width: percent + "%" });
+    renderPlaylistPosition($(".playlist:visible>.current>.timebar"), percent);
   }
   
-  function positionSecWatcher(val) {
-    renderPosition(val, bp.song.info && bp.song.info.durationSec || 0, bp.song.position);
+  function positionSecWatcher(positionSec) {
+    renderPosition(positionSec, bp.song.info && bp.song.info.durationSec || 0, bp.song.position);
   }
 
   function renderRating(rating) {
@@ -415,7 +428,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
       navlist.data("duration", duration);
       navlist.toggleClass("noduration", !duration);
       if (duration) header.find("span.duration").text("(" + bp.toTimeString(duration) + ")");
-      if (current) current.scrollIntoView(true);
+      if (current) {
+        addPlaylistSongTimerbars(navlist);
+        current.scrollIntoView(true);
+      }
     },
     albumContainers: function(navlist, list) {
       list.forEach(function(ac) {

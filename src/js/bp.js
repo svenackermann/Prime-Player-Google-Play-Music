@@ -567,7 +567,7 @@ function drawProgress() {
 
 /** Draw the given images onto the backgroundSrc, call cb with canvas context when ready. */
 function drawIcon(backgroundSrc, imagePaths, cb) {
-  var iconCtx = $("<canvas width='19' height='19'/>").get(0).getContext("2d");
+  var iconCtx = $("<canvas width='19' height='19'/>")[0].getContext("2d");
   var image = new Image();
   function loadNext() {
     var path = imagePaths.shift();
@@ -1005,7 +1005,7 @@ function drawToastImage() {
   var ratingReady = false;
   function draw() {
     if (!toastOptions) return;//might be closed already
-    var ctx = $("<canvas width='100' height='100'/>").get(0).getContext("2d");
+    var ctx = $("<canvas width='100' height='100'/>")[0].getContext("2d");
     ctx.drawImage(cover, 0, 0, 100, 100);
     if (cover.src.indexOf("blob") === 0) URL.revokeObjectURL(cover.src);
     if (settings.toastRating) {

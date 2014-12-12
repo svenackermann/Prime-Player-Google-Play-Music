@@ -10,11 +10,19 @@
   #timeBar, #volumeBar {
     background-color: lighten($color, 40%);
   }
+  .playlist .timebar > div {
+    background-color: lighten($color, 20%);
+  }
   #timeBarHolder, #volumeBarBorder {
     border-color: lighten($color, 30%);
   }
-  .playing #timeBarHolder {
-    border-color: lighten($color, 50%);
+  .playlist .timebar {
+    background-color: lighten($color, 65%);
+  }
+  .playing {
+    #timeBarHolder {
+      border-color: lighten($color, 50%);
+    }
   }
   #quicklinksBtn, #miniplayerlink, .scrobbleEnabled #lastfmUser, #feelingLucky {
     background-color: $color;
