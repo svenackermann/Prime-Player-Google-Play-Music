@@ -551,9 +551,12 @@ function initNotifications() {
 
 var browserIconCtx;
 var lastProgressPosition = 0;
-/** Draw the progress onto the current browserIconCtx, if enabled. */
+/**
+ * Draw the progress onto the current browserIconCtx, if enabled.
+ * @return true, if sth. was painted, else false (not enabled, no current song or no relevant change)
+ */
 function drawProgress() {
-  if (settings.showProgress && browserIconCtx && song.info && song.positionSec > 0) {
+  if (settings.showProgress && browserIconCtx && song.info && song.positionSec - lastProgressPosition > 2) {
     lastProgressPosition = song.positionSec;
     browserIconCtx.strokeStyle = settings.showProgressColor;
     browserIconCtx.lineWidth = 3;
@@ -644,6 +647,7 @@ function updateBrowserActionInfo() {
   
   drawIcon(path, iconPaths, function(iconCtx) {
     browserIconCtx = iconCtx;
+    lastProgressPosition = 0;
     drawProgress();
     updateBrowserIcon();
   });
@@ -1723,8 +1727,10 @@ song.addListener("position", function(position) {
         }
       }
       
-      if (Math.abs(newPos - lastProgressPosition) > 3 && drawProgress()) updateBrowserIcon();
+      if (drawProgress()) updateBrowserIcon();
     }
+    
+    if (settings.showProgress && newPos < lastProgressPosition - 2) updateBrowserActionInfo();//repaint whole icon on rewind/repeat
     
     if (settings.saveLastPosition && googlemusicport) {
       chromeLocalStorage.set({"lastPosition": position});
