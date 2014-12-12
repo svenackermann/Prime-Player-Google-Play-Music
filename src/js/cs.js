@@ -375,7 +375,7 @@ $(function() {
         });
         ql.searchPlaceholder = $.trim($("#oneGoogleWrapper input[name='q']").attr("placeholder"));
         post("connected", {
-          allinc: !!$.trim($("#music-banner-subtitle").text()).length,
+          allinc: nav.children("a[data-type='exptop']").is(":visible"),
           ratingMode: ratingContainer.hasClass("stars") ? "star" : "thumbs",
           quicklinks: ql
         });
