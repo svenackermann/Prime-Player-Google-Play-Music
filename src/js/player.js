@@ -408,15 +408,19 @@ chrome.runtime.getBackgroundPage(function(bp) {
         } else {
           $("<span></span>").text(song.artist).attr("title", song.artist).appendTo(info);
         }
-        if (song.albumLink) {
-          if (song.albumLink != currentNavList.link) {
-            $("<a tabindex='0' class='album nav'></a>").data("link", song.albumLink).text(song.album).attr("title", song.album).appendTo(info);
-            noAlbum = false;
-          }
+        
+        var currentAlbum = song.albumLink == currentNavList.link;
+        var albumCol;
+        if (song.albumLink && !currentAlbum) {
+          albumCol = $("<a tabindex='0' class='album nav'></a>").data("link", song.albumLink);
         } else if (song.album) {
-          $("<span class='album'></span>").text(song.album).attr("title", song.album).appendTo(info);
-          noAlbum = false;
+          albumCol = $("<span class='album'></span>");
         }
+        if (albumCol) {
+          albumCol.text(song.album).attr("title", song.album).appendTo(info);
+          if (!currentAlbum) noAlbum = false;
+        }
+        
         row.append(info);
         
         row.data("song", song);

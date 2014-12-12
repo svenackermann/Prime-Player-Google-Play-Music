@@ -488,11 +488,10 @@ $(function() {
     if (!basic) {
       item.index = song.data("index");
       item.cover = parseCover(title.find("img"));
-      var arId = artist.data("matched-id") || "";
-      if (item.artist || arId) item.artistLink = "artist/" + forHash(arId) + "/" + forHash(item.artist);
-      var alAr = album.data("album-artist") || "";
-      var alId = album.data("matched-id") || "";
-      if (alId || item.album && typeof(alAr) == "string") item.albumLink = "album/" + forHash(alId) + "/" + forHash(alAr) + "/" + forHash(item.album);
+      var artistId = artist.data("matched-id") || "";
+      if (item.artist || artistId) item.artistLink = "artist/" + forHash(artistId) + "/" + forHash(item.artist);
+      var albumId = album.data("matched-id") || "";
+      if (albumId || item.album) item.albumLink = "album/" + forHash(albumId) + "/" + forHash(album.data("album-artist") || "") + "/" + forHash(item.album);
     }
     return item;
   }

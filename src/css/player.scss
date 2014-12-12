@@ -508,6 +508,9 @@ a {
   > span:not(.duration), > a {
     width: 40%;
   }
+  > a.album {
+    display: none;
+  }
   > :first-child {
     width: 50%;
   }
