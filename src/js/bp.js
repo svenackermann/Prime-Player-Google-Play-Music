@@ -1385,13 +1385,13 @@ var startSleepTimer = exports.startSleepTimer = function() {
         iconUrl: getExtensionUrl("img/icon-48x48.png"),
         isClickable: false
       }, function(nid) {
-        function clearNotification() { clearNotification(nid); }
+        function clearTimerNotify() { clearNotification(nid); }
         function btnClicked() {
-          clearNotification();
+          clearTimerNotify();
           undoAction();
         }
         addNotificationListener("btnClick", nid, btnClicked);
-        setTimeout(clearNotification, 10000);
+        setTimeout(clearTimerNotify, 10000);
       });
     }
   }, countdownSec * 1000);
