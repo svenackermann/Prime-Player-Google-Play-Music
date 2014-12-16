@@ -712,8 +712,8 @@ function onDisconnectListener() {
   googlemusictabId = null;
   iconClickSettingsChanged();
   
-  song.resetToDefaults();
-  player.resetToDefaults();
+  song.reset();
+  player.reset();
   
   //try to connect another tab
   while (parkedPorts.length > 0) {
@@ -1058,9 +1058,9 @@ function drawToastImage() {
 /** Callbacks when toast has been closed. */
 function toastClosed() {
   toastOptions = null;
-  song.removeListener("rating", drawToastImage);
-  song.removeListener("loved", drawToastImage);
-  settings.removeListener("toastRating", drawToastImage);
+  song.rl("rating", drawToastImage);
+  song.rl("loved", drawToastImage);
+  settings.rl("toastRating", drawToastImage);
   if (toastCoverXhr) {
     toastCoverXhr.abort();
     toastCoverXhr = null;
@@ -1131,9 +1131,9 @@ function openToast() {
         addNotificationListener("close", nid, toastClosed);
         addNotificationListener("click", nid, function() { if (settings.toastClick) executeCommand(settings.toastClick, "toast"); });
         addNotificationListener("btnClick", nid, toastButtonClicked);
-        song.watch("rating", drawToastImage);
-        song.addListener("loved", drawToastImage);
-        settings.addListener("toastRating", drawToastImage);
+        song.w("rating", drawToastImage);
+        song.al("loved", drawToastImage);
+        settings.al("toastRating", drawToastImage);
       });
       if (settings.toastDuration > 0) {
         closeToastTimer = setTimeout(closeToast, settings.toastDuration * 1000);
@@ -1485,7 +1485,7 @@ exports.gaSocial = function(network, action) {
 
 function gaEnabledChanged(val) {
   if (val) {
-    settings.removeListener("gaEnabled", gaEnabledChanged);//init only once
+    settings.rl("gaEnabled", gaEnabledChanged);//init only once
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');//jshint ignore:line
     ga("create", "UA-41499181-1", "auto");
     ga("set", "checkProtocolTask", function(){});
@@ -1503,15 +1503,15 @@ function gaEnabledChanged(val) {
 
 /* --- register listeners --- */
 
-settings.watch("gaEnabled", gaEnabledChanged);
-settings.watch("iconClickAction0", iconClickSettingsChanged);
-settings.addListener("iconClickConnect", iconClickSettingsChanged);
-settings.watch("miniplayerType", function(val) {
+settings.w("gaEnabled", gaEnabledChanged);
+settings.w("iconClickAction0", iconClickSettingsChanged);
+settings.al("iconClickConnect", iconClickSettingsChanged);
+settings.w("miniplayerType", function(val) {
   if (val == "notification") {//migrate (notification type is no longer supported)
     settings.miniplayerType = "popup";
   } else if (miniplayer) openMiniplayer();//reopen
 });
-settings.addListener("layout", function() {
+settings.al("layout", function() {
   if (miniplayer) {
     var sizing = localSettings.miniplayerSizing[settings.layout];
     chromeWindows.update(miniplayer.id, {
@@ -1521,59 +1521,59 @@ settings.addListener("layout", function() {
     );
   }
 });
-settings.addListener("hideRatings", function(val) {
+settings.al("hideRatings", function(val) {
   if (!val && song.loved === null) loadCurrentLastfmInfo();
 });
-settings.addListener("showLastfmInfo", function(val) {
+settings.al("showLastfmInfo", function(val) {
   if (val && song.lastfmInfo === null) loadCurrentLastfmInfo();
 });
-settings.addListener("toastUseMpStyle", closeToast);
-settings.addListener("toastClick", updateToast);
-settings.addListener("toastButton1", updateToast);
-settings.addListener("toastButton2", updateToast);
-settings.addListener("toastProgress", updateToast);
-settings.addListener("scrobble", calcScrobbleTime);
-settings.addListener("scrobbleMaxDuration", calcScrobbleTime);
-settings.addListener("scrobblePercent", calcScrobbleTime);
-settings.addListener("scrobbleTime", calcScrobbleTime);
-settings.addListener("disableScrobbleOnFf", calcScrobbleTime);
-settings.watch("iconStyle", updateBrowserActionInfo);
-settings.addListener("iconClickAction0", updateBrowserActionInfo);
-settings.addListener("connectedIndicator", function(val) {
+settings.al("toastUseMpStyle", closeToast);
+settings.al("toastClick", updateToast);
+settings.al("toastButton1", updateToast);
+settings.al("toastButton2", updateToast);
+settings.al("toastProgress", updateToast);
+settings.al("scrobble", calcScrobbleTime);
+settings.al("scrobbleMaxDuration", calcScrobbleTime);
+settings.al("scrobblePercent", calcScrobbleTime);
+settings.al("scrobbleTime", calcScrobbleTime);
+settings.al("disableScrobbleOnFf", calcScrobbleTime);
+settings.w("iconStyle", updateBrowserActionInfo);
+settings.al("iconClickAction0", updateBrowserActionInfo);
+settings.al("connectedIndicator", function(val) {
   postToGooglemusic({type: "connectedIndicator", show: val});
 });
-settings.watch("mpAutoOpen", function(val) {
-  if (val) player.watch("playing", openMpOnPlaying);
-  else player.removeListener("playing", openMpOnPlaying);
+settings.w("mpAutoOpen", function(val) {
+  if (val) player.w("playing", openMpOnPlaying);
+  else player.rl("playing", openMpOnPlaying);
 });
-settings.watch("mpAutoClose", function(val) {
-  if (val) player.addListener("connected", closeMpOnDisconnect);
-  else player.removeListener("connected", closeMpOnDisconnect);
+settings.w("mpAutoClose", function(val) {
+  if (val) player.al("connected", closeMpOnDisconnect);
+  else player.rl("connected", closeMpOnDisconnect);
 });
-settings.addListener("lyricsInGpm", postLyricsState);
-settings.addListener("lyricsAutoReload", postLyricsState);
-settings.watch("showPlayingIndicator", function(val) {
-  if (val) player.addListener("playing", updateBrowserActionInfo);
-  else player.removeListener("playing", updateBrowserActionInfo);
+settings.al("lyricsInGpm", postLyricsState);
+settings.al("lyricsAutoReload", postLyricsState);
+settings.w("showPlayingIndicator", function(val) {
+  if (val) player.al("playing", updateBrowserActionInfo);
+  else player.rl("playing", updateBrowserActionInfo);
   updateBrowserActionInfo();
 });
-settings.watch("showScrobbledIndicator", function(val) {
-  if (val) song.addListener("scrobbled", updateBrowserActionInfo);
-  else song.removeListener("scrobbled", updateBrowserActionInfo);
+settings.w("showScrobbledIndicator", function(val) {
+  if (val) song.al("scrobbled", updateBrowserActionInfo);
+  else song.rl("scrobbled", updateBrowserActionInfo);
   updateBrowserActionInfo();
 });
-settings.watch("showLovedIndicator", function(val) {
-  if (val) song.addListener("loved", updateBrowserActionInfo);
-  else song.removeListener("loved", updateBrowserActionInfo);
+settings.w("showLovedIndicator", function(val) {
+  if (val) song.al("loved", updateBrowserActionInfo);
+  else song.rl("loved", updateBrowserActionInfo);
   updateBrowserActionInfo();
 });
-settings.watch("showRatingIndicator", function(val) {
-  if (val) song.addListener("rating", updateBrowserActionInfo);
-  else song.removeListener("rating", updateBrowserActionInfo);
+settings.w("showRatingIndicator", function(val) {
+  if (val) song.al("rating", updateBrowserActionInfo);
+  else song.rl("rating", updateBrowserActionInfo);
   updateBrowserActionInfo();
 });
-settings.addListener("showProgress", updateBrowserActionInfo);
-settings.addListener("showProgressColor", updateBrowserActionInfo);
+settings.al("showProgress", updateBrowserActionInfo);
+settings.al("showProgressColor", updateBrowserActionInfo);
 function saveRating(rating) {
   if (googlemusicport && song.info) chromeLocalStorage.set({"rating": rating});
 }
@@ -1583,33 +1583,33 @@ function saveScrobbled(scrobbled) {
 function saveFf(ff) {
   if (googlemusicport) chromeLocalStorage.set({"ff": ff});
 }
-settings.watch("saveLastPosition", function(val) {
+settings.w("saveLastPosition", function(val) {
   if (val) {
-    song.addListener("rating", saveRating);
-    song.addListener("scrobbled", saveScrobbled);
-    song.addListener("ff", saveFf);
+    song.al("rating", saveRating);
+    song.al("scrobbled", saveScrobbled);
+    song.al("ff", saveFf);
   } else {
-    song.removeListener("rating", saveRating);
-    song.removeListener("scrobbled", saveScrobbled);
-    song.removeListener("ff", saveFf);
+    song.rl("rating", saveRating);
+    song.rl("scrobbled", saveScrobbled);
+    song.rl("ff", saveFf);
   }
 });
 
-localSettings.watch("syncSettings", function(val) {
+localSettings.w("syncSettings", function(val) {
   settings.setSyncStorage(val, function() {
     if (optionsTabId) chromeTabs.reload(optionsTabId);
   });
 });
-localSettings.addListener("lastfmSessionName", calcScrobbleTime);
-localSettings.addListener("lyrics", postLyricsState);
-localSettings.addListener("lyricsFontSize", postLyricsState);
-localSettings.addListener("lyricsWidth", postLyricsState);
-localSettings.watch("notificationsEnabled", function(val) {
+localSettings.al("lastfmSessionName", calcScrobbleTime);
+localSettings.al("lyrics", postLyricsState);
+localSettings.al("lyricsFontSize", postLyricsState);
+localSettings.al("lyricsWidth", postLyricsState);
+localSettings.w("notificationsEnabled", function(val) {
   if (val) initNotifications();
   else gaEvent("Options", "notifications-disabled");
 });
 
-player.addListener("connected", function(val) {
+player.al("connected", function(val) {
   updateBrowserActionInfo();
   if (val) {
     loadNavlistIfConnected();
@@ -1674,7 +1674,7 @@ if (localStorage.updateBackup) {
 /** for correct calculation of song.ff and keeping the timestamp on resume */
 var lastSongPositionSec;
 var lastSongTimestamp = null;
-song.addListener("position", function(position) {
+song.al("position", function(position) {
   var oldPos = lastSongPositionSec || song.positionSec;
   var newPos = song.positionSec = parseSeconds(position);
   
@@ -1739,7 +1739,7 @@ song.addListener("position", function(position) {
   }
 });
 
-song.addListener("info", function(info) {
+song.al("info", function(info) {
   if (lastSongToResume && songsEqual(lastSongToResume.info, info)) {
     song.scrobbled = lastSongToResume.scrobbled;
     song.ff = lastSongToResume.ff;

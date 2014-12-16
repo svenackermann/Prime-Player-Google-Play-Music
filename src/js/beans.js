@@ -34,13 +34,13 @@ function Bean(defaults, useLocalStorage) {
    * 3. the name of the property
    * If the value has been set but did not actually change, the listeners won't be notified.
    */
-  this.addListener = function(prop, listener, src) {
+  this.al = function(prop, listener, src) {
     var ls = listeners[prop];
     if (ls) ls.push({listener: listener, src: src || null});
   };
   
   /** Removes a listener function for the given property. */
-  this.removeListener = function(prop, listener) {
+  this.rl = function(prop, listener) {
     var ls = listeners[prop];
     if (ls) {
       ls.some(function(l, i) {
@@ -53,7 +53,7 @@ function Bean(defaults, useLocalStorage) {
   };
   
   /** Removes all listeners for the given source. */
-  this.removeAllListeners = function(src) {
+  this.ral = function(src) {
     src = src || null;
     for (var prop in listeners) {
       var ls = listeners[prop];
@@ -65,7 +65,7 @@ function Bean(defaults, useLocalStorage) {
   };
   
   /** Same as addListener, except that the listener will be called immediately with the current value for old and new value. */
-  this.watch = function(prop, listener, src) {
+  this.w = function(prop, listener, src) {
     listener(cache[prop], cache[prop], prop);
     that.addListener(prop, listener, src);
   };
@@ -126,7 +126,7 @@ function Bean(defaults, useLocalStorage) {
    * Resets all values of this bean to their defaults.
    * The values are also removed from localStorage/Chrome sync, if this bean uses it.
    */
-  this.resetToDefaults = function() {
+  this.reset = function() {
     for (var prop in defaults) {
       that[prop] = defaults[prop];
       if (syncLocalStorage) localStorage.removeItem(prop);

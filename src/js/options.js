@@ -14,6 +14,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
   var context = "options";
   var settingsView = $("#settings");
   var i18n = chrome.i18n.getMessage;
+  var settings = bp.settings;
+  var localSettings = bp.localSettings;
     
   /** request and store last.fm session info */
   function getLastfmSession(token) {
@@ -48,26 +50,26 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function linkRatingsChanged() {
-    setSubsEnabled($("#linkRatings"), bp.settings.linkRatings && bp.localSettings.lastfmSessionName);
+    setSubsEnabled($("#linkRatings"), settings.linkRatings && localSettings.lastfmSessionName);
   }
   
   function toastChanged() {
-    $("#toastIfMpOpen, #toastNotIfGmActive, #toastDuration").prop("disabled", !bp.settings.toast);
-    $("#toastUseMpStyle").prop("disabled", !bp.settings.toast || !bp.localSettings.notificationsEnabled);
-    $("fieldset.toast > .notif").children("input, select").prop("disabled", !bp.settings.toast || bp.settings.toastUseMpStyle);
-    $("#toast").siblings(".hint").toggle(!bp.settings.toastIfMpOpen);
+    $("#toastIfMpOpen, #toastNotIfGmActive, #toastDuration").prop("disabled", !settings.toast);
+    $("#toastUseMpStyle").prop("disabled", !settings.toast || !localSettings.notificationsEnabled);
+    $("fieldset.toast > .notif").children("input, select").prop("disabled", !settings.toast || settings.toastUseMpStyle);
+    $("#toast").siblings(".hint").toggle(!settings.toastIfMpOpen);
   }
   
   function lyricsChanged() {
-    setSubsEnabled($("#lyrics"), bp.localSettings.lyrics);
-    $("#lyricsWidth").prop("disabled", !bp.localSettings.lyrics || !bp.settings.lyricsInGpm);
+    setSubsEnabled($("#lyrics"), localSettings.lyrics);
+    $("#lyricsWidth").prop("disabled", !localSettings.lyrics || !settings.lyricsInGpm);
   }
   
   function lastfmUserChanged(user) {
     var action;
     var actionText;
     $("#scrobble, #linkRatings, #showLovedIndicator").prop("disabled", !user);
-    scrobbleChanged(bp.settings.scrobble);
+    scrobbleChanged(settings.scrobble);
     linkRatingsChanged();
     var links = $("#lastfmStatus").find("a");
     var userLink = links.first();
@@ -84,22 +86,22 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function iconClickChanged() {
-    if (!bp.settings.iconClickAction0) bp.settings.iconClickAction1 = "";
-    if (!bp.settings.iconClickAction1) bp.settings.iconClickAction2 = "";
-    if (!bp.settings.iconClickAction2) bp.settings.iconClickAction3 = "";
-    var ict = $("#iconDoubleClickTime").prop("disabled", !bp.settings.iconClickAction0).val();
-    $("#iconClickAction1").prop("disabled", !bp.settings.iconClickAction0 || ict === 0).val(bp.settings.iconClickAction1);
-    $("#iconClickAction2").prop("disabled", !bp.settings.iconClickAction1 || ict === 0).val(bp.settings.iconClickAction2);
-    $("#iconClickAction3").prop("disabled", !bp.settings.iconClickAction2 || ict === 0).val(bp.settings.iconClickAction3);
+    if (!settings.iconClickAction0) settings.iconClickAction1 = "";
+    if (!settings.iconClickAction1) settings.iconClickAction2 = "";
+    if (!settings.iconClickAction2) settings.iconClickAction3 = "";
+    var ict = $("#iconDoubleClickTime").prop("disabled", !settings.iconClickAction0).val();
+    $("#iconClickAction1").prop("disabled", !settings.iconClickAction0 || ict === 0).val(settings.iconClickAction1);
+    $("#iconClickAction2").prop("disabled", !settings.iconClickAction1 || ict === 0).val(settings.iconClickAction2);
+    $("#iconClickAction3").prop("disabled", !settings.iconClickAction2 || ict === 0).val(settings.iconClickAction3);
   }
   
   function showProgressChanged() {
-    setSubsEnabled($("#showProgress"), bp.settings.showProgress);
+    setSubsEnabled($("#showProgress"), settings.showProgress);
   }
 
   function notificationsEnabledChanged(val) {
     settingsView.toggleClass("notifDisabled", !val);
-    if (!val && bp.settings.toast && !bp.settings.toastUseMpStyle) $("#toastUseMpStyle").click();//use click here to change the checkbox value
+    if (!val && settings.toast && !settings.toastUseMpStyle) $("#toastUseMpStyle").click();//use click here to change the checkbox value
     else toastChanged();//in if clause this is triggered by the click listener on #toastUseMpStyle
   }
   
@@ -107,7 +109,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function updateTimerStatus(timerEnd) {
     var countdown = Math.floor((timerEnd || 0) - ($.now() / 1000));
     if (countdown > 0) {
-      $("#timerStatus").text(i18n("timerAction_" + bp.localSettings.timerAction) + " in " + bp.toTimeString(countdown));
+      $("#timerStatus").text(i18n("timerAction_" + localSettings.timerAction) + " in " + bp.toTimeString(countdown));
     } else {
       $("#timerStatus").empty();
       clearInterval(countdownInterval);
@@ -143,16 +145,16 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
   }
   
-  function stringUpdater(prop, settings) {
-    return function() { settings[prop] = $(this).val(); };
+  function stringUpdater(prop, theSettings) {
+    return function() { theSettings[prop] = $(this).val(); };
   }
 
-  function numberUpdater(prop, settings) {
-    return function() { settings[prop] = parseFloat($(this).val()); };
+  function numberUpdater(prop, theSettings) {
+    return function() { theSettings[prop] = parseFloat($(this).val()); };
   }
 
-  function boolUpdater(prop, settings) {
-    return function() { settings[prop] = !settings[prop]; };
+  function boolUpdater(prop, theSettings) {
+    return function() { theSettings[prop] = !theSettings[prop]; };
   }
 
   /**
@@ -185,13 +187,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
   /**
    * Initialize a checkbox input for an option.
    * @param prop the option name
-   * @param settings the settings object, defaults to bp.settings
+   * @param theSettings the settings object, defaults to settings
    * @return the checkbox input element
    */
-  function initCheckbox(prop, settings) {
-    settings = settings || bp.settings;
+  function initCheckbox(prop, theSettings) {
+    theSettings = theSettings || settings;
     var input = $("#" + prop);
-    input.prop("checked", settings[prop]).click(boolUpdater(prop, settings));
+    input.prop("checked", theSettings[prop]).click(boolUpdater(prop, theSettings));
     setLabel(prop);
     return input;
   }
@@ -199,20 +201,20 @@ chrome.runtime.getBackgroundPage(function(bp) {
   /**
    * Initialize a number input for an option.
    * @param prop the option name
-   * @param settings the settings object, defaults to bp.settings
+   * @param theSettings the settings object, defaults to settings
    * @return the number input element
    */
-  function initNumberInput(prop, settings) {
-    settings = settings || bp.settings;
+  function initNumberInput(prop, theSettings) {
+    theSettings = theSettings || settings;
     var input = $("#" + prop);
-    input.val(settings[prop]).blur(numberUpdater(prop, settings));
+    input.val(theSettings[prop]).blur(numberUpdater(prop, theSettings));
     setLabel(prop);
     return input;
   }
 
   /**
    * Initialize a select input for an option.
-   * @param prop the option name in bp.settings
+   * @param prop the option name in settings
    * @param getOptionText function that takes the option's value as argument and returns the label for the option, the default i18n key for option "<opt>" is "setting_" + prop + "_<opt>"
    * @param updater a custom updater for the option's value, defaults to "stringUpdater"
    * @return the select input element
@@ -221,7 +223,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     getOptionText = getOptionText || function(val) {return i18n("setting_" + prop + "_" + val);};
     updater = updater || stringUpdater;
     var input = $("#" + prop);
-    input.val(bp.settings[prop]).change(updater(prop, bp.settings)).find("option").each(function() {
+    input.val(settings[prop]).change(updater(prop, settings)).find("option").each(function() {
       $(this).text(getOptionText($(this).attr("value")));
     });
     setLabel(prop);
@@ -230,14 +232,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
   
   /**
    * Initialize a color input for an option.
-   * @param prop the option name in bp.settings
+   * @param prop the option name in settings
    * @return the color input element
    */
   function initColorInput(prop) {
     var input = $("#" + prop);
     input
-      .val(bp.settings[prop])
-      .change(stringUpdater(prop, bp.settings));
+      .val(settings[prop])
+      .change(stringUpdater(prop, settings));
     setLabel(prop);
     return input;
   }
@@ -245,15 +247,15 @@ chrome.runtime.getBackgroundPage(function(bp) {
   /** Initialize the icon style radio buttons. */
   function initIconStyle() {
     setLabel("iconStyle");
-    $("#iconStyle").find("input[value='" + bp.settings.iconStyle + "']").prop("checked", true);
-    $("#iconStyle").find("input").click(stringUpdater("iconStyle", bp.settings));
+    $("#iconStyle").find("input[value='" + settings.iconStyle + "']").prop("checked", true);
+    $("#iconStyle").find("input").click(stringUpdater("iconStyle", settings));
   }
   
   /** Handle the optional lyrics permission. */
   function initLyrics() {
-    var lyrics = initCheckbox("lyrics", bp.localSettings).unbind();
+    var lyrics = initCheckbox("lyrics", localSettings).unbind();
     function enableCheckBox() {
-      lyrics.unbind().click(boolUpdater("lyrics", bp.localSettings)).click(lyricsChanged);
+      lyrics.unbind().click(boolUpdater("lyrics", localSettings)).click(lyricsChanged);
     }
     var perm = { origins: ["http://www.songlyrics.com/*"] };
     chrome.permissions.contains(perm, function(result) {
@@ -261,13 +263,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
         enableCheckBox();
       } else {
         //just to be sure, reset here (e.g. switching to another Chrome channel keeps the settings, but loses the permissions)
-        bp.localSettings.lyrics = false;
+        localSettings.lyrics = false;
         lyrics.prop("checked", false);
         lyrics.click(function() {
           alert(i18n("lyricsAlert"));
           chrome.permissions.request(perm, function(granted) {
             if (granted) {
-              bp.localSettings.lyrics = true;
+              localSettings.lyrics = true;
               lyricsChanged();
               enableCheckBox();
             } else {
@@ -293,21 +295,21 @@ chrome.runtime.getBackgroundPage(function(bp) {
     function updatePreNotifyMax() {
       $("#timerPreNotify").attr("max", $("#timerMin").val() * 60);
     }
-    $("#timerMin").val(bp.localSettings.timerMinutes).change(updatePreNotifyMax).parent().find("label").text(i18n("timerMinutes"));
-    $("#timerNotify").prop("checked", bp.localSettings.timerNotify).parent().find("label").text(i18n("timerNotify"));
-    $("#timerPreNotify").val(bp.localSettings.timerPreNotify).parent().find("label").text(i18n("timerPreNotify"));
-    $("#timerAction").val(bp.localSettings.timerAction).parent().find("label").text(i18n("timerAction"));
+    $("#timerMin").val(localSettings.timerMinutes).change(updatePreNotifyMax).parent().find("label").text(i18n("timerMinutes"));
+    $("#timerNotify").prop("checked", localSettings.timerNotify).parent().find("label").text(i18n("timerNotify"));
+    $("#timerPreNotify").val(localSettings.timerPreNotify).parent().find("label").text(i18n("timerPreNotify"));
+    $("#timerAction").val(localSettings.timerAction).parent().find("label").text(i18n("timerAction"));
     $("#timerAction").find("option").each(function() {
       $(this).text(i18n("timerAction_" + $(this).attr("value")));
     });
     $("#startTimer").text(i18n("startTimer")).click(function() {
       var min = $("#timerMin").val();
       if (min) {
-        bp.localSettings.timerMinutes = min;
-        bp.localSettings.timerAction = $("#timerAction").val();
-        bp.localSettings.timerNotify = $("#timerNotify").prop("checked");
-        bp.localSettings.timerPreNotify = $("#timerPreNotify").val();
-        bp.localSettings.timerEnd = ($.now() / 1000) + (min * 60);
+        localSettings.timerMinutes = min;
+        localSettings.timerAction = $("#timerAction").val();
+        localSettings.timerNotify = $("#timerNotify").prop("checked");
+        localSettings.timerPreNotify = $("#timerPreNotify").val();
+        localSettings.timerEnd = ($.now() / 1000) + (min * 60);
         bp.startSleepTimer();
       }
     });
@@ -318,7 +320,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   /** Setup UI and logic for the options filter. */
   function initFilter() {
     function optionsModeChanged() {
-      settingsView.removeClass("f-beg f-adv f-exp").addClass("f-" + bp.settings.optionsMode);
+      settingsView.removeClass("f-beg f-adv f-exp").addClass("f-" + settings.optionsMode);
     }
     initSelect("optionsMode").change(optionsModeChanged);
     optionsModeChanged();
@@ -329,8 +331,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
       var cb = initCheckbox(id);
       var label = cb.siblings("label[for='" + id + "']");
       function updateFilter() {
-        settingsView.toggleClass(id, !bp.settings[id]);
-        label.html(bp.settings[id] ? "<a href='#" + id.replace("filter", "legend") + "'>" + label.text() + "</a>" : label.text());
+        settingsView.toggleClass(id, !settings[id]);
+        label.html(settings[id] ? "<a href='#" + id.replace("filter", "legend") + "'>" + label.text() + "</a>" : label.text());
       }
       cb.click(updateFilter);
       updateFilter();
@@ -356,10 +358,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     
     initCheckbox("scrobble");
     var percentSpan = $("#scrobblePercent").parent().find("span");
-    percentSpan.text(bp.settings.scrobblePercent);
+    percentSpan.text(settings.scrobblePercent);
     $("#scrobblePercent")
-      .val(bp.settings.scrobblePercent)
-      .mouseup(numberUpdater("scrobblePercent", bp.settings))
+      .val(settings.scrobblePercent)
+      .mouseup(numberUpdater("scrobblePercent", settings))
       .change(function(){ percentSpan.text($(this).val()); });
     setLabel("scrobblePercent");
     initNumberInput("scrobbleTime");
@@ -392,16 +394,16 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initSelect("toastClick", bp.getTextForToastBtn);
     initSelect("toastButton1")
       .append($("#toastClick").children().clone())
-      .val(bp.settings.toastButton1);
+      .val(settings.toastButton1);
     initSelect("toastButton2")
       .append($("#toastClick").children().clone())
-      .val(bp.settings.toastButton2);
+      .val(settings.toastButton2);
     
     function setLayoutHintVisibility() {
-      var panel = bp.settings.miniplayerType == "panel" || bp.settings.miniplayerType == "detached_panel";
+      var panel = settings.miniplayerType == "panel" || settings.miniplayerType == "detached_panel";
       $("#miniplayerType").siblings(".hint").toggle(panel);
       if (!panel) $("#miniplayerType").siblings(".hint-text").hide();
-      var visible = panel && bp.settings.layout == "hbar";
+      var visible = panel && settings.layout == "hbar";
       $("#layout").siblings(".hint").toggle(visible);
       if (!visible) $("#layout").siblings(".hint-text").hide();
     }
@@ -416,7 +418,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initSelect("coverClickLink", bp.getTextForQuicklink);
     initSelect("titleClickLink")
       .append($("#coverClickLink").children().clone())
-      .val(bp.settings.titleClickLink);
+      .val(settings.titleClickLink);
     initCheckbox("openLinksInMiniplayer");
     initHint("openLinksInMiniplayer");
     initCheckbox("hideSearchfield");
@@ -432,8 +434,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initHint("openLyricsInMiniplayer");
     initCheckbox("lyricsAutoReload");
     initCheckbox("lyricsInGpm").click(lyricsChanged);
-    initNumberInput("lyricsFontSize", bp.localSettings);
-    initNumberInput("lyricsWidth", bp.localSettings);
+    initNumberInput("lyricsFontSize", localSettings);
+    initNumberInput("lyricsWidth", localSettings);
     
     $("#shortcutsLink").text(i18n("configShortcuts")).click(function() { chrome.tabs.create({ url: "chrome://extensions/configureCommands" }); });
     initIconStyle();
@@ -444,54 +446,54 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("saveLastPosition");
     initHint("saveLastPosition");
     var srtd = $("#skipRatedThumbsDown");
-    initSelect("skipRatedLower").change(function() { srtd.prop("checked", bp.settings.skipRatedLower > 0); });
-    srtd.prop("checked", bp.settings.skipRatedLower > 0).click(function() {
-       bp.settings.skipRatedLower = $(this).prop("checked") ? 2 : 0;
-       $("#skipRatedLower").val(bp.settings.skipRatedLower);
+    initSelect("skipRatedLower").change(function() { srtd.prop("checked", settings.skipRatedLower > 0); });
+    srtd.prop("checked", settings.skipRatedLower > 0).click(function() {
+       settings.skipRatedLower = $(this).prop("checked") ? 2 : 0;
+       $("#skipRatedLower").val(settings.skipRatedLower);
     });
     setLabel("skipRatedThumbsDown");
     initSelect("iconClickAction0")
       .append($("#toastClick").children().clone())
-      .val(bp.settings.iconClickAction0)
+      .val(settings.iconClickAction0)
       .change(iconClickChanged);
     initSelect("iconClickAction1")
       .append($("#toastClick").children().clone())
-      .val(bp.settings.iconClickAction1)
+      .val(settings.iconClickAction1)
       .change(iconClickChanged);
     initSelect("iconClickAction2")
       .append($("#toastClick").children().clone())
-      .val(bp.settings.iconClickAction2)
+      .val(settings.iconClickAction2)
       .change(iconClickChanged);
     initSelect("iconClickAction3")
       .append($("#toastClick").children().clone())
-      .val(bp.settings.iconClickAction3);
+      .val(settings.iconClickAction3);
     initNumberInput("iconDoubleClickTime").change(iconClickChanged);
     initHint("iconDoubleClickTime");
     initCheckbox("iconClickConnect");
     initCheckbox("openGoogleMusicPinned");
     initCheckbox("openGmBackground");
-    initNumberInput("googleAccountNo", bp.localSettings);
+    initNumberInput("googleAccountNo", localSettings);
     initHint("googleAccountNo");
     initCheckbox("connectedIndicator");
     initCheckbox("preventCommandRatingReset");
     initHint("preventCommandRatingReset");
     initCheckbox("updateNotifier");
-    initCheckbox("syncSettings", bp.localSettings);
+    initCheckbox("syncSettings", localSettings);
     initCheckbox("gaEnabled");
     initHint("gaEnabled");
     
     //watch this if changed via miniplayer
-    bp.settings.addListener("scrobble", scrobbleChanged, context);
+    settings.al("scrobble", scrobbleChanged, context);
     //we must watch this as the session could be expired
-    bp.localSettings.watch("lastfmSessionName", lastfmUserChanged, context);
+    localSettings.w("lastfmSessionName", lastfmUserChanged, context);
     //show/hide notification based options
-    bp.localSettings.watch("notificationsEnabled", notificationsEnabledChanged, context);
+    localSettings.w("notificationsEnabled", notificationsEnabledChanged, context);
     //update timer
-    bp.localSettings.watch("timerEnd", timerEndChanged, context);
+    localSettings.w("timerEnd", timerEndChanged, context);
     //Google account dependent options
-    bp.localSettings.watch("ratingMode", ratingModeChanged, context);
-    bp.localSettings.watch("allinc", allincChanged, context);
-    bp.localSettings.addListener("quicklinks", quicklinksChanged, context);
+    localSettings.w("ratingMode", ratingModeChanged, context);
+    localSettings.w("allinc", allincChanged, context);
+    localSettings.al("quicklinks", quicklinksChanged, context);
     
     //disable inputs if neccessary
     toastChanged();
@@ -500,8 +502,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     showProgressChanged();
     
     $("#resetSettings").click(function() {
-      bp.settings.resetToDefaults();
-      bp.localSettings.resetToDefaults();
+      settings.reset();
+      localSettings.reset();
       bp.gaEvent("Options", "reset");
       location.reload();
     }).text(i18n("resetSettings"));
@@ -514,7 +516,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     
     //get last.fm session if we are the callback page (query param "token" exists)
     var token;
-    if (bp.localSettings.lastfmSessionName === null && (token = bp.extractUrlParam("token", location.search))) {
+    if (localSettings.lastfmSessionName === null && (token = bp.extractUrlParam("token", location.search))) {
       getLastfmSession(token);
       history.replaceState("", "", chrome.extension.getURL("options.html"));//remove token from URL
     }
@@ -546,9 +548,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
   });
 
   $(window).unload(function() {
-    bp.settings.removeAllListeners(context);
-    bp.localSettings.removeAllListeners(context);
-    bp.player.removeAllListeners(context);
+    settings.ral(context);
+    localSettings.ral(context);
     if (bp.optionsTabId == thisTabId) bp.optionsTabId = null;
   });
 });

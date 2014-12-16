@@ -31,14 +31,18 @@ chrome.runtime.getBackgroundPage(function(bp) {
   /** the cached last.fm info for the saved last song, if any or false if not loaded yet */
   var lastSongInfo = false;
 
-  /** shortcut, for minimisation */
+  /** shortcuts, for minimisation */
   var i18n = chrome.i18n.getMessage;
-
+  var localSettings = bp.localSettings;
+  var settings = bp.settings;
+  var player = bp.player;
+  var song = bp.song;
+  
   if (typeClass == "popup") {
     bp.popupOpened();// tell bp that we're open (needed for icon click action handling)
     $("html").addClass("layout-normal");//popup has fixed layout
   } else {
-    bp.settings.watch("layout", function(val, old) {
+    settings.w("layout", function(val, old) {
       $("html").removeClass("layout-" + old).addClass("layout-" + val);
     }, typeClass);
   }
@@ -47,12 +51,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("html").toggleClass("hideRatings", val);
     if (!val && lastSongInfo === false && getLastSongInfo) getLastSongInfo();
   }
-  bp.settings.watch("hideRatings", hideRatingsWatcher, typeClass);
+  settings.w("hideRatings", hideRatingsWatcher, typeClass);
 
   function faviconWatcher(val) {
     $("#favicon").attr("href", val);
   }
-  bp.player.watch("favicon", faviconWatcher, typeClass);
+  player.w("favicon", faviconWatcher, typeClass);
 
   function repeatWatcher(val) {
     $("#repeat").attr("class", val);
@@ -98,15 +102,15 @@ chrome.runtime.getBackgroundPage(function(bp) {
   
   function addPlaylistSongTimebars(playlists) {
     var timebar = $("<div class='timebar'><div></div></div>");
-    var duration = bp.song.info ? bp.song.info.durationSec : 0;
-    renderPlaylistPosition(timebar, duration ? bp.song.positionSec / duration * 100 : 0);
+    var duration = song.info ? song.info.durationSec : 0;
+    renderPlaylistPosition(timebar, duration ? song.positionSec / duration * 100 : 0);
     timebar.appendTo(playlists.find(".current"));
   }
   
   function songInfoWatcher(val) {
     if ($("body").hasClass("hasLastSong")) {
       $("body").removeClass("hasLastSong");
-      renderRating(bp.song.rating);
+      renderRating(song.rating);
       getLastSongInfo = null;
       lastSongInfo = false;
       $("#resume").removeClass("lastSongEnabled").unbind().click(googleMusicExecutor("playPause"));
@@ -115,11 +119,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
     if (val) {
       renderSongInfo(val);
       //although the value of scrobbleTime might not have changed, the relative position might have (e.g. if the new song's duration is different and both songs reached settings.scrobbleTime)
-      updateScrobblePosition(bp.song.scrobbleTime);
-      if (bp.settings.lyricsAutoReload && $("#lyrics").is(":visible")) {
-        var song = val.title;
-        if (val.artist) song = val.artist + " - " + song;
-        switchView(i18n("lyricsTitle", song), "lyrics", null, {artist: val.artist, title: val.title});
+      updateScrobblePosition(song.scrobbleTime);
+      if (settings.lyricsAutoReload && $("#lyrics").is(":visible")) {
+        var title = val.title;
+        if (val.artist) title = val.artist + " - " + title;
+        switchView(i18n("lyricsTitle", title), "lyrics", null, {artist: val.artist, title: val.title});
       }
     } else {
       $("#cover").attr("src", "img/cover.png");
@@ -127,10 +131,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
     
     function markCurrent(songRow) {
-      var song = songRow.data("song");
-      if (bp.songsEqual(song, val)) {
+      var curSong = songRow.data("song");
+      if (bp.songsEqual(curSong, val)) {
         songRow.addClass("current");
-        song.current = true;
+        curSong.current = true;
         return true;
       }
       return false;
@@ -188,7 +192,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function positionSecWatcher(positionSec) {
-    renderPosition(positionSec, bp.song.info && bp.song.info.durationSec || 0, bp.song.position);
+    renderPosition(positionSec, song.info && song.info.durationSec || 0, song.position);
   }
 
   function renderRating(rating) {
@@ -215,7 +219,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         renderLastfmInfo(lastfmInfo);
       }
     }
-    if (bp.settings.showLastfmInfo || (!bp.settings.hideRatings && bp.localSettings.lastfmSessionName)) getLastSongInfo();
+    if (settings.showLastfmInfo || (!settings.hideRatings && localSettings.lastfmSessionName)) getLastSongInfo();
     
     if (lastSong.info.albumLink) {
       $("#resume").addClass("lastSongEnabled").unbind().click(bp.resumeLastSong.bind(window, lastSong));
@@ -245,8 +249,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function updateScrobblePosition(scrobbleTime) {
     var sp = $("#scrobblePosition");
-    if (scrobbleTime >= 0 && bp.song.info && bp.song.info.durationSec > 0) {
-      sp.addClass("songscrobble").css({left: (scrobbleTime / bp.song.info.durationSec * 100) + "%"});
+    if (scrobbleTime >= 0 && song.info && song.info.durationSec > 0) {
+      sp.addClass("songscrobble").css({left: (scrobbleTime / song.info.durationSec * 100) + "%"});
     } else sp.removeClass("songscrobble");
   }
 
@@ -304,10 +308,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
         var sizingSetting;
         var sizing;
         if ($("#player").is(":visible")) {
-          sizing = bp.localSettings.miniplayerSizing;
-          sizing[bp.settings.layout].width = window.outerWidth;
-          sizing[bp.settings.layout].height = window.outerHeight;
-          bp.localSettings.miniplayerSizing = sizing;//trigger listener notification
+          sizing = localSettings.miniplayerSizing;
+          sizing[settings.layout].width = window.outerWidth;
+          sizing[settings.layout].height = window.outerHeight;
+          localSettings.miniplayerSizing = sizing;//trigger listener notification
         } else if ($("#nav").is(":visible")) {
           var type = $("#quicklinks").is(":visible") ? "quicklinks" : $("#navlist").attr("class");
           sizingSetting = type + "Sizing";
@@ -315,11 +319,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
           sizingSetting = "lyricsSizing";
         }
         if (sizingSetting) {
-          sizing = bp.localSettings[sizingSetting];
+          sizing = localSettings[sizingSetting];
           if (sizing) {
             sizing.width = window.outerWidth;
             sizing.height = window.outerHeight;
-            bp.localSettings[sizingSetting] = sizing;//trigger listener notification
+            localSettings[sizingSetting] = sizing;//trigger listener notification
           }
         }
       }, 500);
@@ -331,16 +335,16 @@ chrome.runtime.getBackgroundPage(function(bp) {
       if ($("#player").is(":visible") && (oldX != window.screenX || oldY != window.screenY) && !document.webkitHidden) {
         oldX = window.screenX;
         oldY = window.screenY;
-        var sizing = bp.localSettings.miniplayerSizing;
-        sizing[bp.settings.layout].left = oldX;
-        sizing[bp.settings.layout].top = oldY;
-        bp.localSettings.miniplayerSizing = sizing;//trigger listener notification
+        var sizing = localSettings.miniplayerSizing;
+        sizing[settings.layout].left = oldX;
+        sizing[settings.layout].top = oldY;
+        localSettings.miniplayerSizing = sizing;//trigger listener notification
       }
     }, 1000);
   }
 
   function setToastAutocloseTimer() {
-    var windowTimer = setTimeout(function() { window.close(); }, bp.settings.toastDuration * 1000);
+    var windowTimer = setTimeout(function() { window.close(); }, settings.toastDuration * 1000);
     //do not close as long as the mouse is over
     $(window).mouseover(function() { clearTimeout(windowTimer); });
     //after the mouse is out, close in 3 seconds
@@ -353,7 +357,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("#lastfmUser")
         .attr("title", i18n("lastfmUser") + user)
         .attr("href", "http://last.fm/user/" + user);
-      if (!bp.settings.hideRatings && getLastSongInfo) getLastSongInfo();
+      if (!settings.hideRatings && getLastSongInfo) getLastSongInfo();
     }
   }
   
@@ -381,7 +385,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function connectedWatcher(val) {
     $("body").toggleClass("connected", val);
     if (!val) restorePlayer();
-    if (bp.settings.saveLastPosition && lastSongInfo === false && (!val || !bp.song.info)) bp.getLastSong(renderLastSong);
+    if (settings.saveLastPosition && lastSongInfo === false && (!val || !song.info)) bp.getLastSong(renderLastSong);
   }
 
   function resize(sizing) {
@@ -423,7 +427,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         if (song.rating >= 0) noRating = false;
         var info = $("<div class='info'></div>");
         var title;
-        if (bp.localSettings.lyrics) {
+        if (localSettings.lyrics) {
           title = $("<a tabindex='0' class='nav' data-link='lyrics'></a>").data("options", {artist: song.artist, title: song.title}).attr("title", i18n("lyricsFor", song.title));
         } else {
           title = $("<span></span>").attr("title", song.title);
@@ -479,9 +483,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     if (val === null || val.controlLink != currentNavList.controlLink) return;
     var songRow = getVisiblePlaylists().filter(clusterFilter(val.cluster)).children("div[data-index='" + val.index + "']");
     if (songRow.length) {
-      var song = songRow.data("song");
-      songRow.children("div.rating").removeClass("r" + song.rating).addClass("r" + val.rating);
-      song.rating = val.rating;
+      var aSong = songRow.data("song");
+      songRow.children("div.rating").removeClass("r" + aSong.rating).addClass("r" + val.rating);
+      aSong.rating = val.rating;
     }
   }
 
@@ -495,7 +499,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   
   function renderNavigationList(val) {
     if (!val || val.link != currentNavList.link || val.search != currentNavList.search) return;
-    bp.player.navigationList = null;//free memory
+    player.navigationList = null;//free memory
     currentNavList.controlLink = val.controlLink;
     var navlist = $("#navlist");
     if (val.error) {
@@ -505,7 +509,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     } else {
       if (!val.update) {
         navlist.empty().removeClass().addClass(val.type);
-        resize(bp.localSettings[val.type + "Sizing"]);
+        resize(localSettings[val.type + "Sizing"]);
       }
       var header = $("#navHead").children("span");
       if (val.type == "mixed") {
@@ -558,11 +562,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#navlistContainer").hide();
     $("#quicklinks").hide();
     if (link == "quicklinks") {
-      resize(bp.localSettings.quicklinksSizing);
+      resize(localSettings.quicklinksSizing);
       $("#quicklinks").show();
     } else if (link == "lyrics") {
       lyrics.addClass("loading");
-      resize(bp.localSettings.lyricsSizing);
+      resize(localSettings.lyricsSizing);
       lyrics.show();
       bp.fetchLyrics(options, renderLyrics.bind(window, lyrics));
     } else {
@@ -616,7 +620,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     function ctrlHandler(urlField, e) {
       if (e.ctrlKey) {
         e.stopImmediatePropagation();
-        var lastfmInfo = bp.song.lastfmInfo || lastSongInfo;
+        var lastfmInfo = song.lastfmInfo || lastSongInfo;
         if (lastfmInfo && lastfmInfo[urlField]) chrome.tabs.create({url: lastfmInfo[urlField]});
       }
     }
@@ -631,20 +635,20 @@ chrome.runtime.getBackgroundPage(function(bp) {
         var options = $(this).data("options");
         var title;
         if (link == "lyrics") {
-          if (bp.settings.openLyricsInMiniplayer == e.shiftKey) {
+          if (settings.openLyricsInMiniplayer == e.shiftKey) {
             bp.openLyrics(options);
             return;
           }
           if (!options) {
-            if (!bp.song.info) return;
-            options = {artist: bp.song.info.artist, title: bp.song.info.title};
+            if (!song.info) return;
+            options = {artist: song.info.artist, title: song.info.title};
           }
-          var song = options.title;
-          if (options.artist) song = options.artist + " - " + song;
-          title = i18n("lyricsTitle", song);
+          title = options.title;
+          if (options.artist) title = options.artist + " - " + title;
+          title = i18n("lyricsTitle", title);
         } else title = $(this).data("text") || $(this).text();
         
-        if (bp.settings.openLinksInMiniplayer == e.shiftKey && link != "quicklinks" && link != "lyrics") bp.selectLink(link);
+        if (settings.openLinksInMiniplayer == e.shiftKey && link != "quicklinks" && link != "lyrics") bp.selectLink(link);
         else switchView(title, link, $(this).data("search"), options);
         return false;
       }
@@ -657,7 +661,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       } else {
         if ($("input").is(":focus")) return;//avoid shortcut behavior when typing
         if (kc == 81) {//q
-          if (!bp.settings.hideSearchfield) {
+          if (!settings.hideSearchfield) {
             var searchField = $("#navHead > input");
             if (!searchField.is(":focus") && !searchField.is(":disabled")) {
               if (!searchField.is(":visible")) switchView(i18n("quicklinks"), "quicklinks");
@@ -687,9 +691,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
         bp.rate(rating);
       } else {
         var index = songRow.data("index");
-        var song = songRow.data("song");
-        if (song.rating < 0) return;//negative ratings cannot be changed
-        if (rating == 5 && bp.settings.linkRatings && !bp.isRatingReset(song.rating, rating)) bp.love({ title: song.title, artist: song.artist }, $.noop);
+        var aSong = songRow.data("song");
+        if (aSong.rating < 0) return;//negative ratings cannot be changed
+        if (rating == 5 && settings.linkRatings && !bp.isRatingReset(aSong.rating, rating)) bp.love({ title: aSong.title, artist: aSong.artist }, $.noop);
         bp.executeInGoogleMusic("ratePlaylistSong", { link: currentNavList.controlLink, index: index, cluster: getClusterIndex(songRow), rating: rating });
       }
     });
@@ -769,7 +773,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function toggleVolumeControl() {
-    if (bp.player.volume !== null) {
+    if (player.volume !== null) {
       $("#volumeBarContainer").toggle();
     }
   }
@@ -778,8 +782,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#quicklinks a.nav").each(function() {
       $(this).text(bp.getTextForQuicklink($(this).data("link")));
     });
-    updateCoverClickLink(bp.settings.coverClickLink);
-    updateTitleClickLink(bp.settings.titleClickLink);
+    updateCoverClickLink(settings.coverClickLink);
+    updateTitleClickLink(settings.titleClickLink);
     var searchPlaceholder = val && val.searchPlaceholder ? val.searchPlaceholder : i18n("searchPlaceholder");
     $("#navHead > input").attr("placeholder", searchPlaceholder);
   }
@@ -826,53 +830,53 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
     $("#lastfmUser")
       .on("contextmenu", function() {
-        bp.settings.scrobble = !bp.settings.scrobble;
+        settings.scrobble = !settings.scrobble;
         return false;
       });
 
     setupNavigationEvents();
 
-    bp.localSettings.watch("lastfmSessionName", lastfmUserWatcher, typeClass);
-    bp.localSettings.watch("lyrics", lyricsWatcher, typeClass);
-    bp.localSettings.watch("lyricsFontSize", lyricsFontSizeWatcher, typeClass);
-    bp.localSettings.watch("allinc", allincWatcher, typeClass);
-    bp.localSettings.watch("ratingMode", ratingModeWatcher, typeClass);
-    bp.localSettings.watch("quicklinks", renderQuicklinks, typeClass);
+    localSettings.w("lastfmSessionName", lastfmUserWatcher, typeClass);
+    localSettings.w("lyrics", lyricsWatcher, typeClass);
+    localSettings.w("lyricsFontSize", lyricsFontSizeWatcher, typeClass);
+    localSettings.w("allinc", allincWatcher, typeClass);
+    localSettings.w("ratingMode", ratingModeWatcher, typeClass);
+    localSettings.w("quicklinks", renderQuicklinks, typeClass);
     
-    bp.settings.watch("scrobble", scrobbleWatcher, typeClass);
-    bp.settings.watch("showLastfmInfo", showLastfmInfoWatcher, typeClass);
-    bp.settings.watch("color", colorWatcher, typeClass);
-    bp.settings.watch("mpBgColor", mpBgColorWatcher, typeClass);
-    bp.settings.watch("mpTextColor", mpTextColorWatcher, typeClass);
-    bp.settings.addListener("coverClickLink", updateCoverClickLink, typeClass);
-    bp.settings.addListener("titleClickLink", updateTitleClickLink, typeClass);
-    bp.settings.watch("hideSearchfield", hideSearchfieldWatcher, typeClass);
+    settings.w("scrobble", scrobbleWatcher, typeClass);
+    settings.w("showLastfmInfo", showLastfmInfoWatcher, typeClass);
+    settings.w("color", colorWatcher, typeClass);
+    settings.w("mpBgColor", mpBgColorWatcher, typeClass);
+    settings.w("mpTextColor", mpTextColorWatcher, typeClass);
+    settings.al("coverClickLink", updateCoverClickLink, typeClass);
+    settings.al("titleClickLink", updateTitleClickLink, typeClass);
+    settings.w("hideSearchfield", hideSearchfieldWatcher, typeClass);
 
-    bp.player.watch("repeat", repeatWatcher, typeClass);
-    bp.player.watch("shuffle", shuffleWatcher, typeClass);
-    bp.player.watch("playing", playingWatcher, typeClass);
-    bp.player.watch("volume", volumeWatcher, typeClass);
-    bp.player.watch("connected", connectedWatcher, typeClass);
-    bp.player.addListener("navigationList", renderNavigationList, typeClass);
-    bp.player.addListener("listrating", updateListrating, typeClass);
+    player.w("repeat", repeatWatcher, typeClass);
+    player.w("shuffle", shuffleWatcher, typeClass);
+    player.w("playing", playingWatcher, typeClass);
+    player.w("volume", volumeWatcher, typeClass);
+    player.w("connected", connectedWatcher, typeClass);
+    player.al("navigationList", renderNavigationList, typeClass);
+    player.al("listrating", updateListrating, typeClass);
 
-    bp.song.watch("info", songInfoWatcher, typeClass);
-    bp.song.watch("positionSec", positionSecWatcher, typeClass);
-    bp.song.watch("rating", ratingWatcher, typeClass);
-    bp.song.watch("scrobbleTime", updateScrobblePosition, typeClass);
-    bp.song.watch("loved", songLovedWatcher, typeClass);
-    bp.song.watch("lastfmInfo", renderLastfmInfo, typeClass);
-    bp.song.watch("scrobbled", scrobbledWatcher, typeClass);
+    song.w("info", songInfoWatcher, typeClass);
+    song.w("positionSec", positionSecWatcher, typeClass);
+    song.w("rating", ratingWatcher, typeClass);
+    song.w("scrobbleTime", updateScrobblePosition, typeClass);
+    song.w("loved", songLovedWatcher, typeClass);
+    song.w("lastfmInfo", renderLastfmInfo, typeClass);
+    song.w("scrobbled", scrobbledWatcher, typeClass);
 
-    if (bp.settings.layout != "hbar") resize(bp.localSettings.miniplayerSizing[bp.settings.layout]);//try to restore saved size (chrome.windows.create does not always set the desired size)
+    if (settings.layout != "hbar") resize(localSettings.miniplayerSizing[settings.layout]);//try to restore saved size (chrome.windows.create does not always set the desired size)
     if (typeClass == "miniplayer" || typeClass == "toast") setupResizeMoveListeners();
-    if (typeClass == "toast" && bp.settings.toastDuration > 0) setToastAutocloseTimer();
+    if (typeClass == "toast" && settings.toastDuration > 0) setToastAutocloseTimer();
 
     $(window).unload(function() {
-      bp.localSettings.removeAllListeners(typeClass);
-      bp.settings.removeAllListeners(typeClass);
-      bp.player.removeAllListeners(typeClass);
-      bp.song.removeAllListeners(typeClass);
+      localSettings.ral(typeClass);
+      settings.ral(typeClass);
+      player.ral(typeClass);
+      song.ral(typeClass);
     });
   });
 
