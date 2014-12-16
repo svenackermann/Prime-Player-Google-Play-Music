@@ -12,25 +12,25 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   /** "popup", "miniplayer" or "toast" */
   var typeClass = bp.extractUrlParam("type", location.search) || "popup";
-  
+
   /** the size of the player to restore after closing playlist/lyrics/... */
   var savedSizing;
-  
+
   /** history to allow for back navigation */
   var navHistory = [];
-  
+
   /** information about the currently displayed navigation list */
   var currentNavList = {};
-  
+
   /** cached HTML snippet for rating in playlists, depending on the rating mode */
   var ratingHtml;
-  
+
   /** function to get the last.fm info for the saved last song, if any */
   var getLastSongInfo;
-  
+
   /** the cached last.fm info for the saved last song, if any or false if not loaded yet */
   var lastSongInfo = false;
-  
+
   /** shortcut, for minimisation */
   var i18n = chrome.i18n.getMessage;
 
@@ -126,24 +126,52 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("#showlyrics").removeAttr("title").removeClass("nav").removeData("options");
     }
     
+    function markCurrent(songRow) {
+      var song = songRow.data("song");
+      if (bp.songsEqual(song, val)) {
+        songRow.addClass("current");
+        song.current = true;
+        return true;
+      }
+      return false;
+    }
+    
+    function tryListMatch(listData) {
+      var expectedDiv = playlists.filter(clusterFilter(listData.cluster)).children("div[data-index='" + listData.index + "']");
+      return expectedDiv[0] && markCurrent(expectedDiv);
+    }
+    
     var playlists = getVisiblePlaylists();
     if (playlists.length) {
+      var currentData;
       //clear currents
-      var current = playlists.children(".current");
-      current.data("song").current = false;
-      current.children(".timebar").remove();
-      current.removeClass("current");
+      playlists.children(".current").each(function() {
+        var current = $(this);
+        current.data("song").current = false;
+        current.children(".timebar").remove();
+        current.removeClass("current");
+        currentData = { cluster: getClusterIndex(current), index: current.data("index") };
+      });
       if (val) {
         //mark new currents
-        playlists.children("div").each(function() {
-          var songRow = $(this);
-          var song = songRow.data("song");
-          if (bp.songsEqual(song, val)) {
-            songRow.addClass("current");
-            song.current = true;
+        var matched = false;
+        if (val.playlist == currentNavList.link) {
+          matched = tryListMatch(val);
+        }
+        if (!matched && currentData) {
+          currentData.index++;//try next song
+          matched = tryListMatch(currentData);
+          if (!matched) {
+            currentData.index -= 2;//try previous song
+            matched = tryListMatch(currentData);
           }
-        });
-        addPlaylistSongTimebars(playlists);
+        }
+        if (!matched) {//we're not on the playlist page in GM and next/prev song did not match, so search through all of them, possibly marking multiple songs as current
+          playlists.children("div").each(function() {
+            if (markCurrent($(this))) matched = true;
+          });
+        }
+        if (matched) addPlaylistSongTimebars(playlists);
       }
     }
   }
@@ -425,7 +453,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         
         row.data("song", song);
         navlist.append(row);
-        if (song.current) current = row.get(0);
+        if (song.current) current = row[0];
       });
       navlist.toggleClass("noalbum", noAlbum);
       navlist.toggleClass("norating", noRating);

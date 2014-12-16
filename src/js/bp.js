@@ -238,6 +238,7 @@ var songsEqual = exports.songsEqual = function(song1, song2) {
   if (song1 == song2) return true;//both null
   if (song1 && song2 &&
       (song1.duration === null || song2.duration === null || song1.duration == song2.duration) &&
+      (!song1.playlist || !song2.playlist || song1.playlist != song2.playlist || (song1.cluster == song2.cluster && song1.index == song2.index)) &&
       song1.title == song2.title &&
       song1.artist == song2.artist &&
       song1.album == song2.album) {

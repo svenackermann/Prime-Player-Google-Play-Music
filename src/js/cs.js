@@ -201,6 +201,12 @@ $(function() {
           info.artistLink = getLink(artist) || "artist//" + forHash(info.artist);
           info.albumLink = getLink(album);
           info.cover = parseCover($("#playingAlbumArt"));
+          var playlistSong = $(".song-row.currently-playing");
+          if (playlistSong[0]) {
+            info.playlist = location.hash.substr(2);
+            info.index = playlistSong.data("index");
+            info.cluster = getClusterIndex(playlistSong);
+          }
         }
         return info;
       }
