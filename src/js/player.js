@@ -752,17 +752,19 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function renderSongLoved(loved, actions) {
-    var rat = $("#lastfmRating").removeClass("loved notloved error");
-    var a = rat.find("a").unbind();
-    if (typeof(loved) == "string") {
-      rat.addClass("error");
+    var lastfmRating = $("#lastfmRating").removeClass("loved notloved error loading");
+    var a = lastfmRating.find("a").unbind();
+    if (loved === null) {
+      lastfmRating.addClass("loading");
+    } else if (typeof(loved) == "string") {
+      lastfmRating.addClass("error");
       a.data("msg", i18n("lastfmError") + loved).click(actions.getLastfmInfo);
       a.data("lastfmInfo", "");
     } else if (loved === true) {
-      rat.addClass("loved");
+      lastfmRating.addClass("loved");
       a.data("msg", i18n("lastfmUnlove")).click(actions.unlove);
     } else if (loved === false) {
-      rat.addClass("notloved");
+      lastfmRating.addClass("notloved");
       a.data("msg", i18n("lastfmLove")).click(actions.love);
     }
     renderLastfmTitle(a);

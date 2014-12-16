@@ -277,6 +277,7 @@ a {
 .popup {
   body {
     min-width: 240px;
+    min-height: 113px;
   }
   &.hideRatings .lastfm {
     #rightbuttons {
@@ -698,8 +699,11 @@ a {
   display: none;
   float: right;
   margin-left: 10px;
-  &.loved img, &.notloved img, &.error img, a {
+  img, a {
     display: none;
+  }
+  &.loading img {
+    display: block;
   }
   &.loved a, &.notloved a, &.error a {
     display: block;
