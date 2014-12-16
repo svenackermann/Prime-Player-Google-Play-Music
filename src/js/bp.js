@@ -828,7 +828,7 @@ function resumeLastSongIfConnected() {
 }
 
 /** Resume the saved last song in Google Music. If not connected, open a Google Music tab and try again. */
-exports.resumeLastSong = function(lastSong) {
+var resumeLastSong = exports.resumeLastSong = function(lastSong) {
   lastSongToResume = lastSong;
   resumeLastSongIfConnected();
 };
