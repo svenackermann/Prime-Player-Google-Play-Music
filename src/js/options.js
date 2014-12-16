@@ -99,6 +99,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     setSubsEnabled($("#showProgress"), settings.showProgress);
   }
 
+  function saveLastPositionChanged() {
+    $("#startupAction option[value='resumeLastSong']").prop("disabled", !settings.saveLastPosition);
+  }
+  
   function notificationsEnabledChanged(val) {
     settingsView.toggleClass("notifDisabled", !val);
     if (!val && settings.toast && !settings.toastUseMpStyle) $("#toastUseMpStyle").click();//use click here to change the checkbox value
@@ -347,6 +351,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
   }
   
+  function getStartupActionText(val) {
+    if (val) return i18n(val);
+    return i18n("command_");
+  }
+  
   $(function() {
     $("head > title").text(i18n("options") + " - " + i18n("extTitle"));
     initLegends();
@@ -443,7 +452,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("showRatingIndicator");
     initCheckbox("showProgress").click(showProgressChanged);
     initColorInput("showProgressColor");
-    initCheckbox("saveLastPosition");
+    initCheckbox("saveLastPosition").click(saveLastPositionChanged);
     initHint("saveLastPosition");
     var srtd = $("#skipRatedThumbsDown");
     initSelect("skipRatedLower").change(function() { srtd.prop("checked", settings.skipRatedLower > 0); });
@@ -472,6 +481,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("iconClickConnect");
     initCheckbox("openGoogleMusicPinned");
     initCheckbox("openGmBackground");
+    initSelect("startupAction", getStartupActionText);
     initNumberInput("googleAccountNo", localSettings);
     initHint("googleAccountNo");
     initCheckbox("connectedIndicator");
@@ -500,6 +510,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     lyricsChanged();
     iconClickChanged();
     showProgressChanged();
+    saveLastPositionChanged();
     
     $("#resetSettings").click(function() {
       settings.reset();

@@ -321,6 +321,9 @@
   "setting_openGmBackground": {
     "message": "Google Music Tab im Hintergrund \u00F6ffnen"
   },
+  "setting_startupAction": {
+    "message": "Aktion bei Chrome-Start"
+  },
   "setting_googleAccountNo": {
     "message": "Index des zu \u00F6ffnenden Google Kontos"
   },
@@ -746,5 +749,8 @@
   },
   "notificationsDisabled": {
     "message": "Benachrichtigungen sind f\u00FCr Prime Player deaktiviert. Daher sind nur Toasts im Miniplayer-Stil m\u00F6glich."
+  },
+  "resumeLastSong": {
+    "message": "Letzten Titel fortsetzen"
   }
 }

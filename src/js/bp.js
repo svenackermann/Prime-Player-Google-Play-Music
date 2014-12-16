@@ -165,16 +165,17 @@ var settings = exports.settings = new Bean({
   showRatingIndicator: false,
   showProgress: false,
   showProgressColor: "#ff0000",
-  saveLastPosition: false,
-  skipRatedLower: 0,
   iconClickAction0: "",
   iconClickAction1: "",
   iconClickAction2: "",
   iconClickAction3: "",
   iconDoubleClickTime: 0,
   iconClickConnect: false,
+  saveLastPosition: false,
+  skipRatedLower: 0,
   openGoogleMusicPinned: false,
   openGmBackground: false,
+  startupAction: "",
   connectedIndicator: true,
   preventCommandRatingReset: true,
   updateNotifier: true,
@@ -401,7 +402,7 @@ var loadCurrentLastfmInfo = exports.loadCurrentLastfmInfo = function() {
 };
 
 /** Get the last saved song from local storage. The callback will only be called if one exists. */
-exports.getLastSong = function(cb) {
+var getLastSong = exports.getLastSong = function(cb) {
   chromeLocalStorage.get(null, function(items) {
     if (items.lastSong) {
       var lastSong = {
@@ -1829,6 +1830,23 @@ function executeCommand(command, src) {
   }
 }
 
+function executeStartupAction() {
+  switch (settings.startupAction) {
+    case "feelingLucky":
+      executeFeelingLucky();
+      break;
+    case "resumeLastSong":
+      getLastSong(resumeLastSong);
+      break;
+    case "gotoGmusic":
+      openGoogleMusicTab();
+      break;
+    case "openMiniplayer":
+      openMiniplayer();
+      break;
+  }
+}
+
 function updateNotificationsEnabled(level) {
   localSettings.notificationsEnabled = level == "granted";
 }
@@ -1841,6 +1859,8 @@ chromeRuntime.onUpdateAvailable.addListener(reloadForUpdate);
 chromeRuntime.onSuspend.addListener(function() {
   chromeRuntime.onUpdateAvailable.removeListener(reloadForUpdate);
 });
+
+chromeRuntime.onStartup.addListener(executeStartupAction);
 chromeNotifications.onShowSettings.addListener(openOptions);
 chromeNotifications.getPermissionLevel(updateNotificationsEnabled);
 chromeNotifications.onPermissionLevelChanged.addListener(updateNotificationsEnabled);

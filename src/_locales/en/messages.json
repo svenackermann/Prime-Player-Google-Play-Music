@@ -428,6 +428,10 @@
     "message": "Open Google Music tab in the background",
     "description": "label for option to open Google Music in the background"
   },
+  "setting_startupAction": {
+    "message": "Action on Chrome startup",
+    "description": "label for option to select a Chrome startup action"
+  },
   "setting_googleAccountNo": {
     "message": "Index of Google account to open",
     "description": "label for option to select Google account number"
@@ -992,5 +996,9 @@
   "notificationsDisabled": {
     "message": "Notifications are disabled for Prime Player, so only miniplayer style toasts are available.",
     "description": "warning message if notifications are disabled"
+  },
+  "resumeLastSong": {
+    "message": "Resume last song",
+    "description": "label for startupAction select option to resume the last song"
   }
 }
