@@ -1605,9 +1605,9 @@ localSettings.al("lastfmSessionName", calcScrobbleTime);
 localSettings.al("lyrics", postLyricsState);
 localSettings.al("lyricsFontSize", postLyricsState);
 localSettings.al("lyricsWidth", postLyricsState);
-localSettings.w("notificationsEnabled", function(val) {
+localSettings.w("notificationsEnabled", function(val, old) {
   if (val) initNotifications();
-  else gaEvent("Options", "notifications-disabled");
+  else if (old) gaEvent("Options", "notifications-disabled");
 });
 
 player.al("connected", function(val) {
