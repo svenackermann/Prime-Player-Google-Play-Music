@@ -1,7 +1,7 @@
 /**
  * Utility class to make properties of an object observable.
  * This also includes the ability to sync the properties with localstorage.
- * @param defaults object with default values, every value in this object will be observable using "addListener" or "watch"
+ * @param defaults object with default values, every value in this object will be observable using "al" or "w"
  * @param useLocalStorage whether to save values in localStorage, defaults to false
  */
 /**
@@ -64,10 +64,10 @@ function Bean(defaults, useLocalStorage) {
     }
   };
   
-  /** Same as addListener, except that the listener will be called immediately with the current value for old and new value. */
+  /** Same as al, except that the listener will be called immediately with the current value for old and new value. */
   this.w = function(prop, listener, src) {
     listener(cache[prop], cache[prop], prop);
-    that.addListener(prop, listener, src);
+    that.al(prop, listener, src);
   };
   
   /**
