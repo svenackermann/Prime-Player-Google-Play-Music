@@ -2,9 +2,14 @@
  * Content script to be injected to Google Play Music.
  * This watches the DOM for relevant changes and notifies the background page.
  * It also delivers commands to the Google Play Music window.
- * @author Sven Ackermann (svenrecknagel@googlemail.com)
+ */
+/**
+ * @author Sven Ackermann (svenrecknagel@gmail.com)
  * @license BSD license
  */
+
+/* global chrome */
+
 $(function() {
   var port;
   var observers = [];
@@ -18,6 +23,7 @@ $(function() {
   var lyricsAutoReloadTimer;
   var position;
   var ratingContainer = $("#player-right-wrapper .player-rating-container ul.rating-container");
+  var i18n = chrome.i18n.getMessage;
   
   /** send update to background page */
   function post(type, value) {
@@ -49,7 +55,7 @@ $(function() {
       var rating = parseInt(container.dataset.rating);
       return isNaN(rating) ? 0 : rating;
     }
-    return (typeof onNullRating == "number") ? onNullRating : -1;
+    return $.isNumeric(onNullRating) ? onNullRating : -1;
   }
   
   /** Show the P-icon as indicator for successful connection. */
@@ -57,7 +63,7 @@ $(function() {
     //inject icon with title to mark the tab as connected
     $(".music-banner-icon")
       .addClass("ppconnected")
-      .attr("title", chrome.i18n.getMessage("connected"))
+      .attr("title", i18n("connected"))
       .unbind().click(function() {
         port.disconnect();
         cleanup();
@@ -85,8 +91,8 @@ $(function() {
         content.html(result.lyrics);
         if (result.credits) credits.html(result.credits + "<br/>");
       }
-      if (result.src) credits.append($("<a target='_blank'></a>").attr("href", result.src).text(chrome.i18n.getMessage("lyricsSrc"))).append($("<br/>"));
-      if (result.searchSrc) credits.append($("<a target='_blank'></a>").attr("href", result.searchSrc).text(chrome.i18n.getMessage("lyricsSearchResult")));
+      if (result.src) credits.append($("<a target='_blank'></a>").attr("href", result.src).text(i18n("lyricsSrc"))).append($("<br/>"));
+      if (result.searchSrc) credits.append($("<a target='_blank'></a>").attr("href", result.searchSrc).text(i18n("lyricsSearchResult")));
     }
   }
   
@@ -134,7 +140,7 @@ $(function() {
     if (!$("#ppLyricsButton").length) {
       $("<img id='ppLyricsButton'/>")
         .attr("src", chrome.extension.getURL("img/toast/openLyrics.png"))
-        .attr("title", chrome.i18n.getMessage("command_openLyrics"))
+        .attr("title", i18n("command_openLyrics"))
         .toggleClass("active", $("#playerSongInfo").find("div").length)
         .click(toggleLyrics)
         .appendTo("#player-right-wrapper");
@@ -151,15 +157,18 @@ $(function() {
     sendCommand("cleanup");
     window.removeEventListener("message", onMessage);
     $("#primeplayerinjected").remove();
-    $("#main").off("DOMSubtreeModified mouseup");
+    $("#music-content").off("DOMSubtreeModified mouseup");
     ratingContainer.off("click");
     $(window).off("hashchange");
-    for (var i = 0; i < observers.length; i++) {
-      observers[i].disconnect();
-    }
+    observers.forEach(function(o) { o.disconnect(); });
     hideConnectedIndicator();
     disableLyrics();
     port = null;
+  }
+  
+  function getClusterIndex(el) {
+    var cluster = el.closest(".cluster");
+    return cluster.length ? cluster.index() : 0;
   }
   
   /** add listeners/observers and extend DOM */
@@ -177,27 +186,6 @@ $(function() {
       return;//wait for callback
     }
   
-    //when rating is changed, the page gets reloaded, so no need for event listening here
-    var ratingMode;
-    
-    if (ratingContainer.hasClass("thumbs")) ratingMode = "thumbs";
-    else if (ratingContainer.hasClass("stars")) ratingMode = "star";
-    post("player-ratingMode", ratingMode);
-    
-    var ql = {};
-    var nav = $("#nav_collections");
-    ql.now = $.trim(nav.children("li[data-type='now']").text());
-    ql.rd = $.trim(nav.children("li[data-type='rd']").text());
-    var br = $("#browse-tabs");
-    ql.artists = $.trim(br.children("div[data-type='artists']").text());
-    ql.albums = $.trim(br.children("div[data-type='albums']").text());
-    ql.genres = $.trim(br.children("div[data-type='genres']").text());
-    $("#auto-playlists").children("li").each(function() {
-      ql[getLink($(this))] = $.trim($(this).find("div.tooltip").text());
-    });
-    ql.searchPlaceholder = $.trim($("#oneGoogleWrapper input[name='q']").attr("placeholder"));
-    post("player-quicklinks", ql);
-    
     /** @return info object for the current song or null if none is playing */
     function parseSongInfo(extended) {
       if ($("#playerSongInfo").find("div").length) {
@@ -213,6 +201,12 @@ $(function() {
           info.artistLink = getLink(artist) || "artist//" + forHash(info.artist);
           info.albumLink = getLink(album);
           info.cover = parseCover($("#playingAlbumArt"));
+          var playlistSong = $(".song-row.currently-playing");
+          if (playlistSong[0]) {
+            info.playlist = location.hash.substr(2);
+            info.index = playlistSong.data("index");
+            info.cluster = getClusterIndex(playlistSong);
+          }
         }
         return info;
       }
@@ -253,14 +247,14 @@ $(function() {
     /** @return rating for the current song (0-5) or -1 if the song is not rateable */
     function ratingGetter() {
       //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
-      if (listRatings) $("#main .song-row td[data-col='rating']").trigger("DOMSubtreeModified");
-      if (ratingContainer.is(":visible")) return parseRating(ratingContainer.children("li.selected").get(0), 0);
+      if (listRatings) $("#music-content .song-row td[data-col='rating']").trigger("DOMSubtreeModified");
+      if (ratingContainer.is(":visible")) return parseRating(ratingContainer.children("li.selected")[0], 0);
       return -1;
     }
     
-    /** Execute 'executeOnContentLoad' (if set) when #main is changed. */
-    function mainLoaded() {
-      if (typeof(executeOnContentLoad) == "function") {
+    /** Execute 'executeOnContentLoad' (if set) when #music-content is changed. */
+    function musicContentLoaded() {
+      if ($.isFunction(executeOnContentLoad)) {
         if (contentLoadDestination && location.hash != contentLoadDestination) return;//wait til we are on the correct page
         var fn = executeOnContentLoad;
         executeOnContentLoad = null;
@@ -292,7 +286,7 @@ $(function() {
         
         var observer = new MutationObserver(function (mutations) { mutations.forEach(listener); });
         observers.push(observer);
-        observer.observe(content.get(0), { childList: true, subtree: true });
+        observer.observe(content[0], { childList: true, subtree: true });
         listener();
       } else {
         console.error("element(s) do(es) not exist (did Google change their site?): " + selector);
@@ -307,17 +301,24 @@ $(function() {
      * @param getValue an optional special function to get the value (default is to return the changed attribute value)
      */
     function watchAttr(attrs, selector, type, getValue) {
-      var element = $(selector).get(0);
+      var element = $(selector)[0];
       if (element) {
         if (getValue === undefined) {
           getValue = function(el, attr) { return el.getAttribute(attr); };
         }
+        var value = getValue(element, attrs);
         var observer = new MutationObserver(function (mutations) {
-          mutations.forEach(function(mutation) { post(type, getValue(mutation.target, mutation.attributeName)); });
+          mutations.forEach(function(mutation) {
+            var newValue = getValue(mutation.target, mutation.attributeName);
+            if (newValue !== value) {
+              value = newValue;
+              post(type, value);
+            }
+          });
         });
         observers.push(observer);
         observer.observe(element, { attributes: true, attributeFilter: attrs.split(" ") });
-        post(type, getValue(element, attrs));//trigger once to initialize the info
+        post(type, value);//trigger once to initialize the info
       } else {
         console.error("element does not exist (did Google change their site?): " + selector);
       }
@@ -325,20 +326,23 @@ $(function() {
     
     watchContent(sendSong, "#playerSongInfo", 500);
     watchContent(sendPosition, "#time_container_current");
-    watchContent(mainLoaded, "#main", 500);
+    watchContent(musicContentLoaded, "#music-content", 500);
     watchAttr("class disabled", "#player > div.player-middle > button[data-id='play-pause']", "player-playing", playingGetter);
     watchAttr("value", "#player > div.player-middle > button[data-id='repeat']", "player-repeat");
     watchAttr("value", "#player > div.player-middle > button[data-id='shuffle']", "player-shuffle", shuffleGetter);
     watchAttr("class", ratingContainer.selector + " li", "song-rating", ratingGetter);
     watchAttr("aria-valuenow", "#vslider", "player-volume");
     
-    $("#main").on("DOMSubtreeModified", ".song-row td[data-col='rating']", function() {
+    $("#music-content").on("DOMSubtreeModified", ".song-row td[data-col='rating']", function() {
       if (listRatings) {
         var rating = parseRating(this);
-        var index = $(this.parentNode).data("index");
-        if (listRatings[index] != rating) {
-          listRatings[index] = rating;
-          post("player-listrating", {index: index, rating: rating, controlLink: location.hash});
+        var td = $(this);
+        var index = td.closest(".song-row").data("index");
+        var cluster = getClusterIndex(td);
+        var clusterRatings = listRatings[cluster];
+        if (clusterRatings && clusterRatings[index] != rating) {
+          clusterRatings[index] = rating;
+          post("player-listrating", {index: index, cluster: cluster, rating: rating, controlLink: location.hash});
         }
       }
     });
@@ -348,12 +352,13 @@ $(function() {
       pausePlaylistParsing = false;
       clearTimeout(asyncListTimer);
     });
-    ratingContainer.on("click", "li.selected[data-rating='5']", function() {
-      post("rated5", parseSongInfo());
+    ratingContainer.on("click", "li.selected[data-rating]", function(e) {
+      //when click is simulated by injected script, clientX will be 0
+      if (e.clientX) post("rated", { song: parseSongInfo(), rating: parseRating(this) });
     });
-    //listen for "mouseup", because "click" won't bubble up to "#main" and we can't attach this directly to ".rating-container" because it's dynamically created
-    $("#main").on("mouseup", ".song-row td[data-col='rating'] ul.rating-container li:not(.selected)[data-rating='5']", function() {
-      post("rated5", parseSongRow($(this).closest(".song-row"), true));
+    //listen for "mouseup", because "click" won't bubble up to "#music-content" and we can't attach this directly to ".rating-container" because it's dynamically created
+    $("#music-content").on("mouseup", ".song-row td[data-col='rating'] ul.rating-container li:not(.selected)[data-rating]", function() {
+      post("rated", { song: parseSongRow($(this).closest(".song-row"), true), rating: parseRating(this) });
     });
     
     window.addEventListener("message", onMessage);
@@ -364,7 +369,22 @@ $(function() {
     function sendConnected() {
       if (!$("#loading-progress").is(":visible")) {
         clearInterval(sendConnectedInterval);
-        post("player-connected", true);
+        var ql = {};
+        var nav = $("#nav_collections");
+        ql.now = $.trim(nav.children("a[data-type='now']").text());
+        ql.rd = $.trim(nav.children("a[data-type='rd']").text());
+        $("#header-tabs-container .tab-container a[data-type]").each(function() {
+          ql[$(this).data("type")] = $.trim($(this).text());
+        });
+        $("#auto-playlists").children("a").each(function() {
+          ql[getLink($(this))] = $.trim($(this).find(".tooltip").text());
+        });
+        ql.searchPlaceholder = $.trim($("#oneGoogleWrapper input[name='q']").attr("placeholder"));
+        post("connected", {
+          allinc: nav.children("a[data-type='exptop']").is(":visible"),
+          ratingMode: ratingContainer.hasClass("stars") ? "star" : "thumbs",
+          quicklinks: ql
+        });
       }
     }
     sendConnectedInterval = setInterval(sendConnected, 500);
@@ -375,14 +395,15 @@ $(function() {
   function onMessage(event) {
     // We only accept messages from the injected script
     if (event.source != window || event.data.type != "FROM_PRIMEPLAYER" || !event.data.msg) return;
+    console.debug("inj->cs: ", event.data);
     switch (event.data.msg) {
-      case "playlistSongRated":
-        $("#main .song-row[data-index='" + event.data.index + "']").find("td[data-col='rating']").trigger("DOMSubtreeModified");
+      case "plSongRated":
+        $("#music-content .song-row[data-index='" + event.data.index + "']").find("td[data-col='rating']").trigger("DOMSubtreeModified");
         /* falls through */
-      case "playlistSongStarted":
-      case "playlistSongError":
+      case "plSongStarted":
+      case "plSongError":
         pausePlaylistParsing = false;
-        if (typeof(resumePlaylistParsingFn) == "function") resumePlaylistParsingFn();
+        if ($.isFunction(resumePlaylistParsingFn)) resumePlaylistParsingFn();
         resumePlaylistParsingFn = null;
         break;
       case "cleanupCs":
@@ -395,36 +416,43 @@ $(function() {
   
   /** Send a command to the injected script. */
   function sendCommand(command, options) {
-    if (command == "startPlaylistSong" || command == "ratePlaylistSong") {
-      if (location.hash != options.link) return;
-      var body = $("#main .song-table > tbody");
-      if (!body[0] || options.index > body.data("count") - 1) return;
-      pausePlaylistParsing = true;
-      /* jshint -W082 */
-      function callForRow() {//make sure row with requested index is available
-        var rows = body.find(".song-row");
-        var scrollToRow;
-        if (rows.first().data("index") > options.index) scrollToRow = rows[0];
-        else if (rows.last().data("index") < options.index) scrollToRow = rows.last()[0];
-        if (scrollToRow) {
-          scrollToRow.scrollIntoView(true);
-          setTimeout(callForRow, 50);
-        } else {
-          window.postMessage({ type: "FROM_PRIMEPLAYER", command: command, options: options }, location.href);
-        }
+    window.postMessage({ type: "FROM_PRIMEPLAYER", command: command, options: options }, location.href);
+  }
+  
+  /** Send a command for a playlist row to the injected script. Ensures that the row is visible. */
+  function sendPlaylistRowCommand(command, options) {
+    if (location.hash != options.link) return;
+    var body = $("#music-content");
+    if (options.cluster) body = body.find(".cluster")[options.cluster] || body[0];//ok if cluster is 0 or undefined, because the first .song-table in #music-content is the same as in the first cluster
+    body = $(body).find(".song-table > tbody");
+    if (!body.length || options.index > body.data("count") - 1) return;
+    pausePlaylistParsing = true;
+    /* jshint -W082 */
+    function callForRow() {//make sure row with requested index is available
+      var rows = body.find(".song-row");
+      var scrollToRow;
+      if (rows.first().data("index") > options.index) scrollToRow = rows[0];
+      else if (rows.last().data("index") < options.index) scrollToRow = rows.last()[0];
+      if (scrollToRow) {
+        scrollToRow.scrollIntoView(true);
+        setTimeout(callForRow, 50);
+      } else {
+        sendCommand(command, options);
       }
-      callForRow();
-    } else window.postMessage({ type: "FROM_PRIMEPLAYER", command: command, options: options }, location.href);
+    }
+    callForRow();
   }
   
   /**
    * Click a card to start a playlist. Should always lead to the queue.
    * @return true, if the card was found
    */
-  function clickListCard(listId) {
-    if ($(".card[data-id='" + listId + "'][data-type='st']").length) {
+  function clickListCard(hash) {
+    var id = hash.substr(hash.indexOf("/") + 1);
+    var type = hash.substr(0, hash.indexOf("/"));
+    if ($(".card[data-id='" + id + "'][data-type='" + type + "']").length) {
       contentLoadDestination = "#/ap/queue";
-      sendCommand("clickCard", {id: listId});
+      sendCommand("clickCard", {id: id});
       return true;
     }
     return false;
@@ -436,21 +464,18 @@ $(function() {
       if (cb) cb();
     } else {
       executeOnContentLoad = cb;
-      contentLoadDestination = null;
-      if (hash.indexOf("st/") === 0) {//setting hash does not work for type "st"
-        var listId = hash.substr(3);
-        if (!clickListCard(listId)) {
+      contentLoadDestination = hash.indexOf("im/") === 0 ? "#/ap/queue" : null;//type im is automatically started
+      if (hash.indexOf("st/") === 0 || hash.indexOf("sm/") === 0 || hash.indexOf("situations/") === 0) {//setting hash does not work for these types
+        if (!clickListCard(hash)) {
           selectAndExecute("rd", function() {//try to find it on the mixes page
             executeOnContentLoad = cb;//set again (was overwritten by the recursive call)
-            if (!clickListCard(listId)) {//still not found
+            if (!clickListCard(hash)) {//still not found
               executeOnContentLoad = null;
               if (cb) cb(true);
             }
           });
         }
-      } else {
-        location.hash = "/" + hash;
-      }
+      } else location.hash = "/" + hash;
     }
   }
   
@@ -465,22 +490,21 @@ $(function() {
       album: $.trim(album.find(".content").text())
     };
     var duration = $.trim(song.find("td[data-col='duration']").text());
-    if (/^\d\d?(\:\d\d)*$/.test(duration)) item.duration = duration;//no real duration on recommandation page
+    if (/^\d\d?(\:\d\d)*$/.test(duration)) item.duration = duration;//no real duration on recommendation page
     if (!basic) {
       item.index = song.data("index");
       item.cover = parseCover(title.find("img"));
-      var arId = artist.data("matched-id") || "";
-      if (item.artist || arId) item.artistLink = "artist/" + forHash(arId) + "/" + forHash(item.artist);
-      var alAr = album.data("album-artist") || "";
-      var alId = album.data("matched-id") || "";
-      if (alId || item.album && typeof(alAr) == "string") item.albumLink = "album/" + forHash(alId) + "/" + forHash(alAr) + "/" + forHash(item.album);
+      var artistId = artist.data("matched-id") || "";
+      if (item.artist || artistId) item.artistLink = "artist/" + forHash(artistId) + "/" + forHash(item.artist);
+      var albumId = album.data("matched-id") || "";
+      if (albumId || item.album) item.albumLink = "album/" + forHash(albumId) + "/" + forHash(album.data("album-artist") || "") + "/" + forHash(item.album);
     }
     return item;
   }
   
   /** parse handlers for the different list types (playlistsList, playlist or albumContainers) */
   var parseNavigationList = {
-    playlistsList: function(parent, end, callback, omitUnknownAlbums) {
+    playlistsList: function(parent, end, cb, omitUnknownAlbums) {
       var playlists = [];
       parent.find(".card").slice(0, end).each(function() {
         var card = $(this);
@@ -496,17 +520,20 @@ $(function() {
         item.subTitleLink = getLink(subTitle);
         playlists.push(item);
       });
-      if (callback === false) return playlists;
-      callback(playlists);
+      if (!cb) return playlists;
+      cb(playlists);
     },
-    playlist: function(parent, end, callback) {
-      listRatings = [];
+    playlist: function(parent, end, cb) {
+      listRatings = listRatings || [];
+      var ci = getClusterIndex(parent);
+      var clusterRatings = [];
       var count = parent.find(".song-row").parent().data("count");
       var update = false;
       var lastIndex = -1;
       function loadNextSongs() {
+        listRatings[ci] = clusterRatings;
         var rows = parent.find(".song-row");
-        if (!update && count > 0 && rows.first().data("index") !== 0) {//not yet there
+        if (!update && count && rows.first().data("index") !== 0) {//not yet there
           parent.scrollTop(0);
           asyncListTimer = setTimeout(loadNextSongs, 150);
           return;
@@ -515,36 +542,41 @@ $(function() {
         var playlist = [];
         var lastLoaded = null;
         rows.slice(0, end).each(function() {
+          if (pausePlaylistParsing) return false;
           var song = $(this);
           lastLoaded = this;
           if (song.data("index") <= lastIndex) return;
           var item = parseSongRow(song);
-          lastIndex = item.index;
           if (song.find(".song-indicator").length) item.current = true;
-          item.rating = parseRating(song.find("td[data-col='rating']").get(0));
-          listRatings.push(item.rating);
+          item.rating = parseRating(song.find("td[data-col='rating']")[0]);
+          lastIndex = item.index;
+          clusterRatings.push(item.rating);
           playlist.push(item);
         });
-        if (callback === false) return playlist;
+        if (!cb) {
+          return playlist;
+        }
         if (!update || playlist.length) {
-          callback(playlist, update);
+          cb(playlist, update);
           update = true;
         }
-        if (count !== undefined && lastIndex + 1 < count && (end === undefined || lastIndex + 1 < end)) {
+        if (count && lastIndex + 1 < count && (end === undefined || lastIndex + 1 < end)) {
           if (pausePlaylistParsing) {
             resumePlaylistParsingFn = loadNextSongs;
           } else {
-            if (lastLoaded) lastLoaded.scrollIntoView(true);
+            if (lastLoaded) {
+              listRatings[ci] = null;//avoid conflicts with DOMSubtreeModified handler that listens for list rating changes
+              lastLoaded.scrollIntoView(true);
+            }
             asyncListTimer = setTimeout(loadNextSongs, 150);
           }
         }
       }
-      if (callback === false) return loadNextSongs();
+      if (!cb) return loadNextSongs();
       pausePlaylistParsing = false;
-      parent.scrollTop(0);
-      asyncListTimer = setTimeout(loadNextSongs, 150);
+      loadNextSongs();
     },
-    albumContainers: function(parent, end, callback) {
+    albumContainers: function(parent, end, cb) {
       var items = [];
       parent.find(".card").slice(0, end).each(function() {
         var card = $(this);
@@ -555,8 +587,8 @@ $(function() {
         item.link = getLink(card);
         items.push(item);
       });
-      if (callback === false) return items;
-      callback(items);
+      if (!cb) return items;
+      cb(items);
     }
   };
   
@@ -577,6 +609,7 @@ $(function() {
       case "artists":
       case "genres":
       case "srar":
+      case "srp":
         return "albumContainers";
       case "now":
       case "albums":
@@ -586,18 +619,64 @@ $(function() {
       case "tg":
       case "sral":
       case "ar":
+      case "exprec":
+      case "expnew":
         return "playlistsList";
+      case "exptop": //depend on content
+      case "expgenremore":
+        return $("#music-content .song-table").length ? "playlist" : "playlistsList";
       default:
         return "playlist";
     }
   }
   
+  /** @return parsed sublist (e.g. found albums on search page) or null if no matching content found */
+  function parseSublist(cont) {
+    var type;
+    if (cont.find(".song-table").length) type = "playlist";
+    else {
+      //look at first ".card" and check its type, our type must be one step higher in the hierarchy
+      var cardType = cont.find(".card").first().data("type");
+      if (!cardType) return null;//maybe no ".card" found
+      type = getListType(cardType) == "playlist" ? "playlistsList" : "albumContainers";
+    }
+    var list = parseNavigationList[type](cont, 10);
+    if (!list.length) return null;
+    return {
+      list: list,
+      type: type,
+      header: $.trim(cont.find(".header .title").text()) || $.trim(cont.find(".section-header").text()),
+      moreLink: cont.hasClass("has-more") ? getLink(cont) : null,
+      cluster: getClusterIndex(cont)
+    };
+  }
+  
+  function sendMixed(response) {
+    var view = $("#music-content");
+    response.type = "mixed";
+    response.lists = [];
+    response.moreText = $.trim(view.find("div .header .more:visible").first().text());
+    response.header = $.trim($("#header-tabs-container .header-tab-title.selected:visible").text()) || $.trim($("#breadcrumbs .tab-text:visible").text()) || $.trim($("#header-tabs-container .genre-dropdown-title .dropdown-title-text:visible").text());
+    view.find(".cluster, .genre-stations-container").each(function() {
+      var list = parseSublist($(this));
+      if (list) response.lists.push(list);
+    });
+    response.empty = !response.lists.length;
+    post("player-navigationList", response);
+  }
+  
   /** Select, parse and send a list to bp. */
   function sendNavigationList(link, omitUnknownAlbums, search) {
     selectAndExecute(link, function(error) {
-      var response = {link: link, list: [], controlLink: location.hash};
-      if (error) {
+      var response = {link: link, controlLink: location.hash};
+      function sendError() {
         response.error = true;
+        post("player-navigationList", response);
+      }
+      if (error) {
+        sendError();
+      } else if (link == "exptop" || link == "exprec" || link == "rd" || link.indexOf("expgenres/") === 0) {
+        sendMixed(response);
       } else {
         var type = getListType(link);
         //check if we are on a page with correct type
@@ -605,47 +684,28 @@ $(function() {
         if (type == getListType(location.hash.substr(2))) {
           response.type = type;
           response.search = search;
-          parseNavigationList[type]($("#main"), undefined, function(list, update) {
+          parseNavigationList[type]($("#music-content"), undefined, function(list, update) {
             response.list = list;
             response.update = update;
-            response.empty = response.list.length === 0;
+            response.empty = !list.length;
             post("player-navigationList", response);
           }, omitUnknownAlbums);
         } else {
-          response.error = true;
-          post("player-navigationList", response);
+          sendError();
         }
       }
     });
   }
   
-  /** @return parsed sublist (e.g. found albums on search page) or null if no matching content found */
-  function parseSublist(searchView, type, end) {
-    var cont = searchView.children("div[data-type='" + type + "']");
-    if (cont.length === 0) return null;
-    var listType = getListType(type);
-    var list = parseNavigationList[listType](cont, end, false);
-    if (list.length === 0) return null;
-    return {
-      list: list,
-      type: listType,
-      header: $.trim(cont.find(".header .title").text()),
-      moreLink: cont.hasClass("has-more") ? getLink(cont) : null
-    };
-  }
-  
   /** Select search page and send parsed result to bp. */
   function sendSearchResult(search) {
     selectAndExecute("sr/" + forHash(search), function() {
-      var response = {type: "searchresult", link: "search", search: search, lists: [], controlLink: location.hash};
-      response.header = $.trim($("#breadcrumbs").find(".tab-text").text());
-      var searchView = $("#main .search-view");
-      response.moreText = $.trim(searchView.find("div .header .more:visible").first().text());
-      response.lists.push(parseSublist(searchView, "srar", 6));
-      response.lists.push(parseSublist(searchView, "sral", 5));
-      response.lists.push(parseSublist(searchView, "srs", 10));
-      response.empty = response.lists[0] === null && response.lists[1] === null && response.lists[2] === null;
-      post("player-navigationList", response);
+      var response = {
+        link: "search",
+        search: search,
+        controlLink: location.hash
+      };
+      sendMixed(response);
     });
   }
   
@@ -653,10 +713,10 @@ $(function() {
   function resumeSong(msg, error) {
     if (error) return;
     function sendResume() {
-      var rows = $("#main .song-row");
+      var rows = $("#music-content .song-row");
       if (rows.length) {
         if (rows.first().data("index") !== 0) {
-          $("#main").scrollTop(0);
+          $("#music-content").scrollTop(0);
           asyncListTimer = setTimeout(sendResume, 150);
           return;
         }
@@ -665,13 +725,13 @@ $(function() {
           var song = parseSongRow($(this));
           if (song.title == msg.title && song.duration == msg.duration && (!song.artist || !msg.artist || song.artist == msg.artist)) {
             found = true;
-            sendCommand("resumePlaylistSong", {index: song.index, position: msg.position});
+            sendPlaylistRowCommand("resumePlaylistSong", {index: song.index, position: msg.position, link: location.hash});
             return false;
           }
         });
         var last = found || rows.last();
         if (!found && last.data("index") < last.parent().data("count") - 1) {
-          last.get(0).scrollIntoView(true);
+          last[0].scrollIntoView(true);
           asyncListTimer = setTimeout(sendResume, 150);
         }
       }
@@ -682,18 +742,18 @@ $(function() {
   port = chrome.runtime.connect({name: "googlemusic"});
   port.onDisconnect.addListener(cleanup);
   port.onMessage.addListener(function(msg) {
+    console.debug("bp->cs: ", msg);
     switch (msg.type) {
       case "execute":
-        sendCommand(msg.command, msg.options);
+        if (msg.command == "startPlaylistSong" || msg.command == "ratePlaylistSong") sendPlaylistRowCommand(msg.command, msg.options);
+        else sendCommand(msg.command, msg.options);
         break;
       case "getNavigationList":
-        if (msg.link == "myPlaylists") {
-          sendMyPlaylists();
-        } else if (msg.link == "search") {
-          sendSearchResult(msg.search);
-        } else {
-          sendNavigationList(msg.link, msg.omitUnknownAlbums, msg.search);
-        }
+        clearTimeout(asyncListTimer);
+        listRatings = null;
+        if (msg.link == "myPlaylists") sendMyPlaylists();
+        else if (msg.link == "search") sendSearchResult(msg.search);
+        else sendNavigationList(msg.link, msg.omitUnknownAlbums, msg.search);
         break;
       case "selectLink":
         selectAndExecute(msg.link);

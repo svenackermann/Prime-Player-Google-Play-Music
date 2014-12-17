@@ -14,22 +14,27 @@ var jsonedit = require("gulp-json-transform");
 var n2a = require("gulp-native2ascii");
 var runSequence = require('run-sequence');
 var gulpif = require("gulp-if");
+var argv = require("yargs").argv;
 var develop = true;
+var full = argv.full;
 
 var paths = {
-  js_bp: ["src/js/md5-min.src.js", "src/js/lastfm.api.src.js", "src/js/beans.src.js", "src/js/lyrics.src.js", "src/js/bp.src.js"],
-  js_single: ["src/js/cs.src.js", "src/js/cs-songlyrics.src.js", "src/js/injected.src.js", "src/js/options.src.js", "src/js/player.src.js", "src/js/updateNotifier.src.js"],
+  js_bp: ["src/js/md5.min.js", "src/js/lastfm.api.js", "src/js/beans.js", "src/js/lyrics.js", "src/js/bp.js"],
+  js_single: ["src/js/cs.js", "src/js/cs-songlyrics.js", "src/js/injected.js", "src/js/options.js", "src/js/player.js", "src/js/updateNotifier.js"],
   scss: ["src/css/*.scss", "!src/css/layouts.scss"],
   scss_all: "src/css/*.*",
-  other: ["src/**/*.*", "!src/css/*.*", "!src/js/*.src.js"],
-  dest: "build/"
+  other: ["src/img/**/*.*", "src/**/*.json", "src/**/*.html", "src/js/jquery-2.0.2.min.js"],
+  dest: "build/",
+  dest_js: "build/js/",
+  dest_css: "build/css/",
+  src: "src"
 };
 
-function myUglify() { return uglify({ preserveComments: "some", compress: { drop_console: !develop } }); }
+function myUglify() { return gulpif(!full, uglify({ preserveComments: "some", compress: { drop_console: !develop } })); }
 
 gulp.task("jshint", function() {
-  return gulp.src(["src/js/*.src.js", "!src/js/md5-min.src.js"])
-    .pipe(jshint())
+  return gulp.src(["src/js/*.js", "!src/js/*.min.js"])
+    .pipe(jshint({ undef: true, browser: true, jquery: true, unused: true, devel: true, bitwise: true, quotmark: "double" }))
     .pipe(jshint.reporter("jshint-stylish"))
     .pipe(jshint.reporter("fail"));
 });
@@ -40,47 +45,45 @@ gulp.task("clean", function(cb) {
 
 gulp.task("compile-js-bp", function() {
   return gulp.src(paths.js_bp)
-    .pipe(gulpif(develop, sourcemaps.init()))
-    .pipe(concat("js/bp.js"))
+    .pipe(gulpif(develop && !full, sourcemaps.init()))
+    .pipe(concat("bp.js"))
     .pipe(myUglify())
-    .pipe(gulpif(develop, sourcemaps.write("./")))
-    .pipe(gulp.dest(paths.dest));
+    .pipe(gulpif(develop && !full, sourcemaps.write("./")))
+    .pipe(gulp.dest(paths.dest_js));
 });
 
 gulp.task("compile-js-single", function() {
-  /*return gulp.src(paths.js_single, { base: "src" })
+  /*return gulp.src(paths.js_single, { base: paths.src })
     .pipe(rename({suffix: ".min"}))//TODO
-    .pipe(changed(paths.dest, { extension: ".min.js" }))//TODO
-    .pipe(gulpif(develop, sourcemaps.init()))
+    .pipe(changed(paths.dest_js, { extension: ".min.js" }))//TODO
+    .pipe(gulpif(develop && !full, sourcemaps.init()))
     .pipe(myUglify())
-    .pipe(gulpif(develop, sourcemaps.write("./")))
-    .pipe(gulp.dest(paths.dest));*/
+    .pipe(gulpif(develop && !full, sourcemaps.write("./")))
+    .pipe(gulp.dest(paths.dest_js));*/
   //workaround for https://github.com/terinjokes/gulp-uglify/issues/56
   var merged = merge();
   paths.js_single.forEach(function(el) {
-    var name = "js/" + el.substring(el.lastIndexOf("/") + 1, el.lastIndexOf(".src.js")) + ".js";
     merged.add(gulp.src(el)
-      .pipe(rename(name))
-      .pipe(changed(paths.dest))
-      .pipe(gulpif(develop, sourcemaps.init()))
-      .pipe(concat(name))
+      .pipe(changed(paths.dest_js))
+      .pipe(gulpif(develop && !full, sourcemaps.init()))
+      .pipe(concat(el.substr(el.lastIndexOf("/") + 1)))
       .pipe(myUglify())
-      .pipe(gulpif(develop, sourcemaps.write("./")))
+      .pipe(gulpif(develop && !full, sourcemaps.write("./")))
     );
   });
-  return merged.pipe(gulp.dest(paths.dest));;
+  return merged.pipe(gulp.dest(paths.dest_js));
 });
 
 gulp.task("compile-css", function () {
-  return gulp.src(paths.scss, { base: "src" })
+  return gulp.src(paths.scss)
     .pipe(gulpif(develop, sourcemaps.init()))
     .pipe(sass({outputStyle: "compressed"}))
     .pipe(gulpif(develop, sourcemaps.write("./")))
-    .pipe(gulp.dest(paths.dest));
+    .pipe(gulp.dest(paths.dest_css));
 });
 
 gulp.task("copy-other", function () {
-  return gulp.src(paths.other, { base: "src" })
+  return gulp.src(paths.other, { base: paths.src })
     .pipe(changed(paths.dest))
     .pipe(gulp.dest(paths.dest));
 });

@@ -1,3 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE HTML>
+<!--
+  HTML for the options page
+  @author Sven Ackermann (svenrecknagel@gmail.com)
+  @license BSD license
+-->
 <html>
 <head>
 <title></title>
@@ -71,6 +78,10 @@
         <input id="linkRatings" type="checkbox"/>
         <label for="linkRatings"></label>
       </div>
+      <div class="sub v-2.26 exp stars">
+        <input id="linkRatingsMin" type="number" min="2" max="5"/>
+        <label for="linkRatingsMin"></label>
+      </div>
       <div class="sub v-2.24 adv">
         <input id="linkRatingsGpm" type="checkbox"/>
         <label for="linkRatingsGpm"></label>
@@ -98,6 +109,10 @@
       <div class="sub v-2.6 exp miniplayer">
         <input id="toastIfMpOpen" type="checkbox"/>
         <label for="toastIfMpOpen"></label>
+      </div>
+      <div class="sub v-2.26 exp">
+        <input id="toastNotIfGmActive" type="checkbox"/>
+        <label for="toastNotIfGmActive"></label>
       </div>
       <div class="sub v-1.6 exp">
         <input id="toastUseMpStyle" type="checkbox"/>
@@ -134,9 +149,9 @@
           <option value="toggleShuffle"></option>
           <option value="loveUnloveSong" class="lastfm"></option>
           <option value="rate-1"></option>
-          <option value="rate-2"></option>
-          <option value="rate-3"></option>
-          <option value="rate-4"></option>
+          <option class="stars" value="rate-2"></option>
+          <option class="stars" value="rate-3"></option>
+          <option class="stars" value="rate-4"></option>
           <option value="rate-5"></option>
           <option value="feelingLucky"></option>
           <option value="openLyrics" class="lyrics"></option>
@@ -191,7 +206,7 @@
         <input id="mpTextColor" type="color"/>
         <label for="mpTextColor"></label>
       </div>
-      <div class="v-2.0 adv">
+      <div class="v-2.26 adv">
         <select id="coverClickLink">
           <option value=""></option>
           <option value="now"></option>
@@ -205,11 +220,14 @@
           <option value="ap/auto-playlist-recent"></option>
           <option value="ap/auto-playlist-promo"></option>
           <option value="ap/shared-with-me"></option>
-          <option value="ap/google-play-recommends"></option>
+          <option class="noallinc" value="ap/google-play-recommends"></option>
+          <option class="allinc" value="exptop"></option>
+          <option class="allinc" value="expnew"></option>
+          <option class="allinc" value="exprec"></option>
         </select>
         <label for="coverClickLink"></label>
       </div>
-      <div class="v-2.0 adv">
+      <div class="v-2.26 adv">
         <select id="titleClickLink"></select>
         <label for="titleClickLink"></label>
       </div>
@@ -311,7 +329,7 @@
         <input id="showProgress" type="checkbox"/>
         <label for="showProgress"></label>
       </div>
-      <div class="v-2.21 adv">
+      <div class="v-2.21 adv sub">
         <input id="showProgressColor" type="color"/>
         <label for="showProgressColor"></label>
       </div>
@@ -346,7 +364,7 @@
         <input id="saveLastPosition" type="checkbox"/>
         <label for="saveLastPosition"></label>
       </div>
-      <div class="v-2.19 adv">
+      <div class="v-2.19 adv stars">
         <select id="skipRatedLower">
           <option value="0"></option>
           <option value="1"></option>
@@ -356,9 +374,27 @@
         </select>
         <label for="skipRatedLower"></label>
       </div>
+      <div class="adv thumbsOnly">
+        <input id="skipRatedThumbsDown" type="checkbox"/>
+        <label for="skipRatedThumbsDown"></label>
+      </div>
       <div class="v-1.1 exp">
         <input id="openGoogleMusicPinned" type="checkbox"/>
         <label for="openGoogleMusicPinned"></label>
+      </div>
+      <div class="v-2.26 exp">
+        <input id="openGmBackground" type="checkbox"/>
+        <label for="openGmBackground"></label>
+      </div>
+      <div class="v-2.26 adv">
+        <select id="startupAction">
+          <option value=""></option>
+          <option value="feelingLucky"></option>
+          <option value="resumeLastSong"></option>
+          <option value="gotoGmusic"></option>
+          <option value="openMiniplayer"></option>
+        </select>
+        <label for="startupAction"></label>
       </div>
       <div class="v-2.14 exp">
         <input id="googleAccountNo" type="number" min="0"/>
@@ -447,6 +483,19 @@
       <label for="cl-B">B</label>
       <input title="Show/hide versions" id="cl-V" type="checkbox" checked/>
       <label for="cl-V">V</label>
+      <div class="v-2.26">
+        <ul>
+          <li class="F">Option to set the minimum stars to auto-love a song</li>
+          <li class="F">Option to avoid toast when Google Music tab has focus</li>
+          <li class="F">Option to open Google Music tab in background</li>
+          <li class="F">Option to set an action to be executed on Chrome startup</li>
+          <li class="I">Show song progress in playlist view in miniplayer</li>
+          <li class="I">New quicklinks for Google All Inclusive users (visible after first load of Google Music site)</li>
+          <li class="I">Display/hide options according to account details (All Inclusive, stars/thumbs ratings)</li>
+          <li class="I">Many stability/usability improvements</li>
+          <li class="B">Fixed playlists loading in miniplayer when Google Music is in background</li>
+        </ul>
+      </div>
       <div class="v-2.25">
         <ul>
           <li class="F">Option to hide ratings in toast</li>

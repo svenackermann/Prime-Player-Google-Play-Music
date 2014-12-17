@@ -1,26 +1,34 @@
 /*
- * SCSS for the different layouts and color schemes
- * @author Sven Ackermann (svenrecknagel@googlemail.com)
- * Licensed under the BSD license
+ * SCSS for the different layouts and color schemes, included by player.scss
+ * @author Sven Ackermann (svenrecknagel@gmail.com)
+ * @license BSD license
  */
 @mixin colorScheme($color) {
-  #playControls, #time, #volumeBarContainer, #navlist.searchresult > h2 a {
+  #playControls, #time, #volumeBarContainer, #navlist.mixed > h2 a {
     background-color: $color;
   }
   #timeBar, #volumeBar {
     background-color: lighten($color, 40%);
   }
+  .playlist .timebar > div {
+    background-color: lighten($color, 20%);
+  }
   #timeBarHolder, #volumeBarBorder {
     border-color: lighten($color, 30%);
   }
-  .playing #timeBarHolder {
-    border-color: lighten($color, 50%);
+  .playlist .timebar {
+    background-color: lighten($color, 65%);
   }
-  #quickLinksBtn, #miniplayerlink, .scrobbleEnabled #lastfmUser, #feelingLucky {
+  .playing {
+    #timeBarHolder {
+      border-color: lighten($color, 50%);
+    }
+  }
+  #quicklinksBtn, #miniplayerlink, .scrobbleEnabled #lastfmUser, #feelingLucky {
     background-color: $color;
     border-top-color: lighten($color, 20%);
   }
-  #navHead, #navlist.searchresult > h2 {
+  #navHead, #navlist.mixed > h2 {
     color: darken($color, 10%);
   }
   #navlistContainer .playlist > div.current {
@@ -172,7 +180,7 @@
   #miniplayerlink {
     @include sprite(9, 0, 15);
   }
-  #quickLinksBtn {
+  #quicklinksBtn {
     @include sprite(12, 0, 15);
   }
   #lastfmUser {

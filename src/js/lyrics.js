@@ -1,8 +1,14 @@
 /**
  * Functions to handle lyrics.
- * @author Sven Ackermann (svenrecknagel@googlemail.com)
+ */
+/**
+ * @author Sven Ackermann (svenrecknagel@gmail.com)
  * @license BSD license
  */
+
+/* global gaEvent */
+/* exported buildLyricsSearchUrl, fetchLyrics */
+
 /** @return an URL to songlyrics.com for the song or null if too little information */
 function buildLyricsSearchUrl(song) {
   var artist = "";
@@ -40,15 +46,20 @@ function buildLyricsSearchUrl(song) {
  * - 'searchSrc': the URL to the search results page
  */
 function fetchLyrics(song, cb) {
+  function stripImages(data) {
+    //remove images to avoid them to be loaded
+    return data.replace(/<img [^>]*src\s*=\s*\"[^\"]*\"[^>]*>/gi, "");
+  }
+  
   var url = buildLyricsSearchUrl(song);
   if (url) {
     $.get(url)
-      .done(function(data) {
-        var href = $(data).find(".serpresult > a").attr("href");
+      .done(function(resultPage) {
+        var href = $(stripImages(resultPage)).find(".serpresult > a").attr("href");
         if (href) {
           $.get(href)
-            .done(function(data) {
-              var page = $(data);
+            .done(function(lyricsPage) {
+              var page = $(stripImages(lyricsPage));
               var lyrics = page.find("#songLyricsDiv");
               var trimmedLyrics = lyrics.text().trim();
               if (trimmedLyrics.length === 0 || trimmedLyrics.indexOf("We do not have the lyrics for") === 0) {

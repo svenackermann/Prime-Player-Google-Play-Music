@@ -1,7 +1,7 @@
+/* SCSS for the miniplayer, popup and toast in miniplayer style */
 /*!
- * SCSS for the player
- * @author Sven Ackermann (svenrecknagel@googlemail.com)
- * Licensed under the BSD license
+ * @author Sven Ackermann (svenrecknagel@gmail.com)
+ * @license BSD license
  */
 $sprite-y-count: 5;
 
@@ -265,18 +265,19 @@ a {
   display: none;
 }
 
-#quickLinksBtn {
+#quicklinksBtn {
   display: block;
   @include sprite(12, 0, 13);
 }
 
-.toast #quickLinksBtn {
+.toast #quicklinksBtn {
   display: none;
 }
 
 .popup {
   body {
     min-width: 240px;
+    min-height: 113px;
   }
   &.hideRatings .lastfm {
     #rightbuttons {
@@ -428,6 +429,15 @@ a {
       > img {
         opacity: 0.2;
       }
+      > .timebar {
+        height: 2px;
+        position: relative;
+        bottom: 2px;
+        > div {
+          height: 100%;
+          width: 0;
+        }
+      }
     }
     > img {
       float: left;
@@ -498,6 +508,9 @@ a {
 #navlistContainer .playlist.noalbum > div > div.info {
   > span:not(.duration), > a {
     width: 40%;
+  }
+  > .album {
+    display: none;
   }
   > :first-child {
     width: 50%;
@@ -579,7 +592,7 @@ a {
   }
 }
 
-#navlist.searchresult {
+#navlist.mixed {
   > h2 {
     margin: 0;
     padding: 2px;
@@ -588,6 +601,9 @@ a {
     clear: both;
     background-color: #ccc;
     border-top: 1px solid white;
+    > span.duration {
+      margin-left: 0.5ex;
+    }
     a {
       float: right;
       font-style: normal;
@@ -603,6 +619,7 @@ a {
   }
   .albumContainers > div {
     width: 50%;
+    overflow: hidden;
     float: left;
     &:nth-child(even) {
       background-color: inherit;
@@ -613,8 +630,19 @@ a {
   }
 }
 
-#quickLinks {
+#quicklinks {
   display: none;
+  .allinc {
+    display: none;
+  }
+  &.allinc {
+    .noallinc {
+      display: none;
+    }
+    .allinc {
+      display: block;
+    }
+  }
   > div {
     width: 47%;
     margin: 3px;
@@ -671,8 +699,11 @@ a {
   display: none;
   float: right;
   margin-left: 10px;
-  &.loved img, &.notloved img, &.error img, a {
+  img, a {
     display: none;
+  }
+  &.loading img {
+    display: block;
   }
   &.loved a, &.notloved a, &.error a {
     display: block;

@@ -139,6 +139,10 @@
     "message": "Show toast even if the miniplayer is opened",
     "description": "label for option to show toasts while miniplayer is opened"
   },
+  "setting_toastNotIfGmActive": {
+    "message": "Do not show toast if Google Music tab has focus",
+    "description": "label for option to not show toasts while the Google Music tab has focus"
+  },
   "setting_toastClick": {
     "message": "Action when clicked on toast",
     "description": "label for option to set the action when toast is clicked"
@@ -182,6 +186,10 @@
   "setting_linkRatingsHint": {
     "message": "Love a song in last.fm if you give thumbs up/five stars in Google Music and vice versa. This will never override existing ratings and it does not work when rated directly on the Google Music or last.fm site (only via miniplayer, keyboard shortcut, toast action, ...).",
     "description": "hint for option to link ratings"
+  },
+  "setting_linkRatingsMin": {
+    "message": "Minimum stars to auto-love",
+    "description": "label for minimum auto-love rating option"
   },
   "setting_linkRatingsGpm": {
     "message": "Also auto-love when rated directly on Google Music tab",
@@ -416,6 +424,14 @@
     "message": "Open Google Music in a pinned tab",
     "description": "label for option to open Google Music in a pinned tab"
   },
+  "setting_openGmBackground": {
+    "message": "Open Google Music tab in the background",
+    "description": "label for option to open Google Music in the background"
+  },
+  "setting_startupAction": {
+    "message": "Action on Chrome startup",
+    "description": "label for option to select a Chrome startup action"
+  },
   "setting_googleAccountNo": {
     "message": "Index of Google account to open",
     "description": "label for option to select Google account number"
@@ -477,12 +493,16 @@
     "description": "text for low rated option 'disabled'"
   },
   "setting_skipRatedLower_1": {
-    "message": "1 star/thumbs down",
+    "message": "1 star",
     "description": "text for low rated option '1'"
   },
   "setting_skipRatedLower_2": {
-    "message": "2 stars",
+    "message": "2 stars/thumbs down",
     "description": "text for low rated option '2'"
+  },
+  "setting_skipRatedLower_2_stars": {
+    "message": "2 stars",
+    "description": "text for low rated option '2' if in star rating mode"
   },
   "setting_skipRatedLower_3": {
     "message": "3 stars",
@@ -491,6 +511,10 @@
   "setting_skipRatedLower_4": {
     "message": "4 stars",
     "description": "text for low rated option '4'"
+  },
+  "setting_skipRatedThumbsDown": {
+    "message": "Skip songs rated thumbs down",
+    "description": "label for option to skip songs that are rated thumbs down"
   },
   "setting_hideRatings": {
     "message": "Hide rating icons (last.fm and thumbs/stars)",
@@ -621,16 +645,16 @@
     "description": "text for click action option 'genres' (will be replaced with text from Google Music if connected)"
   },
   "quicklink_rd": {
-    "message": "Instant Mixes",
-    "description": "text for click action option 'instant mixes' (will be replaced with text from Google Music if connected)"
+    "message": "Instant Mixes/Radio",
+    "description": "text for click action option 'instant mixes/radio' (will be replaced with text from Google Music if connected)"
   },
   "quicklink_ap_queue": {
     "message": "Queue",
     "description": "text for click action option 'queue' (will be replaced with text from Google Music if connected)"
   },
   "quicklink_ap_auto_playlist_thumbs_up": {
-    "message": "Highly rated",
-    "description": "text for click action option 'higly rated' (will be replaced with text from Google Music if connected)"
+    "message": "Highly rated/Thumbs up",
+    "description": "text for click action option 'higly rated/thumbs up' (will be replaced with text from Google Music if connected)"
   },
   "quicklink_ap_auto_playlist_recent": {
     "message": "Last added",
@@ -646,6 +670,18 @@
   },
   "quicklink_ap_google_play_recommends": {
     "message": "Google Play recommends",
+    "description": "text for click action option 'Google Play recommends' (will be replaced with text from Google Music if connected)"
+  },
+  "quicklink_exptop": {
+    "message": "Featured",
+    "description": "text for click action option 'features' (will be replaced with text from Google Music if connected)"
+  },
+  "quicklink_expnew": {
+    "message": "New Releases",
+    "description": "text for click action option 'new releases' (will be replaced with text from Google Music if connected)"
+  },
+  "quicklink_exprec": {
+    "message": "Recommendations",
     "description": "text for click action option 'recommendations' (will be replaced with text from Google Music if connected)"
   },
   "openLink": {
@@ -960,5 +996,9 @@
   "notificationsDisabled": {
     "message": "Notifications are disabled for Prime Player, so only miniplayer style toasts are available.",
     "description": "warning message if notifications are disabled"
+  },
+  "resumeLastSong": {
+    "message": "Resume last song",
+    "description": "label for startupAction select option to resume the last song"
   }
 }

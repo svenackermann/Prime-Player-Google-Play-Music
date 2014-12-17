@@ -1,7 +1,7 @@
+/* SCSS for the options page */
 /*!
- * CSS for the options page
- * @author Sven Ackermann (svenrecknagel@googlemail.com)
- * Licensed under the BSD license
+ * @author Sven Ackermann (svenrecknagel@gmail.com)
+ * @license BSD license
  */
 body {
   background: #F9F9F9;
@@ -22,6 +22,26 @@ body {
   &.filterTimer .timer, &.filterLastfm .lastfm, &.filterToast .toast, &.filterMiniplayer .miniplayer, &.filterLyrics .lyrics, &.filterLookfeel .lookfeel {
     display: none;
   }
+  
+  .allinc {
+    display: none;
+  }
+  &.allinc {
+    .noallinc {
+      display: none;
+    }
+    .allinc {
+      display: block;
+    }
+  }
+  
+  &.thumbs .stars, &.star .thumbs, .thumbsOnly, .starsOnly {
+    display: none;
+  }
+  &.thumbs .thumbsOnly, &.star .starsOnly {
+    display: block;
+  }
+  
   select {
     margin-right: 3px;
     min-width: 200px;

@@ -1,11 +1,17 @@
 /**
  * This script just adds text to HTML template.
- * @author Sven Ackermann (svenrecknagel@googlemail.com)
+ */
+/**
+ * @author Sven Ackermann (svenrecknagel@gmail.com)
  * @license BSD license
  */
+
+/* global chrome */
+
 chrome.runtime.getBackgroundPage(function(bp) {
   $(function() {
-    $("h1").text(chrome.i18n.getMessage("updateNotifierTitle")).after(chrome.i18n.getMessage("updateNotifierText"));
+    var i18n = chrome.i18n.getMessage;
+    $("h1").text(i18n("updateNotifierTitle")).after(i18n("updateNotifierText"));
     $("body").click(bp.openOptions).click(window.close);
     bp.updateNotifierDone();
   });

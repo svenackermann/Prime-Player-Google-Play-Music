@@ -104,6 +104,9 @@
   "setting_toastIfMpOpen": {
     "message": "Toast auch zeigen, wenn der Miniplayer ge\u00F6ffnet ist"
   },
+  "setting_toastNotIfGmActive": {
+    "message": "Zeige kein Toast, wenn der Google Music Tab aktiv ist"
+  },
   "setting_toastClick": {
     "message": "Aktion beim Klick auf den Toast"
   },
@@ -136,6 +139,9 @@
   },
   "setting_linkRatingsHint": {
     "message": "Titel in last.fm lieben, wenn du Daumen hoch/f\u00FCnf Sterne in Google Music gibst und umgekehrt. Bestehende Wertungen werden nicht \u00FCberschrieben. Funktioniert nicht, wenn direkt auf der Google Music oder last.fm Seite bewertet wird (nur \u00FCber Miniplayer, Tastaturk\u00FCrzel, Toast Aktionen, ...)."
+  },
+  "setting_linkRatingsMin": {
+    "message": "Mindest-Stern-Anzahl zum automatisch lieben"
   },
   "setting_linkRatingsGpm": {
     "message": "Auch automatisch lieben, wenn im Google Music Tab bewertet wird"
@@ -312,6 +318,12 @@
   "setting_openGoogleMusicPinned": {
     "message": "Google Music in einem angehefteten Tab \u00F6ffnen"
   },
+  "setting_openGmBackground": {
+    "message": "Google Music Tab im Hintergrund \u00F6ffnen"
+  },
+  "setting_startupAction": {
+    "message": "Aktion bei Chrome-Start"
+  },
   "setting_googleAccountNo": {
     "message": "Index des zu \u00F6ffnenden Google Kontos"
   },
@@ -358,9 +370,12 @@
     "message": "deaktiviert"
   },
   "setting_skipRatedLower_1": {
-    "message": "1 Stern/Daumen runter"
+    "message": "1 Stern"
   },
   "setting_skipRatedLower_2": {
+    "message": "2 Sterne/Daumen runter"
+  },
+  "setting_skipRatedLower_2_stars": {
     "message": "2 Sterne"
   },
   "setting_skipRatedLower_3": {
@@ -368,6 +383,9 @@
   },
   "setting_skipRatedLower_4": {
     "message": "4 Sterne"
+  },
+  "setting_skipRatedThumbsDown": {
+    "message": "Titel mit Daumen runter \u00FCberspringen"
   },
   "setting_hideRatings": {
     "message": "Bewertungs-Symbole verstecken (last.fm und Daumen/Sterne)"
@@ -466,13 +484,13 @@
     "message": "Genres"
   },
   "quicklink_rd": {
-    "message": "Schnellmixe"
+    "message": "Schnellmixe/Radio"
   },
   "quicklink_ap_queue": {
     "message": "Wiedergabeliste"
   },
   "quicklink_ap_auto_playlist_thumbs_up": {
-    "message": "Hoch bewertet"
+    "message": "Hoch bewertet/Mag ich"
   },
   "quicklink_ap_auto_playlist_recent": {
     "message": "Zuletzt hinzugef\u00FCgt"
@@ -485,6 +503,15 @@
   },
   "quicklink_ap_google_play_recommends": {
     "message": "Empfehlungen auf Play"
+  },
+  "quicklink_exptop": {
+    "message": "Angesagt"
+  },
+  "quicklink_expnew": {
+    "message": "Neuerscheinungen"
+  },
+  "quicklink_exprec": {
+    "message": "Empfehlungen"
   },
   "openLink": {
     "message": "\u00D6ffne '$LINK$'",
@@ -722,5 +749,8 @@
   },
   "notificationsDisabled": {
     "message": "Benachrichtigungen sind f\u00FCr Prime Player deaktiviert. Daher sind nur Toasts im Miniplayer-Stil m\u00F6glich."
+  },
+  "resumeLastSong": {
+    "message": "Letzten Titel fortsetzen"
   }
 }
