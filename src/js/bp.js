@@ -135,6 +135,7 @@ var settings = exports.settings = new Bean({
   toast: true,
   toastDuration: 0,
   toastIfMpOpen: false,
+  toastIfMpMinimized: false,
   toastNotIfGmActive: false,
   toastUseMpStyle: false,
   toastPriority: 3,
@@ -1757,14 +1758,22 @@ song.al("info", function(info) {
   song.loved = null;
   song.timestamp = null;
   
+  function doToast() {
+    if (!settings.toastNotIfGmActive) openToast();
+    else chromeTabs.get(googlemusictabId, function(tab) {
+      if (tab.active) chromeWindows.get(tab.windowId, function(win) { if (!win.focused) openToast(); });
+      else openToast();
+    });
+  }
+  
   if (info) {
     info.durationSec = parseSeconds(info.duration);
-    if (settings.toast && ((!miniplayer && (player.playing || !settings.mpAutoOpen)) || settings.toastIfMpOpen)) {
-      if (!settings.toastNotIfGmActive) openToast();
-      else chromeTabs.get(googlemusictabId, function(tab) {
-        if (tab.active) chromeWindows.get(tab.windowId, function(win) { if (!win.focused) openToast(); });
-        else openToast();
-      });
+    if (settings.toast && (!miniplayer && !(settings.mpAutoOpen && !player.playing) || settings.toastIfMpOpen)) {
+      if (miniplayer && settings.toastIfMpMinimized) {
+        chromeWindows.get(miniplayer.id, function(win) {
+          if (win.state == "minimized") doToast();
+        });
+      } else doToast();
     }
     if (!settings.hideRatings || settings.showLastfmInfo) loadCurrentLastfmInfo();
   } else closeToast();

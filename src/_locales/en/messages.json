@@ -139,6 +139,10 @@
     "message": "Show toast even if the miniplayer is opened",
     "description": "label for option to show toasts while miniplayer is opened"
   },
+  "setting_toastIfMpMinimized": {
+    "message": "Only if the miniplayer window is minimized",
+    "description": "label for option to show toasts if miniplayer is minimized"
+  },
   "setting_toastNotIfGmActive": {
     "message": "Do not show toast if Google Music tab has focus",
     "description": "label for option to not show toasts while the Google Music tab has focus"
