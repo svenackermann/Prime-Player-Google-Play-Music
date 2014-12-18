@@ -11,13 +11,22 @@ body {
 
 #settings {
   float: left;
-  &.f-beg {
-    .adv, .exp {
-      display: none;
+  &.f-beg .adv, &.f-beg .exp, &.f-adv .exp {
+    display: none;
+    &.newFeature {
+      label:after {
+        font-style: italic;
+        font-weight: normal;
+      }
     }
   }
-  &.f-adv .exp {
-    display: none;
+  &.f-beg .adv.newFeature label:after {
+    content: " (__MSG_setting_optionsMode_adv__)";
+  }
+  &.f-beg, &.f-adv {
+    .exp.newFeature label:after {
+      content: " (__MSG_setting_optionsMode_exp__)";
+    }
   }
   &.filterTimer .timer, &.filterLastfm .lastfm, &.filterToast .toast, &.filterMiniplayer .miniplayer, &.filterLyrics .lyrics, &.filterLookfeel .lookfeel {
     display: none;
