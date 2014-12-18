@@ -13,18 +13,13 @@
 
 function Bean(defaults, useLocalStorage) {
   var cache = {};
-  var listeners = {};
+  var callbacks = {};
+  var srcListeners = {};
   var syncLocalStorage = useLocalStorage || false;
   var equalsFn = {};
   var useSyncStorage = false;
   var saveSyncStorageTimer;
   var that = this;
-  
-  function notify(prop, old, val) {
-    listeners[prop].forEach(function(ls) {
-      ls.listener(val, old, prop);
-    });
-  }
   
   /**
    * Adds a listener function for the given property.
@@ -32,35 +27,29 @@ function Bean(defaults, useLocalStorage) {
    * 1. the new value
    * 2. the previous value
    * 3. the name of the property
-   * If the value has been set but did not actually change, the listeners won't be notified.
+   * If the value has been set but did not actually change, the callbacks won't be notified.
    */
   this.al = function(prop, listener, src) {
-    var ls = listeners[prop];
-    if (ls) ls.push({listener: listener, src: src || null});
+    if (src) {
+      if (!srcListeners[src]) srcListeners[src] = [];
+      srcListeners[src].push({ l: listener, p: prop });
+    }
+    callbacks[prop].add(listener);
   };
   
   /** Removes a listener function for the given property. */
   this.rl = function(prop, listener) {
-    var ls = listeners[prop];
-    if (ls) {
-      ls.some(function(l, i) {
-        if (listener == l.listener) {
-          ls.splice(i, 1);
-          return true;
-        }
-      });
-    }
+    callbacks[prop].remove(listener);
   };
   
-  /** Removes all listeners for the given source. */
+  /** Removes all callbacks for the given source. */
   this.ral = function(src) {
-    src = src || null;
-    for (var prop in listeners) {
-      var ls = listeners[prop];
-      for (var i = 0; i < ls.length;) {
-        if (src === ls[i].src) ls.splice(i, 1);
-        else i++;
-      }
+    var listeners = srcListeners[src];
+    if (listeners) {
+      delete(srcListeners[src]);
+      listeners.forEach(function(listener) {
+        that.rl(listener.p, listener.l);
+      });
     }
   };
   
@@ -72,7 +61,7 @@ function Bean(defaults, useLocalStorage) {
   
   /**
    * Allows to set a function that checks equality for a given property.
-   * On modification, this function will be used to check if the listeners must be notified.
+   * On modification, this function will be used to check if the callbacks must be notified.
    * The default is to check if old and new value are the same (===) and setting a property of type object will always notify.
    */
   this.setEqualsFn = function(prop, equals) {
@@ -90,7 +79,7 @@ function Bean(defaults, useLocalStorage) {
         for (var prop in items) {
           that[prop] = items[prop];
         }
-        if (typeof(cb) == "function") cb();
+        if ($.isFunction(cb)) cb();
       }
     });
   }
@@ -137,17 +126,6 @@ function Bean(defaults, useLocalStorage) {
     }
   };
   
-  /**
-   * Adds all properties from defaultValue to value that do not yet exist there.
-   * @return value
-   */
-  function merge(value, defaultValue) {
-    for (var prop in defaultValue) {
-      if (value[prop] == null) value[prop] = defaultValue[prop];// jshint ignore:line
-    }
-    return value;
-  }
-  
   /** @return value from localStorage converted to correct type */
   function parse(name, defaultValue) {
     if (!syncLocalStorage || localStorage[name] === undefined) {
@@ -157,7 +135,7 @@ function Bean(defaults, useLocalStorage) {
     var type = value.substr(0, 1);
     value = value.substr(1);
     switch (type) {
-      case "o": return merge(JSON.parse(value), defaultValue);
+      case "o": return $.extend(JSON.parse(value), defaultValue);
       case "b": return value == "true";
       case "n": return parseFloat(value);
       default: return value;
@@ -173,19 +151,14 @@ function Bean(defaults, useLocalStorage) {
   /** Setup an object property with the given name */
   function setting(name, defaultValue) {
     cache[name] = parse(name, defaultValue);
-    listeners[name] = [];
+    callbacks[name] = $.Callbacks();
     
     Object.defineProperty(that, name, {
-      get: function() {
-        return cache[name];
-      },
+      get: function() { return cache[name]; },
       set: function(val) {
         var old = cache[name];
-        var equals = equalsFn[name];
-        if (typeof(equals) != "function") equals = defaultEquals;
-        if (equals(val, old)) {
-          return;
-        }
+        var equals = equalsFn[name] || defaultEquals;
+        if (equals(val, old)) return;
         if (syncLocalStorage) {
           if (val == null) {// jshint ignore:line
             localStorage.removeItem(name);
@@ -197,7 +170,7 @@ function Bean(defaults, useLocalStorage) {
         }
         cache[name] = val;
         if (useSyncStorage) saveSyncStorage();
-        notify(name, old, val);
+        callbacks[name].fire(val, old, name);
       },
       enumerable: true
     });
