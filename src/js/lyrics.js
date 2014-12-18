@@ -46,20 +46,23 @@ function buildLyricsSearchUrl(song) {
  * - 'searchSrc': the URL to the search results page
  */
 function fetchLyrics(song, cb) {
-  function stripImages(data) {
+  function cleanAndParse(data) {
     //remove images to avoid them to be loaded
-    return data.replace(/<img [^>]*src\s*=\s*\"[^\"]*\"[^>]*>/gi, "");
+    var parsed = $(data.replace(/<img[^>]*>/gi, ""));
+    parsed = parsed.not("script");//remove top level scripts
+    parsed.find("script").remove();//remove other scripts
+    return parsed;
   }
   
   var url = buildLyricsSearchUrl(song);
   if (url) {
     $.get(url)
       .done(function(resultPage) {
-        var href = $(stripImages(resultPage)).find(".serpresult > a").attr("href");
+        var href = cleanAndParse(resultPage).find(".serpresult > a").attr("href");
         if (href) {
           $.get(href)
             .done(function(lyricsPage) {
-              var page = $(stripImages(lyricsPage));
+              var page = cleanAndParse(lyricsPage);
               var lyrics = page.find("#songLyricsDiv");
               var trimmedLyrics = lyrics.text().trim();
               if (trimmedLyrics.length === 0 || trimmedLyrics.indexOf("We do not have the lyrics for") === 0) {
