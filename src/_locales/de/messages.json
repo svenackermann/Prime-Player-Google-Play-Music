@@ -104,6 +104,9 @@
   "setting_toastIfMpOpen": {
     "message": "Toast auch zeigen, wenn der Miniplayer ge\u00F6ffnet ist"
   },
+  "setting_toastIfMpMinimized": {
+    "message": "Nur wenn das Miniplayer-Fenster minimiert ist"
+  },
   "setting_toastNotIfGmActive": {
     "message": "Zeige kein Toast, wenn der Google Music Tab aktiv ist"
   },

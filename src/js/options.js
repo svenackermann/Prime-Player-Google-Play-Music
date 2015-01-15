@@ -55,6 +55,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   
   function toastChanged() {
     $("#toastIfMpOpen, #toastNotIfGmActive, #toastDuration").prop("disabled", !settings.toast);
+    $("#toastIfMpMinimized").prop("disabled", !settings.toast || !settings.toastIfMpOpen);
     $("#toastUseMpStyle").prop("disabled", !settings.toast || !localSettings.notificationsEnabled);
     $("fieldset.toast > .notif").children("input, select").prop("disabled", !settings.toast || settings.toastUseMpStyle);
     $("#toast").siblings(".hint").toggle(!settings.toastIfMpOpen);
@@ -399,6 +400,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("toastProgress");
     initCheckbox("toastRating");
     initCheckbox("toastIfMpOpen").click(toastChanged);
+    initCheckbox("toastIfMpMinimized");
     initCheckbox("toastNotIfGmActive");
     initSelect("toastClick", bp.getTextForToastBtn);
     initSelect("toastButton1")

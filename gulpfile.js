@@ -54,12 +54,12 @@ gulp.task("compile-js-bp", function() {
 
 gulp.task("compile-js-single", function() {
   /*return gulp.src(paths.js_single, { base: paths.src })
-    .pipe(rename({suffix: ".min"}))//TODO
-    .pipe(changed(paths.dest_js, { extension: ".min.js" }))//TODO
+    .pipe(changed(paths.dest_js))
     .pipe(gulpif(develop && !full, sourcemaps.init()))
     .pipe(myUglify())
     .pipe(gulpif(develop && !full, sourcemaps.write("./")))
     .pipe(gulp.dest(paths.dest_js));*/
+  
   //workaround for https://github.com/terinjokes/gulp-uglify/issues/56
   var merged = merge();
   paths.js_single.forEach(function(el) {
