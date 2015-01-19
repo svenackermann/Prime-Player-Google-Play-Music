@@ -1188,7 +1188,7 @@ function createPlayer(type, callback, focused) {
 
 /** Open the miniplayer. */
 var openMiniplayer = exports.openMiniplayer = function() {
-  if (!settings.toastIfMpOpen) closeToast();
+  if (!settings.toastIfMpOpen || settings.toastIfMpMinimized) closeToast();
   if (miniplayer) {//close first
     miniplayerReopen = true;
     chromeWindows.remove(miniplayer.id);
