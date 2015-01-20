@@ -101,7 +101,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function saveLastPositionChanged() {
-    $("#startupAction option[value='resumeLastSong']").prop("disabled", !settings.saveLastPosition);
+    $("#iconClickConnectAction,#startupAction").find("option[value='resumeLastSong']").prop("disabled", !settings.saveLastPosition);
   }
   
   function notificationsEnabledChanged(val) {
@@ -236,6 +236,18 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   /**
+   * Initialize a select input for an option based on the options of another select input.
+   * @param prop the option name in settings
+   * @param from the other select input as jQuery object
+   * @return the select input element
+   */
+  function initSelectFrom(prop, from) {
+    var select = initSelect(prop);
+    select.append(from.children().clone()).val(settings[prop]);
+    return select;
+  }
+  
+  /**
    * Initialize a color input for an option.
    * @param prop the option name in settings
    * @return the color input element
@@ -352,9 +364,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
   }
   
-  function getStartupActionText(val) {
+  function getConnectActionText(val) {
     if (val) return i18n(val);
-    return i18n("command_");
+    return i18n("openPopup");
   }
   
   $(function() {
@@ -385,8 +397,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("linkRatingsGpm");
     initCheckbox("linkRatingsAuto");
     initHint("linkRatingsAuto");
-    initCheckbox("showLovedIndicator");
-    initCheckbox("showScrobbledIndicator");
     initCheckbox("showLastfmInfo");
     
     $("#notificationDisabledWarning").text(i18n("notificationsDisabled"));
@@ -402,13 +412,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("toastIfMpOpen").click(toastChanged);
     initCheckbox("toastIfMpMinimized");
     initCheckbox("toastNotIfGmActive");
-    initSelect("toastClick", bp.getTextForToastBtn);
-    initSelect("toastButton1")
-      .append($("#toastClick").children().clone())
-      .val(settings.toastButton1);
-    initSelect("toastButton2")
-      .append($("#toastClick").children().clone())
-      .val(settings.toastButton2);
+    var toastClick = initSelect("toastClick", bp.getTextForToastBtn);
+    initSelectFrom("toastButton1", toastClick);
+    initSelectFrom("toastButton2", toastClick);
     
     function setLayoutHintVisibility() {
       var panel = settings.miniplayerType == "panel" || settings.miniplayerType == "detached_panel";
@@ -426,10 +432,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initSelect("color");
     initColorInput("mpBgColor");
     initColorInput("mpTextColor");
-    initSelect("coverClickLink", bp.getTextForQuicklink);
-    initSelect("titleClickLink")
-      .append($("#coverClickLink").children().clone())
-      .val(settings.titleClickLink);
+    var coverClickLink = initSelect("coverClickLink", bp.getTextForQuicklink);
+    initSelectFrom("titleClickLink", coverClickLink);
     initCheckbox("openLinksInMiniplayer");
     initHint("openLinksInMiniplayer");
     initCheckbox("hideSearchfield");
@@ -452,38 +456,33 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initIconStyle();
     initCheckbox("showPlayingIndicator");
     initCheckbox("showRatingIndicator");
+    initCheckbox("showLovedIndicator");
+    initCheckbox("showScrobbledIndicator");
     initCheckbox("showProgress").click(showProgressChanged);
     initColorInput("showProgressColor");
+    
+    var iconClickConnectAction = initSelect("iconClickConnectAction", getConnectActionText);
+    $("#iconClickActionTitle").text(i18n("iconClickActionTitle"));
+    for (var i = 0; i < 4; i++) {
+      initSelectFrom("iconClickAction" + i, toastClick)
+        .change(iconClickChanged)
+        .find("option[value='']").text(i18n("openPopup"));
+    }
+    initNumberInput("iconDoubleClickTime").change(iconClickChanged);
+    initHint("iconDoubleClickTime");
+    
     initCheckbox("saveLastPosition").click(saveLastPositionChanged);
     initHint("saveLastPosition");
-    var srtd = $("#skipRatedThumbsDown");
-    initSelect("skipRatedLower").change(function() { srtd.prop("checked", settings.skipRatedLower > 0); });
-    srtd.prop("checked", settings.skipRatedLower > 0).click(function() {
+    var skipRatedThumbsDown = $("#skipRatedThumbsDown");
+    initSelect("skipRatedLower").change(function() { skipRatedThumbsDown.prop("checked", settings.skipRatedLower > 0); });
+    skipRatedThumbsDown.prop("checked", settings.skipRatedLower > 0).click(function() {
        settings.skipRatedLower = $(this).prop("checked") ? 2 : 0;
        $("#skipRatedLower").val(settings.skipRatedLower);
     });
     setLabel("skipRatedThumbsDown");
-    initSelect("iconClickAction0")
-      .append($("#toastClick").children().clone())
-      .val(settings.iconClickAction0)
-      .change(iconClickChanged);
-    initSelect("iconClickAction1")
-      .append($("#toastClick").children().clone())
-      .val(settings.iconClickAction1)
-      .change(iconClickChanged);
-    initSelect("iconClickAction2")
-      .append($("#toastClick").children().clone())
-      .val(settings.iconClickAction2)
-      .change(iconClickChanged);
-    initSelect("iconClickAction3")
-      .append($("#toastClick").children().clone())
-      .val(settings.iconClickAction3);
-    initNumberInput("iconDoubleClickTime").change(iconClickChanged);
-    initHint("iconDoubleClickTime");
-    initCheckbox("iconClickConnect");
     initCheckbox("openGoogleMusicPinned");
     initCheckbox("openGmBackground");
-    initSelect("startupAction", getStartupActionText);
+    initSelectFrom("startupAction", iconClickConnectAction).find("option[value='']").text(i18n("command_"));;
     initNumberInput("googleAccountNo", localSettings);
     initHint("googleAccountNo");
     initCheckbox("connectedIndicator");

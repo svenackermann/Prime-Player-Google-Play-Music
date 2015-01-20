@@ -171,7 +171,7 @@ var settings = exports.settings = new Bean({
   iconClickAction2: "",
   iconClickAction3: "",
   iconDoubleClickTime: 0,
-  iconClickConnect: false,
+  iconClickConnectAction: "",
   saveLastPosition: false,
   skipRatedLower: 0,
   openGoogleMusicPinned: false,
@@ -404,6 +404,7 @@ var loadCurrentLastfmInfo = exports.loadCurrentLastfmInfo = function() {
 
 /** Get the last saved song from local storage. The callback will only be called if one exists. */
 var getLastSong = exports.getLastSong = function(cb) {
+  if (!settings.saveLastPosition) return;
   chromeLocalStorage.get(null, function(items) {
     if (items.lastSong) {
       var lastSong = {
@@ -1202,6 +1203,14 @@ var openMiniplayer = exports.openMiniplayer = function() {
   }, true);
 };
 
+function resetBrowserActionPopup() {
+  chromeBrowserAction.setPopup({ popup: "" });
+}
+
+function setBrowserActionPopup() {
+  chromeBrowserAction.setPopup({ popup: "player.html" });
+}
+
 var iconClickCount = 0;
 var iconClickActionTimer;
 /** Execute the icon click action corresponding to the number of clicks. */
@@ -1211,46 +1220,86 @@ function iconClickActionDelayed() {
   if (settings.iconDoubleClickTime) {
     iconClickCount++;
     var nextAction = settings["iconClickAction" + iconClickCount];
-    if (!nextAction) chromeBrowserAction.setPopup({popup: "player.html"});
+    if (!nextAction) setBrowserActionPopup();
     iconClickActionTimer = setTimeout(function() {
-      chromeBrowserAction.setPopup({popup: ""});
+      resetBrowserActionPopup();
       iconClickCount = 0;
       executeCommand(action, "icon");
     }, settings.iconDoubleClickTime);
   } else executeCommand(action, "icon");
 }
 
+function resetIconClickActionAndPopup() {
+  chromeBrowserAction.onClicked.removeListener(iconClickActionDelayed);
+  resetBrowserActionPopup();
+}
+
+function setIconClickActionOrPopup() {
+  if (settings.iconClickAction0) chromeBrowserAction.onClicked.addListener(iconClickActionDelayed);
+  else setBrowserActionPopup();
+}
+
 /** Callback from popup to signal that it's open. */
 exports.popupOpened = function() {
-  clearTimeout(iconClickActionTimer);
-  iconClickCount = 0;
-  iconClickSettingsChanged();
+  if (iconClickCount > 0) {
+    clearTimeout(iconClickActionTimer);
+    iconClickCount = 0;
+    resetIconClickActionAndPopup();
+    setIconClickActionOrPopup();
+  }
 };
+
+function executeConnectAction(action) {
+  switch (action) {
+    case "feelingLucky":
+      executeFeelingLucky();
+      break;
+    case "resumeLastSong":
+      getLastSong(resumeLastSong);
+      break;
+    case "gotoGmusic":
+      openGoogleMusicTab();
+      break;
+    case "openMiniplayer":
+      openMiniplayer();
+      break;
+  }
+}
+
+function executeIconClickConnectAction() {
+  executeConnectAction(settings.iconClickConnectAction);
+}
 
 /** handler for all settings changes that need to update the browser action */
 function iconClickSettingsChanged() {
-  chromeBrowserAction.onClicked.removeListener(openGoogleMusicTab);
-  chromeBrowserAction.onClicked.removeListener(iconClickActionDelayed);
-  chromeBrowserAction.setPopup({popup: ""});
-  if (viewUpdateNotifier) {
-    chromeBrowserAction.setPopup({popup: "updateNotifier.html"});
-  } else if (settings.iconClickConnect && !googlemusictabId) {
-    chromeBrowserAction.onClicked.addListener(openGoogleMusicTab);
-  } else if (settings.iconClickAction0) {
-    chromeBrowserAction.onClicked.addListener(iconClickActionDelayed);
-  } else {
-    chromeBrowserAction.setPopup({popup: "player.html"});
+  resetIconClickActionAndPopup();
+  chromeBrowserAction.onClicked.removeListener(executeIconClickConnectAction);
+  
+  function setIconClickConnectAction() {
+    resetBrowserActionPopup();
+    chromeBrowserAction.onClicked.addListener(executeIconClickConnectAction);
   }
+  
+  if (viewUpdateNotifier) {
+    chromeBrowserAction.setPopup({ popup: "updateNotifier.html" });
+  } else if (!googlemusictabId) {
+    //if there is no last song or iconClickConnectAction is not set at all, set popup
+    setBrowserActionPopup();
+    if (settings.iconClickConnectAction == "resumeLastSong") getLastSong(setIconClickConnectAction);
+    else if (settings.iconClickConnectAction) setIconClickConnectAction();
+  } else setIconClickActionOrPopup();
 }
 
 /** Do necessary migrations on update. */
 function migrateSettings(previousVersion) {
+  function isTrue(setting) { return setting == "btrue"; }
+  
   //--- 2.15 ---
   //if "open miniplayer" or "play/pause" was set as click action, keep it in click action 0
   var icmp = localStorage.iconClickMiniplayer;
   if (icmp) {
-    if (icmp == "btrue") settings.iconClickAction0 = "openMiniplayer";
-    else if (localStorage.iconClickPlayPause == "btrue") settings.iconClickAction0 = "playPause";
+    if (isTrue(icmp)) settings.iconClickAction0 = "openMiniplayer";
+    else if (isTrue(localStorage.iconClickPlayPause)) settings.iconClickAction0 = "playPause";
     localStorage.removeItem("iconClickMiniplayer");
     localStorage.removeItem("iconClickPlayPause");
   }
@@ -1265,7 +1314,7 @@ function migrateSettings(previousVersion) {
   //convert boolean value to number
   var sds = localStorage.skipDislikedSongs;
   if (sds) {
-    settings.skipRatedLower = sds == "btrue" ? 1 : 0;
+    settings.skipRatedLower = isTrue(sds) ? 1 : 0;
     localStorage.removeItem("skipDislikedSongs");
   }
   
@@ -1287,6 +1336,15 @@ function migrateSettings(previousVersion) {
       chromeLocalStorage.remove("ratingMode");
     }
   });
+  
+  //--- 2.28 ---
+  //set gotoGmusic as connect action if it was enabled by flag or copy iconClickAction0 if applicable
+  var icc = localStorage.iconClickConnect;
+  if (icc) {
+    if (isTrue(icc)) settings.iconClickConnectAction = "gotoGmusic";
+    else if (settings.iconClickAction0 == "openMiniplayer" || settings.iconClickAction0 == "feelingLucky") settings.iconClickConnectAction = settings.iconClickAction0;
+    localStorage.removeItem("iconClickConnect");
+  }
 }
 
 /** handler for onInstalled event (show the orange icon on update / notification on install) */
@@ -1507,7 +1565,7 @@ function gaEnabledChanged(val) {
 
 settings.w("gaEnabled", gaEnabledChanged);
 settings.w("iconClickAction0", iconClickSettingsChanged);
-settings.al("iconClickConnect", iconClickSettingsChanged);
+settings.al("iconClickConnectAction", iconClickSettingsChanged);
 settings.w("miniplayerType", function(val) {
   if (val == "notification") {//migrate (notification type is no longer supported)
     settings.miniplayerType = "popup";
@@ -1586,15 +1644,10 @@ function saveFf(ff) {
   if (googlemusicport) chromeLocalStorage.set({"ff": ff});
 }
 settings.w("saveLastPosition", function(val) {
-  if (val) {
-    song.al("rating", saveRating);
-    song.al("scrobbled", saveScrobbled);
-    song.al("ff", saveFf);
-  } else {
-    song.rl("rating", saveRating);
-    song.rl("scrobbled", saveScrobbled);
-    song.rl("ff", saveFf);
-  }
+  var addOrRemove = val ? song.al : song.rl;
+  addOrRemove("rating", saveRating);
+  addOrRemove("scrobbled", saveScrobbled);
+  addOrRemove("ff", saveFf);
 });
 
 localSettings.w("syncSettings", function(val) {
@@ -1839,23 +1892,6 @@ function executeCommand(command, src) {
   }
 }
 
-function executeStartupAction() {
-  switch (settings.startupAction) {
-    case "feelingLucky":
-      executeFeelingLucky();
-      break;
-    case "resumeLastSong":
-      getLastSong(resumeLastSong);
-      break;
-    case "gotoGmusic":
-      openGoogleMusicTab();
-      break;
-    case "openMiniplayer":
-      openMiniplayer();
-      break;
-  }
-}
-
 function updateNotificationsEnabled(level) {
   localSettings.notificationsEnabled = level == "granted";
 }
@@ -1869,7 +1905,7 @@ chromeRuntime.onSuspend.addListener(function() {
   chromeRuntime.onUpdateAvailable.removeListener(reloadForUpdate);
 });
 
-chromeRuntime.onStartup.addListener(executeStartupAction);
+chromeRuntime.onStartup.addListener(executeConnectAction.bind(window, settings.startupAction));
 chromeNotifications.onShowSettings.addListener(openOptions);
 chromeNotifications.getPermissionLevel(updateNotificationsEnabled);
 chromeNotifications.onPermissionLevelChanged.addListener(updateNotificationsEnabled);

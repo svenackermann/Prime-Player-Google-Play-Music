@@ -288,12 +288,16 @@
     "description": "label for option to change the browser icon click speed"
   },
   "setting_iconDoubleClickTimeHint": {
-    "message": "Set to a value greater than 0 (recommended: 500) to enable more click actions above. After all enabled actions the popup will be opened, so if you don't enable any action a click will just show the popup.",
+    "message": "Set to a value greater than 0 (recommended: 500) to enable more click actions above. As last action the popup will always be opened.",
     "description": "hint for option to change the browser icon click speed"
   },
-  "setting_iconClickConnect": {
-    "message": "Always open Google Music first on click, if not opened yet",
-    "description": "label for option to open Google Music on browser icon click"
+  "setting_iconClickConnectAction": {
+    "message": "Action if Google Music is not opened",
+    "description": "label for action on browser icon click when Google Music is not connected"
+  },
+  "iconClickActionTitle": {
+    "message": "Action(s) if Google Music is opened:",
+    "description": "header for actions on browser icon click when Google Music is connected"
   },
   "connected": {
     "message": "This tab is connected to Prime Player. Click to disconnect.",
@@ -1004,5 +1008,9 @@
   "resumeLastSong": {
     "message": "Resume last song",
     "description": "label for startupAction select option to resume the last song"
+  },
+  "openPopup": {
+    "message": "Open popup",
+    "description": "label for icon click option to open the popup"
   }
 }
