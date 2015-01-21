@@ -593,8 +593,9 @@ function updateBrowserIcon() {
   if (browserIconCtx) chromeBrowserAction.setIcon({imageData: browserIconCtx.getImageData(0, 0, 19, 19)});
 }
 
-/** handler for all events that need to update the browser action icon/title */
-function updateBrowserActionInfo() {
+var updateBrowserActionInfoTimer;
+
+function doUpdateBrowserActionInfo() {
   var iconPath = "img/icon/";
   var path = iconPath + settings.iconStyle + "/";
   var title = i18n("extTitle");
@@ -659,6 +660,12 @@ function updateBrowserActionInfo() {
     player.favicon = iconCtx.canvas.toDataURL();
   }); else player.favicon = path;
   chromeBrowserAction.setTitle({title: title});
+}
+
+/** handler for all events that need to update the browser action icon/title */
+function updateBrowserActionInfo() {
+  clearTimeout(updateBrowserActionInfoTimer);
+  updateBrowserActionInfoTimer = setTimeout(doUpdateBrowserActionInfo, 100);
 }
 
 /** Remove the given one from parked ports. */
