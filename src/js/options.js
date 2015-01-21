@@ -482,7 +482,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     setLabel("skipRatedThumbsDown");
     initCheckbox("openGoogleMusicPinned");
     initCheckbox("openGmBackground");
-    initSelectFrom("startupAction", iconClickConnectAction).find("option[value='']").text(i18n("command_"));;
+    initSelectFrom("startupAction", iconClickConnectAction).find("option[value='']").text(i18n("command_"));
     initNumberInput("googleAccountNo", localSettings);
     initHint("googleAccountNo");
     initCheckbox("connectedIndicator");
