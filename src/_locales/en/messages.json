@@ -484,6 +484,10 @@
     "message": "Song progress color",
     "description": "label for show progress color"
   },
+  "setting_showProgressColorPaused": {
+    "message": "Song progress color when paused",
+    "description": "label for show progress color when paused"
+  },
   "setting_saveLastPosition": {
     "message": "Save last song position",
     "description": "label for option to save last song position"

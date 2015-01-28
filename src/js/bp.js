@@ -166,6 +166,7 @@ var settings = exports.settings = new Bean({
   showRatingIndicator: false,
   showProgress: false,
   showProgressColor: "#ff0000",
+  showProgressColorPaused: "#800000",
   iconClickAction0: "",
   iconClickAction1: "",
   iconClickAction2: "",
@@ -562,7 +563,7 @@ var lastProgressPosition = 0;
 function drawProgress() {
   if (settings.showProgress && browserIconCtx && song.info && song.positionSec - lastProgressPosition > 2) {
     lastProgressPosition = song.positionSec;
-    browserIconCtx.strokeStyle = settings.showProgressColor;
+    browserIconCtx.strokeStyle = player.playing ? settings.showProgressColor : settings.showProgressColorPaused;
     browserIconCtx.lineWidth = 3;
     browserIconCtx.beginPath();
     browserIconCtx.arc(9, 10, 8, 1.5 * Math.PI, (2 * lastProgressPosition / song.info.durationSec - 0.5) * Math.PI);
@@ -1641,6 +1642,7 @@ settings.w("showRatingIndicator", function(val) {
 });
 settings.al("showProgress", updateBrowserActionInfo);
 settings.al("showProgressColor", updateBrowserActionInfo);
+settings.al("showProgressColorPaused", updateBrowserActionInfo);
 function saveRating(rating) {
   if (googlemusicport && song.info) chromeLocalStorage.set({"rating": rating});
 }

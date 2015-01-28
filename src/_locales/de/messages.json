@@ -363,6 +363,9 @@
   "setting_showProgressColor": {
     "message": "Farbe f\u00FCr Titel-Fortschritt"
   },
+  "setting_showProgressColorPaused": {
+    "message": "Farbe f\u00FCr Titel-Fortschritt wenn pausiert"
+  },
   "setting_saveLastPosition": {
     "message": "Speichere zuletzt gespielten Titel"
   },

@@ -460,6 +460,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("showScrobbledIndicator");
     initCheckbox("showProgress").click(showProgressChanged);
     initColorInput("showProgressColor");
+    initColorInput("showProgressColorPaused");
     
     var iconClickConnectAction = initSelect("iconClickConnectAction", getConnectActionText);
     $("#iconClickActionTitle").text(i18n("iconClickActionTitle"));
