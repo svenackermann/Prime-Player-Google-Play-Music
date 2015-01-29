@@ -60,10 +60,10 @@
     "message": "Pause/Fortsetzen"
   },
   "lastfmUnlove": {
-    "message": "Nicht mehr lieben"
+    "message": "Titel nicht mehr lieben"
   },
   "lastfmLove": {
-    "message": "Diesen Titel lieben"
+    "message": "Aktuellen Titel lieben"
   },
   "lastfmError": {
     "message": "Fehler bei der Kommunkation mit last.fm, klicken zum neu laden: "

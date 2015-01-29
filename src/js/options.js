@@ -64,12 +64,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function lyricsChanged() {
     setSubsEnabled($("#lyrics"), localSettings.lyrics);
     $("#lyricsWidth").prop("disabled", !localSettings.lyrics || !settings.lyricsInGpm);
+    $("option.lyrics").prop("disabled", !localSettings.lyrics);
   }
   
   function lastfmUserChanged(user) {
     var action;
     var actionText;
-    $("#scrobble, #linkRatings, #showLovedIndicator").prop("disabled", !user);
+    $("#scrobble, #linkRatings, #showLovedIndicator, option.lastfm").prop("disabled", !user);
     scrobbleChanged(settings.scrobble);
     linkRatingsChanged();
     var links = $("#lastfmStatus").find("a");
@@ -101,7 +102,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function saveLastPositionChanged() {
-    $("#iconClickConnectAction,#startupAction").find("option[value='resumeLastSong']").prop("disabled", !settings.saveLastPosition);
+    $("option[value='resumeLastSong']").prop("disabled", !settings.saveLastPosition);
   }
   
   function notificationsEnabledChanged(val) {
@@ -136,7 +137,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     if (val) settingsView.addClass(val);
     $("#skipRatedLower option[value='2']").text(i18n("setting_skipRatedLower_2" + (val == "star" ? "_stars" : "")));
     $("#toastClick, #toastButton1, #toastButton2, #iconClickAction0, #iconClickAction1, #iconClickAction2, #iconClickAction3").children("option[value='rate-1'], option[value='rate-5']").each(function() {
-      $(this).text(bp.getTextForToastBtn($(this).attr("value")));
+      $(this).text(bp.getCommandOptionText($(this).attr("value")));
     });
   }
   
@@ -412,7 +413,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("toastIfMpOpen").click(toastChanged);
     initCheckbox("toastIfMpMinimized");
     initCheckbox("toastNotIfGmActive");
-    var toastClick = initSelect("toastClick", bp.getTextForToastBtn);
+    var toastClick = initSelect("toastClick", bp.getCommandOptionText);
     initSelectFrom("toastButton1", toastClick);
     initSelectFrom("toastButton2", toastClick);
     

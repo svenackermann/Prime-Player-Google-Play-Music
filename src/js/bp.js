@@ -82,6 +82,7 @@ var viewUpdateNotifier = localStorage.viewUpdateNotifier || false;
 var volumeBeforeMute;
 /** if resumeLastSong was called while not connected */
 var lastSongToResume;
+var hasLastSong = false;
 
 /** settings that must not be synced with Chrome sync */
 var localSettings = exports.localSettings = new Bean({
@@ -405,7 +406,7 @@ var loadCurrentLastfmInfo = exports.loadCurrentLastfmInfo = function() {
 
 /** Get the last saved song from local storage. The callback will only be called if one exists. */
 var getLastSong = exports.getLastSong = function(cb) {
-  if (!settings.saveLastPosition) return;
+  if (!settings.saveLastPosition) return false;
   chromeLocalStorage.get(null, function(items) {
     if (items.lastSong) {
       var lastSong = {
@@ -456,34 +457,6 @@ exports.getTextForQuicklink = function(link) {
   //use default
   return text || i18n("quicklink_" + link.replace(/-/g, "_").replace(/\//g, "_"));
 };
-
-/** @return the label for the given command to be used in a toast button */
-var getTextForToastBtn = exports.getTextForToastBtn = function(cmd) {
-  var key;
-  switch (cmd) {
-    case "playPause":
-    case "prevSong":
-    case "nextSong":
-    case "openMiniplayer":
-    case "feelingLucky":
-      key = cmd;
-      break;
-    case "rate-1":
-      if (localSettings.ratingMode == "star") key = "command_star1";
-      else if (localSettings.ratingMode == "thumbs") key = "command_thumbsDown";
-      else key = "command_rate1";
-      break;
-    case "rate-5":
-      if (localSettings.ratingMode == "star") key = "command_star5";
-      else if (localSettings.ratingMode == "thumbs") key = "command_thumbsUp";
-      else key = "command_rate5";
-      break;
-    default:
-      key = "command_" + cmd.replace(/-/g, "");
-  }
-  return i18n(key);
-};
-
 
 /** Open the options tab or focus it, if already opened. */
 var openOptions = exports.openOptions = function() {
@@ -566,7 +539,7 @@ function drawProgress() {
     browserIconCtx.strokeStyle = player.playing ? settings.showProgressColor : settings.showProgressColorPaused;
     browserIconCtx.lineWidth = 3;
     browserIconCtx.beginPath();
-    browserIconCtx.arc(9, 10, 8, 1.5 * Math.PI, (2 * lastProgressPosition / song.info.durationSec - 0.5) * Math.PI);
+    browserIconCtx.arc(10, 10, 8, 1.5 * Math.PI, (2 * lastProgressPosition / song.info.durationSec - 0.5) * Math.PI);
     browserIconCtx.stroke();
     return true;
   }
@@ -574,19 +547,127 @@ function drawProgress() {
 }
 
 /** Draw the given images onto the backgroundSrc, call cb with canvas context when ready. */
-function drawIcon(backgroundSrc, imagePaths, cb) {
+function drawIcon(backgroundSrc, imagePaths, cb, clickAction) {
   var iconCtx = $("<canvas width='19' height='19'/>")[0].getContext("2d");
   var image = new Image();
+  var backgroundDrawn = false;
+  var clickActionAvailable = clickAction && isCommandAvailable(clickAction);
   function loadNext() {
-    var path = imagePaths.shift();
+    var path = clickAction ? getCommandIconUrl(clickAction) : imagePaths.shift();
     if (path) image.src = getExtensionUrl(path + ".png");
     else cb(iconCtx);
   }
   image.onload = function() {
-    iconCtx.drawImage(image, 0, 0);
+    if (backgroundDrawn) {
+      if (clickAction) {
+        clickAction = null;
+        iconCtx.globalAlpha = clickActionAvailable ? 1.0 : 0.5;
+        iconCtx.drawImage(image, 0, 0, 19, 19);
+        iconCtx.globalAlpha = 1.0;
+      } else iconCtx.drawImage(image, 0, 0);
+    } else {
+      iconCtx.globalAlpha = clickActionAvailable || (settings.showProgress && song.info) ? 0.5 : 1.0;
+      iconCtx.drawImage(image, 0, 0);
+      iconCtx.globalAlpha = 1.0;
+      backgroundDrawn = true;
+    }
     loadNext();
   };
   image.src = getExtensionUrl(backgroundSrc);
+}
+
+/** @return the label for the given command to be used in a toast button or as browser icon tooltip */
+function getCommandText(cmd) {
+  var key;
+  switch (cmd) {
+    case "playPause":
+      key = player.playing ? "pauseSong" : "resumeSong";
+      break;
+    case "prevSong":
+    case "nextSong":
+    case "openMiniplayer":
+    case "feelingLucky":
+    case "gotoGmusic":
+    case "resumeLastSong":
+      key = cmd;
+      break;
+    case "rate-1":
+      if (localSettings.ratingMode == "star") key = "command_star1";
+      else if (localSettings.ratingMode == "thumbs") key = "command_thumbsDown";
+      else key = "command_rate1";
+      break;
+    case "rate-5":
+      if (localSettings.ratingMode == "star") key = "command_star5";
+      else if (localSettings.ratingMode == "thumbs") key = "command_thumbsUp";
+      else key = "command_rate5";
+      break;
+    case "loveUnloveSong":
+      key = song.loved ? "lastfmUnlove" : "lastfmLove";
+      break;
+    default:
+      key = "command_" + cmd.replace(/-/g, "");
+  }
+  return i18n(key);
+}
+
+exports.getCommandOptionText = function(cmd) {
+  switch (cmd) {
+    case "playPause":
+      return i18n(cmd);
+    case "loveUnloveSong":
+      return i18n("command_loveUnloveSong");
+    default:
+      return getCommandText(cmd);
+  }
+};
+
+/** @return the icon URL (without .png extension and extension prefix path) for the given command to be used in a toast button or the browser icon */
+function getCommandIconUrl(cmd) {
+  var icon = cmd;
+  switch (cmd) {
+    case "playPause":
+      icon = player.playing ? "pause" : "play";
+      break;
+    case "rate-1":
+      if (localSettings.ratingMode == "thumbs") icon = "thumbsDown";
+      break;
+    case "rate-5":
+      if (localSettings.ratingMode == "thumbs") icon = "thumbsUp";
+      break;
+    case "loveUnloveSong":
+      icon = song.loved ? "unloveSong" : "loveSong";
+      break;
+  }
+  return "img/cmd/" + icon;
+}
+
+/** 
+ * Listener that handles updates on a command option such as toastButton1 or iconClickAction0.
+ * If some of that options change, the UI (browser icon or toast button) needs to be updated
+ * and listeners for player.playing or song.loved might need to be (un-)registered.
+ * @param updateFn function to update the UI when the icon or text changed
+ * @param cmd the command the option is set to
+ */
+function commandOptionListener(updateFn, cmd) {
+  if (cmd == "playPause") player.al("playing", updateFn);
+  else player.rl("playing", updateFn);
+  
+  if (cmd == "loveUnloveSong") song.al("loved", updateFn);
+  else song.rl("loved", updateFn);
+  
+  updateFn();
+}
+
+function getAvailableIconClickConnectAction() {
+  var action = settings.iconClickConnectAction;
+  return action != "resumeLastSong" || (settings.saveLastPosition && hasLastSong) ? action : "";
+}
+
+function hasLastSongChanged() {
+  if (settings.iconClickConnectAction == "resumeLastSong" && !player.connected) {
+    updateBrowserActionInfo();
+    iconClickSettingsChanged();
+  }
 }
 
 /** Set the browser icon to the current painted image in browserIconCtx. */
@@ -601,7 +682,7 @@ function doUpdateBrowserActionInfo() {
   var path = iconPath + settings.iconStyle + "/";
   var title = i18n("extTitle");
   var iconPaths = [];
-  var faviconPaths = [];
+  var clickAction;
   chromeBrowserAction.setBadgeText({text: ""});
   if (viewUpdateNotifier) {
     path = iconPath + "updated";
@@ -612,12 +693,10 @@ function doUpdateBrowserActionInfo() {
       title = song.info.artist + " - " + song.info.title;
       if (song.scrobbled && settings.showScrobbledIndicator) {
         iconPaths.push(iconPath + "scrobbled");
-        faviconPaths.push(iconPath + "scrobbled");
         title += " (" + i18n("browserActionTitle_scrobbled") + ")";
       }
       if (song.loved === true && settings.showLovedIndicator) {
         iconPaths.push(iconPath + "loved");
-        faviconPaths.push(iconPath + "loved");
       }
       if (song.rating && settings.showRatingIndicator) {
         if (localSettings.ratingMode == "star") {
@@ -625,39 +704,40 @@ function doUpdateBrowserActionInfo() {
         } else if (localSettings.ratingMode == "thumbs") {
           if (song.rating >= 4) {
             iconPaths.push(iconPath + "thumbsUp");
-            faviconPaths.push(iconPath + "thumbsUp");
           } else if (song.rating == 1 || song.rating == 2) {
             iconPaths.push(iconPath + "thumbsDown");
-            faviconPaths.push(iconPath + "thumbsDown");
           }
         }
       }
       if (settings.showPlayingIndicator) {
         if (player.playing) {
-          iconPaths.push(iconPath + (settings.iconClickAction0 == "playPause" ? "pause" : "playing"));
-          faviconPaths.push(iconPath + "playing");
+          iconPaths.push(iconPath + "playing");
           title = i18n("browserActionTitle_playing") + ": " + title;
         } else {
-          iconPaths.push(iconPath + (settings.iconClickAction0 == "playPause" ? "play" : "paused"));
-          faviconPaths.push(iconPath + "paused");
+          iconPaths.push(iconPath + "paused");
           title = i18n("browserActionTitle_paused") + ": " + title;
         }
       }
     } else {
       title += " - " + i18n("browserActionTitle_connected");
     }
+    clickAction = settings.iconClickAction0;
   } else {
     path += "notconnected";
+    clickAction = getAvailableIconClickConnectAction();
   }
   path += ".png";
   
+  if (clickAction) {
+    title += " - " + getCommandText(clickAction);
+  }
   drawIcon(path, iconPaths, function(iconCtx) {
     browserIconCtx = iconCtx;
     lastProgressPosition = 0;
     drawProgress();
     updateBrowserIcon();
-  });
-  if (faviconPaths.length) drawIcon(path, faviconPaths, function(iconCtx) {
+  }, clickAction);
+  if (iconPaths.length) drawIcon(path, iconPaths.concat(), function(iconCtx) {
     player.favicon = iconCtx.canvas.toDataURL();
   }); else player.favicon = path;
   chromeBrowserAction.setTitle({title: title});
@@ -686,7 +766,6 @@ function connectPort(port) {
   port.onMessage.addListener(onMessageListener);
   port.onDisconnect.addListener(onDisconnectListener);
   port.postMessage({type: "connected"});
-  iconClickSettingsChanged();
 }
 
 /** Check if the given port's tab is already connected. */
@@ -721,7 +800,6 @@ function onConnectListener(port) {
 function onDisconnectListener() {
   googlemusicport = null;
   googlemusictabId = null;
-  iconClickSettingsChanged();
   
   song.reset();
   player.reset();
@@ -986,7 +1064,6 @@ lastfm.sessionTimeoutCallback = function() {
 /** @return button information object (title, iconUrl) for a command to be provided to 'createNotification' or null, if not available */
 function getToastBtn(cmd) {
   if (!cmd) return null;
-  var icon = cmd;
   switch (cmd) {
     case "loveUnloveSong":
       if (!localSettings.lastfmSessionKey) return null;
@@ -997,19 +1074,13 @@ function getToastBtn(cmd) {
     case "toggleShuffle":
       if (!player.shuffle) return null;
       break;
-    case "rate-1":
-      if (localSettings.ratingMode == "thumbs") icon = "thumbsDown";
-      break;
-    case "rate-5":
-      if (localSettings.ratingMode == "thumbs") icon = "thumbsUp";
-      break;
     case "rate-2":
     case "rate-3":
     case "rate-4":
       if (localSettings.ratingMode == "thumbs") return null;
       break;
   }
-  return {title: getTextForToastBtn(cmd), iconUrl: getExtensionUrl("img/toast/" + icon + ".png")};
+  return {title: getCommandText(cmd), iconUrl: getExtensionUrl(getCommandIconUrl(cmd) + ".png")};
 }
 
 /** Updates the toast's iconUrl with the album cover and rating. */
@@ -1290,11 +1361,10 @@ function iconClickSettingsChanged() {
   
   if (viewUpdateNotifier) {
     chromeBrowserAction.setPopup({ popup: "updateNotifier.html" });
-  } else if (!googlemusictabId) {
+  } else if (!player.connected) {
     //if there is no last song or iconClickConnectAction is not set at all, set popup
-    setBrowserActionPopup();
-    if (settings.iconClickConnectAction == "resumeLastSong") getLastSong(setIconClickConnectAction);
-    else if (settings.iconClickConnectAction) setIconClickConnectAction();
+    if (getAvailableIconClickConnectAction()) setIconClickConnectAction();
+    else setBrowserActionPopup();
   } else setIconClickActionOrPopup();
 }
 
@@ -1597,16 +1667,19 @@ settings.al("showLastfmInfo", function(val) {
 });
 settings.al("toastUseMpStyle", closeToast);
 settings.al("toastClick", updateToast);
-settings.al("toastButton1", updateToast);
-settings.al("toastButton2", updateToast);
+settings.w("toastButton1", commandOptionListener.bind(window, updateToast));
+//we need a copy of the updateToast function here to avoid that changes on toastButton1 remove needed listeners for toastButton2
+settings.w("toastButton2", commandOptionListener.bind(window, function() { updateToast(); }));
 settings.al("toastProgress", updateToast);
 settings.al("scrobble", calcScrobbleTime);
 settings.al("scrobbleMaxDuration", calcScrobbleTime);
 settings.al("scrobblePercent", calcScrobbleTime);
 settings.al("scrobbleTime", calcScrobbleTime);
 settings.al("disableScrobbleOnFf", calcScrobbleTime);
-settings.w("iconStyle", updateBrowserActionInfo);
-settings.al("iconClickAction0", updateBrowserActionInfo);
+//we need a copy of the updateBrowserActionInfo function here to avoid conflicts with showPlayingIndicator listener
+settings.w("iconClickAction0", commandOptionListener.bind(window, function() { updateBrowserActionInfo(); }));
+settings.al("iconStyle", updateBrowserActionInfo);
+settings.al("iconClickConnectAction", updateBrowserActionInfo);
 settings.al("connectedIndicator", function(val) {
   postToGooglemusic({type: "connectedIndicator", show: val});
 });
@@ -1657,6 +1730,7 @@ settings.w("saveLastPosition", function(val) {
   addOrRemove("rating", saveRating);
   addOrRemove("scrobbled", saveScrobbled);
   addOrRemove("ff", saveFf);
+  if (hasLastSong) hasLastSongChanged();
 });
 
 localSettings.w("syncSettings", function(val) {
@@ -1675,6 +1749,7 @@ localSettings.w("notificationsEnabled", function(val, old) {
 
 player.al("connected", function(val) {
   updateBrowserActionInfo();
+  iconClickSettingsChanged();
   if (val) {
     loadNavlistIfConnected();
     executeFeelingLuckyIfConnected();
@@ -1842,9 +1917,61 @@ song.al("info", function(info) {
   
   if (settings.saveLastPosition && googlemusicport) {//if info is null but we are still connected (playlist finished), clear the lastSong storage
     chromeLocalStorage.set({ "lastSong": info, "rating": song.rating });
+    hasLastSong = info !== null;
   }
   updateBrowserActionInfo();
   calcScrobbleTime();
+});
+
+function isCommandAvailable(cmd) {
+  switch (cmd) {
+    case "playPause":
+      return player.playing !== null;
+    case "prevSong":
+    case "nextSong":
+    case "ff":
+      return !!song.info;
+    case "volumeUp":
+      return player.volume && player.volume != "100";
+    case "volumeDown":
+      return player.volume && player.volume != "0";
+    case "volumeMute":
+      return !!player.volume;
+    case "toggleRepeat":
+      return !!player.repeat;
+    case "toggleShuffle":
+      return !!player.shuffle;
+    case "loveUnloveSong":
+      return song.info && localSettings.lastfmSessionKey;
+    case "openLyrics":
+      return localSettings.lyrics && song.info;
+    default:
+      if (cmd.indexOf("rate-") === 0) {
+        var rating = parseInt(cmd.substr(5, 1));
+        return song.info && (localSettings.ratingMode == "star" || rating == 1 || rating == 5);
+      }
+  }
+  return true;
+}
+
+settings.w("iconClickAction0", function(cmd) {
+  //player.playing is already watched if cmd=="playPause"
+  //song.info listener always triggers updateBrowserActionInfo
+  
+  if (cmd.indexOf("volume") === 0) player.al("volume", updateBrowserActionInfo);
+  else player.rl("volume", updateBrowserActionInfo);
+  
+  if (cmd == "toggleRepeat") player.al("repeat", updateBrowserActionInfo);
+  else player.rl("repeat", updateBrowserActionInfo);
+  
+  if (cmd == "toggleShuffle") player.al("shuffle", updateBrowserActionInfo);
+  else player.rl("shuffle", updateBrowserActionInfo);
+  
+  if (cmd == "loveUnloveSong") localSettings.al("lastfmSessionKey", updateBrowserActionInfo);
+  else localSettings.rl("lastfmSessionKey", updateBrowserActionInfo);
+  
+  if (cmd == "openLyrics") localSettings.al("lyrics", updateBrowserActionInfo);
+  else localSettings.rl("lyrics", updateBrowserActionInfo);
 });
 
 /** Execute a command (might come from commands API, toast or browser icon action) */
@@ -1918,6 +2045,11 @@ chromeRuntime.onStartup.addListener(executeConnectAction.bind(window, settings.s
 chromeNotifications.onShowSettings.addListener(openOptions);
 chromeNotifications.getPermissionLevel(updateNotificationsEnabled);
 chromeNotifications.onPermissionLevelChanged.addListener(updateNotificationsEnabled);
+
+getLastSong(function() {
+  hasLastSong = true;
+  hasLastSongChanged();
+});
 
 connectGoogleMusicTabs();
 if (isScrobblingEnabled()) scrobbleCachedSongs();

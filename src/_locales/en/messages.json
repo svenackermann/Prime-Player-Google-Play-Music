@@ -65,11 +65,11 @@
   },
   "pauseSong": {
     "message": "Pause song",
-    "description": "tooltip for pause button in miniplayer"
+    "description": "tooltip for pause button in miniplayer and text for playPause command when playing (for toast button and browser icon tooltip)"
   },
   "resumeSong": {
     "message": "Resume song",
-    "description": "tooltip for play button in miniplayer"
+    "description": "tooltip for play button in miniplayer and text for playPause command when not playing (for toast button and browser icon tooltip)"
   },
   "volumeControl": {
     "message": "Control volume",
@@ -77,15 +77,15 @@
   },
   "playPause": {
     "message": "Pause/Resume song",
-    "description": "text for toast button and keyboard shortcut to play/pause the current song"
+    "description": "text for command option and keyboard shortcut to play/pause the current song"
   },
   "lastfmUnlove": {
-    "message": "Unlove",
-    "description": "tooltip for unlove button in miniplayer"
+    "message": "Unlove current song",
+    "description": "tooltip for unlove button in miniplayer and text for loveUnloveSong command when loved (for toast button and browser icon tooltip)"
   },
   "lastfmLove": {
-    "message": "Love this song",
-    "description": "tooltip for love button in miniplayer"
+    "message": "Love current song",
+    "description": "tooltip for love button in miniplayer and text for loveUnloveSong command when not loved (for toast button and browser icon tooltip)"
   },
   "lastfmError": {
     "message": "Error on last.fm communication, click to reload: ",
@@ -780,7 +780,7 @@
   },
   "command_loveUnloveSong": {
     "message": "Love or unlove current song",
-    "description": "text for love/unlove current song in toast action and keyboard shortcut"
+    "description": "text for love/unlove current song in command option and keyboard shortcut"
   },
   "command_volumeUp": {
     "message": "Volume up",

@@ -39,7 +39,7 @@
   "web_accessible_resources": [
     "js/injected.js",
     "img/icon-tabconnected.png",
-    "img/toast/openLyrics.png",
+    "img/cmd/openLyrics.png",
     "img/icon-48x48.png",
     "img/ajax-loader.gif",
     "img/reload.png",
