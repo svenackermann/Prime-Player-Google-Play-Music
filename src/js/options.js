@@ -39,38 +39,39 @@ chrome.runtime.getBackgroundPage(function(bp) {
     );
   }
 
-  function setSubsEnabled(el, enabled) {
-    el.parent().nextUntil("*:not(.sub)").children("input").prop("disabled", !enabled);
+  function setSubsEnabled(id, enabled) {
+    $("#" + id).nextUntil("*:not(.sub)").children("input").prop("disabled", !enabled);
   }
   
   function scrobbleChanged(val) {
     var se = bp.isScrobblingEnabled();
-    $("#showScrobbledIndicator").prop("disabled", !se);
-    setSubsEnabled($("#scrobble").prop("checked", val), se);
+    $("#_showScrobbledIndicator").prop("disabled", !se);
+    $("#_scrobble").prop("checked", val);
+    setSubsEnabled("scrobble", se);
   }
 
   function linkRatingsChanged() {
-    setSubsEnabled($("#linkRatings"), settings.linkRatings && localSettings.lastfmSessionName);
+    setSubsEnabled("linkRatings", settings.linkRatings && localSettings.lastfmSessionName);
   }
   
   function toastChanged() {
-    $("#toastIfMpOpen, #toastNotIfGmActive, #toastDuration").prop("disabled", !settings.toast);
-    $("#toastIfMpMinimized").prop("disabled", !settings.toast || !settings.toastIfMpOpen);
-    $("#toastUseMpStyle").prop("disabled", !settings.toast || !localSettings.notificationsEnabled);
+    $("#_toastIfMpOpen, #_toastNotIfGmActive, #_toastDuration").prop("disabled", !settings.toast);
+    $("#_toastIfMpMinimized").prop("disabled", !settings.toast || !settings.toastIfMpOpen);
+    $("#_toastUseMpStyle").prop("disabled", !settings.toast || !localSettings.notificationsEnabled);
     $("fieldset.toast > .notif").children("input, select").prop("disabled", !settings.toast || settings.toastUseMpStyle);
-    $("#toast").siblings(".hint").toggle(!settings.toastIfMpOpen);
+    $("#toast").children(".hint").toggle(!settings.toastIfMpOpen);
   }
   
   function lyricsChanged() {
-    setSubsEnabled($("#lyrics"), localSettings.lyrics);
-    $("#lyricsWidth").prop("disabled", !localSettings.lyrics || !settings.lyricsInGpm);
+    setSubsEnabled("lyrics", localSettings.lyrics);
+    $("#_lyricsWidth").prop("disabled", !localSettings.lyrics || !settings.lyricsInGpm);
     $("option.lyrics").prop("disabled", !localSettings.lyrics);
   }
   
   function lastfmUserChanged(user) {
     var action;
     var actionText;
-    $("#scrobble, #linkRatings, #showLovedIndicator, option.lastfm").prop("disabled", !user);
+    $("#_scrobble, #_linkRatings, #_showLovedIndicator, option.lastfm").prop("disabled", !user);
     scrobbleChanged(settings.scrobble);
     linkRatingsChanged();
     var links = $("#lastfmStatus").find("a");
@@ -91,14 +92,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
     if (!settings.iconClickAction0) settings.iconClickAction1 = "";
     if (!settings.iconClickAction1) settings.iconClickAction2 = "";
     if (!settings.iconClickAction2) settings.iconClickAction3 = "";
-    var ict = $("#iconDoubleClickTime").prop("disabled", !settings.iconClickAction0).val();
-    $("#iconClickAction1").prop("disabled", !settings.iconClickAction0 || ict === 0).val(settings.iconClickAction1);
-    $("#iconClickAction2").prop("disabled", !settings.iconClickAction1 || ict === 0).val(settings.iconClickAction2);
-    $("#iconClickAction3").prop("disabled", !settings.iconClickAction2 || ict === 0).val(settings.iconClickAction3);
+    var noClickTime = $("#_iconDoubleClickTime").prop("disabled", !settings.iconClickAction0).val() == "0";
+    $("#_iconClickAction1").prop("disabled", !settings.iconClickAction0 || noClickTime).val(settings.iconClickAction1);
+    $("#_iconClickAction2").prop("disabled", !settings.iconClickAction1 || noClickTime).val(settings.iconClickAction2);
+    $("#_iconClickAction3").prop("disabled", !settings.iconClickAction2 || noClickTime).val(settings.iconClickAction3);
   }
   
   function showProgressChanged() {
-    setSubsEnabled($("#showProgress"), settings.showProgress);
+    setSubsEnabled("showProgress", settings.showProgress);
   }
 
   function saveLastPositionChanged() {
@@ -107,7 +108,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   
   function notificationsEnabledChanged(val) {
     settingsView.toggleClass("notifDisabled", !val);
-    if (!val && settings.toast && !settings.toastUseMpStyle) $("#toastUseMpStyle").click();//use click here to change the checkbox value
+    if (!val && settings.toast && !settings.toastUseMpStyle) $("#_toastUseMpStyle").click();//use click here to change the checkbox value
     else toastChanged();//in if clause this is triggered by the click listener on #toastUseMpStyle
   }
   
@@ -135,8 +136,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function ratingModeChanged(val) {
     settingsView.removeClass("star thumbs");
     if (val) settingsView.addClass(val);
-    $("#skipRatedLower option[value='2']").text(i18n("setting_skipRatedLower_2" + (val == "star" ? "_stars" : "")));
-    $("#toastClick, #toastButton1, #toastButton2, #iconClickAction0, #iconClickAction1, #iconClickAction2, #iconClickAction3").children("option[value='rate-1'], option[value='rate-5']").each(function() {
+    $("#_skipRatedLower option[value='2']").text(i18n("setting_skipRatedLower_2" + (val == "star" ? "_stars" : "")));
+    $("option[value='rate-1'], option[value='rate-5']").each(function() {
       $(this).text(bp.getCommandOptionText($(this).attr("value")));
     });
   }
@@ -146,7 +147,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function quicklinksChanged() {
-    $("#coverClickLink, #titleClickLink").children("option").each(function() {
+    $("#_coverClickLink, #_titleClickLink").children("option").each(function() {
       $(this).text(bp.getTextForQuicklink($(this).attr("value")));
     });
   }
@@ -179,15 +180,21 @@ chrome.runtime.getBackgroundPage(function(bp) {
    * @return the added hint element
    */
   function initHint(prop) {
-    var container = $("#" + prop).parent();
+    var container = $("#" + prop);
     var hint = appendHint(container);
     hint.html(i18n("setting_" + prop + "Hint")).appendTo(container);
     return hint;
   }
 
   /** the i18n key for the label is "setting_" + prop */
-  function setLabel(prop) {
-    $("label[for='" + prop + "']").text(i18n("setting_" + prop));
+  function addLabel(input) {
+    $("<label>").attr("for", input.attr("id")).text(i18n("setting_" + input.parent().attr("id"))).insertAfter(input);
+  }
+  
+  function addSetItAndLabel(input, prop) {
+    input.attr("id", "_" + prop);
+    $("#" + prop).append(input);
+    addLabel(input);
   }
   
   /**
@@ -198,41 +205,45 @@ chrome.runtime.getBackgroundPage(function(bp) {
    */
   function initCheckbox(prop, theSettings) {
     theSettings = theSettings || settings;
-    var input = $("#" + prop);
+    var input = $("<input type='checkbox'>");
     input.prop("checked", theSettings[prop]).click(boolUpdater(prop, theSettings));
-    setLabel(prop);
+    addSetItAndLabel(input, prop);
     return input;
   }
 
   /**
    * Initialize a number input for an option.
    * @param prop the option name
+   * @param min the minimum value to set, or null/undefined if not needed
+   * @param max the maximum value to set, or null/undefined if not needed
    * @param theSettings the settings object, defaults to settings
    * @return the number input element
    */
-  function initNumberInput(prop, theSettings) {
+  function initNumberInput(prop, min, max, theSettings) {
     theSettings = theSettings || settings;
-    var input = $("#" + prop);
+    var input = $("<input type='number'>").attr("min", min).attr("max", max);
     input.val(theSettings[prop]).blur(numberUpdater(prop, theSettings));
-    setLabel(prop);
+    addSetItAndLabel(input, prop);
     return input;
   }
 
   /**
    * Initialize a select input for an option.
    * @param prop the option name in settings
+   * @param values array with the values for the options
    * @param getOptionText function that takes the option's value as argument and returns the label for the option, the default i18n key for option "<opt>" is "setting_" + prop + "_<opt>"
    * @param updater a custom updater for the option's value, defaults to "stringUpdater"
    * @return the select input element
    */
-  function initSelect(prop, getOptionText, updater) {
+  function initSelect(prop, values, getOptionText, updater) {
     getOptionText = getOptionText || function(val) {return i18n("setting_" + prop + "_" + val);};
     updater = updater || stringUpdater;
-    var input = $("#" + prop);
-    input.val(settings[prop]).change(updater(prop, settings)).find("option").each(function() {
-      $(this).text(getOptionText($(this).attr("value")));
+    var input = $("<select>");
+    values.forEach(function(value) {
+      $("<option>").attr("value", value).text(getOptionText(value)).appendTo(input);
     });
-    setLabel(prop);
+    input.val(settings[prop]).change(updater(prop, settings));
+    addSetItAndLabel(input, prop);
     return input;
   }
   
@@ -243,7 +254,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
    * @return the select input element
    */
   function initSelectFrom(prop, from) {
-    var select = initSelect(prop);
+    var select = initSelect(prop, []);
     select.append(from.children().clone()).val(settings[prop]);
     return select;
   }
@@ -254,19 +265,21 @@ chrome.runtime.getBackgroundPage(function(bp) {
    * @return the color input element
    */
   function initColorInput(prop) {
-    var input = $("#" + prop);
-    input
-      .val(settings[prop])
-      .change(stringUpdater(prop, settings));
-    setLabel(prop);
+    var input = $("<input type='color'>");
+    input.val(settings[prop]).change(stringUpdater(prop, settings));
+    addSetItAndLabel(input, prop);
     return input;
   }
   
   /** Initialize the icon style radio buttons. */
   function initIconStyle() {
-    setLabel("iconStyle");
-    $("#iconStyle").find("input[value='" + settings.iconStyle + "']").prop("checked", true);
-    $("#iconStyle").find("input").click(stringUpdater("iconStyle", settings));
+    var iconStyle = $("#iconStyle");
+    $("<label>").text(i18n("setting_iconStyle")).appendTo(iconStyle);
+    ["default", "grey", "phones", "phones-grey", "phones-app", "phones-beta", "play"].forEach(function(value) {
+      $("<input type='radio' name='iconStyle'>").attr("value", value).click(stringUpdater("iconStyle", settings)).appendTo(iconStyle);
+      $("<img src='img/icon/" + value + "/connected.png'>").appendTo(iconStyle);
+    });
+    iconStyle.find("input[value='" + settings.iconStyle + "']").prop("checked", true);
   }
   
   /** Handle the optional lyrics permission. */
@@ -340,21 +353,27 @@ chrome.runtime.getBackgroundPage(function(bp) {
     function optionsModeChanged() {
       settingsView.removeClass("f-beg f-adv f-exp").addClass("f-" + settings.optionsMode);
     }
-    initSelect("optionsMode").change(optionsModeChanged);
+    initSelect("optionsMode", ["beg", "adv", "exp"]).change(optionsModeChanged);
     optionsModeChanged();
     
     $("#filter p").text(i18n("filterHint"));
-    $("#filter > div > div > input[type='checkbox']").each(function() {
-      var id = $(this).attr("id");
+    
+    var container = $("<div>").appendTo("#filter");
+    var line = $("<div>").appendTo(container);
+    function appendCheckbox(id) {
+      $("<div>").attr("id", id).appendTo(line);
       var cb = initCheckbox(id);
-      var label = cb.siblings("label[for='" + id + "']");
       function updateFilter() {
         settingsView.toggleClass(id, !settings[id]);
+        var label = cb.siblings("label");
         label.html(settings[id] ? "<a href='#" + id.replace("filter", "legend") + "'>" + label.text() + "</a>" : label.text());
       }
       cb.click(updateFilter);
       updateFilter();
-    });
+    }
+    ["filterTimer", "filterLastfm", "filterToast"].forEach(appendCheckbox);
+    line = $("<div>").appendTo(container);
+    ["filterMiniplayer", "filterLyrics", "filterLookfeel"].forEach(appendCheckbox);
   }
   
   /** Set labels and hints for the legends. */
@@ -370,6 +389,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     return i18n("openPopup");
   }
   
+  function addOptionClass(select, value, clazz) {
+    select.children("option[value='" + value + "']").addClass(clazz);
+  }
+  
   $(function() {
     $("head > title").text(i18n("options") + " - " + i18n("extTitle"));
     initLegends();
@@ -380,21 +403,22 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initTimer();
     
     initCheckbox("scrobble");
-    var percentSpan = $("#scrobblePercent").parent().find("span");
+    var percentSpan = $("#scrobblePercent").find("span");
     percentSpan.text(settings.scrobblePercent);
-    $("#scrobblePercent")
+    var scrobblePercent = $("#_scrobblePercent");
+    scrobblePercent
       .val(settings.scrobblePercent)
       .mouseup(numberUpdater("scrobblePercent", settings))
       .change(function(){ percentSpan.text($(this).val()); });
-    setLabel("scrobblePercent");
-    initNumberInput("scrobbleTime");
-    initNumberInput("scrobbleMaxDuration");
+    addLabel(scrobblePercent);
+    initNumberInput("scrobbleTime", 0);
+    initNumberInput("scrobbleMaxDuration", 0);
     initCheckbox("disableScrobbleOnFf");
     initHint("disableScrobbleOnFf");
     initCheckbox("scrobbleRepeated");
     initCheckbox("linkRatings").click(linkRatingsChanged);
     initHint("linkRatings");
-    initNumberInput("linkRatingsMin");
+    initNumberInput("linkRatingsMin", 2, 5);
     initCheckbox("linkRatingsGpm");
     initCheckbox("linkRatingsAuto");
     initHint("linkRatingsAuto");
@@ -403,37 +427,87 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#notificationDisabledWarning").text(i18n("notificationsDisabled"));
     initCheckbox("toast").click(toastChanged);
     initHint("toast");
-    initCheckbox("toastUseMpStyle").click(toastChanged);
-    initHint("toastUseMpStyle");
-    initNumberInput("toastDuration");
+    initNumberInput("toastDuration", 0);
     initHint("toastDuration");
-    initSelect("toastPriority", null, numberUpdater);
-    initCheckbox("toastProgress");
-    initCheckbox("toastRating");
     initCheckbox("toastIfMpOpen").click(toastChanged);
     initCheckbox("toastIfMpMinimized");
     initCheckbox("toastNotIfGmActive");
-    var toastClick = initSelect("toastClick", bp.getCommandOptionText);
+    initCheckbox("toastUseMpStyle").click(toastChanged);
+    initHint("toastUseMpStyle");
+    initSelect("toastPriority", [1, 2, 3], null, numberUpdater);
+    initCheckbox("toastProgress");
+    initCheckbox("toastRating");
+    var toastClick = initSelect("toastClick", [
+      "",
+      "playPause",
+      "prevSong",
+      "nextSong",
+      "ff",
+      "openMiniplayer",
+      "volumeUp",
+      "volumeDown",
+      "volumeMute",
+      "toggleRepeat",
+      "toggleShuffle",
+      "loveUnloveSong",
+      "rate-1",
+      "rate-2",
+      "rate-3",
+      "rate-4",
+      "rate-5",
+      "feelingLucky",
+      "openLyrics"
+    ], bp.getCommandOptionText);
+    addOptionClass(toastClick, "openMiniplayer", "miniplayer");
+    addOptionClass(toastClick, "loveUnloveSong", "lastfm");
+    addOptionClass(toastClick, "rate-2", "stars");
+    addOptionClass(toastClick, "rate-3", "stars");
+    addOptionClass(toastClick, "rate-4", "stars");
+    addOptionClass(toastClick, "openLyrics", "lyrics");
     initSelectFrom("toastButton1", toastClick);
     initSelectFrom("toastButton2", toastClick);
     
     function setLayoutHintVisibility() {
       var panel = settings.miniplayerType == "panel" || settings.miniplayerType == "detached_panel";
-      $("#miniplayerType").siblings(".hint").toggle(panel);
-      if (!panel) $("#miniplayerType").siblings(".hint-text").hide();
+      var mpt = $("#miniplayerType");
+      mpt.children(".hint").toggle(panel);
+      if (!panel) mpt.children(".hint-text").hide();
+      
       var visible = panel && settings.layout == "hbar";
-      $("#layout").siblings(".hint").toggle(visible);
-      if (!visible) $("#layout").siblings(".hint-text").hide();
+      var layout = $("#layout");
+      layout.children(".hint").toggle(visible);
+      if (!visible) layout.children(".hint-text").hide();
     }
-    initSelect("miniplayerType").change(setLayoutHintVisibility);
+    initSelect("miniplayerType", ["normal", "popup", "panel", "detached_panel"]).change(setLayoutHintVisibility);
     initHint("miniplayerType").find("a").text("chrome://flags").attr("tabindex", "0").click(function() { chrome.tabs.create({ url: "chrome://flags" }); });
-    initSelect("layout").change(setLayoutHintVisibility);
+    initSelect("layout", ["normal", "compact1", "compact2", "hbar"]).change(setLayoutHintVisibility);
     initHint("layout");
     setLayoutHintVisibility();
-    initSelect("color");
+    initSelect("color", ["turq", "green", "red", "blue", "black", "orange"]);
     initColorInput("mpBgColor");
     initColorInput("mpTextColor");
-    var coverClickLink = initSelect("coverClickLink", bp.getTextForQuicklink);
+    var coverClickLink = initSelect("coverClickLink", [
+      "",
+      "now",
+      "artists",
+      "albums",
+      "genres",
+      "rd",
+      "myPlaylists",
+      "ap/queue",
+      "ap/auto-playlist-thumbs-up",
+      "ap/auto-playlist-recent",
+      "ap/auto-playlist-promo",
+      "ap/shared-with-me",
+      "ap/google-play-recommends",
+      "exptop",
+      "expnew",
+      "exprec"
+    ], bp.getTextForQuicklink);
+    addOptionClass(coverClickLink, "ap/google-play-recommends", "noallinc");
+    addOptionClass(coverClickLink, "exptop", "allinc");
+    addOptionClass(coverClickLink, "expnew", "allinc");
+    addOptionClass(coverClickLink, "exprec", "allinc");
     initSelectFrom("titleClickLink", coverClickLink);
     initCheckbox("openLinksInMiniplayer");
     initHint("openLinksInMiniplayer");
@@ -449,9 +523,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("openLyricsInMiniplayer");
     initHint("openLyricsInMiniplayer");
     initCheckbox("lyricsAutoReload");
+    initNumberInput("lyricsFontSize", 1, null, localSettings);
     initCheckbox("lyricsInGpm").click(lyricsChanged);
-    initNumberInput("lyricsFontSize", localSettings);
-    initNumberInput("lyricsWidth", localSettings);
+    initNumberInput("lyricsWidth", 50, null, localSettings);
     
     $("#shortcutsLink").text(i18n("configShortcuts")).click(function() { chrome.tabs.create({ url: "chrome://extensions/configureCommands" }); });
     initIconStyle();
@@ -463,30 +537,34 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initColorInput("showProgressColor");
     initColorInput("showProgressColorPaused");
     
-    var iconClickConnectAction = initSelect("iconClickConnectAction", getConnectActionText);
+    var iconClickConnectAction = initSelect("iconClickConnectAction", [
+      "",
+      "feelingLucky",
+      "resumeLastSong",
+      "gotoGmusic",
+      "openMiniplayer"
+    ], getConnectActionText);
     $("#iconClickActionTitle").text(i18n("iconClickActionTitle"));
     for (var i = 0; i < 4; i++) {
       initSelectFrom("iconClickAction" + i, toastClick)
         .change(iconClickChanged)
         .find("option[value='']").text(i18n("openPopup"));
     }
-    initNumberInput("iconDoubleClickTime").change(iconClickChanged);
+    initNumberInput("iconDoubleClickTime", 0, 1000).change(iconClickChanged);
     initHint("iconDoubleClickTime");
     initCheckbox("iconShowAction");
     
     initCheckbox("saveLastPosition").click(saveLastPositionChanged);
     initHint("saveLastPosition");
-    var skipRatedThumbsDown = $("#skipRatedThumbsDown");
-    initSelect("skipRatedLower").change(function() { skipRatedThumbsDown.prop("checked", settings.skipRatedLower > 0); });
-    skipRatedThumbsDown.prop("checked", settings.skipRatedLower > 0).click(function() {
+    var skipRatedLower = initSelect("skipRatedLower", [0, 1, 2, 3, 4]).change(function() { $("#_skipRatedThumbsDown").prop("checked", settings.skipRatedLower > 0); });
+    initCheckbox("skipRatedThumbsDown").unbind().prop("checked", settings.skipRatedLower > 0).click(function() {
        settings.skipRatedLower = $(this).prop("checked") ? 2 : 0;
-       $("#skipRatedLower").val(settings.skipRatedLower);
+       skipRatedLower.val(settings.skipRatedLower);
     });
-    setLabel("skipRatedThumbsDown");
     initCheckbox("openGoogleMusicPinned");
     initCheckbox("openGmBackground");
     initSelectFrom("startupAction", iconClickConnectAction).find("option[value='']").text(i18n("command_"));
-    initNumberInput("googleAccountNo", localSettings);
+    initNumberInput("googleAccountNo", 0, null, localSettings);
     initHint("googleAccountNo");
     initCheckbox("connectedIndicator");
     initCheckbox("preventCommandRatingReset");
