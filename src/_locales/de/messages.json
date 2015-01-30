@@ -200,6 +200,9 @@
   "setting_layout_hbar": {
     "message": "Horizontale Leiste"
   },
+  "setting_iconClickConnectAction": {
+    "message": "Aktion, wenn Google Music nicht ge\u00F6ffnet ist"
+  },
   "setting_iconClickAction0": {
     "message": "Aktion bei Einfach-Klick"
   },
@@ -218,8 +221,8 @@
   "setting_iconDoubleClickTimeHint": {
     "message": "Setze dies auf einen Wert gr\u00F6\u00DFer als 0 (empfohlen: 500), um weitere Klick-Aktion oben zu aktivieren. Als letzte Aktion wird immer das Browser-Popup ge\u00F6ffnet."
   },
-  "setting_iconClickConnectAction": {
-    "message": "Aktion, wenn Google Music nicht ge\u00F6ffnet ist"
+  "setting_iconShowAction": {
+    "message": "Zeige Aktion im Symbol"
   },
   "iconClickActionTitle": {
     "message": "Aktion(en), wenn Google Music ge\u00F6ffnet ist:"

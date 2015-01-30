@@ -168,12 +168,13 @@ var settings = exports.settings = new Bean({
   showProgress: false,
   showProgressColor: "#ff0000",
   showProgressColorPaused: "#800000",
+  iconClickConnectAction: "",
   iconClickAction0: "",
   iconClickAction1: "",
   iconClickAction2: "",
   iconClickAction3: "",
   iconDoubleClickTime: 0,
-  iconClickConnectAction: "",
+  iconShowAction: true,
   saveLastPosition: false,
   skipRatedLower: 0,
   openGoogleMusicPinned: false,
@@ -736,7 +737,7 @@ function doUpdateBrowserActionInfo() {
     lastProgressPosition = 0;
     drawProgress();
     updateBrowserIcon();
-  }, clickAction);
+  }, settings.iconShowAction ? clickAction : null);
   if (iconPaths.length) drawIcon(path, iconPaths.concat(), function(iconCtx) {
     player.favicon = iconCtx.canvas.toDataURL();
   }); else player.favicon = path;
@@ -1954,24 +1955,26 @@ function isCommandAvailable(cmd) {
   return true;
 }
 
-settings.w("iconClickAction0", function(cmd) {
+function updateIconClickActionListeners(cmd) {
   //player.playing is already watched if cmd=="playPause"
   //song.info listener always triggers updateBrowserActionInfo
   
-  if (cmd.indexOf("volume") === 0) player.al("volume", updateBrowserActionInfo);
-  else player.rl("volume", updateBrowserActionInfo);
+  function updateListener(add, bean, prop) {
+    if (add && settings.iconShowAction) bean.al(prop, updateBrowserActionInfo);
+    else bean.rl(prop, updateBrowserActionInfo);
+  }
   
-  if (cmd == "toggleRepeat") player.al("repeat", updateBrowserActionInfo);
-  else player.rl("repeat", updateBrowserActionInfo);
-  
-  if (cmd == "toggleShuffle") player.al("shuffle", updateBrowserActionInfo);
-  else player.rl("shuffle", updateBrowserActionInfo);
-  
-  if (cmd == "loveUnloveSong") localSettings.al("lastfmSessionKey", updateBrowserActionInfo);
-  else localSettings.rl("lastfmSessionKey", updateBrowserActionInfo);
-  
-  if (cmd == "openLyrics") localSettings.al("lyrics", updateBrowserActionInfo);
-  else localSettings.rl("lyrics", updateBrowserActionInfo);
+  updateListener(cmd.indexOf("volume") === 0, player, "volume");
+  updateListener(cmd == "toggleRepeat", player, "repeat");
+  updateListener(cmd == "toggleShuffle", player, "shuffle");
+  updateListener(cmd == "loveUnloveSong", localSettings, "lastfmSessionKey");
+  updateListener(cmd == "openLyrics", localSettings, "lyrics");
+}
+
+settings.w("iconClickAction0", updateIconClickActionListeners);
+settings.al("iconShowAction", function() {
+  updateIconClickActionListeners(settings.iconClickAction0);
+  updateBrowserActionInfo();
 });
 
 /** Execute a command (might come from commands API, toast or browser icon action) */

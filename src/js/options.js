@@ -472,6 +472,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
     initNumberInput("iconDoubleClickTime").change(iconClickChanged);
     initHint("iconDoubleClickTime");
+    initCheckbox("iconShowAction");
     
     initCheckbox("saveLastPosition").click(saveLastPositionChanged);
     initHint("saveLastPosition");

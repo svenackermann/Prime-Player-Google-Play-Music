@@ -267,6 +267,10 @@
     "message": "Horizontal bar",
     "description": "text for miniplayer layout option 'horizontal bar'"
   },
+  "setting_iconClickConnectAction": {
+    "message": "Action if Google Music is not opened",
+    "description": "label for action on browser icon click when Google Music is not connected"
+  },
   "setting_iconClickAction0": {
     "message": "Action for single click",
     "description": "label for option to choose action for 1st browser icon click"
@@ -291,9 +295,9 @@
     "message": "Set to a value greater than 0 (recommended: 500) to enable more click actions above. As last action the popup will always be opened.",
     "description": "hint for option to change the browser icon click speed"
   },
-  "setting_iconClickConnectAction": {
-    "message": "Action if Google Music is not opened",
-    "description": "label for action on browser icon click when Google Music is not connected"
+  "setting_iconShowAction": {
+    "message": "Show action symbol in icon",
+    "description": "label for option to show the action symbol in icon"
   },
   "iconClickActionTitle": {
     "message": "Action(s) if Google Music is opened:",
