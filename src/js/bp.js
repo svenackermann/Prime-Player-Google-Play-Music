@@ -540,7 +540,7 @@ function drawProgress() {
     browserIconCtx.strokeStyle = player.playing ? settings.showProgressColor : settings.showProgressColorPaused;
     browserIconCtx.lineWidth = 3;
     browserIconCtx.beginPath();
-    browserIconCtx.arc(10, 10, 8, 1.5 * Math.PI, (2 * lastProgressPosition / song.info.durationSec - 0.5) * Math.PI);
+    browserIconCtx.arc(10, 10, 7, 1.5 * Math.PI, (2 * lastProgressPosition / song.info.durationSec - 0.5) * Math.PI);
     browserIconCtx.stroke();
     return true;
   }
