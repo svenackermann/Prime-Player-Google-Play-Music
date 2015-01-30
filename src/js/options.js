@@ -363,9 +363,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     function appendCheckbox(id) {
       $("<div>").attr("id", id).appendTo(line);
       var cb = initCheckbox(id);
+      var label = cb.siblings("label").removeAttr("for");
       function updateFilter() {
         settingsView.toggleClass(id, !settings[id]);
-        var label = cb.siblings("label");
         label.html(settings[id] ? "<a href='#" + id.replace("filter", "legend") + "'>" + label.text() + "</a>" : label.text());
       }
       cb.click(updateFilter);
