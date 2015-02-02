@@ -82,7 +82,11 @@ var viewUpdateNotifier = localStorage.viewUpdateNotifier || false;
 var volumeBeforeMute;
 /** if resumeLastSong was called while not connected */
 var lastSongToResume;
+/** cache if we have a last song saved */
 var hasLastSong = false;
+/** while we are connecting to Google Music, the browser icon should not allow for any action */
+var connecting = false;
+var connectingTabId;
 
 /** settings that must not be synced with Chrome sync */
 var localSettings = exports.localSettings = new Bean({
@@ -725,7 +729,10 @@ function doUpdateBrowserActionInfo() {
     clickAction = settings.iconClickAction0;
   } else {
     path += "notconnected";
-    clickAction = getAvailableIconClickConnectAction();
+    if (connecting) {
+      //we are currently connecting, (content script is about to initialise or Google Music has been opened but content script did not connect yet)
+      chromeBrowserAction.setBadgeText({text: "..."});
+    } else clickAction = getAvailableIconClickConnectAction();
   }
   path += ".png";
   
@@ -766,6 +773,12 @@ function connectPort(port) {
   googlemusictabId = port.sender.tab.id;
   port.onMessage.addListener(onMessageListener);
   port.onDisconnect.addListener(onDisconnectListener);
+  if (!connecting) {
+    connecting = true;
+    updateBrowserActionInfo();
+    iconClickSettingsChanged();
+  }
+  connectingTabId = null;//from now on, connection cancelling is handled by onDisconnectListener
   port.postMessage({type: "connected"});
 }
 
@@ -785,6 +798,8 @@ function isConnectedTab(port) {
  */
 function onConnectListener(port) {
   if (port.name != "googlemusic") throw "invalid port: " + port.name;
+  
+  console.debug("cs connects");
   if (isConnectedTab(port)) {
     port.postMessage({type: "alreadyConnected"});
   } else {
@@ -799,11 +814,15 @@ function onConnectListener(port) {
 
 /** handler for onDisconnect event - reset player/song to defaults, try to connect a parked port */
 function onDisconnectListener() {
+  console.debug("cs disconnected");
   googlemusicport = null;
   googlemusictabId = null;
+  connecting = false;
   
   song.reset();
   player.reset();
+  updateBrowserActionInfo();
+  iconClickSettingsChanged();
   
   //try to connect another tab
   while (parkedPorts.length > 0) {
@@ -829,7 +848,10 @@ function onMessageListener(message) {
   } else if (type.indexOf("player-") === 0) {
     player[type.substring(7)] = val;
   } else if (type == "connected") {
+    connecting = false;
     player.connected = true;
+    updateBrowserActionInfo();
+    iconClickSettingsChanged();
     localSettings.allinc = val.allinc;
     localSettings.ratingMode = val.ratingMode;
     localSettings.quicklinks = val.quicklinks;
@@ -1226,7 +1248,7 @@ function openToast() {
 }
 
 function updateToast() {
-  if (toastOptions) {
+  if (toastOptions && song.info) {
     var iconUrl = toastOptions.iconUrl;
     toastOptions = getToastOptions();
     toastOptions.iconUrl = iconUrl;
@@ -1363,8 +1385,8 @@ function iconClickSettingsChanged() {
   if (viewUpdateNotifier) {
     chromeBrowserAction.setPopup({ popup: "updateNotifier.html" });
   } else if (!player.connected) {
-    //if there is no last song or iconClickConnectAction is not set at all, set popup
-    if (getAvailableIconClickConnectAction()) setIconClickConnectAction();
+    //set popup if we are currently connecting
+    if (!connecting && getAvailableIconClickConnectAction()) setIconClickConnectAction();
     else setBrowserActionPopup();
   } else setIconClickActionOrPopup();
 }
@@ -1583,13 +1605,26 @@ var openGoogleMusicTab = exports.openGoogleMusicTab = function(link, forceActive
   var active = forceActive === true || !settings.openGmBackground;
   if (googlemusictabId) {
     if (active) chromeTabs.update(googlemusictabId, { active: true });
-  } else {
+  } else if (!connecting) {
     var url = "http://play.google.com/music/listen";
     if (localSettings.googleAccountNo) url += "?u=" + localSettings.googleAccountNo;
     if (typeof(link) == "string") url += "#/" + link;
-    chromeTabs.create({url: url, pinned: settings.openGoogleMusicPinned, active: active });
+    chromeTabs.create({url: url, pinned: settings.openGoogleMusicPinned, active: active }, function(tab) {
+      connectingTabId = tab.id;
+      connecting = true;
+      updateBrowserActionInfo();
+      iconClickSettingsChanged();
+    });
   }
 };
+
+chromeTabs.onRemoved.addListener(function(tabId) {
+  if (connectingTabId == tabId) {
+    connecting = false;
+    updateBrowserActionInfo();
+    iconClickSettingsChanged();
+  }
+});
 
 /** Connect existing Google Music tabs on startup. */
 function connectGoogleMusicTabs() {
@@ -1749,8 +1784,6 @@ localSettings.w("notificationsEnabled", function(val, old) {
 });
 
 player.al("connected", function(val) {
-  updateBrowserActionInfo();
-  iconClickSettingsChanged();
   if (val) {
     loadNavlistIfConnected();
     executeFeelingLuckyIfConnected();
