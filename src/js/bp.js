@@ -1712,7 +1712,7 @@ settings.al("scrobbleMaxDuration", calcScrobbleTime);
 settings.al("scrobblePercent", calcScrobbleTime);
 settings.al("scrobbleTime", calcScrobbleTime);
 settings.al("disableScrobbleOnFf", calcScrobbleTime);
-//we need a copy of the updateBrowserActionInfo function here to avoid conflicts with showPlayingIndicator listener
+//we need a copy of the updateBrowserActionInfo function here to avoid conflicts with showPlayingIndicator/showProgress listener
 settings.w("iconClickAction0", commandOptionListener.bind(window, function() { updateBrowserActionInfo(); }));
 settings.al("iconStyle", updateBrowserActionInfo);
 settings.al("iconClickConnectAction", updateBrowserActionInfo);
@@ -1730,7 +1730,7 @@ settings.w("mpAutoClose", function(val) {
 settings.al("lyricsInGpm", postLyricsState);
 settings.al("lyricsAutoReload", postLyricsState);
 settings.w("showPlayingIndicator", function(val) {
-  if (val) player.al("playing", updateBrowserActionInfo);
+  if (val || settings.showProgress) player.al("playing", updateBrowserActionInfo);
   else player.rl("playing", updateBrowserActionInfo);
   updateBrowserActionInfo();
 });
@@ -1749,7 +1749,12 @@ settings.w("showRatingIndicator", function(val) {
   else song.rl("rating", updateBrowserActionInfo);
   updateBrowserActionInfo();
 });
-settings.al("showProgress", updateBrowserActionInfo);
+settings.al("showProgress", function(val) {
+  //watch playing state for color change
+  if (val || settings.showPlayingIndicator) player.al("playing", updateBrowserActionInfo);
+  else player.rl("playing", updateBrowserActionInfo);
+  updateBrowserActionInfo();
+});
 settings.al("showProgressColor", updateBrowserActionInfo);
 settings.al("showProgressColorPaused", updateBrowserActionInfo);
 function saveRating(rating) {
