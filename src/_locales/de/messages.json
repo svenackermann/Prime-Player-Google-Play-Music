@@ -438,6 +438,9 @@
   "browserActionTitle_connected": {
     "message": "Verbunden mit Google Music"
   },
+  "browserActionTitle_connecting": {
+    "message": "Verbinde mit Google Music..."
+  },
   "showQuicklinks": {
     "message": "Quick-Links anzeigen"
   },

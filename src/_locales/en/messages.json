@@ -584,6 +584,10 @@
     "message": "connected to Google Music",
     "description": "browser icon tooltip when connected to Google Music but no song is loaded"
   },
+  "browserActionTitle_connecting": {
+    "message": "Connecting to Google Music...",
+    "description": "browser icon tooltip while connecting"
+  },
   "showQuicklinks": {
     "message": "Show quick-links",
     "description": "tooltip for quicklinks button"

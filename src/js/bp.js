@@ -732,6 +732,7 @@ function doUpdateBrowserActionInfo() {
     if (connecting) {
       //we are currently connecting, (content script is about to initialise or Google Music has been opened but content script did not connect yet)
       chromeBrowserAction.setBadgeText({text: "..."});
+      title += " - " + i18n("browserActionTitle_connecting");
     } else clickAction = getAvailableIconClickConnectAction();
   }
   path += ".png";
