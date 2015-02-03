@@ -1021,6 +1021,11 @@
     "message": "Resume last song",
     "description": "label for startupAction select option to resume the last song"
   },
+  "resumeLastSongWithTitle": {
+    "message": "Resume last song ($SONG$)",
+    "description": "label for icon tooltip action to resume the last song when it is available",
+    "placeholders": { "SONG": { "content": "$1", "example": "Madonna - Like a Prayer" } }
+  },
   "openPopup": {
     "message": "Open popup",
     "description": "label for icon click option to open the popup"

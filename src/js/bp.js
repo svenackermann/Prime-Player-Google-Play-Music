@@ -83,7 +83,7 @@ var volumeBeforeMute;
 /** if resumeLastSong was called while not connected */
 var lastSongToResume;
 /** cache if we have a last song saved */
-var hasLastSong = false;
+var lastSongInfo;
 /** while we are connecting to Google Music, the browser icon should not allow for any action */
 var connecting = false;
 var connectingTabId;
@@ -665,10 +665,10 @@ function commandOptionListener(updateFn, cmd) {
 
 function getAvailableIconClickConnectAction() {
   var action = settings.iconClickConnectAction;
-  return action != "resumeLastSong" || (settings.saveLastPosition && hasLastSong) ? action : "";
+  return action != "resumeLastSong" || (settings.saveLastPosition && lastSongInfo) ? action : "";
 }
 
-function hasLastSongChanged() {
+function lastSongInfoChanged() {
   if (settings.iconClickConnectAction == "resumeLastSong" && !player.connected) {
     updateBrowserActionInfo();
     iconClickSettingsChanged();
@@ -738,7 +738,7 @@ function doUpdateBrowserActionInfo() {
   path += ".png";
   
   if (clickAction) {
-    title += " - " + getCommandText(clickAction);
+    title += " - " + (clickAction == "resumeLastSong" && lastSongInfo ? i18n("resumeLastSongWithTitle", lastSongInfo.artist + " - " + lastSongInfo.title) : getCommandText(clickAction));
   }
   drawIcon(path, iconPaths, function(iconCtx) {
     browserIconCtx = iconCtx;
@@ -1772,7 +1772,7 @@ settings.w("saveLastPosition", function(val) {
   addOrRemove("rating", saveRating);
   addOrRemove("scrobbled", saveScrobbled);
   addOrRemove("ff", saveFf);
-  if (hasLastSong) hasLastSongChanged();
+  if (lastSongInfo) lastSongInfoChanged();
 });
 
 localSettings.w("syncSettings", function(val) {
@@ -1957,7 +1957,7 @@ song.al("info", function(info) {
   
   if (settings.saveLastPosition && googlemusicport) {//if info is null but we are still connected (playlist finished), clear the lastSong storage
     chromeLocalStorage.set({ "lastSong": info, "rating": song.rating });
-    hasLastSong = info !== null;
+    lastSongInfo = info;
   }
   updateBrowserActionInfo();
   calcScrobbleTime();
@@ -2088,9 +2088,9 @@ chromeNotifications.onShowSettings.addListener(openOptions);
 chromeNotifications.getPermissionLevel(updateNotificationsEnabled);
 chromeNotifications.onPermissionLevelChanged.addListener(updateNotificationsEnabled);
 
-getLastSong(function() {
-  hasLastSong = true;
-  hasLastSongChanged();
+getLastSong(function(lastSong) {
+  lastSongInfo = lastSong.info;
+  lastSongInfoChanged();
 });
 
 connectGoogleMusicTabs();

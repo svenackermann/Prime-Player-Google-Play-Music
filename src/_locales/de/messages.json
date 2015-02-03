@@ -768,6 +768,10 @@
   "resumeLastSong": {
     "message": "Letzten Titel fortsetzen"
   },
+  "resumeLastSongWithTitle": {
+    "message": "Letzten Titel fortsetzen ($SONG$)",
+    "placeholders": { "SONG": { "content": "$1" } }
+  },
   "openPopup": {
     "message": "Popup \u00F6ffnen"
   }
