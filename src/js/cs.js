@@ -139,7 +139,7 @@ $(function() {
   function enableLyrics(fontSize, width) {
     if (!$("#ppLyricsButton").length) {
       $("<img id='ppLyricsButton'/>")
-        .attr("src", chrome.extension.getURL("img/toast/openLyrics.png"))
+        .attr("src", chrome.extension.getURL("img/cmd/openLyrics.png"))
         .attr("title", i18n("command_openLyrics"))
         .toggleClass("active", $("#playerSongInfo").find("div").length)
         .click(toggleLyrics)

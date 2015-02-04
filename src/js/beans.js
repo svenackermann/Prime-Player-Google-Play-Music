@@ -34,7 +34,7 @@ function Bean(defaults, useLocalStorage) {
       if (!srcListeners[src]) srcListeners[src] = [];
       srcListeners[src].push({ l: listener, p: prop });
     }
-    callbacks[prop].add(listener);
+    if (!callbacks[prop].has(listener)) callbacks[prop].add(listener);
   };
   
   /** Removes a listener function for the given property. */

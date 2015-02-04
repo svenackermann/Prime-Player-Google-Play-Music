@@ -65,11 +65,11 @@
   },
   "pauseSong": {
     "message": "Pause song",
-    "description": "tooltip for pause button in miniplayer"
+    "description": "tooltip for pause button in miniplayer and text for playPause command when playing (for toast button and browser icon tooltip)"
   },
   "resumeSong": {
     "message": "Resume song",
-    "description": "tooltip for play button in miniplayer"
+    "description": "tooltip for play button in miniplayer and text for playPause command when not playing (for toast button and browser icon tooltip)"
   },
   "volumeControl": {
     "message": "Control volume",
@@ -77,15 +77,15 @@
   },
   "playPause": {
     "message": "Pause/Resume song",
-    "description": "text for toast button and keyboard shortcut to play/pause the current song"
+    "description": "text for command option and keyboard shortcut to play/pause the current song"
   },
   "lastfmUnlove": {
-    "message": "Unlove",
-    "description": "tooltip for unlove button in miniplayer"
+    "message": "Unlove current song",
+    "description": "tooltip for unlove button in miniplayer and text for loveUnloveSong command when loved (for toast button and browser icon tooltip)"
   },
   "lastfmLove": {
-    "message": "Love this song",
-    "description": "tooltip for love button in miniplayer"
+    "message": "Love current song",
+    "description": "tooltip for love button in miniplayer and text for loveUnloveSong command when not loved (for toast button and browser icon tooltip)"
   },
   "lastfmError": {
     "message": "Error on last.fm communication, click to reload: ",
@@ -267,6 +267,10 @@
     "message": "Horizontal bar",
     "description": "text for miniplayer layout option 'horizontal bar'"
   },
+  "setting_iconClickConnectAction": {
+    "message": "Action if Google Music is not opened",
+    "description": "label for action on browser icon click when Google Music is not connected"
+  },
   "setting_iconClickAction0": {
     "message": "Action for single click",
     "description": "label for option to choose action for 1st browser icon click"
@@ -288,12 +292,16 @@
     "description": "label for option to change the browser icon click speed"
   },
   "setting_iconDoubleClickTimeHint": {
-    "message": "Set to a value greater than 0 (recommended: 500) to enable more click actions above. After all enabled actions the popup will be opened, so if you don't enable any action a click will just show the popup.",
+    "message": "Set to a value greater than 0 (recommended: 500) to enable more click actions above. As last action the popup will always be opened.",
     "description": "hint for option to change the browser icon click speed"
   },
-  "setting_iconClickConnect": {
-    "message": "Always open Google Music first on click, if not opened yet",
-    "description": "label for option to open Google Music on browser icon click"
+  "setting_iconShowAction": {
+    "message": "Show action symbol in icon",
+    "description": "label for option to show the action symbol in icon"
+  },
+  "iconClickActionTitle": {
+    "message": "Action(s) if Google Music is opened:",
+    "description": "header for actions on browser icon click when Google Music is connected"
   },
   "connected": {
     "message": "This tab is connected to Prime Player. Click to disconnect.",
@@ -480,6 +488,10 @@
     "message": "Song progress color",
     "description": "label for show progress color"
   },
+  "setting_showProgressColorPaused": {
+    "message": "Song progress color when paused",
+    "description": "label for show progress color when paused"
+  },
   "setting_saveLastPosition": {
     "message": "Save last song position",
     "description": "label for option to save last song position"
@@ -571,6 +583,10 @@
   "browserActionTitle_connected": {
     "message": "connected to Google Music",
     "description": "browser icon tooltip when connected to Google Music but no song is loaded"
+  },
+  "browserActionTitle_connecting": {
+    "message": "Connecting to Google Music...",
+    "description": "browser icon tooltip while connecting"
   },
   "showQuicklinks": {
     "message": "Show quick-links",
@@ -772,7 +788,7 @@
   },
   "command_loveUnloveSong": {
     "message": "Love or unlove current song",
-    "description": "text for love/unlove current song in toast action and keyboard shortcut"
+    "description": "text for love/unlove current song in command option and keyboard shortcut"
   },
   "command_volumeUp": {
     "message": "Volume up",
@@ -1004,5 +1020,14 @@
   "resumeLastSong": {
     "message": "Resume last song",
     "description": "label for startupAction select option to resume the last song"
+  },
+  "resumeLastSongWithTitle": {
+    "message": "Resume last song ($SONG$)",
+    "description": "label for icon tooltip action to resume the last song when it is available",
+    "placeholders": { "SONG": { "content": "$1", "example": "Madonna - Like a Prayer" } }
+  },
+  "openPopup": {
+    "message": "Open popup",
+    "description": "label for icon click option to open the popup"
   }
 }

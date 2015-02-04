@@ -60,10 +60,10 @@
     "message": "Pause/Fortsetzen"
   },
   "lastfmUnlove": {
-    "message": "Nicht mehr lieben"
+    "message": "Titel nicht mehr lieben"
   },
   "lastfmLove": {
-    "message": "Diesen Titel lieben"
+    "message": "Aktuellen Titel lieben"
   },
   "lastfmError": {
     "message": "Fehler bei der Kommunkation mit last.fm, klicken zum neu laden: "
@@ -200,6 +200,9 @@
   "setting_layout_hbar": {
     "message": "Horizontale Leiste"
   },
+  "setting_iconClickConnectAction": {
+    "message": "Aktion, wenn Google Music nicht ge\u00F6ffnet ist"
+  },
   "setting_iconClickAction0": {
     "message": "Aktion bei Einfach-Klick"
   },
@@ -216,10 +219,13 @@
     "message": "Klick-Geschwindigkeit in ms (0=deaktiviert)"
   },
   "setting_iconDoubleClickTimeHint": {
-    "message": "Setze dies auf einen Wert gr\u00F6\u00DFer als 0 (empfohlen: 500), um weitere Klick-Aktion oben zu aktivieren. Nachdem alle ausgew\u00E4hlten Aktion \u00FCbersprungen wurden, wird das Browser-Popup ge\u00F6ffnet. Wenn keine Aktionen aktiviert sind, wird somit immer nur das Browser-Popup ge\u00F6ffnet."
+    "message": "Setze dies auf einen Wert gr\u00F6\u00DFer als 0 (empfohlen: 500), um weitere Klick-Aktion oben zu aktivieren. Als letzte Aktion wird immer das Browser-Popup ge\u00F6ffnet."
   },
-  "setting_iconClickConnect": {
-    "message": "Beim Klick immer erst Google Music \u00F6ffnen, wenn nicht bereits ge\u00F6ffnet"
+  "setting_iconShowAction": {
+    "message": "Zeige Aktion im Symbol"
+  },
+  "iconClickActionTitle": {
+    "message": "Aktion(en), wenn Google Music ge\u00F6ffnet ist:"
   },
   "connected": {
     "message": "Dieser Tab ist mit Prime Player verbunden. Zum Trennen klicken."
@@ -360,6 +366,9 @@
   "setting_showProgressColor": {
     "message": "Farbe f\u00FCr Titel-Fortschritt"
   },
+  "setting_showProgressColorPaused": {
+    "message": "Farbe f\u00FCr Titel-Fortschritt wenn pausiert"
+  },
   "setting_saveLastPosition": {
     "message": "Speichere zuletzt gespielten Titel"
   },
@@ -428,6 +437,9 @@
   },
   "browserActionTitle_connected": {
     "message": "Verbunden mit Google Music"
+  },
+  "browserActionTitle_connecting": {
+    "message": "Verbinde mit Google Music..."
   },
   "showQuicklinks": {
     "message": "Quick-Links anzeigen"
@@ -755,5 +767,12 @@
   },
   "resumeLastSong": {
     "message": "Letzten Titel fortsetzen"
+  },
+  "resumeLastSongWithTitle": {
+    "message": "Letzten Titel fortsetzen ($SONG$)",
+    "placeholders": { "SONG": { "content": "$1" } }
+  },
+  "openPopup": {
+    "message": "Popup \u00F6ffnen"
   }
 }

@@ -54,7 +54,7 @@ body {
   select {
     margin-right: 3px;
     min-width: 200px;
-    &#skipRatedLower {
+    &#_skipRatedLower {
       min-width: 150px;
     }
   }
@@ -71,6 +71,16 @@ body {
         min-width: 180px;
       }
     }
+  }
+  
+  h3 {
+    font-weight: normal;
+    font-size: 12px;
+    margin: 8px 0;
+  }
+
+  img.hint {
+    cursor: pointer;
   }
 }
 
@@ -130,13 +140,13 @@ input[type='number'] {
   padding-right: 0.5ex;
 }
 
+input[type='color'] {
+  margin-right: 3px;
+}
+
 img.hint {
   margin-left: 0.5ex;
   vertical-align: text-bottom;
-}
-
-#settings img.hint {
-  cursor: pointer;
 }
 
 #changelog {
@@ -222,10 +232,16 @@ div {
 
 #filter {
   font-size: 12px;
-  label {
+  #optionsMode label {
     margin-right: 1ex;
+    float: left;
+    margin-top: 2px;
   }
-  > div {
+  > div > div {
+    display: inline-block;
+    > div {
+      float: left;
+    }
     label {
       display: inline-block;
       min-width: 100px;

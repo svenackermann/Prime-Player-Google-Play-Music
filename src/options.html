@@ -49,381 +49,99 @@
         <img class="success" src="img/check.png">
         <img class="failure" src="img/cross.png">
       </div>
-      <div>
-        <input id="scrobble" type="checkbox"/>
-        <label for="scrobble"></label>
-      </div>
-      <div class="sub">
-        <input id="scrobblePercent" type="range" min="1" max="100" step="1"/>
-        <label for="scrobblePercent"></label>
+      <div id="scrobble"></div>
+      <div class="sub" id="scrobblePercent">
+        <input id="_scrobblePercent" type="range" min="1" max="100" step="1"/>
         (<span></span>%)
       </div>
-      <div class="sub exp">
-        <input id="scrobbleTime" type="number" min="0"/>
-        <label for="scrobbleTime"></label>
-      </div>
-      <div class="sub exp">
-        <input id="scrobbleMaxDuration" type="number" min="0"/>
-        <label for="scrobbleMaxDuration"></label>
-      </div>
-      <div class="sub v-1.2 adv">
-        <input id="disableScrobbleOnFf" type="checkbox"/>
-        <label for="disableScrobbleOnFf"></label>
-      </div>
-      <div class="sub v-2.15 exp">
-        <input id="scrobbleRepeated" type="checkbox"/>
-        <label for="scrobbleRepeated"></label>
-      </div>
-      <div class="v-1.2 adv">
-        <input id="linkRatings" type="checkbox"/>
-        <label for="linkRatings"></label>
-      </div>
-      <div class="sub v-2.26 exp stars">
-        <input id="linkRatingsMin" type="number" min="2" max="5"/>
-        <label for="linkRatingsMin"></label>
-      </div>
-      <div class="sub v-2.24 adv">
-        <input id="linkRatingsGpm" type="checkbox"/>
-        <label for="linkRatingsGpm"></label>
-      </div>
-      <div class="sub v-2.24 adv">
-        <input id="linkRatingsAuto" type="checkbox"/>
-        <label for="linkRatingsAuto"></label>
-      </div>
-      <div class="v-2.17 miniplayer">
-        <input id="showLastfmInfo" type="checkbox"/>
-        <label for="showLastfmInfo"></label>
-      </div>
+      <div class="sub exp" id="scrobbleTime"></div>
+      <div class="sub exp" id="scrobbleMaxDuration"></div>
+      <div class="sub v-1.2 adv" id="disableScrobbleOnFf"></div>
+      <div class="sub v-2.15 exp" id="scrobbleRepeated"></div>
+      <div class="v-1.2 adv" id="linkRatings"></div>
+      <div class="sub v-2.26 exp stars" id="linkRatingsMin"></div>
+      <div class="sub v-2.24 adv" id="linkRatingsGpm"></div>
+      <div class="sub v-2.24 adv" id="linkRatingsAuto"></div>
+      <div class="v-2.17 miniplayer" id="showLastfmInfo"></div>
     </fieldset>
     <fieldset class="toast">
       <legend id="legendToast"></legend>
       <div id="notificationDisabledWarning"></div>
-      <div>
-        <input id="toast" type="checkbox"/>
-        <label for="toast"></label>
-      </div>
-      <div class="sub v-2.18">
-        <input id="toastDuration" type="number" min="0"/>
-        <label for="toastDuration"></label>
-      </div>
-      <div class="sub v-2.6 exp miniplayer">
-        <input id="toastIfMpOpen" type="checkbox"/>
-        <label for="toastIfMpOpen"></label>
-      </div>
-      <div class="sub2 v-2.27 exp miniplayer">
-        <input id="toastIfMpMinimized" type="checkbox"/>
-        <label for="toastIfMpMinimized"></label>
-      </div>
-      <div class="sub v-2.26 exp">
-        <input id="toastNotIfGmActive" type="checkbox"/>
-        <label for="toastNotIfGmActive"></label>
-      </div>
-      <div class="sub v-1.6 exp">
-        <input id="toastUseMpStyle" type="checkbox"/>
-        <label for="toastUseMpStyle"></label>
-      </div>
-      <div class="sub2 exp v-2.24 notif">
-        <select id="toastPriority">
-          <option value="1"></option>
-          <option value="2"></option>
-          <option value="3"></option>
-        </select>
-        <label for="toastPriority"></label>
-      </div>
-      <div class="sub2 v-2.24 adv notif">
-        <input id="toastProgress" type="checkbox"/>
-        <label for="toastProgress"></label>
-      </div>
-      <div class="sub2 v-2.25 adv notif">
-        <input id="toastRating" type="checkbox"/>
-        <label for="toastRating"></label>
-      </div>
-      <div class="sub2 v-2.8 adv notif">
-        <select id="toastClick">
-          <option value=""></option>
-          <option value="playPause"></option>
-          <option value="prevSong"></option>
-          <option value="nextSong"></option>
-          <option value="ff"></option>
-          <option value="openMiniplayer" class="miniplayer"></option>
-          <option value="volumeUp"></option>
-          <option value="volumeDown"></option>
-          <option value="volumeMute"></option>
-          <option value="toggleRepeat"></option>
-          <option value="toggleShuffle"></option>
-          <option value="loveUnloveSong" class="lastfm"></option>
-          <option value="rate-1"></option>
-          <option class="stars" value="rate-2"></option>
-          <option class="stars" value="rate-3"></option>
-          <option class="stars" value="rate-4"></option>
-          <option value="rate-5"></option>
-          <option value="feelingLucky"></option>
-          <option value="openLyrics" class="lyrics"></option>
-        </select>
-        <label for="toastClick"></label>
-      </div>
-      <div class="sub2 v-2.8 adv notif">
-        <select id="toastButton1"></select>
-        <label for="toastButton1"></label>
-      </div>
-      <div class="sub2 v-2.8 adv notif">
-        <select id="toastButton2"></select>
-        <label for="toastButton2"></label>
-      </div>
+      <div id="toast"></div>
+      <div class="sub v-2.18" id="toastDuration"></div>
+      <div class="sub v-2.6 exp miniplayer" id="toastIfMpOpen"></div>
+      <div class="sub2 v-2.27 exp miniplayer" id="toastIfMpMinimized"></div>
+      <div class="sub v-2.26 exp" id="toastNotIfGmActive"></div>
+      <div class="sub v-1.6 exp" id="toastUseMpStyle"></div>
+      <div class="sub2 exp v-2.24 notif" id="toastPriority"></div>
+      <div class="sub2 v-2.24 adv notif" id="toastProgress"></div>
+      <div class="sub2 v-2.25 adv notif" id="toastRating"></div>
+      <div class="sub2 v-2.8 adv notif" id="toastClick"></div>
+      <div class="sub2 v-2.8 adv notif" id="toastButton1"></div>
+      <div class="sub2 v-2.8 adv notif" id="toastButton2"></div>
     </fieldset>
     <fieldset class="miniplayer">
       <legend id="legendMiniplayer"></legend>
-      <div class="exp">
-        <select id="miniplayerType">
-          <option value="normal"></option>
-          <option value="popup"></option>
-          <option value="panel"></option>
-          <option value="detached_panel"></option>
-        </select>
-        <label for="miniplayerType"></label>
-      </div>
-      <div>
-        <select id="layout">
-          <option value="normal"></option>
-          <option value="compact1"></option>
-          <option value="compact2"></option>
-          <option value="hbar"></option>
-        </select>
-        <label for="layout"></label>
-      </div>
-      <div>
-        <select id="color">
-          <option value="turq"></option>
-          <option value="green"></option>
-          <option value="red"></option>
-          <option value="blue"></option>
-          <option value="black"></option>
-          <option value="orange"></option>
-        </select>
-        <label for="color"></label>
-      </div>
-      <div class="v-2.19 adv">
-        <input id="mpBgColor" type="color"/>
-        <label for="mpBgColor"></label>
-      </div>
-      <div class="v-2.19 adv">
-        <input id="mpTextColor" type="color"/>
-        <label for="mpTextColor"></label>
-      </div>
-      <div class="v-2.26 adv">
-        <select id="coverClickLink">
-          <option value=""></option>
-          <option value="now"></option>
-          <option value="artists"></option>
-          <option value="albums"></option>
-          <option value="genres"></option>
-          <option value="rd"></option>
-          <option value="myPlaylists"></option>
-          <option value="ap/queue"></option>
-          <option value="ap/auto-playlist-thumbs-up"></option>
-          <option value="ap/auto-playlist-recent"></option>
-          <option value="ap/auto-playlist-promo"></option>
-          <option value="ap/shared-with-me"></option>
-          <option class="noallinc" value="ap/google-play-recommends"></option>
-          <option class="allinc" value="exptop"></option>
-          <option class="allinc" value="expnew"></option>
-          <option class="allinc" value="exprec"></option>
-        </select>
-        <label for="coverClickLink"></label>
-      </div>
-      <div class="v-2.26 adv">
-        <select id="titleClickLink"></select>
-        <label for="titleClickLink"></label>
-      </div>
-      <div class="v-2.0 exp">
-        <input id="openLinksInMiniplayer" type="checkbox"/>
-        <label for="openLinksInMiniplayer"></label>
-      </div>
-      <div class="v-2.1 adv">
-        <input id="hideSearchfield" type="checkbox"/>
-        <label for="hideSearchfield"></label>
-      </div>
-      <div class="v-1.11 exp">
-        <input id="hideRatings" type="checkbox"/>
-        <label for="hideRatings"></label>
-      </div>
-      <div class="v-2.0 exp">
-        <input id="omitUnknownAlbums" type="checkbox"/>
-        <label for="omitUnknownAlbums"></label>
-      </div>
-      <div class="v-2.2 adv">
-        <input id="mpAutoOpen" type="checkbox"/>
-        <label for="mpAutoOpen"></label>
-      </div>
-      <div class="v-2.2 adv">
-        <input id="mpAutoClose" type="checkbox"/>
-        <label for="mpAutoClose"></label>
-      </div>
-      <div class="v-2.15 adv">
-        <input id="mpCloseGm" type="checkbox"/>
-        <label for="mpCloseGm"></label>
-      </div>
+      <div class="exp" id="miniplayerType"></div>
+      <div id="layout"></div>
+      <div id="color"></div>
+      <div class="v-2.19 adv" id="mpBgColor"></div>
+      <div class="v-2.19 adv" id="mpTextColor"></div>
+      <div class="v-2.26 adv" id="coverClickLink"></div>
+      <div class="v-2.26 adv" id="titleClickLink"></div>
+      <div class="v-2.0 exp" id="openLinksInMiniplayer"></div>
+      <div class="v-2.1 adv" id="hideSearchfield"></div>
+      <div class="v-1.11 exp" id="hideRatings"></div>
+      <div class="v-2.0 exp" id="omitUnknownAlbums"></div>
+      <div class="v-2.2 adv" id="mpAutoOpen"></div>
+      <div class="v-2.2 adv" id="mpAutoClose"></div>
+      <div class="v-2.15 adv" id="mpCloseGm"></div>
     </fieldset>
     <fieldset class="lyrics">
       <legend id="legendLyrics"></legend>
-      <div class="v-2.8">
-        <input id="lyrics" type="checkbox"/>
-        <label for="lyrics"></label>
-      </div>
-      <div class="sub v-2.8 exp miniplayer">
-        <input id="openLyricsInMiniplayer" type="checkbox"/>
-        <label for="openLyricsInMiniplayer"></label>
-      </div>
-      <div class="sub v-2.10 adv">
-        <input id="lyricsAutoReload" type="checkbox"/>
-        <label for="lyricsAutoReload"></label>
-      </div>
-      <div class="sub v-2.10 adv">
-        <input id="lyricsFontSize" type="number" min="1"/>
-        <label for="lyricsFontSize"></label>
-      </div>
-      <div class="sub v-2.9">
-        <input id="lyricsInGpm" type="checkbox"/>
-        <label for="lyricsInGpm"></label>
-      </div>
-      <div class="sub2 v-2.10 adv">
-        <input id="lyricsWidth" type="number" min="50"/>
-        <label for="lyricsWidth"></label>
-      </div>
+      <div class="v-2.8" id="lyrics"></div>
+      <div class="sub v-2.8 exp miniplayer" id="openLyricsInMiniplayer"></div>
+      <div class="sub v-2.10 adv" id="lyricsAutoReload"></div>
+      <div class="sub v-2.10 adv" id="lyricsFontSize"></div>
+      <div class="sub v-2.9" id="lyricsInGpm"></div>
+      <div class="sub2 v-2.10 adv" id="lyricsWidth"></div>
     </fieldset>
     <fieldset class="lookfeel">
       <legend id="legendLookfeel"></legend>
       <div class="v-2.18">
         <a tabindex="0" id="shortcutsLink"></a>
       </div>
-      <div class="v-2.11" id="iconStyle">
-        <label></label>
-        <input type="radio" name="iconStyle" value="default"/>
-        <img src="img/icon/default/connected.png"/>
-        <input type="radio" name="iconStyle" value="grey"/>
-        <img src="img/icon/grey/connected.png"/>
-        <input type="radio" name="iconStyle" value="phones"/>
-        <img src="img/icon/phones/connected.png"/>
-        <input type="radio" name="iconStyle" value="phones-grey"/>
-        <img src="img/icon/phones-grey/connected.png"/>
-        <input type="radio" name="iconStyle" value="phones-app"/>
-        <img src="img/icon/phones-app/connected.png"/>
-        <input type="radio" name="iconStyle" value="phones-beta"/>
-        <img src="img/icon/phones-beta/connected.png"/>
-        <input type="radio" name="iconStyle" value="play"/>
-        <img src="img/icon/play/connected.png"/>
-      </div>
-      <div class="v-2.11">
-        <input id="showPlayingIndicator" type="checkbox"/>
-        <label for="showPlayingIndicator"></label>
-      </div>
-      <div class="v-2.11">
-        <input id="showRatingIndicator" type="checkbox"/>
-        <label for="showRatingIndicator"></label>
-      </div>
-      <div class="v-2.11 lastfm">
-        <input id="showLovedIndicator" type="checkbox"/>
-        <label for="showLovedIndicator"></label>
-      </div>
-      <div class="v-2.11 lastfm">
-        <input id="showScrobbledIndicator" type="checkbox"/>
-        <label for="showScrobbledIndicator"></label>
-      </div>
-      <div class="v-2.21">
-        <input id="showProgress" type="checkbox"/>
-        <label for="showProgress"></label>
-      </div>
-      <div class="v-2.21 adv sub">
-        <input id="showProgressColor" type="color"/>
-        <label for="showProgressColor"></label>
-      </div>
+      <div class="v-2.11" id="iconStyle"></div>
+      <div class="v-2.11" id="showPlayingIndicator"></div>
+      <div class="v-2.11" id="showRatingIndicator"></div>
+      <div class="v-2.11 lastfm" id="showLovedIndicator"></div>
+      <div class="v-2.11 lastfm" id="showScrobbledIndicator"></div>
+      <div class="v-2.21" id="showProgress"></div>
+      <div class="v-2.21 adv sub" id="showProgressColor"></div>
+      <div class="v-2.28 adv sub" id="showProgressColorPaused"></div>
       <fieldset class="adv">
         <legend id="legendIc"></legend>
-        <div class="v-2.15">
-          <select id="iconClickAction0"></select>
-          <label for="iconClickAction0"></label>
-        </div>
-        <div class="v-2.15">
-          <select id="iconClickAction1"></select>
-          <label for="iconClickAction1"></label>
-        </div>
-        <div class="v-2.15">
-          <select id="iconClickAction2"></select>
-          <label for="iconClickAction2"></label>
-        </div>
-        <div class="v-2.15">
-          <select id="iconClickAction3"></select>
-          <label for="iconClickAction3"></label>
-        </div>
-        <div class="v-2.15">
-          <input id="iconDoubleClickTime" type="number" min="0" max="1000"/>
-          <label for="iconDoubleClickTime"></label>
-        </div>
-        <div>
-          <input id="iconClickConnect" type="checkbox"/>
-          <label for="iconClickConnect"></label>
-        </div>
+        <div class="v-2.28" id="iconClickConnectAction"></div>
+        <h3 id="iconClickActionTitle"></h3>
+        <div class="v-2.15 sub" id="iconClickAction0"></div>
+        <div class="v-2.15 sub" id="iconClickAction1"></div>
+        <div class="v-2.15 sub" id="iconClickAction2"></div>
+        <div class="v-2.15 sub" id="iconClickAction3"></div>
+        <div class="v-2.15 sub" id="iconDoubleClickTime"></div>
+        <div class="v-2.28 exp" id="iconShowAction"></div>
       </fieldset>
-      <div class="v-2.13">
-        <input id="saveLastPosition" type="checkbox"/>
-        <label for="saveLastPosition"></label>
-      </div>
-      <div class="v-2.19 adv stars">
-        <select id="skipRatedLower">
-          <option value="0"></option>
-          <option value="1"></option>
-          <option value="2"></option>
-          <option value="3"></option>
-          <option value="4"></option>
-        </select>
-        <label for="skipRatedLower"></label>
-      </div>
-      <div class="adv thumbsOnly">
-        <input id="skipRatedThumbsDown" type="checkbox"/>
-        <label for="skipRatedThumbsDown"></label>
-      </div>
-      <div class="v-1.1 exp">
-        <input id="openGoogleMusicPinned" type="checkbox"/>
-        <label for="openGoogleMusicPinned"></label>
-      </div>
-      <div class="v-2.26 exp">
-        <input id="openGmBackground" type="checkbox"/>
-        <label for="openGmBackground"></label>
-      </div>
-      <div class="v-2.26 adv">
-        <select id="startupAction">
-          <option value=""></option>
-          <option value="feelingLucky"></option>
-          <option value="resumeLastSong"></option>
-          <option value="gotoGmusic"></option>
-          <option value="openMiniplayer"></option>
-        </select>
-        <label for="startupAction"></label>
-      </div>
-      <div class="v-2.14 exp">
-        <input id="googleAccountNo" type="number" min="0"/>
-        <label for="googleAccountNo"></label>
-      </div>
-      <div class="v-2.0 exp">
-        <input id="connectedIndicator" type="checkbox"/>
-        <label for="connectedIndicator"></label>
-      </div>
-      <div class="v-2.7.1 exp">
-        <input id="preventCommandRatingReset" type="checkbox"/>
-        <label for="preventCommandRatingReset"></label>
-      </div>
-      <div class="v-1.1 adv">
-        <input id="updateNotifier" type="checkbox"/>
-        <label for="updateNotifier"></label>
-      </div>
-      <div class="v-1.4 adv">
-        <input id="syncSettings" type="checkbox"/>
-        <label for="syncSettings"></label>
-      </div>
-      <div class="exp">
-        <input id="gaEnabled" type="checkbox"/>
-        <label for="gaEnabled"></label>
-      </div>
+      <div class="v-2.13" id="saveLastPosition"></div>
+      <div class="v-2.19 adv stars" id="skipRatedLower"></div>
+      <div class="v-2.26 adv thumbsOnly" id="skipRatedThumbsDown"></div>
+      <div class="v-1.1 exp" id="openGoogleMusicPinned"></div>
+      <div class="v-2.26 exp" id="openGmBackground"></div>
+      <div class="v-2.26 adv" id="startupAction"></div>
+      <div class="v-2.14 exp" id="googleAccountNo"></div>
+      <div class="v-2.0 exp" id="connectedIndicator"></div>
+      <div class="v-2.7.1 exp" id="preventCommandRatingReset"></div>
+      <div class="v-1.1 adv" id="updateNotifier"></div>
+      <div class="v-1.4 adv" id="syncSettings"></div>
+      <div class="exp" id="gaEnabled"></div>
     </fieldset>
     <button id="resetSettings"></button>
   </div>
@@ -431,30 +149,7 @@
     <div id="filter" class="v-2.23">
       <h2>Filter</h2>
       <p></p>
-      <label for="optionsMode"></label>
-      <select id="optionsMode">
-        <option value="beg"></option>
-        <option value="adv"></option>
-        <option value="exp"></option>
-      </select>
-      <div>
-        <div>
-          <input id="filterTimer" type="checkbox" checked/>
-          <label for="filterTimer"></label>
-          <input id="filterLastfm" type="checkbox" checked/>
-          <label for="filterLastfm"></label>
-          <input id="filterToast" type="checkbox" checked/>
-          <label for="filterToast"></label>
-        </div>
-        <div>
-          <input id="filterMiniplayer" type="checkbox" checked/>
-          <label for="filterMiniplayer"></label>
-          <input id="filterLyrics" type="checkbox" checked/>
-          <label for="filterLyrics"></label>
-          <input id="filterLookfeel" type="checkbox" checked/>
-          <label for="filterLookfeel"></label>
-        </div>
-      </div>
+      <div id="optionsMode"></div>
     </div>
     <div id="credits">
       <h2>Credits</h2>
@@ -487,6 +182,15 @@
       <label for="cl-B">B</label>
       <input title="Show/hide versions" id="cl-V" type="checkbox" checked/>
       <label for="cl-V">V</label>
+      <div class="v-2.28">
+        <ul>
+          <li class="F">Dedicated icon click action if not connected to Google Music</li>
+          <li class="F">Dedicated color for progress in icon when paused</li>
+          <li class="F">Option to show the 1st click action in browser icon (enabled by default)</li>
+          <li class="I">Do not allow browser icon click actions while connecting to Google Music</li>
+          <li class="I">Some little UI improvements</li>
+        </ul>
+      </div>
       <div class="v-2.27">
         <ul>
           <li class="F">Option to show toast only when miniplayer is minimized</li>

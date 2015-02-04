@@ -3,7 +3,7 @@
   "name": "Prime Player for Google Play Music\u2122",
   "short_name": "__MSG_extTitle__",
   "description": "__MSG_extDesc__",
-  "version": "2.27",
+  "version": "2.28",
   "author": "Sven Ackermann",
   "minimum_chrome_version": "31.0.1650.48",
   "default_locale": "en",
@@ -39,7 +39,7 @@
   "web_accessible_resources": [
     "js/injected.js",
     "img/icon-tabconnected.png",
-    "img/toast/openLyrics.png",
+    "img/cmd/openLyrics.png",
     "img/icon-48x48.png",
     "img/ajax-loader.gif",
     "img/reload.png",

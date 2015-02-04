@@ -53,25 +53,12 @@ gulp.task("compile-js-bp", function() {
 });
 
 gulp.task("compile-js-single", function() {
-  /*return gulp.src(paths.js_single, { base: paths.src })
-    .pipe(changed(paths.dest_js))
+  return gulp.src(paths.js_single)
+    .pipe(changed(paths.dest))
     .pipe(gulpif(develop && !full, sourcemaps.init()))
     .pipe(myUglify())
     .pipe(gulpif(develop && !full, sourcemaps.write("./")))
-    .pipe(gulp.dest(paths.dest_js));*/
-  
-  //workaround for https://github.com/terinjokes/gulp-uglify/issues/56
-  var merged = merge();
-  paths.js_single.forEach(function(el) {
-    merged.add(gulp.src(el)
-      .pipe(changed(paths.dest_js))
-      .pipe(gulpif(develop && !full, sourcemaps.init()))
-      .pipe(concat(el.substr(el.lastIndexOf("/") + 1)))
-      .pipe(myUglify())
-      .pipe(gulpif(develop && !full, sourcemaps.write("./")))
-    );
-  });
-  return merged.pipe(gulp.dest(paths.dest_js));
+    .pipe(gulp.dest(paths.dest_js));
 });
 
 gulp.task("compile-css", function () {
