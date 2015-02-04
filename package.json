@@ -4,10 +4,10 @@
   "devDependencies": {
     "del": "^1.1.1",
     "gulp": "^3.8.10",
-    "gulp-changed": "^1.1.0",
+    "gulp-changed": "^1.1.1",
     "gulp-concat": "^2.4.3",
     "gulp-if": "^1.2.5",
-    "gulp-jshint": "^1.9.0",
+    "gulp-jshint": "^1.9.2",
     "gulp-json-transform": "^0.2.0",
     "gulp-minify-html": "^0.1.8",
     "gulp-native2ascii": "0.0.3",
