@@ -556,7 +556,7 @@ function drawIcon(backgroundSrc, imagePaths, cb, clickAction) {
   var iconCtx = $("<canvas width='19' height='19'/>")[0].getContext("2d");
   var image = new Image();
   var backgroundDrawn = false;
-  var clickActionAvailable = clickAction && isCommandAvailable(clickAction);
+  var clickActionAvailable = isCommandAvailable(clickAction);
   function loadNext() {
     var path = clickAction ? getCommandIconUrl(clickAction) : imagePaths.shift();
     if (path) image.src = getExtensionUrl(path + ".png");
@@ -588,12 +588,14 @@ function getCommandText(cmd) {
     case "playPause":
       key = player.playing ? "pauseSong" : "resumeSong";
       break;
+    case "resumeLastSong":
+      if (lastSongInfo) return i18n("resumeLastSongWithTitle", lastSongInfo.artist + " - " + lastSongInfo.title);
+      /* falls through */ 
     case "prevSong":
     case "nextSong":
     case "openMiniplayer":
     case "feelingLucky":
     case "gotoGmusic":
-    case "resumeLastSong":
       key = cmd;
       break;
     case "rate-1":
@@ -618,6 +620,7 @@ function getCommandText(cmd) {
 exports.getCommandOptionText = function(cmd) {
   switch (cmd) {
     case "playPause":
+    case "resumeLastSong":
       return i18n(cmd);
     case "loveUnloveSong":
       return i18n("command_loveUnloveSong");
@@ -737,9 +740,8 @@ function doUpdateBrowserActionInfo() {
   }
   path += ".png";
   
-  if (clickAction) {
-    title += " - " + (clickAction == "resumeLastSong" && lastSongInfo ? i18n("resumeLastSongWithTitle", lastSongInfo.artist + " - " + lastSongInfo.title) : getCommandText(clickAction));
-  }
+  if (isCommandAvailable(clickAction)) title += " - " + getCommandText(clickAction);
+  
   drawIcon(path, iconPaths, function(iconCtx) {
     browserIconCtx = iconCtx;
     lastProgressPosition = 0;
@@ -1964,9 +1966,12 @@ song.al("info", function(info) {
 });
 
 function isCommandAvailable(cmd) {
+  if (!cmd) return false;
   switch (cmd) {
     case "playPause":
       return player.playing !== null;
+    case "resumeLastSong":
+      return !!lastSongInfo;
     case "prevSong":
     case "nextSong":
     case "ff":
