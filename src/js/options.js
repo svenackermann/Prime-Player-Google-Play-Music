@@ -55,6 +55,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function toastChanged() {
+    $("#_toast").prop("checked", settings.toast);
     $("#_toastIfMpOpen, #_toastNotIfGmActive, #_toastDuration").prop("disabled", !settings.toast);
     $("#_toastIfMpMinimized").prop("disabled", !settings.toast || !settings.toastIfMpOpen);
     $("#_toastUseMpStyle").prop("disabled", !settings.toast || !localSettings.notificationsEnabled);
@@ -130,7 +131,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
     updateTimerStatus(timerEnd);
     $("#startTimer, #timerMin, #timerNotify, #timerPreNotify, #timerAction").prop("disabled", timerEnd === null || timerEnd !== 0);
-    $("#stopTimer").prop("disabled", timerEnd === null || timerEnd === 0);
+    $("#stopTimer").prop("disabled", !timerEnd);
   }
   
   function ratingModeChanged(val) {
@@ -574,8 +575,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("gaEnabled");
     initHint("gaEnabled");
     
-    //watch this if changed via miniplayer
+    //watch this if changed via miniplayer or context menu
     settings.al("scrobble", scrobbleChanged, context);
+    settings.al("toast", toastChanged, context);
     //we must watch this as the session could be expired
     localSettings.w("lastfmSessionName", lastfmUserChanged, context);
     //show/hide notification based options
@@ -588,7 +590,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     localSettings.al("quicklinks", quicklinksChanged, context);
     
     //disable inputs if neccessary
-    toastChanged();
     lyricsChanged();
     iconClickChanged();
     showProgressChanged();

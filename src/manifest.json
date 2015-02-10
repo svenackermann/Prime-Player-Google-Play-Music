@@ -5,7 +5,7 @@
   "description": "__MSG_extDesc__",
   "version": "2.28",
   "author": "Sven Ackermann",
-  "minimum_chrome_version": "31.0.1650.48",
+  "minimum_chrome_version": "35",
   "default_locale": "en",
   "icons": {
     "128": "img/icon-128x128.png",
@@ -15,7 +15,8 @@
   "permissions": [
     "*://play.google.com/music/listen*",
     "notifications",
-    "storage"
+    "storage",
+    "contextMenus"
   ],
   "optional_permissions": [ "http://www.songlyrics.com/*" ],
   "browser_action": {

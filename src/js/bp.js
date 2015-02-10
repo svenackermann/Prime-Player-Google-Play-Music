@@ -60,6 +60,7 @@ var chromeBrowserAction = chrome.browserAction;
 var chromeLocalStorage = chrome.storage.local;
 var i18n = chrome.i18n.getMessage;
 var getExtensionUrl = chrome.extension.getURL;
+var chromeContextMenus = chrome.contextMenus;
 
 var currentVersion = chromeRuntime.getManifest().version;
 
@@ -1678,6 +1679,27 @@ function gaEnabledChanged(val) {
   }
 }
 
+chromeContextMenus.removeAll();
+
+function createContextMenuEntry(id, title, parentId, type, checked, cb) {
+  chromeContextMenus.create({ contexts: ["browser_action"], type: type || "normal", id: id, title: title, checked: checked, parentId: parentId }, cb);
+}
+
+createContextMenuEntry("stopTimer", i18n("cancelTimer"), null, null, null, function() {
+  localSettings.w("timerEnd", function(timerEnd) {
+    if (timerEnd) chromeContextMenus.update("stopTimer", { type: "normal" });
+    else chromeContextMenus.update("stopTimer", { type: "separator" });
+  });
+});
+createContextMenuEntry("sep1", null, null, "separator");
+createContextMenuEntry("scrobble", i18n("setting_scrobble"), null, "checkbox", settings.scrobble, function() {
+  localSettings.w("lastfmSessionName", function(user) {
+    if (user) chromeContextMenus.update("scrobble", { type: "checkbox" });
+    else chromeContextMenus.update("scrobble", { type: "separator" });
+  });
+});
+createContextMenuEntry("toast", i18n("setting_toast"), null, "checkbox", settings.toast);
+
 /* --- register listeners --- */
 
 settings.w("gaEnabled", gaEnabledChanged);
@@ -1710,11 +1732,17 @@ settings.w("toastButton1", commandOptionListener.bind(window, updateToast));
 //we need a copy of the updateToast function here to avoid that changes on toastButton1 remove needed listeners for toastButton2
 settings.w("toastButton2", commandOptionListener.bind(window, function() { updateToast(); }));
 settings.al("toastProgress", updateToast);
-settings.al("scrobble", calcScrobbleTime);
+settings.al("scrobble", function(val) {
+  chromeContextMenus.update("scrobble", { checked: val });
+  calcScrobbleTime();
+});
 settings.al("scrobbleMaxDuration", calcScrobbleTime);
 settings.al("scrobblePercent", calcScrobbleTime);
 settings.al("scrobbleTime", calcScrobbleTime);
 settings.al("disableScrobbleOnFf", calcScrobbleTime);
+settings.al("toast", function(val) {
+  chromeContextMenus.update("toast", { checked: val });
+});
 //we need a copy of the updateBrowserActionInfo function here to avoid conflicts with showPlayingIndicator/showProgress listener
 settings.w("iconClickAction0", commandOptionListener.bind(window, function() { updateBrowserActionInfo(); }));
 settings.al("iconStyle", updateBrowserActionInfo);
@@ -2092,6 +2120,20 @@ chromeRuntime.onStartup.addListener(executeConnectAction.bind(window, settings.s
 chromeNotifications.onShowSettings.addListener(openOptions);
 chromeNotifications.getPermissionLevel(updateNotificationsEnabled);
 chromeNotifications.onPermissionLevelChanged.addListener(updateNotificationsEnabled);
+
+chromeContextMenus.onClicked.addListener(function(info) {
+  switch (info.menuItemId) {
+    case "scrobble":
+      settings.scrobble = info.checked;
+      break;
+    case "toast":
+      settings.toast = info.checked;
+      break;
+    case "stopTimer":
+      clearSleepTimer();
+      break;
+  }
+});
 
 getLastSong(function(lastSong) {
   lastSongInfo = lastSong.info;
