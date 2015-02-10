@@ -8,14 +8,14 @@
  */
 
 /* global chrome, Bean, LastFM, buildLyricsSearchUrl, fetchLyrics, ga */
-/* exported toTimeString, extractUrlParam */
+/* exported optionsWin, toTimeString, extractUrlParam */
 
 /* ---------------------------------- */
 /* --- global public declarations --- */
 /* ---------------------------------- */
 
- /** ID of the options tab, if opened */
-var optionsTabId = null;
+ /** The options window, if opened */
+var optionsWin = null;
 
 /** the previous version, if we just updated (set in onInstalled event listener, used by options page) */
 var previousVersion = localStorage.previousVersion;
@@ -59,7 +59,7 @@ var chromeWindows = chrome.windows;
 var chromeBrowserAction = chrome.browserAction;
 var chromeLocalStorage = chrome.storage.local;
 var i18n = chrome.i18n.getMessage;
-var getExtensionUrl = chrome.extension.getURL;
+var getExtensionUrl = chromeRuntime.getURL;
 
 var currentVersion = chromeRuntime.getManifest().version;
 
@@ -87,6 +87,8 @@ var lastSongInfo;
 /** while we are connecting to Google Music, the browser icon should not allow for any action */
 var connecting = false;
 var connectingTabId;
+/** ID of the last.fm login tab */
+var lastfmAuthTabId;
 
 /** settings that must not be synced with Chrome sync */
 var localSettings = exports.localSettings = new Bean({
@@ -196,6 +198,7 @@ var settings = exports.settings = new Bean({
   filterLyrics: true,
   filterLookfeel: true
 }, true);
+settings.setSyncStorage(localSettings.syncSettings);
 
 /** the song currently loaded */
 var song = exports.song = new Bean({
@@ -277,14 +280,39 @@ var isScrobblingEnabled = exports.isScrobblingEnabled = function() {
   return settings.scrobble && localSettings.lastfmSessionKey !== null;
 };
 
+exports.getLastfmSession = function(token) {
+  function sendStatusChangedMessage(status) {
+    chromeRuntime.sendMessage({ type: "lastfmStatusChanged", status: status });
+  }
+  sendStatusChangedMessage(false);
+  if (lastfmAuthTabId) {
+    chromeTabs.remove(lastfmAuthTabId);
+    lastfmAuthTabId = null;
+  }
+  lastfm.auth.getSession({ token: token }, {
+    success: function(response) {
+      var session = response.session;
+      localSettings.lastfmSessionKey = session.key;
+      localSettings.lastfmSessionName = session.name;
+      sendStatusChangedMessage(true);
+      lastfm.session = session;
+      gaEvent("LastFM", "AuthorizeOK");
+      loadCurrentLastfmInfo();
+      scrobbleCachedSongs();
+    },
+    error: function(code, message) {
+      var title = i18n("lastfmConnectError");
+      if (message) title += ": " + message;
+      sendStatusChangedMessage(title);
+      gaEvent("LastFM", "AuthorizeError-" + code);
+    }
+  });
+};
+
 /** open the last.fm authentication page */
 var lastfmLogin = exports.lastfmLogin = function() {
-  var url = lastfm.getLoginUrl(getExtensionUrl("options.html"));
-  if (optionsTabId) {
-    chromeTabs.update(optionsTabId, { url: url, active: true });
-  } else {
-    chromeTabs.create({ url: url });
-  }
+  var url = lastfm.getLoginUrl(getExtensionUrl("lastfmCallback.html"));
+  chromeTabs.create({ url: url }, function(tab) { lastfmAuthTabId = tab.id; });
   gaEvent("LastFM", "AuthorizeStarted");
 };
 
@@ -465,11 +493,11 @@ exports.getTextForQuicklink = function(link) {
 
 /** Open the options tab or focus it, if already opened. */
 var openOptions = exports.openOptions = function() {
-  if (optionsTabId) {
-    chromeTabs.update(optionsTabId, { active: true });
-  } else {
-    chromeTabs.create({url: getExtensionUrl("options.html")});
-  }
+  var url = "chrome://extensions/?options=" + chromeRuntime.id;
+  chromeTabs.query({ url: url }, function(tabs) {
+    if (tabs && tabs.length) chromeTabs.update(tabs[0].id, { active: true });
+    else chromeTabs.create({ url: url });
+  });
 };
 
 /** Open a songlyrics.com tab for the given (or current) song, if possible. */
@@ -1019,16 +1047,6 @@ function scrobbleCachedSongs() {
     });
   }
 }
-
-/** Remember the session information after successful authentication. */
-exports.setLastfmSession = function(session) {
-  localSettings.lastfmSessionKey = session.key;
-  localSettings.lastfmSessionName = session.name;
-  lastfm.session = session;
-  gaEvent("LastFM", "AuthorizeOK");
-  loadCurrentLastfmInfo();
-  scrobbleCachedSongs();
-};
 
 /** Scrobble the current song. */
 function scrobble() {
@@ -1777,11 +1795,6 @@ settings.w("saveLastPosition", function(val) {
   if (lastSongInfo) lastSongInfoChanged();
 });
 
-localSettings.w("syncSettings", function(val) {
-  settings.setSyncStorage(val, function() {
-    if (optionsTabId) chromeTabs.reload(optionsTabId);
-  });
-});
 localSettings.al("lastfmSessionName", calcScrobbleTime);
 localSettings.al("lyrics", postLyricsState);
 localSettings.al("lyricsFontSize", postLyricsState);

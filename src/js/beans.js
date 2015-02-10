@@ -74,7 +74,7 @@ function Bean(defaults, useLocalStorage) {
       var error = chrome.runtime.lastError;
       if (error) {
         console.warn("Could not load settings: " + error.message);
-        setTimeout(loadSyncStorage, 30000);//try again in 30s
+        setTimeout(function() { loadSyncStorage(cb); }, 30000);//try again in 30s
       } else {
         for (var prop in items) {
           that[prop] = items[prop];

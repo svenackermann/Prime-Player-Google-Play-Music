@@ -10,34 +10,22 @@
 
 chrome.runtime.getBackgroundPage(function(bp) {
 
-  var thisTabId;
   var context = "options";
   var settingsView = $("#settings");
   var i18n = chrome.i18n.getMessage;
   var settings = bp.settings;
   var localSettings = bp.localSettings;
     
-  /** request and store last.fm session info */
-  function getLastfmSession(token) {
-    var status = $("#lastfmStatus");
-    status.find(".loader").show();
-    bp.lastfm.auth.getSession({token: token},
-      {
-        success: function(response) {
-          status.find(".loader").hide();
-          bp.setLastfmSession(response.session);
-          status.find(".success").attr("title", i18n("lastfmConnectSuccess")).show();
-        },
-        error: function(code, message) {
-          status.find(".loader").hide();
-          var title = i18n("lastfmConnectError");
-          if (message) title += ": " + message;
-          status.find(".failure").attr("title", title).show();
-          bp.gaEvent("LastFM", "AuthorizeError-" + code);
-        }
-      }
-    );
-  }
+  chrome.runtime.onMessage.addListener(function(msg) {
+    if (msg.type == "lastfmStatusChanged") {
+      var statusDiv = $("#lastfmStatus");
+      statusDiv.find("img").hide();
+      
+      if (msg.status === false) statusDiv.find(".loader").show();
+      else if (msg.status === true) statusDiv.find(".success").attr("title", i18n("lastfmConnectSuccess")).show();
+      else if (typeof(msg.status) == "string") statusDiv.find(".failure").attr("title", status).show();
+    }
+  });
 
   function setSubsEnabled(id, enabled) {
     $("#" + id).nextUntil("*:not(.sub)").children("input").prop("disabled", !enabled);
@@ -74,10 +62,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#_scrobble, #_linkRatings, #_showLovedIndicator, option.lastfm").prop("disabled", !user);
     scrobbleChanged(settings.scrobble);
     linkRatingsChanged();
-    var links = $("#lastfmStatus").find("a");
+    var statusDiv = $("#lastfmStatus");
+    var links = statusDiv.find("a");
     var userLink = links.first();
     if (user) {
-      action = bp.lastfmLogout;
+      action = function() {
+        statusDiv.find("img").hide();
+        bp.lastfmLogout();
+      };
       actionText = i18n("logout");
       userLink.text(user).attr("href", "http://last.fm/user/" + user).removeClass("disconnected");
     } else {
@@ -570,7 +562,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("preventCommandRatingReset");
     initHint("preventCommandRatingReset");
     initCheckbox("updateNotifier");
-    initCheckbox("syncSettings", localSettings);
+    initCheckbox("syncSettings", localSettings).click(function() {
+      settings.setSyncStorage(localSettings.syncSettings, function() { location.reload(); });
+    });
     initCheckbox("gaEnabled");
     initHint("gaEnabled");
     
@@ -602,17 +596,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }).text(i18n("resetSettings"));
     
     //tell the background page that we're open
-    chrome.tabs.getCurrent(function(tab) {
-      thisTabId = tab.id;
-      if (bp.optionsTabId === null) bp.optionsTabId = tab.id;
-    });
-    
-    //get last.fm session if we are the callback page (query param "token" exists)
-    var token;
-    if (localSettings.lastfmSessionName === null && (token = bp.extractUrlParam("token", location.search))) {
-      getLastfmSession(token);
-      history.replaceState("", "", chrome.extension.getURL("options.html"));//remove token from URL
+    if (bp.optionsWin) try {
+      bp.optionsWin.close();
+    } catch(e) {
+      console.error(e);
     }
+    bp.optionsWin = window;
     
     //mark new features
     if (bp.previousVersion) {
@@ -643,6 +632,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
   $(window).unload(function() {
     settings.ral(context);
     localSettings.ral(context);
-    if (bp.optionsTabId == thisTabId) bp.optionsTabId = null;
+    if (bp.optionsWin == window) bp.optionsWin = null;
   });
 });
