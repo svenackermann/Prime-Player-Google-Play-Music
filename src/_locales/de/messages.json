@@ -774,5 +774,8 @@
   },
   "openPopup": {
     "message": "Popup \u00F6ffnen"
+  },
+  "action": {
+    "message": "Aktion"
   }
 }

@@ -1029,5 +1029,9 @@
   "openPopup": {
     "message": "Open popup",
     "description": "label for icon click option to open the popup"
+  },
+  "action": {
+    "message": "Action",
+    "description": "text for action sub context menu"
   }
 }

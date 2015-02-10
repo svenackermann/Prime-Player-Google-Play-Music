@@ -295,6 +295,7 @@ var lastfmLogout = exports.lastfmLogout = function() {
   localSettings.lastfmSessionKey = null;
   localSettings.lastfmSessionName = null;
   song.loved = null;
+  refreshContextMenuConnected();
 };
 
 /**
@@ -405,7 +406,7 @@ var loadCurrentLastfmInfo = exports.loadCurrentLastfmInfo = function() {
     song.loved = loved;
     if (settings.linkRatings && settings.linkRatingsAuto) {
       if (loved === true && song.rating === 0) executeInGoogleMusic("rate", {rating: 5});
-      else if (loved === false && (song.rating >= settings.linkRatingsMin || (localSettings.ratingMode == "thumbs" && song.rating >= 4))) loveTrack();
+      else if (loved === false && (song.rating >= settings.linkRatingsMin || (isThumbsRatingMode() && song.rating >= 4))) loveTrack();
     }
   });
 };
@@ -442,7 +443,7 @@ var setSongPosition = exports.setSongPosition = function(percent) {
 
 /** @return true, if a change from old to new rating would result in a rating reset in Google Music */
 var isRatingReset = exports.isRatingReset = function(oldRating, newRating) {
-  return oldRating == newRating || (localSettings.ratingMode == "thumbs" && ((oldRating == 2 && newRating == 1) || (oldRating == 4 && newRating == 5)));
+  return oldRating == newRating || (isThumbsRatingMode() && ((oldRating == 2 && newRating == 1) || (oldRating == 4 && newRating == 5)));
 };
 
 /** Rate the current song in Google Music, if possible. For arg 5, this triggers the link-ratings logic, if not a rating reset. */
@@ -582,6 +583,14 @@ function drawIcon(backgroundSrc, imagePaths, cb, clickAction) {
   image.src = getExtensionUrl(backgroundSrc);
 }
 
+function isStarRatingMode() {
+  return localSettings.ratingMode == "star";
+}
+
+function isThumbsRatingMode() {
+  return localSettings.ratingMode == "thumbs";
+}
+
 /** @return the label for the given command to be used in a toast button or as browser icon tooltip */
 function getCommandText(cmd) {
   var key;
@@ -600,13 +609,13 @@ function getCommandText(cmd) {
       key = cmd;
       break;
     case "rate-1":
-      if (localSettings.ratingMode == "star") key = "command_star1";
-      else if (localSettings.ratingMode == "thumbs") key = "command_thumbsDown";
+      if (isStarRatingMode()) key = "command_star1";
+      else if (isThumbsRatingMode()) key = "command_thumbsDown";
       else key = "command_rate1";
       break;
     case "rate-5":
-      if (localSettings.ratingMode == "star") key = "command_star5";
-      else if (localSettings.ratingMode == "thumbs") key = "command_thumbsUp";
+      if (isStarRatingMode()) key = "command_star5";
+      else if (isThumbsRatingMode()) key = "command_thumbsUp";
       else key = "command_rate5";
       break;
     case "loveUnloveSong":
@@ -638,10 +647,10 @@ function getCommandIconUrl(cmd) {
       icon = player.playing ? "pause" : "play";
       break;
     case "rate-1":
-      if (localSettings.ratingMode == "thumbs") icon = "thumbsDown";
+      if (isThumbsRatingMode()) icon = "thumbsDown";
       break;
     case "rate-5":
-      if (localSettings.ratingMode == "thumbs") icon = "thumbsUp";
+      if (isThumbsRatingMode()) icon = "thumbsUp";
       break;
     case "loveUnloveSong":
       icon = song.loved ? "unloveSong" : "loveSong";
@@ -711,9 +720,9 @@ function doUpdateBrowserActionInfo() {
         iconPaths.push(iconPath + "loved");
       }
       if (song.rating && settings.showRatingIndicator) {
-        if (localSettings.ratingMode == "star") {
+        if (isStarRatingMode()) {
           chromeBrowserAction.setBadgeText({text: "" + song.rating});
-        } else if (localSettings.ratingMode == "thumbs") {
+        } else if (isThumbsRatingMode()) {
           if (song.rating >= 4) {
             iconPaths.push(iconPath + "thumbsUp");
           } else if (song.rating == 1 || song.rating == 2) {
@@ -859,12 +868,12 @@ function onMessageListener(message) {
   } else if (type == "connected") {
     connecting = false;
     player.connected = true;
-    addContextMenuConnected(); 
     updateBrowserActionInfo();
     iconClickSettingsChanged();
     localSettings.allinc = val.allinc;
     localSettings.ratingMode = val.ratingMode;
     localSettings.quicklinks = val.quicklinks;
+    addContextMenuConnected(); 
   } else if (type == "loadLyrics") {
     if (song.info) fetchLyrics(song.info, function(result) {
       //we cannot send jQuery objects with a post, so send plain html
@@ -1035,6 +1044,7 @@ exports.setLastfmSession = function(session) {
   gaEvent("LastFM", "AuthorizeOK");
   loadCurrentLastfmInfo();
   scrobbleCachedSongs();
+  refreshContextMenuConnected();
 };
 
 /** Scrobble the current song. */
@@ -1110,7 +1120,7 @@ function getToastBtn(cmd) {
     case "rate-2":
     case "rate-3":
     case "rate-4":
-      if (localSettings.ratingMode == "thumbs") return null;
+      if (isThumbsRatingMode()) return null;
       break;
   }
   return {title: getCommandText(cmd), iconUrl: getExtensionUrl(getCommandIconUrl(cmd) + ".png")};
@@ -1129,10 +1139,10 @@ function drawToastImage() {
     ctx.drawImage(cover, 0, 0, 100, 100);
     if (cover.src.indexOf("blob") === 0) URL.revokeObjectURL(cover.src);
     if (settings.toastRating) {
-      if (localSettings.ratingMode == "thumbs") {
+      if (isThumbsRatingMode()) {
         if (song.rating == 1 || song.rating == 2) ctx.drawImage(rating, 16, 0, 16, 16, 0, 84, 16, 16);
         else if (song.rating >= 4) ctx.drawImage(rating, 0, 0, 16, 16, 0, 84, 16, 16);
-      } else if (localSettings.ratingMode == "star") {
+      } else if (isStarRatingMode()) {
         for (var i = 0; i < song.rating; i++) {
           ctx.drawImage(rating, 32, 0, 16, 16, i * 16, 84, 16, 16);
         }
@@ -1687,49 +1697,62 @@ function gaEnabledChanged(val) {
   }
 }
 
-chromeContextMenus.removeAll();
-
 function createContextMenuEntry(id, title, cb, parentId, type, checked, enabled) {
   chromeContextMenus.create({ contexts: ["browser_action"], type: type || "normal", id: id, title: title, checked: checked, parentId: parentId, enabled: enabled }, cb);
 }
-
-createContextMenuEntry("stopTimer", i18n("cancelTimer"), function() {
-  localSettings.w("timerEnd", function(timerEnd) {
-    if (timerEnd) chromeContextMenus.update("stopTimer", { type: "normal" });
-    else chromeContextMenus.update("stopTimer", { type: "separator" });
+chromeContextMenus.removeAll(function() {
+  createContextMenuEntry("stopTimer", i18n("cancelTimer"), function() {
+    localSettings.w("timerEnd", function(timerEnd) {
+      if (timerEnd) chromeContextMenus.update("stopTimer", { type: "normal" });
+      else chromeContextMenus.update("stopTimer", { type: "separator" });
+    });
   });
+  createContextMenuEntry("sep1", null, null, null, "separator");
+  createContextMenuEntry("scrobble", i18n("setting_scrobble"), function() {
+    localSettings.w("lastfmSessionName", function(user) {
+      if (user) chromeContextMenus.update("scrobble", { type: "checkbox" });
+      else chromeContextMenus.update("scrobble", { type: "separator" });
+    });
+  }, null, "checkbox", settings.scrobble);
+  createContextMenuEntry("toast", i18n("setting_toast"), null, null, "checkbox", settings.toast);
 });
-createContextMenuEntry("sep1", null, null, null, "separator");
-createContextMenuEntry("scrobble", i18n("setting_scrobble"), function() {
-  localSettings.w("lastfmSessionName", function(user) {
-    if (user) chromeContextMenus.update("scrobble", { type: "checkbox" });
-    else chromeContextMenus.update("scrobble", { type: "separator" });
-  });
-}, null, "checkbox", settings.scrobble);
-createContextMenuEntry("toast", i18n("setting_toast"), null, null, "checkbox", settings.toast);
 
 var menuDisconnectedId = "menuDisconnected";
-var menuConnectedId1 = "menuConnected1";
-var menuConnectedSepId = "menuConnectedSep";
-var menuConnectedId2 = "menuConnected2";
-function removeConnectionMenus() {
-  chromeContextMenus.remove(menuDisconnectedId);
-  chromeContextMenus.remove(menuConnectedId1);
-  chromeContextMenus.remove(menuConnectedSepId);
-  chromeContextMenus.remove(menuConnectedId2);
+var menuConnectedId = "menuConnected";
+function removeConnectionMenus(cb) {
+  chromeContextMenus.remove(menuDisconnectedId, function() {
+    chromeContextMenus.remove(menuConnectedId, cb);
+  });
 }
 
 function addContextMenuDisconnected() {
-  removeConnectionMenus();
-  createContextMenuEntry(menuDisconnectedId, "Aktion", function() {//TODO i18n
-    ["feelingLucky", "resumeLastSong", "gotoGmusic", "openMiniplayer"].forEach(function(cmd) {
-      createContextMenuEntry(cmd, getCommandText(cmd), null, menuDisconnectedId, null, null, isCommandAvailable(cmd));
+  removeConnectionMenus(function() {
+    createContextMenuEntry(menuDisconnectedId, i18n("action"), function() {
+      ["feelingLucky", "resumeLastSong", "gotoGmusic", "openMiniplayer"].forEach(function(cmd) {
+        createContextMenuEntry(cmd, getCommandText(cmd), null, menuDisconnectedId, null, null, isCommandAvailable(cmd));
+      });
     });
   });
 }
 
 function addContextMenuConnected() {
-  removeConnectionMenus();
+  removeConnectionMenus(function() {
+    createContextMenuEntry(menuConnectedId, i18n("action"), function() {//TODO i18n
+      var commands = ["playPause", "prevSong", "nextSong", "ff", "openMiniplayer", "volumeUp", "volumeDown", "volumeMute", "toggleRepeat", "toggleShuffle"];
+      if (localSettings.lastfmSessionKey) commands.push("loveUnloveSong");
+      commands.push("rate-1");
+      if (isStarRatingMode()) commands.push("rate-2", "rate-3", "rate-4");
+      commands.push("rate-5", "feelingLucky");
+      if (localSettings.lyrics) commands.push("openLyrics");
+      commands.forEach(function(cmd) {
+        createContextMenuEntry(cmd, getCommandText(cmd), null, menuConnectedId, null, null, isCommandAvailable(cmd));
+      });
+    });
+  });
+}
+
+function refreshContextMenuConnected() {
+  if (player.connected) addContextMenuConnected();
 }
 
 /* --- register listeners --- */
@@ -1846,7 +1869,10 @@ localSettings.w("syncSettings", function(val) {
   });
 });
 localSettings.al("lastfmSessionName", calcScrobbleTime);
-localSettings.al("lyrics", postLyricsState);
+localSettings.al("lyrics", function() {
+  postLyricsState();
+  refreshContextMenuConnected();
+});
 localSettings.al("lyricsFontSize", postLyricsState);
 localSettings.al("lyricsWidth", postLyricsState);
 localSettings.w("notificationsEnabled", function(val, old) {
@@ -1983,7 +2009,15 @@ song.al("position", function(position) {
   }
 });
 
-song.al("info", function(info) {
+function updateContextMenuConnectedItem(cmds) {
+  if (player.connected) {
+    cmds.forEach(function(cmd) {
+      chromeContextMenus.update(cmd, { title: getCommandText(cmd), enabled: isCommandAvailable(cmd) });
+    });
+  }
+}
+
+song.al("info", function(info, old) {
   if (lastSongToResume && songsEqual(lastSongToResume.info, info)) {
     song.scrobbled = lastSongToResume.scrobbled;
     song.ff = lastSongToResume.ff;
@@ -2026,6 +2060,10 @@ song.al("info", function(info) {
   }
   updateBrowserActionInfo();
   calcScrobbleTime();
+  if (!old != !info) {//jshint ignore:line
+    // (only update if exactly one of them is null)
+    updateContextMenuConnectedItem(["prevSong", "nextSong", "ff", "openLyrics", "rate-1", "rate-2", "rate-3", "rate-4", "rate-5"]);
+  }
 });
 
 function isCommandAvailable(cmd) {
@@ -2040,9 +2078,9 @@ function isCommandAvailable(cmd) {
     case "ff":
       return !!song.info;
     case "volumeUp":
-      return player.volume && player.volume != "100";
+      return !!player.volume && player.volume != "100";
     case "volumeDown":
-      return player.volume && player.volume != "0";
+      return !!player.volume && player.volume != "0";
     case "volumeMute":
       return !!player.volume;
     case "toggleRepeat":
@@ -2050,13 +2088,13 @@ function isCommandAvailable(cmd) {
     case "toggleShuffle":
       return !!player.shuffle;
     case "loveUnloveSong":
-      return song.info && localSettings.lastfmSessionKey;
+      return !!song.info && !!localSettings.lastfmSessionKey;
     case "openLyrics":
-      return localSettings.lyrics && song.info;
+      return localSettings.lyrics && !!song.info;
     default:
       if (cmd.indexOf("rate-") === 0) {
         var rating = parseInt(cmd.substr(5, 1));
-        return song.info && (localSettings.ratingMode == "star" || rating == 1 || rating == 5);
+        return !!song.info && (isStarRatingMode() || rating == 1 || rating == 5);
       }
   }
   return true;
@@ -2083,6 +2121,12 @@ settings.al("iconShowAction", function() {
   updateIconClickActionListeners(settings.iconClickAction0);
   updateBrowserActionInfo();
 });
+
+player.al("playing", updateContextMenuConnectedItem.bind(window, ["playPause"]));
+player.al("volume", updateContextMenuConnectedItem.bind(window, ["volumeUp", "volumeDown", "volumeMute"]));
+player.al("repeat", updateContextMenuConnectedItem.bind(window, ["toggleRepeat"]));
+player.al("shuffle", updateContextMenuConnectedItem.bind(window, ["toggleShuffle"]));
+song.al("loved", updateContextMenuConnectedItem.bind(window, ["loveUnloveSong"]));
 
 /** Execute a command (might come from commands API, toast or browser icon action) */
 function executeCommand(command, src) {
