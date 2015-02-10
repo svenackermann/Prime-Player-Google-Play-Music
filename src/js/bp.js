@@ -590,7 +590,7 @@ function getCommandText(cmd) {
       key = player.playing ? "pauseSong" : "resumeSong";
       break;
     case "resumeLastSong":
-      if (lastSongInfo) return i18n("resumeLastSongWithTitle", lastSongInfo.artist + " - " + lastSongInfo.title);
+      if (lastSongInfo && settings.saveLastPosition) return i18n("resumeLastSongWithTitle", lastSongInfo.artist + " - " + lastSongInfo.title);
       /* falls through */ 
     case "prevSong":
     case "nextSong":
@@ -673,9 +673,12 @@ function getAvailableIconClickConnectAction() {
 }
 
 function lastSongInfoChanged() {
-  if (settings.iconClickConnectAction == "resumeLastSong" && !player.connected) {
-    updateBrowserActionInfo();
-    iconClickSettingsChanged();
+  if (!player.connected) {
+    if (settings.iconClickConnectAction == "resumeLastSong") {
+      updateBrowserActionInfo();
+      iconClickSettingsChanged();
+    }
+    chromeContextMenus.update("resumeLastSong", { enabled: isCommandAvailable("resumeLastSong"), title: getCommandText("resumeLastSong") });
   }
 }
 
@@ -779,6 +782,7 @@ function connectPort(port) {
   port.onDisconnect.addListener(onDisconnectListener);
   if (!connecting) {
     connecting = true;
+    removeConnectionMenus();
     updateBrowserActionInfo();
     iconClickSettingsChanged();
   }
@@ -822,6 +826,7 @@ function onDisconnectListener() {
   googlemusicport = null;
   googlemusictabId = null;
   connecting = false;
+  addContextMenuDisconnected(); 
   
   song.reset();
   player.reset();
@@ -854,6 +859,7 @@ function onMessageListener(message) {
   } else if (type == "connected") {
     connecting = false;
     player.connected = true;
+    addContextMenuConnected(); 
     updateBrowserActionInfo();
     iconClickSettingsChanged();
     localSettings.allinc = val.allinc;
@@ -1616,6 +1622,7 @@ var openGoogleMusicTab = exports.openGoogleMusicTab = function(link, forceActive
     chromeTabs.create({url: url, pinned: settings.openGoogleMusicPinned, active: active }, function(tab) {
       connectingTabId = tab.id;
       connecting = true;
+      removeConnectionMenus();
       updateBrowserActionInfo();
       iconClickSettingsChanged();
     });
@@ -1625,6 +1632,7 @@ var openGoogleMusicTab = exports.openGoogleMusicTab = function(link, forceActive
 chromeTabs.onRemoved.addListener(function(tabId) {
   if (connectingTabId == tabId) {
     connecting = false;
+    addContextMenuDisconnected();
     updateBrowserActionInfo();
     iconClickSettingsChanged();
   }
@@ -1681,24 +1689,48 @@ function gaEnabledChanged(val) {
 
 chromeContextMenus.removeAll();
 
-function createContextMenuEntry(id, title, parentId, type, checked, cb) {
-  chromeContextMenus.create({ contexts: ["browser_action"], type: type || "normal", id: id, title: title, checked: checked, parentId: parentId }, cb);
+function createContextMenuEntry(id, title, cb, parentId, type, checked, enabled) {
+  chromeContextMenus.create({ contexts: ["browser_action"], type: type || "normal", id: id, title: title, checked: checked, parentId: parentId, enabled: enabled }, cb);
 }
 
-createContextMenuEntry("stopTimer", i18n("cancelTimer"), null, null, null, function() {
+createContextMenuEntry("stopTimer", i18n("cancelTimer"), function() {
   localSettings.w("timerEnd", function(timerEnd) {
     if (timerEnd) chromeContextMenus.update("stopTimer", { type: "normal" });
     else chromeContextMenus.update("stopTimer", { type: "separator" });
   });
 });
-createContextMenuEntry("sep1", null, null, "separator");
-createContextMenuEntry("scrobble", i18n("setting_scrobble"), null, "checkbox", settings.scrobble, function() {
+createContextMenuEntry("sep1", null, null, null, "separator");
+createContextMenuEntry("scrobble", i18n("setting_scrobble"), function() {
   localSettings.w("lastfmSessionName", function(user) {
     if (user) chromeContextMenus.update("scrobble", { type: "checkbox" });
     else chromeContextMenus.update("scrobble", { type: "separator" });
   });
-});
-createContextMenuEntry("toast", i18n("setting_toast"), null, "checkbox", settings.toast);
+}, null, "checkbox", settings.scrobble);
+createContextMenuEntry("toast", i18n("setting_toast"), null, null, "checkbox", settings.toast);
+
+var menuDisconnectedId = "menuDisconnected";
+var menuConnectedId1 = "menuConnected1";
+var menuConnectedSepId = "menuConnectedSep";
+var menuConnectedId2 = "menuConnected2";
+function removeConnectionMenus() {
+  chromeContextMenus.remove(menuDisconnectedId);
+  chromeContextMenus.remove(menuConnectedId1);
+  chromeContextMenus.remove(menuConnectedSepId);
+  chromeContextMenus.remove(menuConnectedId2);
+}
+
+function addContextMenuDisconnected() {
+  removeConnectionMenus();
+  createContextMenuEntry(menuDisconnectedId, "Aktion", function() {//TODO i18n
+    ["feelingLucky", "resumeLastSong", "gotoGmusic", "openMiniplayer"].forEach(function(cmd) {
+      createContextMenuEntry(cmd, getCommandText(cmd), null, menuDisconnectedId, null, null, isCommandAvailable(cmd));
+    });
+  });
+}
+
+function addContextMenuConnected() {
+  removeConnectionMenus();
+}
 
 /* --- register listeners --- */
 
@@ -1802,7 +1834,10 @@ settings.w("saveLastPosition", function(val) {
   addOrRemove("rating", saveRating);
   addOrRemove("scrobbled", saveScrobbled);
   addOrRemove("ff", saveFf);
-  if (lastSongInfo) lastSongInfoChanged();
+  if (val) getLastSong(function(lastSong) {
+    lastSongInfo = lastSong.info;
+    lastSongInfoChanged();
+  }); else lastSongInfoChanged();
 });
 
 localSettings.w("syncSettings", function(val) {
@@ -1999,7 +2034,7 @@ function isCommandAvailable(cmd) {
     case "playPause":
       return player.playing !== null;
     case "resumeLastSong":
-      return !!lastSongInfo;
+      return settings.saveLastPosition && !!lastSongInfo;
     case "prevSong":
     case "nextSong":
     case "ff":
@@ -2132,8 +2167,16 @@ chromeContextMenus.onClicked.addListener(function(info) {
     case "stopTimer":
       clearSleepTimer();
       break;
+    case "resumeLastSong":
+    case "gotoGmusic":
+      executeConnectAction(info.menuItemId);
+      break;
+    default:
+      executeCommand(info.menuItemId, "icon");
   }
 });
+
+addContextMenuDisconnected();
 
 getLastSong(function(lastSong) {
   lastSongInfo = lastSong.info;
@@ -2141,6 +2184,7 @@ getLastSong(function(lastSong) {
 });
 
 connectGoogleMusicTabs();
+
 if (isScrobblingEnabled()) scrobbleCachedSongs();
 
 })(this);
