@@ -24,6 +24,21 @@ var previousVersion = localStorage.previousVersion;
 /* --- shared utility functions (not used by bp) --- */
 /* ------------------------------------------------- */
 
+/** @return time string for amount of seconds (e.g. 263 -> 4:23) */
+function toTimeString(sec) {
+  if (sec > 60 * 60 * 24) return chrome.i18n.getMessage("moreThanOneDay");
+  if (sec < 10) return "0:0" + sec;
+  if (sec < 60) return "0:" + sec;
+  var time = "";
+  while (true) {
+    var cur = sec % 60;
+    time = cur + time;
+    if (sec == cur) return time;
+    time = (cur < 10 ? ":0" : ":") + time;
+    sec = (sec - cur) / 60;
+  }
+}
+
 /** @return value of a named parameter in an URL query string, null if not contained or no value */
 function extractUrlParam(name, queryString) {
   var matched = RegExp(name + "=(.*?)(&|$|#.*)").exec(queryString);
@@ -219,21 +234,6 @@ lastfm.unavailableMessage = i18n("lastfmUnavailable");
 /* -------------------------------- */
 /* --- shared utility functions --- */
 /* -------------------------------- */
-
-/** @return time string for amount of seconds (e.g. 263 -> 4:23) */
-var toTimeString = exports.toTimeString = function(sec) {
-  if (sec > 60*60*24) return chrome.i18n.getMessage("moreThanOneDay");
-  if (sec < 10) return "0:0" + sec;
-  if (sec < 60) return "0:" + sec;
-  var time = "";
-  while (true) {
-    var cur = sec % 60;
-    time = cur + time;
-    if (sec == cur) return time;
-    time = (cur < 10 ? ":0" : ":") + time;
-    sec = (sec - cur) / 60;
-  }
-};
 
 /** @return time in seconds that a time string represents (e.g. 4:23 -> 263) */
 var parseSeconds = exports.parseSeconds = function(time) {
@@ -1519,6 +1519,21 @@ exports.updateInfosViewed = function() {
   updateNotifierDone();
 };
 
+function getTimerMinutesLabel(min) {
+  return min < 60 ? i18n("timerInMin", min + "") : (min == 60 ? i18n("timerInOneHour") : i18n("timerInHours", (min / 60) + ""));
+}
+
+function getRemainingTimerTime(base) {
+  return Math.max(0, Math.floor((localSettings.timerEnd - $.now() / 1000) / base));
+}
+
+function getStopTimerMenuTitle() {
+  var min = getRemainingTimerTime(60);
+  var remaining = min < 2 ? i18n("timerInOneMinute") : getTimerMinutesLabel(min);
+  if (min < 1) remaining = "<" + remaining;
+  return i18n("cancelTimer") + " (" + remaining + ")";
+}
+
 var sleepTimer;
 var preNotifyTimer;
 var contextMenuInterval;
@@ -1571,15 +1586,13 @@ var startSleepTimer = exports.startSleepTimer = function() {
     }
   }, countdownSec * 1000);
   
-  function remainingSeconds() {
-    return Math.max(0, Math.floor(localSettings.timerEnd - $.now() / 1000));
-  }
+  
   
   if (localSettings.timerPreNotify > 0 && countdownSec > 0) {
     preNotifyTimer = setTimeout(function() {
       preNotifyTimer = null;
       function getWarningMessage() {
-        return i18n(localSettings.timerAction == "pause" ? "timerWarningMsgPause" : "timerWarningMsgCloseGm", "" + remainingSeconds());
+        return i18n(localSettings.timerAction == "pause" ? "timerWarningMsgPause" : "timerWarningMsgCloseGm", "" + getRemainingTimerTime(1));
       }
       var preNotifyOptions = {
         type: "basic",
@@ -1608,9 +1621,10 @@ var startSleepTimer = exports.startSleepTimer = function() {
       });
     }, Math.max(0, (countdownSec - localSettings.timerPreNotify) * 1000));
   }
+  
   contextMenuInterval = setInterval(function() {
-    chromeContextMenus.update("stopTimer", { title: i18n("cancelTimerRemaining", toTimeString(remainingSeconds())) });
-  }, 1000);
+    chromeContextMenus.update("stopTimer", { title: getStopTimerMenuTitle() });
+  }, 60000);
 };
 
 /** Stop the sleep timer. */
@@ -1708,28 +1722,11 @@ function refreshContextMenu() {
       chromeContextMenus.create({ contexts: ["browser_action"], type: type || "normal", id: id, title: title, checked: checked, parentId: parentId, enabled: enabled }, cb);
     }
     
-    var timerEnd = localSettings.timerEnd;
-    if (timerEnd !== null) {
-      if (timerEnd > 0) createContextMenuEntry("stopTimer", i18n("cancelTimer"));
-      else {
-        var startTimer = "startTimer";
-        createContextMenuEntry(startTimer, i18n("startTimerMenu"), function() {
-          //we do not have to listen for changes on localSettings.timerAction, because if it is changed on options page, the timer gets started immediately and thus the menu is rebuilt anyway
-          ["pause", "closeGm"].forEach(function(action) {
-            createContextMenuEntry("timerAction_" + action, i18n("timerAction_" + action), null, startTimer, "radio", localSettings.timerAction == action);
-          });
-          
-          [5, 10, 30, 60, 120, 180, 240, 360, 600].forEach(function(min) {
-            var title = min < 60 ? i18n("startTimerInMin", min + "") : (min == 60 ? i18n("startTimerInOneHour") : i18n("startTimerInHours", (min / 60) + ""));
-            createContextMenuEntry("timerActionIn_" + min, title, null, startTimer);
-          });
-        });
-      }
-    }
-    
     if (localSettings.lastfmSessionKey) createContextMenuEntry("scrobble", i18n("setting_scrobble"), null, null, "checkbox", settings.scrobble);
     
     createContextMenuEntry("toast", i18n("setting_toast"), null, null, "checkbox", settings.toast);
+    
+    createContextMenuEntry("sep", null, null, null, "separator");
     
     if (player.connected) {
       var menuConnectedId = "menuConnected";
@@ -1753,6 +1750,24 @@ function refreshContextMenu() {
           createContextMenuEntry(cmd, getCommandText(cmd), null, menuDisconnectedId, null, null, isCommandAvailable(cmd));
         });
       });
+    }
+    
+    var timerEnd = localSettings.timerEnd;
+    if (timerEnd !== null) {
+      if (timerEnd > 0) createContextMenuEntry("stopTimer", getStopTimerMenuTitle());
+      else {
+        var startTimer = "startTimer";
+        createContextMenuEntry(startTimer, i18n("startTimerMenu"), function() {
+          //we do not have to listen for changes on localSettings.timerAction, because if it is changed on options page, the timer gets started immediately and thus the menu is rebuilt anyway
+          ["pause", "closeGm"].forEach(function(action) {
+            createContextMenuEntry("timerAction_" + action, i18n("timerAction_" + action), null, startTimer, "radio", localSettings.timerAction == action);
+          });
+          
+          [5, 10, 30, 60, 120, 180, 240, 360, 600].forEach(function(min) {
+            createContextMenuEntry("timerActionIn_" + min, getTimerMinutesLabel(min), null, startTimer);
+          });
+        });
+      }
     }
   });
 }
@@ -2216,6 +2231,7 @@ chromeContextMenus.onClicked.addListener(function(info) {
   } else if (cmd.indexOf("timerActionIn_") === 0) {
     var min = parseInt(cmd.substr(14));
     localSettings.timerMinutes = min;
+    if (localSettings.timerPreNotify > min * 60) localSettings.timerPreNotify = min * 60;
     localSettings.timerEnd = ($.now() / 1000) + (min * 60);
     startSleepTimer();
   } else switch (cmd) {

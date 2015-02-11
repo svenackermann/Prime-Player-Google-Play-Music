@@ -969,27 +969,26 @@
     "message": "Cancel timer",
     "description": "label for notification button to cancel timer"
   },
-  "cancelTimerRemaining": {
-    "message": "Cancel timer ($REM$)",
-    "description": "text for context menu action to cancel timer",
-    "placeholders": { "REM": { "content": "$1", "example": "8:03" } }
-  },
   "startTimerMenu": {
     "message": "Start timer",
     "description": "text for context menu to start timer"
   },
-  "startTimerInMin": {
+  "timerInOneMinute": {
+    "message": "1 minute",
+    "description": "text for context menu entry for remaining time 1 minute"
+  },
+  "timerInMin": {
     "message": "$MIN$ minutes",
-    "description": "text for context menu entry to start timer in some minutes",
+    "description": "text for context menu entry to start timer in some minutes or for remaining time",
     "placeholders": { "MIN": { "content": "$1", "example": "30" } }
   },
-  "startTimerInOneHour": {
+  "timerInOneHour": {
     "message": "1 hour",
-    "description": "text for context menu entry to start timer in one hour"
+    "description": "text for context menu entry to start timer in one hour or for remaining time"
   },
-  "startTimerInHours": {
+  "timerInHours": {
     "message": "$HOU$ hours",
-    "description": "text for context menu entry to start timer in some hours",
+    "description": "text for context menu entry to start timer in some hours or for remaining time",
     "placeholders": { "HOU": { "content": "$1", "example": "2" } }
   },
   "filterHint": {

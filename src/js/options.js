@@ -323,7 +323,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function updatePreNotifyMax() {
-    $("#timerPreNotify").attr("max", $("#timerMin").val() * 60);
+    var timerPreNotify = $("#timerPreNotify");
+    var max = $("#timerMin").val() * 60;
+    timerPreNotify.attr("max", max);
+    if (timerPreNotify.val() > max) timerPreNotify.val(max);
   }
   
   /** Setup UI and logic for the timer. */

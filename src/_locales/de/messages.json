@@ -729,21 +729,20 @@
   "cancelTimer": {
     "message": "Timer stoppen"
   },
-  "cancelTimerRemaining": {
-    "message": "Timer stoppen ($REM$)",
-    "placeholders": { "REM": { "content": "$1" } }
-  },
   "startTimerMenu": {
     "message": "Timer starten"
   },
-  "startTimerInMin": {
+  "timerInOneMinute": {
+    "message": "1 Minute"
+  },
+  "timerInMin": {
     "message": "$MIN$ Minuten",
     "placeholders": { "MIN": { "content": "$1" } }
   },
-  "startTimerInOneHour": {
+  "timerInOneHour": {
     "message": "1 Stunde"
   },
-  "startTimerInHours": {
+  "timerInHours": {
     "message": "$HOU$ Stunden",
     "placeholders": { "HOU": { "content": "$1" } }
   },
