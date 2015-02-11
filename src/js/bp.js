@@ -24,21 +24,6 @@ var previousVersion = localStorage.previousVersion;
 /* --- shared utility functions (not used by bp) --- */
 /* ------------------------------------------------- */
 
-/** @return time string for amount of seconds (e.g. 263 -> 4:23) */
-function toTimeString(sec) {
-  if (sec > 60*60*24) return chrome.i18n.getMessage("moreThanOneDay");
-  if (sec < 10) return "0:0" + sec;
-  if (sec < 60) return "0:" + sec;
-  var time = "";
-  while (true) {
-    var cur = sec % 60;
-    time = cur + time;
-    if (sec == cur) return time;
-    time = (cur < 10 ? ":0" : ":") + time;
-    sec = (sec - cur) / 60;
-  }
-}
-
 /** @return value of a named parameter in an URL query string, null if not contained or no value */
 function extractUrlParam(name, queryString) {
   var matched = RegExp(name + "=(.*?)(&|$|#.*)").exec(queryString);
@@ -235,6 +220,21 @@ lastfm.unavailableMessage = i18n("lastfmUnavailable");
 /* --- shared utility functions --- */
 /* -------------------------------- */
 
+/** @return time string for amount of seconds (e.g. 263 -> 4:23) */
+var toTimeString = exports.toTimeString = function(sec) {
+  if (sec > 60*60*24) return chrome.i18n.getMessage("moreThanOneDay");
+  if (sec < 10) return "0:0" + sec;
+  if (sec < 60) return "0:" + sec;
+  var time = "";
+  while (true) {
+    var cur = sec % 60;
+    time = cur + time;
+    if (sec == cur) return time;
+    time = (cur < 10 ? ":0" : ":") + time;
+    sec = (sec - cur) / 60;
+  }
+};
+
 /** @return time in seconds that a time string represents (e.g. 4:23 -> 263) */
 var parseSeconds = exports.parseSeconds = function(time) {
   if (typeof(time) != "string") return 0;
@@ -295,7 +295,6 @@ var lastfmLogout = exports.lastfmLogout = function() {
   localSettings.lastfmSessionKey = null;
   localSettings.lastfmSessionName = null;
   song.loved = null;
-  refreshContextMenuConnected();
 };
 
 /**
@@ -791,7 +790,7 @@ function connectPort(port) {
   port.onDisconnect.addListener(onDisconnectListener);
   if (!connecting) {
     connecting = true;
-    removeConnectionMenus();
+    refreshContextMenu();
     updateBrowserActionInfo();
     iconClickSettingsChanged();
   }
@@ -835,7 +834,7 @@ function onDisconnectListener() {
   googlemusicport = null;
   googlemusictabId = null;
   connecting = false;
-  addContextMenuDisconnected(); 
+  refreshContextMenu(); 
   
   song.reset();
   player.reset();
@@ -873,7 +872,7 @@ function onMessageListener(message) {
     localSettings.allinc = val.allinc;
     localSettings.ratingMode = val.ratingMode;
     localSettings.quicklinks = val.quicklinks;
-    addContextMenuConnected(); 
+    refreshContextMenu(); 
   } else if (type == "loadLyrics") {
     if (song.info) fetchLyrics(song.info, function(result) {
       //we cannot send jQuery objects with a post, so send plain html
@@ -1044,7 +1043,6 @@ exports.setLastfmSession = function(session) {
   gaEvent("LastFM", "AuthorizeOK");
   loadCurrentLastfmInfo();
   scrobbleCachedSongs();
-  refreshContextMenuConnected();
 };
 
 /** Scrobble the current song. */
@@ -1373,17 +1371,14 @@ exports.popupOpened = function() {
 
 function executeConnectAction(action) {
   switch (action) {
-    case "feelingLucky":
-      executeFeelingLucky();
-      break;
     case "resumeLastSong":
       getLastSong(resumeLastSong);
       break;
     case "gotoGmusic":
       openGoogleMusicTab();
       break;
-    case "openMiniplayer":
-      openMiniplayer();
+    default:
+      executeCommand(action, "connect");
       break;
   }
 }
@@ -1526,6 +1521,7 @@ exports.updateInfosViewed = function() {
 
 var sleepTimer;
 var preNotifyTimer;
+var contextMenuInterval;
 /** Start the sleep timer. */
 var startSleepTimer = exports.startSleepTimer = function() {
   clearTimeout(sleepTimer);
@@ -1534,9 +1530,8 @@ var startSleepTimer = exports.startSleepTimer = function() {
   var nowSec = $.now() / 1000;
   var countdownSec = Math.max(0, localSettings.timerEnd - nowSec);
   sleepTimer = setTimeout(function() {
-    clearNotification(TIMERWARN);
-    sleepTimer = null;
-    localSettings.timerEnd = 0;
+    clearSleepTimer();
+    
     var msg, btnTitle, undoAction;
     switch (localSettings.timerAction) {
       case "pause":
@@ -1561,7 +1556,7 @@ var startSleepTimer = exports.startSleepTimer = function() {
         type: "basic",
         title: i18n("timerNotificationTitle"),
         message: msg,
-        buttons: [{title: btnTitle}],
+        buttons: [{ title: btnTitle }],
         iconUrl: getExtensionUrl("img/icon-48x48.png"),
         isClickable: false
       }, function(nid) {
@@ -1575,17 +1570,22 @@ var startSleepTimer = exports.startSleepTimer = function() {
       });
     }
   }, countdownSec * 1000);
+  
+  function remainingSeconds() {
+    return Math.max(0, Math.floor(localSettings.timerEnd - $.now() / 1000));
+  }
+  
   if (localSettings.timerPreNotify > 0 && countdownSec > 0) {
     preNotifyTimer = setTimeout(function() {
       preNotifyTimer = null;
       function getWarningMessage() {
-        return i18n(localSettings.timerAction == "pause" ? "timerWarningMsgPause" : "timerWarningMsgCloseGm", "" + Math.max(0, Math.floor(localSettings.timerEnd - $.now() / 1000)));
+        return i18n(localSettings.timerAction == "pause" ? "timerWarningMsgPause" : "timerWarningMsgCloseGm", "" + remainingSeconds());
       }
       var preNotifyOptions = {
         type: "basic",
         title: i18n("timerWarningTitle"),
         message: getWarningMessage(),
-        buttons: [{title: i18n("cancelTimer")}],
+        buttons: [{ title: i18n("cancelTimer") }],
         iconUrl: getExtensionUrl("img/icon-48x48.png"),
         priority: 1,
         isClickable: false
@@ -1608,10 +1608,15 @@ var startSleepTimer = exports.startSleepTimer = function() {
       });
     }, Math.max(0, (countdownSec - localSettings.timerPreNotify) * 1000));
   }
+  contextMenuInterval = setInterval(function() {
+    chromeContextMenus.update("stopTimer", { title: i18n("cancelTimerRemaining", toTimeString(remainingSeconds())) });
+  }, 1000);
 };
 
 /** Stop the sleep timer. */
 var clearSleepTimer = exports.clearSleepTimer = function() {
+  clearInterval(contextMenuInterval);
+  contextMenuInterval = null;
   clearTimeout(sleepTimer);
   sleepTimer = null;
   clearTimeout(preNotifyTimer);
@@ -1632,7 +1637,7 @@ var openGoogleMusicTab = exports.openGoogleMusicTab = function(link, forceActive
     chromeTabs.create({url: url, pinned: settings.openGoogleMusicPinned, active: active }, function(tab) {
       connectingTabId = tab.id;
       connecting = true;
-      removeConnectionMenus();
+      refreshContextMenu();
       updateBrowserActionInfo();
       iconClickSettingsChanged();
     });
@@ -1642,7 +1647,7 @@ var openGoogleMusicTab = exports.openGoogleMusicTab = function(link, forceActive
 chromeTabs.onRemoved.addListener(function(tabId) {
   if (connectingTabId == tabId) {
     connecting = false;
-    addContextMenuDisconnected();
+    refreshContextMenu();
     updateBrowserActionInfo();
     iconClickSettingsChanged();
   }
@@ -1697,66 +1702,69 @@ function gaEnabledChanged(val) {
   }
 }
 
-function createContextMenuEntry(id, title, cb, parentId, type, checked, enabled) {
-  chromeContextMenus.create({ contexts: ["browser_action"], type: type || "normal", id: id, title: title, checked: checked, parentId: parentId, enabled: enabled }, cb);
-}
-
-function setContextMenuEntryHidden(id, hide, type) {
-  chromeContextMenus.update(id, { type: hide ? "separator" : (type || "normal") });
-}
-
-chromeContextMenus.removeAll(function() {
-  createContextMenuEntry("stopTimer", i18n("cancelTimer"), function() {
-    localSettings.w("timerEnd", function(timerEnd) {
-      setContextMenuEntryHidden("stopTimer", !timerEnd);
-    });
+function refreshContextMenu() {
+  chromeContextMenus.removeAll(function() {
+    function createContextMenuEntry(id, title, cb, parentId, type, checked, enabled) {
+      chromeContextMenus.create({ contexts: ["browser_action"], type: type || "normal", id: id, title: title, checked: checked, parentId: parentId, enabled: enabled }, cb);
+    }
+    
+    var timerEnd = localSettings.timerEnd;
+    if (timerEnd !== null) {
+      if (timerEnd > 0) createContextMenuEntry("stopTimer", i18n("cancelTimer"));
+      else {
+        var startTimer = "startTimer";
+        createContextMenuEntry(startTimer, i18n("startTimerMenu"), function() {
+          //we do not have to listen for changes on localSettings.timerAction, because if it is changed on options page, the timer gets started immediately and thus the menu is rebuilt anyway
+          ["pause", "closeGm"].forEach(function(action) {
+            createContextMenuEntry("timerAction_" + action, i18n("timerAction_" + action), null, startTimer, "radio", localSettings.timerAction == action);
+          });
+          
+          [5, 10, 30, 60, 120, 180, 240, 360, 600].forEach(function(min) {
+            var title = min < 60 ? i18n("startTimerInMin", min + "") : (min == 60 ? i18n("startTimerInOneHour") : i18n("startTimerInHours", (min / 60) + ""));
+            createContextMenuEntry("timerActionIn_" + min, title, null, startTimer);
+          });
+        });
+      }
+    }
+    
+    if (localSettings.lastfmSessionKey) createContextMenuEntry("scrobble", i18n("setting_scrobble"), null, null, "checkbox", settings.scrobble);
+    
+    createContextMenuEntry("toast", i18n("setting_toast"), null, null, "checkbox", settings.toast);
+    
+    if (player.connected) {
+      var menuConnectedId = "menuConnected";
+      createContextMenuEntry(menuConnectedId, i18n("action"), function() {
+        var commands = ["playPause", "prevSong", "nextSong", "ff", "openMiniplayer", "volumeUp", "volumeDown", "volumeMute", "toggleRepeat", "toggleShuffle"];
+        if (localSettings.lastfmSessionKey) commands.push("loveUnloveSong");
+        commands.push("rate-1");
+        if (isStarRatingMode()) commands.push("rate-2", "rate-3", "rate-4");
+        commands.push("rate-5", "feelingLucky");
+        if (localSettings.lyrics) commands.push("openLyrics");
+        commands.forEach(function(cmd) {
+          createContextMenuEntry(cmd, getCommandText(cmd), null, menuConnectedId, null, null, isCommandAvailable(cmd));
+        });
+      });
+    } else if (!connecting) {
+      var menuDisconnectedId = "menuDisconnected";
+      createContextMenuEntry(menuDisconnectedId, i18n("action"), function() {
+        var commands = ["feelingLucky", "gotoGmusic", "openMiniplayer"];
+        if (settings.saveLastPosition) commands.unshift("resumeLastSong");
+        commands.forEach(function(cmd) {
+          createContextMenuEntry(cmd, getCommandText(cmd), null, menuDisconnectedId, null, null, isCommandAvailable(cmd));
+        });
+      });
+    }
   });
-  createContextMenuEntry("sep1", null, null, null, "separator");
-  createContextMenuEntry("scrobble", i18n("setting_scrobble"), function() {
-    localSettings.w("lastfmSessionName", function(user) {
-      setContextMenuEntryHidden("scrobble", !user, "checkbox");
-    });
-  }, null, "checkbox", settings.scrobble);
-  createContextMenuEntry("toast", i18n("setting_toast"), null, null, "checkbox", settings.toast);
+}
+
+localSettings.w("timerEnd", refreshContextMenu);
+localSettings.al("lastfmSessionKey", refreshContextMenu);
+localSettings.al("lyrics", function() {
+  if (player.connected) refreshContextMenu();
 });
-
-var menuDisconnectedId = "menuDisconnected";
-var menuConnectedId = "menuConnected";
-function removeConnectionMenus(cb) {
-  chromeContextMenus.remove(menuDisconnectedId, function() {
-    chromeContextMenus.remove(menuConnectedId, cb);
-  });
-}
-
-function addContextMenuDisconnected() {
-  removeConnectionMenus(function() {
-    createContextMenuEntry(menuDisconnectedId, i18n("action"), function() {
-      ["resumeLastSong", "feelingLucky", "gotoGmusic", "openMiniplayer"].forEach(function(cmd) {
-        createContextMenuEntry(cmd, getCommandText(cmd), null, menuDisconnectedId, null, null, isCommandAvailable(cmd));
-      });
-    });
-  });
-}
-
-function addContextMenuConnected() {
-  removeConnectionMenus(function() {
-    createContextMenuEntry(menuConnectedId, i18n("action"), function() {//TODO i18n
-      var commands = ["playPause", "prevSong", "nextSong", "ff", "openMiniplayer", "volumeUp", "volumeDown", "volumeMute", "toggleRepeat", "toggleShuffle"];
-      if (localSettings.lastfmSessionKey) commands.push("loveUnloveSong");
-      commands.push("rate-1");
-      if (isStarRatingMode()) commands.push("rate-2", "rate-3", "rate-4");
-      commands.push("rate-5", "feelingLucky");
-      if (localSettings.lyrics) commands.push("openLyrics");
-      commands.forEach(function(cmd) {
-        createContextMenuEntry(cmd, getCommandText(cmd), null, menuConnectedId, null, null, isCommandAvailable(cmd));
-      });
-    });
-  });
-}
-
-function refreshContextMenuConnected() {
-  if (player.connected) addContextMenuConnected();
-}
+settings.al("saveLastPosition", function() {
+  if (!player.connected && !connecting) refreshContextMenu();
+});
 
 /* --- register listeners --- */
 
@@ -1860,7 +1868,6 @@ settings.w("saveLastPosition", function(val) {
   addOrRemove("rating", saveRating);
   addOrRemove("scrobbled", saveScrobbled);
   addOrRemove("ff", saveFf);
-  setContextMenuEntryHidden("resumeLastSong", !val);
   if (val) getLastSong(function(lastSong) {
     lastSongInfo = lastSong.info;
     lastSongInfoChanged();
@@ -1873,10 +1880,7 @@ localSettings.w("syncSettings", function(val) {
   });
 });
 localSettings.al("lastfmSessionName", calcScrobbleTime);
-localSettings.al("lyrics", function() {
-  postLyricsState();
-  refreshContextMenuConnected();
-});
+localSettings.al("lyrics", postLyricsState);
 localSettings.al("lyricsFontSize", postLyricsState);
 localSettings.al("lyricsWidth", postLyricsState);
 localSettings.w("notificationsEnabled", function(val, old) {
@@ -2205,7 +2209,16 @@ chromeNotifications.getPermissionLevel(updateNotificationsEnabled);
 chromeNotifications.onPermissionLevelChanged.addListener(updateNotificationsEnabled);
 
 chromeContextMenus.onClicked.addListener(function(info) {
-  switch (info.menuItemId) {
+  var cmd = info.menuItemId;
+  
+  if (cmd.indexOf("timerAction_") === 0) {
+    localSettings.timerAction = cmd.substr(12);
+  } else if (cmd.indexOf("timerActionIn_") === 0) {
+    var min = parseInt(cmd.substr(14));
+    localSettings.timerMinutes = min;
+    localSettings.timerEnd = ($.now() / 1000) + (min * 60);
+    startSleepTimer();
+  } else switch (cmd) {
     case "scrobble":
       settings.scrobble = info.checked;
       break;
@@ -2217,14 +2230,12 @@ chromeContextMenus.onClicked.addListener(function(info) {
       break;
     case "resumeLastSong":
     case "gotoGmusic":
-      executeConnectAction(info.menuItemId);
+      executeConnectAction(cmd);
       break;
     default:
-      executeCommand(info.menuItemId, "icon");
+      executeCommand(cmd, "icon");
   }
 });
-
-addContextMenuDisconnected();
 
 getLastSong(function(lastSong) {
   lastSongInfo = lastSong.info;

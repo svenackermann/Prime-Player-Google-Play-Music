@@ -382,12 +382,21 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
 
+  function renderLastSongIfAllowed() {
+    if (settings.saveLastPosition && lastSongInfo === false && (!player.connected || !song.info)) bp.getLastSong(renderLastSong);
+  }
+  
   function connectedWatcher(val) {
     $("body").toggleClass("connected", val);
     if (!val) restorePlayer();
-    if (settings.saveLastPosition && lastSongInfo === false && (!val || !song.info)) bp.getLastSong(renderLastSong);
+    renderLastSongIfAllowed();
   }
 
+  function saveLastPositionUpdated(val) {
+    if (val) renderLastSongIfAllowed();
+    else if (!song.info) songInfoWatcher(null);
+  }
+  
   function resize(sizing) {
     if (typeClass == "miniplayer" || typeClass == "toast") {
       window.resizeTo(sizing.width, sizing.height);
@@ -853,6 +862,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     settings.al("coverClickLink", updateCoverClickLink, typeClass);
     settings.al("titleClickLink", updateTitleClickLink, typeClass);
     settings.w("hideSearchfield", hideSearchfieldWatcher, typeClass);
+    settings.al("saveLastPosition", saveLastPositionUpdated, typeClass);
 
     player.w("repeat", repeatWatcher, typeClass);
     player.w("shuffle", shuffleWatcher, typeClass);

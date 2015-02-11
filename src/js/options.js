@@ -322,11 +322,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
     return cl.substring(start, end < 0 ? cl.length : end);
   }
   
+  function updatePreNotifyMax() {
+    $("#timerPreNotify").attr("max", $("#timerMin").val() * 60);
+  }
+  
   /** Setup UI and logic for the timer. */
   function initTimer() {
-    function updatePreNotifyMax() {
-      $("#timerPreNotify").attr("max", $("#timerMin").val() * 60);
-    }
     $("#timerMin").val(localSettings.timerMinutes).change(updatePreNotifyMax).parent().find("label").text(i18n("timerMinutes"));
     $("#timerNotify").prop("checked", localSettings.timerNotify).parent().find("label").text(i18n("timerNotify"));
     $("#timerPreNotify").val(localSettings.timerPreNotify).parent().find("label").text(i18n("timerPreNotify"));
@@ -584,6 +585,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
     localSettings.w("notificationsEnabled", notificationsEnabledChanged, context);
     //update timer
     localSettings.w("timerEnd", timerEndChanged, context);
+    localSettings.al("timerAction", function(val) {
+      $("#timerAction").val(val);
+    }, context);
+    localSettings.al("timerMinutes", function(val) {
+      $("#timerMin").val(val);
+      updatePreNotifyMax();
+    }, context);
     //Google account dependent options
     localSettings.w("ratingMode", ratingModeChanged, context);
     localSettings.w("allinc", allincChanged, context);
