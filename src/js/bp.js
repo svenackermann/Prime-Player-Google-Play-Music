@@ -1700,18 +1700,21 @@ function gaEnabledChanged(val) {
 function createContextMenuEntry(id, title, cb, parentId, type, checked, enabled) {
   chromeContextMenus.create({ contexts: ["browser_action"], type: type || "normal", id: id, title: title, checked: checked, parentId: parentId, enabled: enabled }, cb);
 }
+
+function setContextMenuEntryHidden(id, hide, type) {
+  chromeContextMenus.update(id, { type: hide ? "separator" : (type || "normal") });
+}
+
 chromeContextMenus.removeAll(function() {
   createContextMenuEntry("stopTimer", i18n("cancelTimer"), function() {
     localSettings.w("timerEnd", function(timerEnd) {
-      if (timerEnd) chromeContextMenus.update("stopTimer", { type: "normal" });
-      else chromeContextMenus.update("stopTimer", { type: "separator" });
+      setContextMenuEntryHidden("stopTimer", !timerEnd);
     });
   });
   createContextMenuEntry("sep1", null, null, null, "separator");
   createContextMenuEntry("scrobble", i18n("setting_scrobble"), function() {
     localSettings.w("lastfmSessionName", function(user) {
-      if (user) chromeContextMenus.update("scrobble", { type: "checkbox" });
-      else chromeContextMenus.update("scrobble", { type: "separator" });
+      setContextMenuEntryHidden("scrobble", !user, "checkbox");
     });
   }, null, "checkbox", settings.scrobble);
   createContextMenuEntry("toast", i18n("setting_toast"), null, null, "checkbox", settings.toast);
@@ -1728,7 +1731,7 @@ function removeConnectionMenus(cb) {
 function addContextMenuDisconnected() {
   removeConnectionMenus(function() {
     createContextMenuEntry(menuDisconnectedId, i18n("action"), function() {
-      ["feelingLucky", "resumeLastSong", "gotoGmusic", "openMiniplayer"].forEach(function(cmd) {
+      ["resumeLastSong", "feelingLucky", "gotoGmusic", "openMiniplayer"].forEach(function(cmd) {
         createContextMenuEntry(cmd, getCommandText(cmd), null, menuDisconnectedId, null, null, isCommandAvailable(cmd));
       });
     });
@@ -1857,6 +1860,7 @@ settings.w("saveLastPosition", function(val) {
   addOrRemove("rating", saveRating);
   addOrRemove("scrobbled", saveScrobbled);
   addOrRemove("ff", saveFf);
+  setContextMenuEntryHidden("resumeLastSong", !val);
   if (val) getLastSong(function(lastSong) {
     lastSongInfo = lastSong.info;
     lastSongInfoChanged();
