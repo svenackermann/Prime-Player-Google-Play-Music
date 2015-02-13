@@ -17,7 +17,7 @@ $sprite-y-count: 5;
   }
 }
 
-#rightbuttons > a, .thumbs-rating a[data-rating], #lastfmRating > a, .thumbs-rating .rating-container > a, #playControls > a, #navHead > a {
+#rightbuttons > a, .thumbs-rating a[data-rating], #lastfmRating > a, .thumbs-rating .rating-container > a, #playControls > a, #navHead > a:not(.fav) {
   background-repeat: no-repeat;
   background-image: url(../img/sprites.png);
 }
@@ -325,6 +325,25 @@ a {
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
 }
 
+.fav {
+  width: 16px;
+  height: 16px;
+  background-size: 14px;
+  background-repeat: no-repeat;
+  float: right;
+  background-image: url(../img/star-background.png);
+  &.isfav {
+    background-image: url(../img/star-active.png);
+  }
+  &:hover {
+    background-image: url(../img/star-hover.png);
+  }
+}
+
+.hidefav .fav {
+  display: none !important;
+}
+
 #nav {
   display: none;
 }
@@ -383,7 +402,20 @@ a {
 #navlistContainer {
   .playlistsList, .playlist, .albumContainers {
     > div {
+      height: 18px;
       white-space: nowrap;
+      > *:not(img) {
+        padding-top: 4px;
+      }
+      > img {
+        float: left;
+        margin-right: 4px;
+        height: 16px;
+      }
+      > .fav {
+        margin-top: 2px;
+        padding-top: 0;
+      }
       span:not(.duration) {
         color: #888;
       }
@@ -392,10 +424,18 @@ a {
       }
     }
   }
+  .albumContainers > div {
+    > img {
+      width: 32px;
+    }
+    > .nav {
+      display: block;
+      overflow: hidden;
+    }
+  }
   .playlistsList, .playlist {
     > div {
       > img {
-        height: 16px;
         width: 16px;
         border: 1px solid #AAA;
         cursor: pointer;
@@ -406,23 +446,22 @@ a {
     }
   }
   .playlistsList > div {
-    > a, > span {
-      display: inline-block;
-      margin-left: 4px;
-      vertical-align: top;
+    > div {
       overflow: hidden;
-      white-space: nowrap;
-      padding-top: 2px;
-    }
-    > a.album {
-      width: 50%;
-      &:last-child {
-        width: auto;
+      > a, > span {
+        display: inline-block;
+        overflow: hidden;
+        margin-right: 3px;
+      }
+      > a.album {
+        width: 60%;
+        &:last-child {
+          width: auto;
+        }
       }
     }
   }
   .playlist > div {
-    height: 18px;
     &.current {
       background-image: url(../img/paused.png);
       background-repeat: no-repeat;
@@ -440,10 +479,6 @@ a {
         }
       }
     }
-    > img {
-      float: left;
-      margin-right: 4px;
-    }
     > div.info {
       overflow: hidden;
       white-space: nowrap;
@@ -454,7 +489,6 @@ a {
         white-space: nowrap;
         display: inline-block;
         margin-right: 1ex;
-        padding-top: 2px;
       }
       > :first-child {
         width: 40%;
@@ -579,17 +613,6 @@ a {
       width: 12px * $i;
       z-index: 7-$i;
     }
-  }
-}
-
-#navlistContainer .albumContainers > div {
-  > img {
-    height: 16px;
-  }
-  > a {
-    margin-left: 5px;
-    vertical-align: top;
-    white-space: nowrap;
   }
 }
 

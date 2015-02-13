@@ -181,6 +181,7 @@ var settings = exports.settings = new Bean({
   iconDoubleClickTime: 0,
   iconShowAction: true,
   saveLastPosition: false,
+  hideFavorites: false,
   skipRatedLower: 0,
   openGoogleMusicPinned: false,
   openGmBackground: false,
@@ -195,7 +196,8 @@ var settings = exports.settings = new Bean({
   filterToast: true,
   filterMiniplayer: true,
   filterLyrics: true,
-  filterLookfeel: true
+  filterLookfeel: true,
+  favorites: []
 }, true);
 
 /** the song currently loaded */
@@ -1661,6 +1663,7 @@ var openGoogleMusicTab = exports.openGoogleMusicTab = function(link, forceActive
 chromeTabs.onRemoved.addListener(function(tabId) {
   if (connectingTabId == tabId) {
     connecting = false;
+    connectingTabId = null;
     refreshContextMenu();
     updateBrowserActionInfo();
     iconClickSettingsChanged();

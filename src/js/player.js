@@ -30,6 +30,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   /** the cached last.fm info for the saved last song, if any or false if not loaded yet */
   var lastSongInfo = false;
+  
+  /** store the static links referenced in markup that should not be candidates for favorites **/
+  var staticLinks = { search: true };
 
   /** shortcuts, for minimisation */
   var i18n = chrome.i18n.getMessage;
@@ -397,23 +400,38 @@ chrome.runtime.getBackgroundPage(function(bp) {
     else if (!song.info) songInfoWatcher(null);
   }
   
+  function hideFavoritesWatcher(val) {
+    $("body").toggleClass("hidefav", val);
+  }
+  
   function resize(sizing) {
     if (typeClass == "miniplayer" || typeClass == "toast") {
       window.resizeTo(sizing.width, sizing.height);
     }
   }
 
+  function appendFavoriteIcon(row, link, title) {
+    if (!staticLinks[link]) {
+      var fav = $("<a class='fav'>").data("link", link).data("title", title);
+      if (findFavorite(link) >= 0) fav.addClass("isfav");
+      row.append(fav);
+    }
+  }
+  
   var renderNavList = {
     playlistsList: function(navlist, list) {
       list.forEach(function(pl) {
         var row = $("<div></div>");
         $("<img></img>").attr("src", pl.cover || "img/cover.png").appendTo(row);
-        $("<a tabindex='0' class='album nav'></a>").data("link", pl.titleLink).text(pl.title).attr("title", pl.title).appendTo(row);
+        appendFavoriteIcon(row, pl.titleLink, pl.title);
+        var info = $("<div>");
+        $("<a tabindex='0' class='album nav'></a>").data("link", pl.titleLink).text(pl.title).attr("title", pl.title).appendTo(info);
         if (pl.subTitleLink) {
-          $("<a tabindex='0' class='nav'></a>").data("link", pl.subTitleLink).text(pl.subTitle).attr("title", pl.subTitle).appendTo(row);
+          $("<a tabindex='0' class='nav'></a>").data("link", pl.subTitleLink).text(pl.subTitle).attr("title", pl.subTitle).appendTo(info);
         } else if (pl.subTitle) {
-          $("<span></span>").text(pl.subTitle).attr("title", pl.subTitle).appendTo(row);
+          $("<span></span>").text(pl.subTitle).attr("title", pl.subTitle).appendTo(info);
         }
+        row.append(info);
         navlist.append(row);
       });
     },
@@ -482,6 +500,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       list.forEach(function(ac) {
         var row = $("<div></div>");
         $("<img></img>").attr("src", ac.cover || "img/cover.png").appendTo(row);
+        appendFavoriteIcon(row, ac.link, ac.title);
         $("<a tabindex='0' class='nav'></a>").data("link", ac.link).text(ac.title).attr("title", ac.title).appendTo(row);
         navlist.append(row);
       });
@@ -549,6 +568,17 @@ chrome.runtime.getBackgroundPage(function(bp) {
     if (result.searchSrc) credits.append($("<a target='_blank'></a>").attr("href", result.searchSrc).text(i18n("lyricsSearchResult")));
   }
   
+  function findFavorite(link) {
+    var index = -1;
+    settings.favorites.some(function(val, i) {
+      if (val.link == link) {
+        index = i;
+        return true;
+      }
+    });
+    return index;
+  }
+  
   function switchView(title, link, search, options) {
     if ($("#player").is(":visible") && (typeClass == "miniplayer" || typeClass == "toast")) {
       savedSizing = {
@@ -558,7 +588,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
         screenY: window.screenY
       };
     }
-    $("#player").hide();
     if (currentNavList.link && currentNavList.link != link) {
       navHistory.push(currentNavList);
     }
@@ -568,8 +597,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var lyrics = $("#lyrics");
     lyrics.removeClass().hide().children().empty();
     if (!search) $("#navHead > input").val("");
-    $("#navlistContainer").hide();
-    $("#quicklinks").hide();
+    $("#player,#navlistContainer,#quicklinks,#navHead .fav").hide();
     if (link == "quicklinks") {
       resize(localSettings.quicklinksSizing);
       $("#quicklinks").show();
@@ -581,6 +609,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     } else {
       $("#navlist").addClass("loading");
       $("#navlistContainer").show();
+      if (!staticLinks[link]) {
+        $("#navHead .fav").toggleClass("isfav", findFavorite(link) >= 0).data("link", link).data("title", title).show();
+      }
       bp.loadNavigationList(link, search);
     }
     $("#nav").show();
@@ -607,7 +638,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function setupNavigationEvents() {
-    $("#navHead").find(".back").click(function() {
+    $("#navHead .back").click(function() {
       if (navHistory.length) {
         var current = navHistory.pop();
         currentNavList = {};
@@ -615,7 +646,17 @@ chrome.runtime.getBackgroundPage(function(bp) {
         switchView(current.title, current.link, current.search, current.options);
       } else restorePlayer();
     });
-    $("#navHead").find(".close").attr("title", i18n("close")).click(restorePlayer);
+    $("#navHead .close").attr("title", i18n("close")).click(restorePlayer);
+    
+    $("#nav").on("click", ".fav", function() {
+      var fav = $(this);
+      var i = findFavorite(fav.data("link"));
+      var favorites = settings.favorites;
+      if (i >= 0) favorites.splice(i, 1);
+      else favorites.push({ link: fav.data("link"), title: fav.data("title") });
+      settings.favorites = favorites;//trigger listener notification
+      fav.toggleClass("isfav", i < 0);
+    });
     
     var searchInputTimer;
     $("#navHead > input").keyup(function() {
@@ -807,10 +848,17 @@ chrome.runtime.getBackgroundPage(function(bp) {
     bp.setVolume(event.offsetX / $(this).width());
   }
 
+  function collectStaticLinks() {
+    $("a[data-link]").each(function() {
+      staticLinks[$(this).data("link")] = true;
+    });
+  }
+  
   $(function() {
     $("html").addClass(typeClass);
     $("head > title").first().text(i18n("extTitle"));
 
+    collectStaticLinks();
     setupGoogleRating();
     renderPlayControls();
 
@@ -863,6 +911,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     settings.al("titleClickLink", updateTitleClickLink, typeClass);
     settings.w("hideSearchfield", hideSearchfieldWatcher, typeClass);
     settings.al("saveLastPosition", saveLastPositionUpdated, typeClass);
+    settings.w("hideFavorites", hideFavoritesWatcher, typeClass);
 
     player.w("repeat", repeatWatcher, typeClass);
     player.w("shuffle", shuffleWatcher, typeClass);
