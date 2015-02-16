@@ -143,13 +143,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
   }
   
-  function allincChanged(val) {
-    settingsView.toggleClass("allinc", val);
-  }
-  
   function quicklinksChanged() {
-    $("#_coverClickLink, #_titleClickLink").children("option").each(function() {
-      $(this).text(bp.getTextForQuicklink($(this).attr("value")));
+    var linkSelects = $("#_coverClickLink,#_titleClickLink");
+    linkSelects.empty();
+    [""].concat(bp.getQuicklinks()).forEach(function(ql) {
+      $("<option>").attr("value", ql).text(bp.getTextForQuicklink(ql)).appendTo(linkSelects);
+    });
+    linkSelects.each(function() {
+      $(this).val(settings[this.id.substr(1)]);
     });
   }
   
@@ -491,29 +492,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initSelect("color", ["turq", "green", "red", "blue", "black", "orange"]);
     initColorInput("mpBgColor");
     initColorInput("mpTextColor");
-    var coverClickLink = initSelect("coverClickLink", [
-      "",
-      "now",
-      "artists",
-      "albums",
-      "genres",
-      "rd",
-      "myPlaylists",
-      "ap/queue",
-      "ap/auto-playlist-thumbs-up",
-      "ap/auto-playlist-recent",
-      "ap/auto-playlist-promo",
-      "ap/shared-with-me",
-      "ap/google-play-recommends",
-      "exptop",
-      "expnew",
-      "exprec"
-    ], bp.getTextForQuicklink);
-    addOptionClass(coverClickLink, "ap/google-play-recommends", "noallinc");
-    addOptionClass(coverClickLink, "exptop", "allinc");
-    addOptionClass(coverClickLink, "expnew", "allinc");
-    addOptionClass(coverClickLink, "exprec", "allinc");
-    initSelectFrom("titleClickLink", coverClickLink);
+    initSelect("coverClickLink", []);
+    initSelect("titleClickLink", []);
     initCheckbox("openLinksInMiniplayer");
     initHint("openLinksInMiniplayer");
     initCheckbox("hideSearchfield");
@@ -597,7 +577,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }, context);
     //Google account dependent options
     localSettings.w("ratingMode", ratingModeChanged, context);
-    localSettings.w("allinc", allincChanged, context);
+    localSettings.w("allinc", quicklinksChanged, context);
     localSettings.al("quicklinks", quicklinksChanged, context);
     
     //disable inputs if neccessary

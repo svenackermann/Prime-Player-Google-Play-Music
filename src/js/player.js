@@ -371,10 +371,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function lyricsFontSizeWatcher(val) {
     $("#lyrics").css("font-size", val + "px");
   }
-
-  function allincWatcher(val) {
-    $("#quicklinks").toggleClass("allinc", val);
-  }
   
   function volumeWatcher(val) {
     if (val === null) {
@@ -653,7 +649,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       var i = findFavorite(fav.data("link"));
       var favorites = settings.favorites;
       if (i >= 0) favorites.splice(i, 1);
-      else favorites.push({ link: fav.data("link"), title: fav.data("title") });
+      else favorites.unshift({ link: fav.data("link"), title: fav.data("title") });
       settings.favorites = favorites;//trigger listener notification
       fav.toggleClass("isfav", i < 0);
     });
@@ -831,9 +827,16 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function renderQuicklinks(val) {
-    $("#quicklinks a.nav").each(function() {
-      $(this).text(bp.getTextForQuicklink($(this).data("link")));
+    var qlDiv = $("#quicklinks");
+    qlDiv.empty();
+    var div1 = $("<div>");
+    var div2 = $("<div>");
+    qlDiv.append(div1, div2);
+    var quicklinks = bp.getQuicklinks();
+    quicklinks.forEach(function(ql, i) {
+      $("<a tabindex='0' class='nav'>").attr("data-link", ql).text(bp.getTextForQuicklink(ql)).appendTo(i < quicklinks.length / 2 ? div1 : div2);
     });
+    
     updateCoverClickLink(settings.coverClickLink);
     updateTitleClickLink(settings.titleClickLink);
     var searchPlaceholder = val && val.searchPlaceholder ? val.searchPlaceholder : i18n("searchPlaceholder");
@@ -898,9 +901,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     localSettings.w("lastfmSessionName", lastfmUserWatcher, typeClass);
     localSettings.w("lyrics", lyricsWatcher, typeClass);
     localSettings.w("lyricsFontSize", lyricsFontSizeWatcher, typeClass);
-    localSettings.w("allinc", allincWatcher, typeClass);
-    localSettings.w("ratingMode", ratingModeWatcher, typeClass);
     localSettings.w("quicklinks", renderQuicklinks, typeClass);
+    localSettings.al("allinc", renderQuicklinks, typeClass);
+    localSettings.w("ratingMode", ratingModeWatcher, typeClass);
     
     settings.w("scrobble", scrobbleWatcher, typeClass);
     settings.w("showLastfmInfo", showLastfmInfoWatcher, typeClass);

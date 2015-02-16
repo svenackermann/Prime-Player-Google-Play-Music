@@ -609,7 +609,7 @@
     "description": "message when no lyrics could be loaded (in miniplayer and Google Music)"
   },
   "quicklinks": {
-    "message": "quick-links",
+    "message": "Quick links",
     "description": "title for quicklinks view in miniplayer"
   },
   "welcomeTitle": {
@@ -1055,5 +1055,9 @@
   "action": {
     "message": "Action",
     "description": "text for action sub context menu"
+  },
+  "favorites": {
+    "message": "Favorites",
+    "description": "text for favorites sub context menu and header in miniplayer"
   }
 }

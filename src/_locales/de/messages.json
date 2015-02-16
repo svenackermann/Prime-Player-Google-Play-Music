@@ -794,5 +794,8 @@
   },
   "action": {
     "message": "Aktion"
+  },
+  "favorites": {
+    "message": "Favoriten"
   }
 }

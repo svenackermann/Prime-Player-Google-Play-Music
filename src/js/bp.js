@@ -275,6 +275,25 @@ var isNewerVersion = exports.isNewerVersion = function(version) {
   return version.length > prev.length;//version is longer (e.g. 1.0.1 > 1.0), else same version
 };
 
+var getQuicklinks = exports.getQuicklinks = function() {
+  var quicklinks = [
+    "now",
+    "artists",
+    "albums",
+    "genres",
+    "rd",
+    "myPlaylists",
+    "ap/queue",
+    "ap/auto-playlist-thumbs-up",
+    "ap/auto-playlist-recent",
+    "ap/auto-playlist-promo",
+    "ap/shared-with-me"
+  ];
+  if (localSettings.allinc) quicklinks.push("exptop", "expnew", "exprec");
+  else quicklinks.push("ap/google-play-recommends");
+  return quicklinks;
+};
+
 /** @return true, if scrobbling is available, i.e. user is logged in and enabled scrobbling */
 var isScrobblingEnabled = exports.isScrobblingEnabled = function() {
   return settings.scrobble && localSettings.lastfmSessionKey !== null;
@@ -456,7 +475,7 @@ var rate = exports.rate = function(rating) {
 };
 
 /** @return the label for a quick link, if connected to Google Music, the labels from the site are used. */
-exports.getTextForQuicklink = function(link) {
+var getTextForQuicklink = exports.getTextForQuicklink = function(link) {
   if (link == "myPlaylists") return i18n("myPlaylists");
   var text;
   if (link && localSettings.quicklinks) {//try to get text from Google site
@@ -920,7 +939,7 @@ exports.loadNavigationList = function(link, search) {
 };
 
 /** Select a link in the Google Music tab or open it when not connected. */
-exports.selectLink = function(link) {
+var selectLink = exports.selectLink = function(link) {
   postToGooglemusic({type: "selectLink", link: link});
   openGoogleMusicTab(link, true);//if already opened focus the tab, else open & focus a new one
 };
@@ -1755,6 +1774,23 @@ function refreshContextMenu() {
       });
     }
     
+    if (!connecting) {
+      if (!settings.hideFavorites && settings.favorites.length) {
+        var menuFavoritesId = "menuFavorites";
+        createContextMenuEntry(menuFavoritesId, i18n("favorites"), function() {
+          settings.favorites.forEach(function(fav) {
+            createContextMenuEntry("fav_" + fav.link, fav.title, null, menuFavoritesId);
+          });
+        });
+      }
+      var menuQuicklinksId = "menuQuicklinks";
+      createContextMenuEntry(menuQuicklinksId, i18n("quicklinks"), function() {
+        getQuicklinks().forEach(function(ql) {
+          createContextMenuEntry("ql_" + ql, getTextForQuicklink(ql).replace(/&/g, "&&"), null, menuQuicklinksId);
+        });
+      });
+    }
+    
     var timerEnd = localSettings.timerEnd;
     if (timerEnd !== null) {
       if (timerEnd > 0) createContextMenuEntry("stopTimer", getStopTimerMenuTitle());
@@ -1783,6 +1819,8 @@ localSettings.al("lyrics", function() {
 settings.al("saveLastPosition", function() {
   if (!player.connected && !connecting) refreshContextMenu();
 });
+settings.al("favorites", refreshContextMenu);
+settings.al("hideFavorites", refreshContextMenu);
 
 /* --- register listeners --- */
 
@@ -2237,6 +2275,10 @@ chromeContextMenus.onClicked.addListener(function(info) {
     if (localSettings.timerPreNotify > min * 60) localSettings.timerPreNotify = min * 60;
     localSettings.timerEnd = ($.now() / 1000) + (min * 60);
     startSleepTimer();
+  } else if (cmd.indexOf("fav_") === 0 || cmd.indexOf("ql_") === 0) {
+    var link = cmd.substr(cmd.indexOf("_") + 1);
+    selectLink(link);
+    //TODO start if it is a playlist
   } else switch (cmd) {
     case "scrobble":
       settings.scrobble = info.checked;
