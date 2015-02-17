@@ -555,19 +555,26 @@ function initNotifications() {
 }
 
 var browserIconCtx;
+var browserIconWithoutProgressImageData;
 var lastProgressPosition = 0;
 /**
  * Draw the progress onto the current browserIconCtx, if enabled.
  * @return true, if sth. was painted, else false (not enabled, no current song or no relevant change)
  */
-function drawProgress() {
-  if (settings.showProgress && browserIconCtx && song.info && song.positionSec - lastProgressPosition > 2) {
+function drawProgress(init) {
+  if (settings.showProgress && browserIconCtx && song.info && (init || Math.abs(song.positionSec - lastProgressPosition) > 2)) {
     lastProgressPosition = song.positionSec;
+    
+    if (init) browserIconWithoutProgressImageData = browserIconCtx.getImageData(0, 0, 38, 38);
+    else browserIconCtx.putImageData(browserIconWithoutProgressImageData, 0, 0);
+    
     browserIconCtx.strokeStyle = player.playing ? settings.showProgressColor : settings.showProgressColorPaused;
-    browserIconCtx.lineWidth = 3;
+    browserIconCtx.globalAlpha = 0.5;
+    browserIconCtx.lineWidth = 6;
     browserIconCtx.beginPath();
-    browserIconCtx.arc(10, 10, 7, 1.5 * Math.PI, (2 * lastProgressPosition / song.info.durationSec - 0.5) * Math.PI);
+    browserIconCtx.arc(18, 19, 14, 1.5 * Math.PI, (2 * lastProgressPosition / song.info.durationSec - 0.5) * Math.PI);
     browserIconCtx.stroke();
+    browserIconCtx.globalAlpha = 1.0;
     return true;
   }
   return false;
@@ -575,7 +582,7 @@ function drawProgress() {
 
 /** Draw the given images onto the backgroundSrc, call cb with canvas context when ready. */
 function drawIcon(backgroundSrc, imagePaths, cb, clickAction) {
-  var iconCtx = $("<canvas width='19' height='19'/>")[0].getContext("2d");
+  var iconCtx = $("<canvas width='38' height='38'/>")[0].getContext("2d");
   var image = new Image();
   var backgroundDrawn = false;
   var clickActionAvailable = isCommandAvailable(clickAction);
@@ -589,7 +596,7 @@ function drawIcon(backgroundSrc, imagePaths, cb, clickAction) {
       if (clickAction) {
         clickAction = null;
         iconCtx.globalAlpha = clickActionAvailable ? 1.0 : 0.5;
-        iconCtx.drawImage(image, 0, 0, 19, 19);
+        iconCtx.drawImage(image, 0, 0, 38, 38);
         iconCtx.globalAlpha = 1.0;
       } else iconCtx.drawImage(image, 0, 0);
     } else {
@@ -713,7 +720,9 @@ function lastSongInfoChanged() {
 
 /** Set the browser icon to the current painted image in browserIconCtx. */
 function updateBrowserIcon() {
-  if (browserIconCtx) chromeBrowserAction.setIcon({imageData: browserIconCtx.getImageData(0, 0, 19, 19)});
+  if (browserIconCtx) {
+    chromeBrowserAction.setIcon({ imageData: { "38": browserIconCtx.getImageData(0, 0, 38, 38) } });
+  }
 }
 
 var updateBrowserActionInfoTimer;
@@ -777,8 +786,7 @@ function doUpdateBrowserActionInfo() {
   
   drawIcon(path, iconPaths, function(iconCtx) {
     browserIconCtx = iconCtx;
-    lastProgressPosition = 0;
-    drawProgress();
+    drawProgress(true);
     updateBrowserIcon();
   }, settings.iconShowAction ? clickAction : null);
   if (iconPaths.length) drawIcon(path, iconPaths.concat(), function(iconCtx) {
@@ -2064,8 +2072,6 @@ song.al("position", function(position) {
       
       if (drawProgress()) updateBrowserIcon();
     }
-    
-    if (settings.showProgress && newPos < lastProgressPosition - 2) updateBrowserActionInfo();//repaint whole icon on rewind/repeat
     
     if (settings.saveLastPosition && googlemusicport) {
       chromeLocalStorage.set({"lastPosition": position});
