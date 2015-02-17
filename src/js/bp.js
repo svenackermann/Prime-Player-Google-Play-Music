@@ -1786,7 +1786,7 @@ function refreshContextMenu() {
       var menuQuicklinksId = "menuQuicklinks";
       createContextMenuEntry(menuQuicklinksId, i18n("quicklinks"), function() {
         getQuicklinks().forEach(function(ql) {
-          createContextMenuEntry("ql_" + ql, getTextForQuicklink(ql).replace(/&/g, "&&"), null, menuQuicklinksId);
+          if (ql != "myPlaylists") createContextMenuEntry("ql_" + ql, getTextForQuicklink(ql).replace(/&/g, "&&"), null, menuQuicklinksId);
         });
       });
     }
