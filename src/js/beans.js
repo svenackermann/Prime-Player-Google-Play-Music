@@ -135,7 +135,7 @@ function Bean(defaults, useLocalStorage) {
     var type = value.substr(0, 1);
     value = value.substr(1);
     switch (type) {
-      case "o": return $.extend(JSON.parse(value), defaultValue);
+      case "o": return $.extend({}, defaultValue, JSON.parse(value));
       case "b": return value == "true";
       case "n": return parseFloat(value);
       default: return value;

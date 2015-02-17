@@ -559,9 +559,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("gaEnabled");
     initHint("gaEnabled");
     
-    //watch this if changed via miniplayer or context menu
+    //watch this if changed via miniplayer
     settings.al("scrobble", scrobbleChanged, context);
-    settings.al("toast", toastChanged, context);
     //we must watch this as the session could be expired
     localSettings.w("lastfmSessionName", lastfmUserChanged, context);
     //show/hide notification based options

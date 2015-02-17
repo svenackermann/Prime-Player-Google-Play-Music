@@ -104,12 +104,12 @@ var localSettings = exports.localSettings = new Bean({
     compact2: { width: 211, height: 163, left: 0, top: 0 },
     hbar:     { width: 531, height: 68,  left: 0, top: 0 }
   },
-  playlistsListSizing: {width: 350, height: 320},
-  playlistSizing: {width: 500, height: 295},
-  quicklinksSizing: {width: 280, height: 160},
-  albumContainersSizing: {width: 220, height: 320},
-  mixedSizing: {width: 350, height: 320},
-  lyricsSizing: {width: 400, height: 400},
+  playlistsListSizing: { width: 350, height: 320 },
+  playlistSizing: { width: 500, height: 295 },
+  quicklinksSizing: { width: 280, height: 160 },
+  albumContainersSizing: { width: 220, height: 320 },
+  mixedSizing: { width: 350, height: 320 },
+  lyricsSizing: { width: 400, height: 400 },
   timerMinutes: 60,
   timerAction: "pause",
   timerNotify: true,
@@ -925,7 +925,7 @@ var loadNavlistSearch;
 function loadNavlistIfConnected() {
   if (!loadNavlistLink) return;
   if (player.connected) {
-    postToGooglemusic({type: "getNavigationList", link: loadNavlistLink, search: loadNavlistSearch, omitUnknownAlbums: loadNavlistLink == "albums" && settings.omitUnknownAlbums});
+    postToGooglemusic({ type: "getNavigationList", link: loadNavlistLink, search: loadNavlistSearch, omitUnknownAlbums: loadNavlistLink == "albums" && settings.omitUnknownAlbums });
     loadNavlistLink = null;
     loadNavlistSearch = null;
   } else openGoogleMusicTab(loadNavlistLink);//when connected, we get triggered again
@@ -940,13 +940,23 @@ exports.loadNavigationList = function(link, search) {
 
 /** Select a link in the Google Music tab or open it when not connected. */
 var selectLink = exports.selectLink = function(link) {
-  postToGooglemusic({type: "selectLink", link: link});
+  postToGooglemusic({ type: "selectLink", link: link });
   openGoogleMusicTab(link, true);//if already opened focus the tab, else open & focus a new one
 };
 
+var startPlaylistLink;
+function startPlaylistIfConnected() {
+  if (!startPlaylistLink) return;
+  if (player.connected) {
+    postToGooglemusic({ type: "startPlaylist", link: startPlaylistLink });
+    startPlaylistLink = null;
+  } else openGoogleMusicTab();//when connected, we get triggered again
+}
+
 /** Start a playlist in Google Music. */
-exports.startPlaylist = function(link) {
-  postToGooglemusic({type: "startPlaylist", link: link});
+var startPlaylist = exports.startPlaylist = function(link) {
+  startPlaylistLink = link;
+  startPlaylistIfConnected();
 };
 
 var feelingLucky = false;
@@ -1744,12 +1754,6 @@ function refreshContextMenu() {
       chromeContextMenus.create({ contexts: ["browser_action"], type: type || "normal", id: id, title: title, checked: checked, parentId: parentId, enabled: enabled }, cb);
     }
     
-    if (localSettings.lastfmSessionKey) createContextMenuEntry("scrobble", i18n("setting_scrobble"), null, null, "checkbox", settings.scrobble);
-    
-    createContextMenuEntry("toast", i18n("setting_toast"), null, null, "checkbox", settings.toast);
-    
-    createContextMenuEntry("sep", null, null, null, "separator");
-    
     if (player.connected) {
       var menuConnectedId = "menuConnected";
       createContextMenuEntry(menuConnectedId, i18n("action"), function() {
@@ -1812,7 +1816,9 @@ function refreshContextMenu() {
 }
 
 localSettings.w("timerEnd", refreshContextMenu);
-localSettings.al("lastfmSessionKey", refreshContextMenu);
+localSettings.al("lastfmSessionKey", function() {
+  if (player.connected) refreshContextMenu();
+});
 localSettings.al("lyrics", function() {
   if (player.connected) refreshContextMenu();
 });
@@ -1854,17 +1860,11 @@ settings.w("toastButton1", commandOptionListener.bind(window, updateToast));
 //we need a copy of the updateToast function here to avoid that changes on toastButton1 remove needed listeners for toastButton2
 settings.w("toastButton2", commandOptionListener.bind(window, function() { updateToast(); }));
 settings.al("toastProgress", updateToast);
-settings.al("scrobble", function(val) {
-  chromeContextMenus.update("scrobble", { checked: val });
-  calcScrobbleTime();
-});
+settings.al("scrobble", calcScrobbleTime);
 settings.al("scrobbleMaxDuration", calcScrobbleTime);
 settings.al("scrobblePercent", calcScrobbleTime);
 settings.al("scrobbleTime", calcScrobbleTime);
 settings.al("disableScrobbleOnFf", calcScrobbleTime);
-settings.al("toast", function(val) {
-  chromeContextMenus.update("toast", { checked: val });
-});
 //we need a copy of the updateBrowserActionInfo function here to avoid conflicts with showPlayingIndicator/showProgress listener
 settings.w("iconClickAction0", commandOptionListener.bind(window, function() { updateBrowserActionInfo(); }));
 settings.al("iconStyle", updateBrowserActionInfo);
@@ -1947,6 +1947,7 @@ localSettings.w("notificationsEnabled", function(val, old) {
 player.al("connected", function(val) {
   if (val) {
     loadNavlistIfConnected();
+    startPlaylistIfConnected();
     executeFeelingLuckyIfConnected();
     resumeLastSongIfConnected();
     if (settings.connectedIndicator) postToGooglemusic({type: "connectedIndicator", show: true});
@@ -2275,17 +2276,11 @@ chromeContextMenus.onClicked.addListener(function(info) {
     if (localSettings.timerPreNotify > min * 60) localSettings.timerPreNotify = min * 60;
     localSettings.timerEnd = ($.now() / 1000) + (min * 60);
     startSleepTimer();
-  } else if (cmd.indexOf("fav_") === 0 || cmd.indexOf("ql_") === 0) {
-    var link = cmd.substr(cmd.indexOf("_") + 1);
-    selectLink(link);
-    //TODO start if it is a playlist
+  } else if (cmd.indexOf("fav_") === 0) {
+    startPlaylist(cmd.substr(4));
+  } else if (cmd.indexOf("ql_") === 0) {
+    selectLink(cmd.substr(3));
   } else switch (cmd) {
-    case "scrobble":
-      settings.scrobble = info.checked;
-      break;
-    case "toast":
-      settings.toast = info.checked;
-      break;
     case "stopTimer":
       clearSleepTimer();
       break;

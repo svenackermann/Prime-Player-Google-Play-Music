@@ -472,7 +472,8 @@ a {
       > .timebar {
         height: 2px;
         position: relative;
-        bottom: 2px;
+        bottom: 6px;
+        padding-top: 0;
         > div {
           height: 100%;
           width: 0;

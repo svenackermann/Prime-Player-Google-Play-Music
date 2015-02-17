@@ -12,27 +12,22 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   /** "popup", "miniplayer" or "toast" */
   var typeClass = bp.extractUrlParam("type", location.search) || "popup";
-
   /** the size of the player to restore after closing playlist/lyrics/... */
   var savedSizing;
-
   /** history to allow for back navigation */
   var navHistory = [];
-
   /** information about the currently displayed navigation list */
   var currentNavList = {};
-
   /** cached HTML snippet for rating in playlists, depending on the rating mode */
   var ratingHtml;
-
   /** function to get the last.fm info for the saved last song, if any */
   var getLastSongInfo;
-
   /** the cached last.fm info for the saved last song, if any or false if not loaded yet */
   var lastSongInfo = false;
-  
   /** store the static links referenced in markup that should not be candidates for favorites **/
   var staticLinks = { search: true };
+  /** cache favorites for quick test if they exist **/
+  var favoritesCache = {};
 
   /** shortcuts, for minimisation */
   var i18n = chrome.i18n.getMessage;
@@ -40,6 +35,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
   var settings = bp.settings;
   var player = bp.player;
   var song = bp.song;
+
+  settings.favorites.forEach(function(fav) {
+    favoritesCache[fav.link] = true;
+  });
+
+  function isFavoriteCandidate(link) {
+    return !staticLinks[link] && link.indexOf("sm/") !== 0;
+  }
   
   if (typeClass == "popup") {
     bp.popupOpened();// tell bp that we're open (needed for icon click action handling)
@@ -406,12 +409,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
 
-  function appendFavoriteIcon(row, link, title) {
-    if (!staticLinks[link]) {
-      var fav = $("<a class='fav'>").data("link", link).data("title", title);
-      if (findFavorite(link) >= 0) fav.addClass("isfav");
-      row.append(fav);
-    }
+  function getFavoriteIcon(link, title) {
+    if (isFavoriteCandidate(link)) {
+      var fav = $("<a class='fav'>").data("fav", { link: link, title: title });
+      if (favoritesCache[link]) fav.addClass("isfav");
+      return fav;
+    } else return $("<a class='fav' style='visibility:hidden'>");
   }
   
   var renderNavList = {
@@ -419,7 +422,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       list.forEach(function(pl) {
         var row = $("<div></div>");
         $("<img></img>").attr("src", pl.cover || "img/cover.png").appendTo(row);
-        appendFavoriteIcon(row, pl.titleLink, pl.title);
+        row.append(getFavoriteIcon(pl.titleLink, pl.title));
         var info = $("<div>");
         $("<a tabindex='0' class='album nav'></a>").data("link", pl.titleLink).text(pl.title).attr("title", pl.title).appendTo(info);
         if (pl.subTitleLink) {
@@ -496,7 +499,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       list.forEach(function(ac) {
         var row = $("<div></div>");
         $("<img></img>").attr("src", ac.cover || "img/cover.png").appendTo(row);
-        appendFavoriteIcon(row, ac.link, ac.title);
+        row.append(getFavoriteIcon(ac.link, ac.title));
         $("<a tabindex='0' class='nav'></a>").data("link", ac.link).text(ac.title).attr("title", ac.title).appendTo(row);
         navlist.append(row);
       });
@@ -564,17 +567,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     if (result.searchSrc) credits.append($("<a target='_blank'></a>").attr("href", result.searchSrc).text(i18n("lyricsSearchResult")));
   }
   
-  function findFavorite(link) {
-    var index = -1;
-    settings.favorites.some(function(val, i) {
-      if (val.link == link) {
-        index = i;
-        return true;
-      }
-    });
-    return index;
-  }
-  
   function switchView(title, link, search, options) {
     if ($("#player").is(":visible") && (typeClass == "miniplayer" || typeClass == "toast")) {
       savedSizing = {
@@ -605,8 +597,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     } else {
       $("#navlist").addClass("loading");
       $("#navlistContainer").show();
-      if (!staticLinks[link]) {
-        $("#navHead .fav").toggleClass("isfav", findFavorite(link) >= 0).data("link", link).data("title", title).show();
+      if (isFavoriteCandidate(link)) {
+        $("#navHead .fav").toggleClass("isfav", !!favoritesCache[link]).data("fav", { link: link, title: title }).show();
       }
       bp.loadNavigationList(link, search);
     }
@@ -632,7 +624,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var backHint = navHistory.length > 0 ? i18n("backToLink", navHistory[navHistory.length - 1].title) : i18n("backToPlayer");
     $("#navHead").children(".back").attr("title", backHint).end().children("span").text(title);
   }
-  
+
   function setupNavigationEvents() {
     $("#navHead .back").click(function() {
       if (navHistory.length) {
@@ -645,13 +637,27 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#navHead .close").attr("title", i18n("close")).click(restorePlayer);
     
     $("#nav").on("click", ".fav", function() {
-      var fav = $(this);
-      var i = findFavorite(fav.data("link"));
+      var favElement = $(this);
+      var fav = favElement.data("fav");
+      var link = fav.link;
+      
       var favorites = settings.favorites;
-      if (i >= 0) favorites.splice(i, 1);
-      else favorites.unshift({ link: fav.data("link"), title: fav.data("title") });
+      if (favoritesCache[link]) {
+        var index = -1;
+        favorites.some(function(val, i) {
+          if (val.link == link) {
+            index = i;
+            return true;
+          }
+        });
+        if (index >= 0) favorites.splice(index, 1);
+        delete favoritesCache[link];
+      } else {
+        favorites.unshift(fav);
+        favoritesCache[link] = true;
+      }
       settings.favorites = favorites;//trigger listener notification
-      fav.toggleClass("isfav", i < 0);
+      favElement.toggleClass("isfav", !!favoritesCache[link]);
     });
     
     var searchInputTimer;
@@ -676,9 +682,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#album").click(ctrlHandler.bind(window, "albumUrl"));
     
     $("body").on("click", ".nav", function(e) {
-      var link = $(this).data("link");
+      var nav = $(this);
+      var link = nav.data("link");
       if (link) {
-        var options = $(this).data("options");
+        var options = nav.data("options");
         var title;
         if (link == "lyrics") {
           if (settings.openLyricsInMiniplayer == e.shiftKey) {
@@ -692,10 +699,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
           title = options.title;
           if (options.artist) title = options.artist + " - " + title;
           title = i18n("lyricsTitle", title);
-        } else title = $(this).data("text") || $(this).text();
+        } else title = nav.data("text") || nav.text();
         
         if (settings.openLinksInMiniplayer == e.shiftKey && link != "quicklinks" && link != "lyrics") bp.selectLink(link);
-        else switchView(title, link, $(this).data("search"), options);
+        else switchView(title, link, nav.data("search"), options);
         return false;
       }
     });
@@ -721,7 +728,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
 
     $("#navlistContainer").on("click", ".playlistsList img", function() {
-      bp.startPlaylist($(this).next("a").data("link"));
+      bp.startPlaylist($(this).parent().find(".album").data("link"));
       restorePlayer();
     }).on("click", ".playlist img", function() {
       var songRow = $(this).closest("div[data-index]");
@@ -841,6 +848,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     updateTitleClickLink(settings.titleClickLink);
     var searchPlaceholder = val && val.searchPlaceholder ? val.searchPlaceholder : i18n("searchPlaceholder");
     $("#navHead > input").attr("placeholder", searchPlaceholder);
+    collectStaticLinks();
   }
 
   function setSongPosition(event) {
@@ -852,6 +860,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function collectStaticLinks() {
+    staticLinks = {};
     $("a[data-link]").each(function() {
       staticLinks[$(this).data("link")] = true;
     });
@@ -861,7 +870,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("html").addClass(typeClass);
     $("head > title").first().text(i18n("extTitle"));
 
-    collectStaticLinks();
     setupGoogleRating();
     renderPlayControls();
 

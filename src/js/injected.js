@@ -26,7 +26,9 @@
   
   /** Start the currently displayed playlist. */
   function startPlaylist() {
-    simulateClick(document.getElementsByClassName("overlay-icon")[0]);
+    var overlay = document.getElementsByClassName("overlay-icon")[0];
+    if (overlay) simulateClick(overlay);
+    else startPlaylistSong({ index: 0 });
   }
   
   /**

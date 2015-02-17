@@ -615,6 +615,7 @@ $(function() {
       case "artists":
       case "genres":
       case "srar":
+      case "sarrar":
       case "srp":
         return "albumContainers";
       case "now":
@@ -624,6 +625,7 @@ $(function() {
       case "sar":
       case "tg":
       case "sral":
+      case "saral":
       case "ar":
       case "exprec":
       case "expnew":
@@ -681,7 +683,7 @@ $(function() {
       }
       if (error) {
         sendError();
-      } else if (link == "exptop" || link == "exprec" || link == "rd" || link.indexOf("expgenres/") === 0) {
+      } else if (link == "exptop" || link == "exprec" || link == "rd" || link.indexOf("expgenres/") === 0 || link.indexOf("artist/") === 0) {
         sendMixed(response);
       } else {
         var type = getListType(link);
