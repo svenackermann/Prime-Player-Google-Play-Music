@@ -116,6 +116,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function songInfoWatcher(val) {
     if ($("body").hasClass("hasLastSong")) {
       $("body").removeClass("hasLastSong");
+      $("#googleRating a").removeClass("disabled");
       renderRating(song.rating);
       getLastSongInfo = null;
       lastSongInfo = false;
@@ -207,6 +208,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   
   function renderLastSong(lastSong) {
     $("body").addClass("hasLastSong");
+    $("#googleRating a").addClass("disabled");
     renderSongInfo(lastSong.info);
     renderPosition(lastSong.positionSec, lastSong.info.durationSec, lastSong.position);
     renderRating(lastSong.rating);

@@ -17,6 +17,13 @@ $sprite-y-count: 5;
   }
 }
 
+@mixin hoverspriteno($x, $y, $hy, $size) {
+  @include sprite($x, $y, $size);
+  &:hover:not(.disabled) {
+    @include sprite($x, $hy, $size);
+  }
+}
+
 #rightbuttons > a, .thumbs-rating a[data-rating], #lastfmRating > a, .thumbs-rating .rating-container > a, #playControls > a, #navHead > a:not(.fav) {
   background-repeat: no-repeat;
   background-image: url(../img/sprites.png);
@@ -110,9 +117,6 @@ a {
   #googleRating {
     > .rating-container > a {
       cursor: default;
-      &:hover {
-        background: initial !important;
-      }
     }
     opacity: 0.75;
   }
@@ -764,16 +768,16 @@ a {
     float: left;
   }
   .rating-1 {
-    @include hoversprite(1, 0, 1, 16);
+    @include hoverspriteno(1, 0, 1, 16);
   }
   .rating-5 {
-    @include hoversprite(0, 0, 1, 16);
+    @include hoverspriteno(0, 0, 1, 16);
   }
   &.rating-1 .rating-1, &.rating-2 .rating-1 {
-    @include hoversprite(1, 2, 3, 16);
+    @include hoverspriteno(1, 2, 3, 16);
   }
   &.rating-4 .rating-5, &.rating-5 .rating-5 {
-    @include hoversprite(0, 2, 3, 16);
+    @include hoverspriteno(0, 2, 3, 16);
   }
 }
 
@@ -799,7 +803,7 @@ a {
       display: block;
       position: absolute;
       height: inherit;
-      &:hover {
+      &:hover:not(.disabled) {
         background: repeat-x url(../img/star-hover.png);
       }
       @for $i from 1 through 5 {

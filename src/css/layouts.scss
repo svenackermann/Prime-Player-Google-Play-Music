@@ -236,16 +236,16 @@
       height: $rate-size-px;
     }
     .rating-1 {
-      @include hoversprite(1, 0, 1, $rate-size);
+      @include hoverspriteno(1, 0, 1, $rate-size);
     }
     .rating-5 {
-      @include hoversprite(0, 0, 1, $rate-size);
+      @include hoverspriteno(0, 0, 1, $rate-size);
     }
     &.rating-1 .rating-1, &.rating-2 .rating-1 {
-      @include hoversprite(1, 2, 3, $rate-size);
+      @include hoverspriteno(1, 2, 3, $rate-size);
     }
     &.rating-4 .rating-5, &.rating-5 .rating-5 {
-      @include hoversprite(0, 2, 3, $rate-size);
+      @include hoverspriteno(0, 2, 3, $rate-size);
     }
   }
   .star-rating #googleRating {
