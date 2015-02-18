@@ -117,7 +117,7 @@ var localSettings = exports.localSettings = new Bean({
   timerEnd: null,
   notificationsEnabled: true,
   ratingMode: null,
-  quicklinks: null
+  quicklinks: {}
 }, true);
 //do not notify listeners, if not a real change (quicklinks are sent on each connect)
 localSettings.setEqualsFn("quicklinks", Bean.objectEquals);
@@ -477,9 +477,7 @@ var rate = exports.rate = function(rating) {
 var getTextForQuicklink = exports.getTextForQuicklink = function(link) {
   if (link == "myPlaylists") return i18n("myPlaylists");
   var text;
-  if (link && localSettings.quicklinks) {//try to get text from Google site
-    text = localSettings.quicklinks[link];
-  }
+  if (link) text = localSettings.quicklinks[link];//try to get text from Google site
   //use default
   return text || i18n("quicklink_" + link.replace(/-/g, "_").replace(/\//g, "_"));
 };

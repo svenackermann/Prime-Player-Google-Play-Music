@@ -135,7 +135,7 @@ function Bean(defaults, useLocalStorage) {
     var type = value.substr(0, 1);
     value = value.substr(1);
     switch (type) {
-      case "o": return $.extend({}, defaultValue, JSON.parse(value));
+      case "o": return value[0] == "[" ? JSON.parse(value) : $.extend({}, defaultValue, JSON.parse(value));
       case "b": return value == "true";
       case "n": return parseFloat(value);
       default: return value;
@@ -160,7 +160,7 @@ function Bean(defaults, useLocalStorage) {
         var equals = equalsFn[name] || defaultEquals;
         if (equals(val, old)) return;
         if (syncLocalStorage) {
-          if (val == null) {// jshint ignore:line
+          if (val === undefined) {
             localStorage.removeItem(name);
           } else {
             var type = typeof(val);
