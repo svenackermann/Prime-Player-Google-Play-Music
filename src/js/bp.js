@@ -96,7 +96,7 @@ var localSettings = exports.localSettings = new Bean({
   googleAccountNo: 0,
   syncSettings: false,
   lyrics: false,
-  lyricsProvider: null,
+  lyricsProviders: {},
   lyricsFontSize: 11,
   lyricsWidth: 250,
   miniplayerSizing: {
@@ -1498,7 +1498,7 @@ function migrateSettings(previousVersion) {
   
   //--- 3.0 ---
   //set "songlyrics" as provider if lyrics were enabled before
-  if (previousVersion < 3.0 && !localSettings.lyricsProvider && localSettings.lyrics) localSettings.lyricsProvider = "songlyrics";
+  if (previousVersion < 3.0 && localSettings.lyrics) localSettings.lyricsProviders = { songlyrics: true };
 }
 
 /** handler for onInstalled event (show the orange icon on update / notification on install) */
@@ -1944,8 +1944,13 @@ localSettings.w("syncSettings", function(val) {
 });
 localSettings.al("lastfmSessionName", calcScrobbleTime);
 localSettings.al("lyrics", postLyricsState);
-localSettings.w("lyricsProvider", function(val) {
-  lyricsProvider = val ? lyricsProviders[val] : null;
+localSettings.w("lyricsProviders", function(val) {
+  lyricsProvider = null;
+  for (var provider in val) {
+    if (val[provider]) {
+      lyricsProvider = lyricsProviders[provider];
+    }
+  }
 });
 localSettings.al("lyricsFontSize", postLyricsState);
 localSettings.al("lyricsWidth", postLyricsState);

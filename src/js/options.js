@@ -64,6 +64,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function lyricsChanged() {
+    $("#_lyrics").prop("disabled", $.isEmptyObject(localSettings.lyricsProviders));
     setSubsEnabled("lyrics", localSettings.lyrics);
     $("#_lyricsWidth").prop("disabled", !localSettings.lyrics || !settings.lyricsInGpm);
     $("option.lyrics").prop("disabled", !localSettings.lyrics);
@@ -190,13 +191,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   /** the i18n key for the label is "setting_" + prop */
   function addLabel(input) {
-    $("<label>").attr("for", input.attr("id")).text(i18n("setting_" + input.parent().attr("id"))).insertAfter(input);
+    return $("<label>").attr("for", input.attr("id")).text(i18n("setting_" + input.parent().attr("id"))).insertAfter(input);
   }
   
-  function addSetItAndLabel(input, prop) {
+  function setIdAndAddItWithLabel(input, prop) {
     input.attr("id", "_" + prop);
     $("#" + prop).append(input);
-    addLabel(input);
+    return addLabel(input);
   }
   
   /**
@@ -209,7 +210,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     theSettings = theSettings || settings;
     var input = $("<input type='checkbox'>");
     input.prop("checked", theSettings[prop]).click(boolUpdater(prop, theSettings));
-    addSetItAndLabel(input, prop);
+    setIdAndAddItWithLabel(input, prop);
     return input;
   }
 
@@ -225,7 +226,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     theSettings = theSettings || settings;
     var input = $("<input type='number'>").attr("min", min).attr("max", max);
     input.val(theSettings[prop]).blur(numberUpdater(prop, theSettings));
-    addSetItAndLabel(input, prop);
+    setIdAndAddItWithLabel(input, prop);
     return input;
   }
 
@@ -245,7 +246,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("<option>").attr("value", value).text(getOptionText(value)).appendTo(input);
     });
     input.val(settings[prop]).change(updater(prop, settings));
-    addSetItAndLabel(input, prop);
+    setIdAndAddItWithLabel(input, prop);
     return input;
   }
   
@@ -269,7 +270,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function initColorInput(prop) {
     var input = $("<input type='color'>");
     input.val(settings[prop]).change(stringUpdater(prop, settings));
-    addSetItAndLabel(input, prop);
+    setIdAndAddItWithLabel(input, prop);
     return input;
   }
   
@@ -285,32 +286,84 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   /** Handle the optional lyrics permission. */
-  function initLyrics() {
-    var lyrics = initCheckbox("lyrics", localSettings).unbind();
-    function enableCheckBox() {
-      lyrics.unbind().click(boolUpdater("lyrics", localSettings)).click(lyricsChanged);
-    }
-    var perm = { origins: ["http://www.songlyrics.com/*"] };
-    chrome.permissions.contains(perm, function(result) {
-      if (result) {
-        enableCheckBox();
-      } else {
-        //just to be sure, reset here (e.g. switching to another Chrome channel keeps the settings, but loses the permissions)
-        localSettings.lyrics = false;
-        lyrics.prop("checked", false);
-        lyrics.click(function() {
-          alert(i18n("lyricsAlert"));
-          chrome.permissions.request(perm, function(granted) {
-            if (granted) {
-              localSettings.lyrics = true;
-              lyricsChanged();
-              enableCheckBox();
-            } else {
-              lyrics.prop("checked", false);
-            }
-          });
+  function initLyricsProviders() {
+    $(".lyrics-provider").each(function() {
+      var div = $(this);
+      var id = div.attr("id");
+      var provider = id.substr(7);
+      
+      var providers = localSettings.lyricsProviders;
+      
+      $("<input type='radio' name='lyricsProvider' disabled>").attr("value", provider).click(function() {
+        for (var p in providers) providers[p] = p == provider;
+        localSettings.lyricsProviders = providers;//trigger listeners
+      }).appendTo(div);
+      var checkbox = $("<input type='checkbox'>");
+      var label = setIdAndAddItWithLabel(checkbox, id);
+      var hrefShort = label.text();
+      var href = "http://" + hrefShort;
+      var link = $("<a target='_blank'>").attr("href", href).text(hrefShort);
+      label.html(link);
+      
+      function setRadioStates() {
+        var singleProvider = Object.keys(providers).length <= 1;
+        $(".lyrics-provider input[type='radio']").each(function() {
+          var p = $(this).attr("value");
+          $(this).prop("checked", !!providers[p]).prop("disabled", providers[p] === undefined || singleProvider);
         });
       }
+      
+      function setProviderEnabled(enabled) {
+        var countProviders = Object.keys(providers).length;
+        if (enabled) {
+          providers[provider] = !countProviders;
+        } else {
+          if (localSettings.lyrics && countProviders == 1) {
+            $("#_lyrics").prop("checked", false);
+            localSettings.lyrics = false;
+          }
+          var isdefault = providers[provider];
+          delete providers[provider];
+          if (isdefault && countProviders > 1) {
+            var otherEnabledProvider = Object.keys(providers)[0];
+            providers[otherEnabledProvider] = true;
+          }
+        }
+        localSettings.lyricsProviders = providers;//trigger listeners
+        setRadioStates();
+        lyricsChanged();
+      }
+      
+      function enableCheckBox() {
+        var checked = providers[provider] !== undefined;
+        checkbox.prop("checked", checked);
+        
+        checkbox.unbind().click(function() {
+          setProviderEnabled(checkbox.prop("checked"));
+        });
+        setRadioStates();
+      }
+      var perm = { origins: [href + "/*"] };
+      chrome.permissions.contains(perm, function(result) {
+        if (result) {
+          enableCheckBox();
+        } else {
+          //just to be sure, reset here (e.g. switching to another Chrome channel keeps the settings, but loses the permissions)
+          if (providers[provider] !== undefined) setProviderEnabled(false);
+          
+          checkbox.click(function() {
+            alert(i18n("lyricsAlert", hrefShort));
+            chrome.permissions.request(perm, function(granted) {
+              if (granted) {
+                setProviderEnabled(true);
+                enableCheckBox();
+              } else {
+                checkbox.prop("checked", false);
+              }
+            });
+          });
+        }
+      });
     });
   }
   
@@ -504,7 +557,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("mpAutoClose");
     initCheckbox("mpCloseGm");
     
-    initLyrics();
+    initCheckbox("lyrics", localSettings).click(lyricsChanged);
+    initLyricsProviders();
     initCheckbox("openLyricsInMiniplayer");
     initHint("openLyricsInMiniplayer");
     initCheckbox("lyricsAutoReload");

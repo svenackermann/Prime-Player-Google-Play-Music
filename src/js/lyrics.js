@@ -25,8 +25,8 @@
     
     exports.lyricsProviders[name] = this;
     
-    /** @return an URL to the search page for the song or null if too little information */
-    this.buildSearchUrl = function(song) {
+    /** @return an URL to the search page for the song or null if too little information, takes a song as parameter */
+    this.buildSearchUrl = function() {
       return null;
     };
     
