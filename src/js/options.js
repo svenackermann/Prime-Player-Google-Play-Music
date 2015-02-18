@@ -576,8 +576,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }, context);
     //Google account dependent options
     localSettings.w("ratingMode", ratingModeChanged, context);
-    localSettings.w("allinc", quicklinksChanged, context);
-    localSettings.al("quicklinks", quicklinksChanged, context);
+    localSettings.w("quicklinks", quicklinksChanged, context);
     
     //disable inputs if neccessary
     lyricsChanged();

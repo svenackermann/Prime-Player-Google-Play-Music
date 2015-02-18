@@ -24,13 +24,6 @@
   /** Simulate a click event on an element. */
   var simulateClick = simulateMouseEvent.bind(window, "click");
   
-  /** Start the currently displayed playlist. */
-  function startPlaylist() {
-    var overlay = document.getElementsByClassName("overlay-icon")[0];
-    if (overlay) simulateClick(overlay);
-    else startPlaylistSong({ index: 0 });
-  }
-  
   /**
    * Execute a function for an element which matches a dataset attribute.
    * @param list the array to lookup the element
@@ -49,6 +42,19 @@
     });
   }
   
+  /** Start the currently displayed playlist. */
+  function startPlaylist() {
+    if (location.hash.indexOf("artist/") == 2) {
+      if (withMatchingDataset(document.getElementsByClassName("button"), "id", "radio", simulateClick)) return;
+    }
+    if (location.hash.indexOf("expgenres/") == 2) {
+      if (withMatchingDataset(document.getElementsByClassName("button"), "id", "start-genre-radio", simulateClick)) return;
+    }
+    var overlay = document.getElementsByClassName("overlay-icon")[0];
+    if (overlay) simulateClick(overlay);
+    else startPlaylistSong({ index: 0 });
+  }
+  
   /** Simulate a click on a .card with given id. */
   function clickCard(id) {
     withMatchingDataset(document.getElementsByClassName("card"), "id", id, function(card) {
@@ -58,7 +64,7 @@
   
   /** Click the feeling lucky button. */
   function clickFeelingLucky() {
-    withMatchingDataset(document.getElementsByTagName("button"), "id", "im-feeling-lucky", simulateClick);
+    withMatchingDataset(document.getElementsByClassName("button"), "id", "im-feeling-lucky", simulateClick);
   }
   
   /** Click the player button with given id. */

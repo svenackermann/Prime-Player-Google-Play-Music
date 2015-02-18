@@ -912,7 +912,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     localSettings.w("lyrics", lyricsWatcher, typeClass);
     localSettings.w("lyricsFontSize", lyricsFontSizeWatcher, typeClass);
     localSettings.w("quicklinks", renderQuicklinks, typeClass);
-    localSettings.al("allinc", renderQuicklinks, typeClass);
     localSettings.w("ratingMode", ratingModeWatcher, typeClass);
     
     settings.w("scrobble", scrobbleWatcher, typeClass);

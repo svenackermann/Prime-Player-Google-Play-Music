@@ -116,7 +116,6 @@ var localSettings = exports.localSettings = new Bean({
   timerPreNotify: 0,
   timerEnd: null,
   notificationsEnabled: true,
-  allinc: false,
   ratingMode: null,
   quicklinks: null
 }, true);
@@ -289,7 +288,7 @@ var getQuicklinks = exports.getQuicklinks = function() {
     "ap/auto-playlist-promo",
     "ap/shared-with-me"
   ];
-  if (localSettings.allinc) quicklinks.push("exptop", "expnew", "exprec");
+  if (localSettings.quicklinks && localSettings.quicklinks.exptop) quicklinks.push("exptop", "expnew", "exprec");
   else quicklinks.push("ap/google-play-recommends");
   return quicklinks;
 };
@@ -890,7 +889,6 @@ function onMessageListener(message) {
     player.connected = true;
     updateBrowserActionInfo();
     iconClickSettingsChanged();
-    localSettings.allinc = val.allinc;
     localSettings.ratingMode = val.ratingMode;
     localSettings.quicklinks = val.quicklinks;
     refreshContextMenu(); 
