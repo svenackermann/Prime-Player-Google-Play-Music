@@ -18,7 +18,7 @@
     "storage",
     "contextMenus"
   ],
-  "optional_permissions": [ "http://www.songlyrics.com/*" ],
+  "optional_permissions": [ "http://www.songlyrics.com/*", "http://lyrics.wikia.com/*" ],
   "browser_action": {
     "default_icon": "img/icon/default/notconnected.png",
     "default_title": "__MSG_extTitle__",
@@ -48,6 +48,7 @@
     "js/injected.js.map",
     "js/cs.js.map",
     "js/cs-songlyrics.js.map",
+    "js/cs-lyricswikia.js.map",
     "css/gpm.css.map"
   ],
   "commands": {
