@@ -129,6 +129,12 @@ function Bean(defaults, useLocalStorage) {
   /** @return value from localStorage converted to correct type */
   function parse(name, defaultValue) {
     if (!syncLocalStorage || localStorage[name] === undefined) {
+      if ($.isArray(defaultValue)) {
+        return defaultValue.slice(0);
+      }
+      if (defaultValue && typeof(defaultValue) == "object") {
+        return $.extend(true, {}, defaultValue);
+      }
       return defaultValue;
     }
     var value = localStorage[name];
@@ -160,13 +166,9 @@ function Bean(defaults, useLocalStorage) {
         var equals = equalsFn[name] || defaultEquals;
         if (equals(val, old)) return;
         if (syncLocalStorage) {
-          if (val === undefined) {
-            localStorage.removeItem(name);
-          } else {
-            var type = typeof(val);
-            if (type == "function") throw "cannot store a function in localstorage";
-            localStorage[name] = type.substr(0, 1) + ((type == "object") ? JSON.stringify(val) : val);
-          }
+          var type = typeof(val);
+          if (type == "function") throw "cannot store a function in localstorage";
+          localStorage[name] = type.substr(0, 1) + ((type == "object") ? JSON.stringify(val) : val);
         }
         cache[name] = val;
         if (useSyncStorage) saveSyncStorage();
