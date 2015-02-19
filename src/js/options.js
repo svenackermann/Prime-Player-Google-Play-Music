@@ -64,7 +64,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function lyricsChanged() {
-    $("#_lyrics").prop("disabled", $.isEmptyObject(localSettings.lyricsProviders));
     setSubsEnabled("lyrics", localSettings.lyrics);
     $("#_lyricsWidth").prop("disabled", !localSettings.lyrics || !settings.lyricsInGpm);
     $("option.lyrics").prop("disabled", !localSettings.lyrics);
@@ -287,73 +286,74 @@ chrome.runtime.getBackgroundPage(function(bp) {
   
   /** Handle the optional lyrics permission. */
   function initLyricsProviders() {
+    var providers = localSettings.lyricsProviders;
+    
     $(".lyrics-provider").each(function() {
       var div = $(this);
       var id = div.attr("id");
-      var provider = id.substr(7);
+      var providerName = id.substr(7);
+      var provider = bp.lyricsProviders[providerName];
       
-      var providers = localSettings.lyricsProviders;
-      
-      $("<input type='radio' name='lyricsProvider' disabled>").attr("value", provider).click(function() {
-        for (var p in providers) providers[p] = p == provider;
+      $("<input type='radio' name='lyricsProvider' disabled>").attr("value", providerName).click(function() {
+        providers.splice(providers.indexOf(providerName), 1);
+        providers.unshift(providerName);
         localSettings.lyricsProviders = providers;//trigger listeners
       }).appendTo(div);
       var checkbox = $("<input type='checkbox'>");
       var label = setIdAndAddItWithLabel(checkbox, id);
-      var hrefShort = label.text();
-      var href = "http://" + hrefShort;
-      var link = $("<a target='_blank'>").attr("href", href).text(hrefShort);
+      var link = $("<a target='_blank'>").attr("href", provider.getHomepage()).text(provider.getUrl());
       label.html(link);
       
       function setRadioStates() {
-        var singleProvider = Object.keys(providers).length <= 1;
         $(".lyrics-provider input[type='radio']").each(function() {
           var p = $(this).attr("value");
-          $(this).prop("checked", !!providers[p]).prop("disabled", providers[p] === undefined || singleProvider);
+          $(this).prop("checked", providers[0] == p).prop("disabled", providers.length < 2 || providers.indexOf(p) < 0);
         });
       }
       
       function setProviderEnabled(enabled) {
-        var countProviders = Object.keys(providers).length;
+        var lyrics = $("#_lyrics");
         if (enabled) {
-          providers[provider] = !countProviders;
+          providers.push(providerName);
+          if (providers.length == 1) lyrics.prop("disabled", false);
         } else {
-          if (localSettings.lyrics && countProviders == 1) {
-            $("#_lyrics").prop("checked", false);
-            localSettings.lyrics = false;
-          }
-          var isdefault = providers[provider];
-          delete providers[provider];
-          if (isdefault && countProviders > 1) {
-            var otherEnabledProvider = Object.keys(providers)[0];
-            providers[otherEnabledProvider] = true;
+          var index = providers.indexOf(providerName);
+          providers.splice(index, 1);
+          if (!providers.length) {
+            lyrics.prop("disabled", true);
+            if (localSettings.lyrics) {
+              lyrics.prop("checked", false);
+              localSettings.lyrics = false;
+              lyricsChanged();
+            }
           }
         }
         localSettings.lyricsProviders = providers;//trigger listeners
         setRadioStates();
-        lyricsChanged();
       }
       
+      $("#_lyrics").prop("disabled", !providers.length);
+      
       function enableCheckBox() {
-        var checked = providers[provider] !== undefined;
-        checkbox.prop("checked", checked);
+        checkbox.prop("checked", providers.indexOf(providerName) >= 0);
         
         checkbox.unbind().click(function() {
           setProviderEnabled(checkbox.prop("checked"));
         });
         setRadioStates();
       }
-      var perm = { origins: [href + "/*"] };
-      chrome.permissions.contains(perm, function(result) {
-        if (result) {
+      
+      provider.checkPermission(function(hasPermission) {
+        if (hasPermission) {
           enableCheckBox();
         } else {
-          //just to be sure, reset here (e.g. switching to another Chrome channel keeps the settings, but loses the permissions)
-          if (providers[provider] !== undefined) setProviderEnabled(false);
-          
+          //just to be sure, check if it has to be reset here (e.g. switching to another Chrome channel keeps the settings, but loses the permissions)
+          if (providers.indexOf(providerName) >= 0) {
+            setProviderEnabled(false);
+          }
           checkbox.click(function() {
-            alert(i18n("lyricsAlert", hrefShort));
-            chrome.permissions.request(perm, function(granted) {
+            alert(i18n("lyricsAlert", provider.getUrl()));
+            provider.requestPermission(function(granted) {
               if (granted) {
                 setProviderEnabled(true);
                 enableCheckBox();

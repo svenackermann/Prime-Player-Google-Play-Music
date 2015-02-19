@@ -6,10 +6,12 @@
  * @license BSD license
  */
 
-/* global gaEvent */
+/* global gaEvent, chrome */
 /* exported lyricsProviders */
 
 (function(exports) {
+
+  var chromePermissions = chrome.permissions;
 
   function cleanAndParse(data) {
     //remove images to avoid them to be loaded
@@ -21,13 +23,39 @@
   
   exports.lyricsProviders = {};
   
-  function LyricsProvider(name, searchLyrics) {
+  function LyricsProvider(name, url, searchLyrics) {
     
-    exports.lyricsProviders[name] = this;
+    var permissions = { origins: ["http://" + url + "/*"] };
+    
+    /** cache if we have permission */
+    var hasPermission = null;
+    
+    this.checkPermission = function(cb) {
+      if (hasPermission !== null) return cb(hasPermission);
+      chromePermissions.contains(permissions, function(result) {
+        hasPermission = result;
+        cb(result);
+      });
+    };
     
     /** @return an URL to the search page for the song or null if too little information, takes a song as parameter */
     this.buildSearchUrl = function() {
       return null;
+    };
+    
+    this.getUrl = function() {
+      return url;
+    };
+    
+    this.getHomepage = function() {
+      return "http://" + url;
+    };
+    
+    this.requestPermission = function(cb) {
+      chrome.permissions.request(permissions, function(granted) {
+        hasPermission = granted;
+        cb(granted);
+      });
     };
     
     this.opened = function() {
@@ -86,9 +114,11 @@
     this.getInjectScript = function() {
       return { file: "js/cs-" + name + ".js", runAt: "document_end" };
     };
+    
+    exports.lyricsProviders[name] = this;
   }
   
-  var providerSongLyrics = new LyricsProvider("songlyrics", function(cb, searchUrl, report) {
+  var providerSongLyrics = new LyricsProvider("songlyrics", "www.songlyrics.com", function(cb, searchUrl, report) {
     $.get(searchUrl)
       .done(function(resultPage) {
         var href = cleanAndParse(resultPage).find(".serpresult > a").attr("href");
@@ -139,7 +169,7 @@
     return url;
   };
   
-  var providerLyricsWikia = new LyricsProvider("lyricswikia", function(cb, searchUrl, report) {
+  var providerLyricsWikia = new LyricsProvider("lyricswikia", "lyrics.wikia.com", function(cb, searchUrl, report) {
     $.getJSON(searchUrl, "fmt=realjson")
       .done(function(result) {
         if (result.url && result.lyrics && $.trim(result.lyrics) != "Not found") {

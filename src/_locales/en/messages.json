@@ -730,14 +730,6 @@
     "message": "Activate lyrics",
     "description": "label for option to activate lyrics"
   },
-  "setting_lyrics_songlyrics": {
-    "message": "www.songlyrics.com",
-    "description": "label for lyrics provider songlyrics.com"
-  },
-  "setting_lyrics_lyricswikia": {
-    "message": "lyrics.wikia.com",
-    "description": "label for lyrics provider lyrics.wikia.com"
-  },
   "setting_openLyricsInMiniplayer": {
     "message": "Open lyrics in miniplayer",
     "description": "label for option to open lyrics in miniplayer"

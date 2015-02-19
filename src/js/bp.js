@@ -96,7 +96,7 @@ var localSettings = exports.localSettings = new Bean({
   googleAccountNo: 0,
   syncSettings: false,
   lyrics: false,
-  lyricsProviders: {},
+  lyricsProviders: [],
   lyricsFontSize: 11,
   lyricsWidth: 250,
   miniplayerSizing: {
@@ -1444,6 +1444,12 @@ function iconClickSettingsChanged() {
 function migrateSettings(previousVersion) {
   function isTrue(setting) { return setting == "btrue"; }
   
+  //--- 1.5 ---
+  //notification type is no longer supported
+  if (settings.miniplayerType == "notification") {
+    settings.miniplayerType = "popup";
+  }
+  
   //--- 2.15 ---
   //if "open miniplayer" or "play/pause" was set as click action, keep it in click action 0
   var icmp = localStorage.iconClickMiniplayer;
@@ -1498,7 +1504,11 @@ function migrateSettings(previousVersion) {
   
   //--- 3.0 ---
   //set "songlyrics" as provider if lyrics were enabled before
-  if (previousVersion < 3.0 && localSettings.lyrics) localSettings.lyricsProviders = { songlyrics: true };
+  if (previousVersion < 3.0 && localSettings.lyrics) {
+    lyricsProviders.songlyrics.checkPermission(function(hasPermission) {
+      if (hasPermission) localSettings.lyricsProviders = ["songlyrics"];
+    });
+  }
 }
 
 /** handler for onInstalled event (show the orange icon on update / notification on install) */
@@ -1840,10 +1850,8 @@ settings.al("hideFavorites", refreshContextMenu);
 settings.w("gaEnabled", gaEnabledChanged);
 settings.w("iconClickAction0", iconClickSettingsChanged);
 settings.al("iconClickConnectAction", iconClickSettingsChanged);
-settings.w("miniplayerType", function(val) {
-  if (val == "notification") {//migrate (notification type is no longer supported)
-    settings.miniplayerType = "popup";
-  } else if (miniplayer) openMiniplayer();//reopen
+settings.w("miniplayerType", function() {
+  if (miniplayer) openMiniplayer();//reopen
 });
 settings.al("layout", function() {
   if (miniplayer) {
@@ -1945,12 +1953,7 @@ localSettings.w("syncSettings", function(val) {
 localSettings.al("lastfmSessionName", calcScrobbleTime);
 localSettings.al("lyrics", postLyricsState);
 localSettings.w("lyricsProviders", function(val) {
-  lyricsProvider = null;
-  for (var provider in val) {
-    if (val[provider]) {
-      lyricsProvider = lyricsProviders[provider];
-    }
-  }
+  lyricsProvider = val[0] ? lyricsProviders[val[0]] : null;
 });
 localSettings.al("lyricsFontSize", postLyricsState);
 localSettings.al("lyricsWidth", postLyricsState);
