@@ -285,8 +285,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   /** Handle the optional lyrics permission. */
-  function initLyricsProviders() {
+  function initLyricsProviders(lyrics) {
     var providers = localSettings.lyricsProviders;
+    
+    lyrics.prop("disabled", !providers.length);
     
     $(".lyrics-provider").each(function() {
       var div = $(this);
@@ -312,7 +314,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
       }
       
       function setProviderEnabled(enabled) {
-        var lyrics = $("#_lyrics");
         if (enabled) {
           providers.push(providerName);
           if (providers.length == 1) lyrics.prop("disabled", false);
@@ -331,8 +332,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
         localSettings.lyricsProviders = providers;//trigger listeners
         setRadioStates();
       }
-      
-      $("#_lyrics").prop("disabled", !providers.length);
       
       function enableCheckBox() {
         checkbox.prop("checked", providers.indexOf(providerName) >= 0);
@@ -557,8 +556,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("mpAutoClose");
     initCheckbox("mpCloseGm");
     
-    initCheckbox("lyrics", localSettings).click(lyricsChanged);
-    initLyricsProviders();
+    var lyrics = initCheckbox("lyrics", localSettings).click(lyricsChanged);
+    initLyricsProviders(lyrics);
     initCheckbox("openLyricsInMiniplayer");
     initHint("openLyricsInMiniplayer");
     initCheckbox("lyricsAutoReload");
