@@ -270,7 +270,7 @@
     "message": "Songtexte Einstellungen"
   },
   "legendLyricsHint": {
-    "message": "Du kannst Prime Player erlaubt, Songtexte von songlyrics.com zu laden, um diese im Miniplayer und/oder dem Google Music Tab anzuzeigen."
+    "message": "Du kannst Prime Player erlauben, Songtexte von externen Webseiten zu laden, um diese im Miniplayer und/oder dem Google Music Tab anzuzeigen. Dazu musst du zun\u00E4chst mind. eine Seite unten aktivieren. Die aktivierten Seiten k\u00F6nnen per Drag & Drop sortiert werden, die erste Seite wird immer zuerst durchsucht."
   },
   "setting_gaEnabled": {
     "message": "Google Analytics aktivieren"
@@ -555,7 +555,8 @@
     "message": "Wenn aktiviert, werden Songtexte direkt im Miniplayer angezeigt, ansonsten wird ein neuer Tab ge\u00F6ffnet. Mit Umschalt+Klick auf den Link wird das Verhalten vor\u00FCbergehend umgekehrt."
   },
   "lyricsAlert": {
-    "message": "Diese Funktion ben\u00F6tigt Zugriff auf songlyrics.com, um die Texte zu laden.\nBitte beachte, dass f\u00FCr die Qualit\u00E4t der Suchergebnisse nicht Prime Player, sondern songlyrics.com verantwortlich ist. Prime Player zeigt immer das erste Suchergebnis auf songlyrics.com an. Es kann daher vorkommen, dass der angezeigte Text nicht zum Titel passt. Mit den Links am Ende des angezeigten Textes im Miniplayer kannst du die Suchergebnisse kontrollieren."
+    "message": "Diese Funktion ben\u00F6tigt Zugriff auf $SITE$ um die Texte zu laden.\nBitte beachte, dass f\u00FCr die Qualit\u00E4t der Suchergebnisse nicht Prime Player, sondern $SITE$ verantwortlich ist. Prime Player zeigt immer das erste Suchergebnis von $SITE$ an. Es kann daher vorkommen, dass der angezeigte Text nicht zum Titel passt. Mit den Links am Ende des angezeigten Textes im Miniplayer kannst du die Suchergebnisse kontrollieren.",
+    "placeholders": { "SITE": { "content": "$1" } }
   },
   "setting_hideSearchfield": {
     "message": "Verstecke Suchfeld im Miniplayer"

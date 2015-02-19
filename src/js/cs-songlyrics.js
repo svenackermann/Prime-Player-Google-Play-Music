@@ -1,5 +1,5 @@
 /**
- * Content script for song lyrics.
+ * Content script for songlyrics.com.
  * Will only be injected in tabs opened by the extension to automatically open the first search result.
  */
 /**

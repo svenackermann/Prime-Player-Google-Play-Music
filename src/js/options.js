@@ -190,13 +190,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   /** the i18n key for the label is "setting_" + prop */
   function addLabel(input) {
-    $("<label>").attr("for", input.attr("id")).text(i18n("setting_" + input.parent().attr("id"))).insertAfter(input);
+    return $("<label>").attr("for", input.attr("id")).text(i18n("setting_" + input.parent().attr("id"))).insertAfter(input);
   }
   
-  function addSetItAndLabel(input, prop) {
+  function setIdAndAddItWithLabel(input, prop) {
     input.attr("id", "_" + prop);
     $("#" + prop).append(input);
-    addLabel(input);
+    return addLabel(input);
   }
   
   /**
@@ -209,7 +209,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     theSettings = theSettings || settings;
     var input = $("<input type='checkbox'>");
     input.prop("checked", theSettings[prop]).click(boolUpdater(prop, theSettings));
-    addSetItAndLabel(input, prop);
+    setIdAndAddItWithLabel(input, prop);
     return input;
   }
 
@@ -225,7 +225,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     theSettings = theSettings || settings;
     var input = $("<input type='number'>").attr("min", min).attr("max", max);
     input.val(theSettings[prop]).blur(numberUpdater(prop, theSettings));
-    addSetItAndLabel(input, prop);
+    setIdAndAddItWithLabel(input, prop);
     return input;
   }
 
@@ -245,7 +245,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("<option>").attr("value", value).text(getOptionText(value)).appendTo(input);
     });
     input.val(settings[prop]).change(updater(prop, settings));
-    addSetItAndLabel(input, prop);
+    setIdAndAddItWithLabel(input, prop);
     return input;
   }
   
@@ -269,7 +269,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function initColorInput(prop) {
     var input = $("<input type='color'>");
     input.val(settings[prop]).change(stringUpdater(prop, settings));
-    addSetItAndLabel(input, prop);
+    setIdAndAddItWithLabel(input, prop);
     return input;
   }
   
@@ -285,33 +285,124 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   /** Handle the optional lyrics permission. */
-  function initLyrics() {
-    var lyrics = initCheckbox("lyrics", localSettings).unbind();
-    function enableCheckBox() {
-      lyrics.unbind().click(boolUpdater("lyrics", localSettings)).click(lyricsChanged);
+  function initLyricsProviders(lyrics) {
+    var providers = localSettings.lyricsProviders;
+    
+    lyrics.prop("disabled", !providers.length);
+    
+    function sortProviders() {
+      var prev = $(".lyrics-providers").first().prev();
+      providers.forEach(function(p) {
+        var current = $("#lyrics_" + p);
+        current.insertAfter(prev);
+        prev = current;
+      });
     }
-    var perm = { origins: ["http://www.songlyrics.com/*"] };
-    chrome.permissions.contains(perm, function(result) {
-      if (result) {
-        enableCheckBox();
-      } else {
-        //just to be sure, reset here (e.g. switching to another Chrome channel keeps the settings, but loses the permissions)
-        localSettings.lyrics = false;
-        lyrics.prop("checked", false);
-        lyrics.click(function() {
-          alert(i18n("lyricsAlert"));
-          chrome.permissions.request(perm, function(granted) {
-            if (granted) {
-              localSettings.lyrics = true;
-              lyricsChanged();
-              enableCheckBox();
-            } else {
-              lyrics.prop("checked", false);
-            }
+
+    $(".lyrics-providers").each(function() {
+      var div = $(this);
+      var id = div.attr("id");
+      var providerName = id.substr(7);
+      var provider = bp.lyricsProviders[providerName];
+      
+      var checkbox = $("<input type='checkbox'>");
+      var label = setIdAndAddItWithLabel(checkbox, id);
+      var link = $("<a target='_blank'>").attr("href", provider.getHomepage()).text(provider.getUrl());
+      label.html(link);
+      
+      function setDraggable(draggable) {
+        div.attr("draggable", draggable);
+        
+        function isValidDroptarget(ev) {
+          var types = ev.originalEvent.dataTransfer.types;
+          return types.indexOf("srcprovider/" + providerName) < 0 && types.indexOf("srcprovider") >= 0;
+        }
+        
+        div.off();
+        if (draggable) {
+          div.on("dragover", function(ev) {
+            //allow dropping (by returning false) only if not dragged over this provider and if source is another provider
+            return !isValidDroptarget(ev);
+          }).on("dragenter", function(ev) {
+            if (isValidDroptarget(ev)) div.addClass("dragging");
+          }).on("dragleave", function() {
+            div.removeClass("dragging");
+          }).on("dragstart", function(ev) {
+            var dt = ev.originalEvent.dataTransfer;
+            //we need 2 data elements here, because in the dragover/dragenter handler the value cannot be read (only the keys are available as "types")
+            dt.setData("srcprovider/" + providerName, "");
+            dt.setData("srcprovider", providerName);
+          }).on("drop", function(ev) {
+            div.removeClass("dragging");
+            var src = ev.originalEvent.dataTransfer.getData("srcprovider");
+            if (!src || src == providerName) return false;//just to be sure (in this cases the dragover handler should not allow dropping)
+            var srcIndex = providers.indexOf(src);
+            providers.splice(srcIndex, 1);
+            var destIndex = providers.indexOf(providerName);
+            if (srcIndex == destIndex) destIndex++;//insert after this if it was already the previous element
+            providers.splice(destIndex, 0, src);
+            localSettings.lyricsProviders = providers;//trigger listeners
+            sortProviders();
+            return false;
           });
+        }
+      }
+      
+      function setProviderEnabled(enabled) {
+        if (enabled) {
+          providers.push(providerName);
+          if (providers.length >= 1) lyrics.prop("disabled", false);
+        } else {
+          var index = providers.indexOf(providerName);
+          providers.splice(index, 1);
+          if (!providers.length) {
+            lyrics.prop("disabled", true);
+            if (localSettings.lyrics) {
+              lyrics.prop("checked", false);
+              localSettings.lyrics = false;
+              lyricsChanged();
+            }
+          }
+        }
+        localSettings.lyricsProviders = providers;//trigger listeners
+        setDraggable(enabled);
+        sortProviders();
+      }
+      
+      function enableCheckBox() {
+        var checked = providers.indexOf(providerName) >= 0;
+        checkbox.prop("checked", checked);
+        setDraggable(checked);
+        
+        checkbox.unbind().click(function() {
+          setProviderEnabled(checkbox.prop("checked"));
         });
       }
+      
+      provider.checkPermission(function(hasPermission) {
+        if (hasPermission) {
+          enableCheckBox();
+        } else {
+          //just to be sure, check if it has to be reset here (e.g. switching to another Chrome channel keeps the settings, but loses the permissions)
+          if (providers.indexOf(providerName) >= 0) {
+            setProviderEnabled(false);
+          }
+          checkbox.click(function() {
+            alert(i18n("lyricsAlert", provider.getUrl()));
+            provider.requestPermission(function(granted) {
+              if (granted) {
+                setProviderEnabled(true);
+                enableCheckBox();
+              } else {
+                checkbox.prop("checked", false);
+              }
+            });
+          });
+        }
+      });
     });
+    
+    sortProviders();
   }
   
   /** @return version from a class attribute (e.g. for an element with class "abc v-1.2.3 def" this returns "1.2.3") */
@@ -504,7 +595,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("mpAutoClose");
     initCheckbox("mpCloseGm");
     
-    initLyrics();
+    var lyrics = initCheckbox("lyrics", localSettings).click(lyricsChanged);
+    initLyricsProviders(lyrics);
     initCheckbox("openLyricsInMiniplayer");
     initHint("openLyricsInMiniplayer");
     initCheckbox("lyricsAutoReload");

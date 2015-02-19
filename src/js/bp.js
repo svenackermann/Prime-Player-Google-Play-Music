@@ -7,7 +7,7 @@
  * @license BSD license
  */
 
-/* global chrome, Bean, LastFM, buildLyricsSearchUrl, fetchLyrics, ga */
+/* global chrome, Bean, LastFM, lyricsProviders, ga */
 /* exported toTimeString, extractUrlParam */
 
 /* ---------------------------------- */
@@ -96,6 +96,7 @@ var localSettings = exports.localSettings = new Bean({
   googleAccountNo: 0,
   syncSettings: false,
   lyrics: false,
+  lyricsProviders: [],
   lyricsFontSize: 11,
   lyricsWidth: 250,
   miniplayerSizing: {
@@ -231,6 +232,8 @@ var lastfm = exports.lastfm = new LastFM("1ecc0b24153df7dc6ac0229d6fcb8dda", "fb
 lastfm.session.key = localSettings.lastfmSessionKey;
 lastfm.session.name = localSettings.lastfmSessionName;
 lastfm.unavailableMessage = i18n("lastfmUnavailable");
+
+var lyricsProvider;
 
 /* -------------------------------- */
 /* --- shared utility functions --- */
@@ -497,15 +500,19 @@ var openLyrics = exports.openLyrics = function(aSong) {
     if (!song.info) return;
     aSong = {artist: song.info.artist, title: song.info.title};
   }
-  var url = buildLyricsSearchUrl(aSong);
+  var url = lyricsProvider.buildSearchUrl(aSong);
   if (url) {
     chromeTabs.create({ url: url }, function(tab) {
-      chromeTabs.executeScript(tab.id, { file: "js/cs-songlyrics.js", runAt: "document_end" });
+      chromeTabs.executeScript(tab.id, lyricsProvider.getInjectScript() );
     });
-    gaEvent("Lyrics", "Open");
+    lyricsProvider.opened();
   } else {
-    gaEvent("Lyrics", "Error-noURL");
+    lyricsProvider.errorNoUrl();
   }
+};
+
+exports.fetchLyrics = function(song, cb) {
+  lyricsProvider.fetchLyrics(song, cb);
 };
 
 /** Wrap chrome notifications API for convenience. */
@@ -891,7 +898,7 @@ function onMessageListener(message) {
     localSettings.quicklinks = val.quicklinks;
     refreshContextMenu(); 
   } else if (type == "loadLyrics") {
-    if (song.info) fetchLyrics(song.info, function(result) {
+    if (song.info) lyricsProvider.fetchLyrics(song.info, function(result) {
       //we cannot send jQuery objects with a post, so send plain html
       if (result.lyrics) result.lyrics = result.lyrics.html();
       if (result.credits) result.credits = result.credits.html();
@@ -1437,6 +1444,12 @@ function iconClickSettingsChanged() {
 function migrateSettings(previousVersion) {
   function isTrue(setting) { return setting == "btrue"; }
   
+  //--- 1.5 ---
+  //notification type is no longer supported
+  if (settings.miniplayerType == "notification") {
+    settings.miniplayerType = "popup";
+  }
+  
   //--- 2.15 ---
   //if "open miniplayer" or "play/pause" was set as click action, keep it in click action 0
   var icmp = localStorage.iconClickMiniplayer;
@@ -1487,6 +1500,14 @@ function migrateSettings(previousVersion) {
     if (isTrue(icc)) settings.iconClickConnectAction = "gotoGmusic";
     else if (settings.iconClickAction0 == "openMiniplayer" || settings.iconClickAction0 == "feelingLucky") settings.iconClickConnectAction = settings.iconClickAction0;
     localStorage.removeItem("iconClickConnect");
+  }
+  
+  //--- 3.0 ---
+  //set "songlyrics" as provider if lyrics were enabled before
+  if (previousVersion < 3.0 && localSettings.lyrics) {
+    lyricsProviders.songlyrics.checkPermission(function(hasPermission) {
+      if (hasPermission) localSettings.lyricsProviders = ["songlyrics"];
+    });
   }
 }
 
@@ -1829,10 +1850,8 @@ settings.al("hideFavorites", refreshContextMenu);
 settings.w("gaEnabled", gaEnabledChanged);
 settings.w("iconClickAction0", iconClickSettingsChanged);
 settings.al("iconClickConnectAction", iconClickSettingsChanged);
-settings.w("miniplayerType", function(val) {
-  if (val == "notification") {//migrate (notification type is no longer supported)
-    settings.miniplayerType = "popup";
-  } else if (miniplayer) openMiniplayer();//reopen
+settings.w("miniplayerType", function() {
+  if (miniplayer) openMiniplayer();//reopen
 });
 settings.al("layout", function() {
   if (miniplayer) {
@@ -1933,6 +1952,9 @@ localSettings.w("syncSettings", function(val) {
 });
 localSettings.al("lastfmSessionName", calcScrobbleTime);
 localSettings.al("lyrics", postLyricsState);
+localSettings.w("lyricsProviders", function(val) {
+  lyricsProvider = val[0] ? lyricsProviders[val[0]] : null;
+});
 localSettings.al("lyricsFontSize", postLyricsState);
 localSettings.al("lyricsWidth", postLyricsState);
 localSettings.w("notificationsEnabled", function(val, old) {
