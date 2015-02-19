@@ -270,7 +270,7 @@
     "message": "Songtexte Einstellungen"
   },
   "legendLyricsHint": {
-    "message": "Du kannst Prime Player erlauben, Songtexte von externen Webseiten zu laden, um diese im Miniplayer und/oder dem Google Music Tab anzuzeigen. Dazu musst du zun\u00E4chst mind. eine Seite unten aktivieren. Eine der aktivierten Seiten ist zus\u00E4tzlich als Standard-Seite markiert, auf der immer zuerst nach Songtexten gesucht wird."
+    "message": "Du kannst Prime Player erlauben, Songtexte von externen Webseiten zu laden, um diese im Miniplayer und/oder dem Google Music Tab anzuzeigen. Dazu musst du zun\u00E4chst mind. eine Seite unten aktivieren. Die aktivierten Seiten k\u00F6nnen per Drag & Drop sortiert werden, die erste Seite wird immer zuerst durchsucht."
   },
   "setting_gaEnabled": {
     "message": "Google Analytics aktivieren"

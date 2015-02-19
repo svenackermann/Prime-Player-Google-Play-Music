@@ -291,7 +291,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     lyrics.prop("disabled", !providers.length);
     
     function sortProviders() {
-      var prev = $("#legendLyrics");
+      var prev = $(".lyrics-providers").first().prev();
       providers.forEach(function(p) {
         var current = $("#lyrics_" + p);
         current.insertAfter(prev);
@@ -318,6 +318,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
           return types.indexOf("srcprovider/" + providerName) < 0 && types.indexOf("srcprovider") >= 0;
         }
         
+        div.off();
         if (draggable) {
           div.on("dragover", function(ev) {
             //allow dropping (by returning false) only if not dragged over this provider and if source is another provider
@@ -344,8 +345,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
             sortProviders();
             return false;
           });
-        } else {
-          div.off();
         }
       }
       
