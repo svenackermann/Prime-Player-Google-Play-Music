@@ -9,6 +9,14 @@ body {
   font-family: arial;
 }
 
+*[draggable='true'] {
+  cursor: move;
+}
+
+.dragging {
+  outline: 1px solid black;
+}
+
 #settings {
   float: left;
   &.f-beg .adv, &.f-beg .exp, &.f-adv .exp {

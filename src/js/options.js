@@ -290,33 +290,69 @@ chrome.runtime.getBackgroundPage(function(bp) {
     
     lyrics.prop("disabled", !providers.length);
     
-    $(".lyrics-provider").each(function() {
+    function sortProviders() {
+      var prev = $("#legendLyrics");
+      providers.forEach(function(p) {
+        var current = $("#lyrics_" + p);
+        current.insertAfter(prev);
+        prev = current;
+      });
+    }
+
+    $(".lyrics-providers").each(function() {
       var div = $(this);
       var id = div.attr("id");
       var providerName = id.substr(7);
       var provider = bp.lyricsProviders[providerName];
       
-      $("<input type='radio' name='lyricsProvider' disabled>").attr("value", providerName).click(function() {
-        providers.splice(providers.indexOf(providerName), 1);
-        providers.unshift(providerName);
-        localSettings.lyricsProviders = providers;//trigger listeners
-      }).appendTo(div);
       var checkbox = $("<input type='checkbox'>");
       var label = setIdAndAddItWithLabel(checkbox, id);
       var link = $("<a target='_blank'>").attr("href", provider.getHomepage()).text(provider.getUrl());
       label.html(link);
       
-      function setRadioStates() {
-        $(".lyrics-provider input[type='radio']").each(function() {
-          var p = $(this).attr("value");
-          $(this).prop("checked", providers[0] == p).prop("disabled", providers.length < 2 || providers.indexOf(p) < 0);
-        });
+      function setDraggable(draggable) {
+        div.attr("draggable", draggable);
+        
+        function isValidDroptarget(ev) {
+          var types = ev.originalEvent.dataTransfer.types;
+          return types.indexOf("srcprovider/" + providerName) < 0 && types.indexOf("srcprovider") >= 0;
+        }
+        
+        if (draggable) {
+          div.on("dragover", function(ev) {
+            //allow dropping (by returning false) only if not dragged over this provider and if source is another provider
+            return !isValidDroptarget(ev);
+          }).on("dragenter", function(ev) {
+            if (isValidDroptarget(ev)) div.addClass("dragging");
+          }).on("dragleave", function() {
+            div.removeClass("dragging");
+          }).on("dragstart", function(ev) {
+            var dt = ev.originalEvent.dataTransfer;
+            //we need 2 data elements here, because in the dragover/dragenter handler the value cannot be read (only the keys are available as "types")
+            dt.setData("srcprovider/" + providerName, "");
+            dt.setData("srcprovider", providerName);
+          }).on("drop", function(ev) {
+            div.removeClass("dragging");
+            var src = ev.originalEvent.dataTransfer.getData("srcprovider");
+            if (!src || src == providerName) return false;//just to be sure (in this cases the dragover handler should not allow dropping)
+            var srcIndex = providers.indexOf(src);
+            providers.splice(srcIndex, 1);
+            var destIndex = providers.indexOf(providerName);
+            if (srcIndex == destIndex) destIndex++;//insert after this if it was already the previous element
+            providers.splice(destIndex, 0, src);
+            localSettings.lyricsProviders = providers;//trigger listeners
+            sortProviders();
+            return false;
+          });
+        } else {
+          div.off();
+        }
       }
       
       function setProviderEnabled(enabled) {
         if (enabled) {
           providers.push(providerName);
-          if (providers.length == 1) lyrics.prop("disabled", false);
+          if (providers.length >= 1) lyrics.prop("disabled", false);
         } else {
           var index = providers.indexOf(providerName);
           providers.splice(index, 1);
@@ -330,16 +366,18 @@ chrome.runtime.getBackgroundPage(function(bp) {
           }
         }
         localSettings.lyricsProviders = providers;//trigger listeners
-        setRadioStates();
+        setDraggable(enabled);
+        sortProviders();
       }
       
       function enableCheckBox() {
-        checkbox.prop("checked", providers.indexOf(providerName) >= 0);
+        var checked = providers.indexOf(providerName) >= 0;
+        checkbox.prop("checked", checked);
+        setDraggable(checked);
         
         checkbox.unbind().click(function() {
           setProviderEnabled(checkbox.prop("checked"));
         });
-        setRadioStates();
       }
       
       provider.checkPermission(function(hasPermission) {
@@ -364,6 +402,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
         }
       });
     });
+    
+    sortProviders();
   }
   
   /** @return version from a class attribute (e.g. for an element with class "abc v-1.2.3 def" this returns "1.2.3") */
