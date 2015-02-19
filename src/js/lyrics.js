@@ -27,8 +27,22 @@
     
     var permissions = { origins: ["http://" + url + "/*"] };
     
+    var injectScript = { file: "js/cs-" + name + ".js", runAt: "document_end" };
+    
     /** cache if we have permission */
     var hasPermission = null;
+    
+    function lyricsGaEvent(evt) {
+      gaEvent("Lyrics-" + name, evt);
+    }
+    
+    function errorNoUrl() {
+      lyricsGaEvent("Error-noURL");
+    }
+    
+    function errorNoPermission() {
+      lyricsGaEvent("Error-noPermission");
+    }
     
     this.checkPermission = function(cb) {
       if (hasPermission !== null) return cb(hasPermission);
@@ -37,6 +51,8 @@
         cb(result);
       });
     };
+    
+    this.checkPermission($.noop);//cache it now
     
     /** @return an URL to the search page for the song or null if too little information, takes a song as parameter */
     this.buildSearchUrl = function() {
@@ -58,36 +74,28 @@
       });
     };
     
-    this.opened = function() {
-      gaEvent("Lyrics-" + name, "Open");
-    };
-    
-    this.errorNoUrl = function() {
-      gaEvent("Lyrics-" + name, "Error-noURL");
-    };
-    
     this.errorGetSearch = function(cb, searchSrc) {
-      gaEvent("Lyrics-" + name, "Error-GET-Search");
+      lyricsGaEvent("Error-GET-Search");
       cb({ error: true, searchSrc: searchSrc });
     };
     
     this.noResult = function(cb, searchSrc) {
-      gaEvent("Lyrics-" + name, "NoResult");
+      lyricsGaEvent("NoResult");
       cb({ noresults: true, searchSrc: searchSrc });
     };
     
     this.noLyrics = function(cb, src, searchSrc) {
-      gaEvent("Lyrics-" + name, "NoLyrics");
+      lyricsGaEvent("NoLyrics");
       cb({ noresults: true, src: src, searchSrc: searchSrc });
     };
     
     this.errorGetResult = function(cb, src, searchSrc) {
-      gaEvent("Lyrics-" + name, "Error-GET-Result");
+      lyricsGaEvent("Error-GET-Result");
       cb({ error: true, src: src, searchSrc: searchSrc });
     };
     
     this.foundLyrics = function(cb, title, lyrics, credits, src, searchSrc) {
-      gaEvent("Lyrics-" + name, "OK");
+      lyricsGaEvent("OK");
       cb({ title: title, lyrics: lyrics, credits: credits && credits.length ? credits : null, src: src, searchSrc: searchSrc });
     };
     
@@ -102,17 +110,55 @@
      * - 'searchSrc': the URL to the search results page
      */
     this.fetchLyrics = function(song, cb) {
+      if (!hasPermission) {
+        errorNoPermission();
+        cb({ error: true });
+        return;
+      }
       var searchUrl = this.buildSearchUrl(song);
       if (searchUrl) {
         searchLyrics(cb, searchUrl, this);
       } else {
-        this.errorNoUrl();
+        errorNoUrl();
         cb({ error: true });
       }
     };
     
-    this.getInjectScript = function() {
-      return { file: "js/cs-" + name + ".js", runAt: "document_end" };
+    this.openLyrics = function(song, chromeTabs, cb, tabId) {
+      if (!hasPermission) {
+        errorNoPermission();
+        cb(false, tabId);
+        return;
+      }
+      var url = this.buildSearchUrl(song);
+      
+      function tabReadyCallback(tab) {
+        var executed = false;
+        function executeScript(theTabId, changeInfo) {
+          if (!executed && changeInfo.status == "complete") {
+            executed = true;
+            chromeTabs.onUpdated.removeListener(executeScript);
+            chromeTabs.executeScript(theTabId, injectScript, function(result) {
+              cb(result[0], theTabId);
+            });
+          }
+        }
+        chromeTabs.onUpdated.addListener(executeScript);
+        executeScript(tab.id, { status: tab.status });
+      }
+      
+      if (url) {
+        if (tabId) {
+          chromeTabs.update(tabId, { url: url }, tabReadyCallback);
+          lyricsGaEvent("Update");
+        } else {
+          chromeTabs.create({ url: url }, tabReadyCallback);
+          lyricsGaEvent("Open");
+        }
+      } else {
+        errorNoUrl();
+        cb(false, tabId);
+      }
     };
     
     exports.lyricsProviders[name] = this;

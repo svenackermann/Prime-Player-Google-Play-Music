@@ -285,10 +285,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   /** Handle the optional lyrics permission. */
-  function initLyricsProviders(lyrics) {
+  function initLyricsProviders(lyrics, lyricsAutoNext) {
     var providers = localSettings.lyricsProviders;
     
-    lyrics.prop("disabled", !providers.length);
+    function setEnabledStates() {
+      lyrics.prop("disabled", !providers.length);
+      lyricsAutoNext.prop("disabled", providers.length < 2);
+    }
+    setEnabledStates();
     
     function sortProviders() {
       var prev = $(".lyrics-providers").first().prev();
@@ -351,22 +355,19 @@ chrome.runtime.getBackgroundPage(function(bp) {
       function setProviderEnabled(enabled) {
         if (enabled) {
           providers.push(providerName);
-          if (providers.length >= 1) lyrics.prop("disabled", false);
         } else {
           var index = providers.indexOf(providerName);
           providers.splice(index, 1);
-          if (!providers.length) {
-            lyrics.prop("disabled", true);
-            if (localSettings.lyrics) {
-              lyrics.prop("checked", false);
-              localSettings.lyrics = false;
-              lyricsChanged();
-            }
+          if (!providers.length && localSettings.lyrics) {
+            lyrics.prop("checked", false);
+            localSettings.lyrics = false;
+            lyricsChanged();
           }
         }
         localSettings.lyricsProviders = providers;//trigger listeners
         setDraggable(enabled);
         sortProviders();
+        setEnabledStates();
       }
       
       function enableCheckBox() {
@@ -596,7 +597,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("mpCloseGm");
     
     var lyrics = initCheckbox("lyrics", localSettings).click(lyricsChanged);
-    initLyricsProviders(lyrics);
+    var lyricsAutoNext = initCheckbox("lyricsAutoNext");
+    initLyricsProviders(lyrics, lyricsAutoNext);
     initCheckbox("openLyricsInMiniplayer");
     initHint("openLyricsInMiniplayer");
     initCheckbox("lyricsAutoReload");

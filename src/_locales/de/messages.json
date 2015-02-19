@@ -545,6 +545,9 @@
   "setting_openLinksInMiniplayerHint": {
     "message": "Wenn aktiviert, werden Links zu Alben, Interpreten usw. direkt im Miniplayer ge\u00F6ffnet, ansonsten im Google Music Tab. Mit Umschalt+Klick auf den Link wird das Verhalten vor\u00FCbergehend umgekehrt."
   },
+  "setting_lyricsAutoNext": {
+    "message": "Probiere automatisch die n\u00E4chsten Seite(n), wenn nicht gefunden"
+  },
   "setting_lyrics": {
     "message": "Aktiviere Songtexte"
   },

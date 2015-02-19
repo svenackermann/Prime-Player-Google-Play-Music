@@ -165,6 +165,7 @@ var settings = exports.settings = new Bean({
   mpAutoClose: false,
   mpCloseGm: false,
   openLyricsInMiniplayer: true,
+  lyricsAutoNext: false,
   lyricsInGpm: false,
   lyricsAutoReload: false,
   iconStyle: "default",
@@ -232,8 +233,6 @@ var lastfm = exports.lastfm = new LastFM("1ecc0b24153df7dc6ac0229d6fcb8dda", "fb
 lastfm.session.key = localSettings.lastfmSessionKey;
 lastfm.session.name = localSettings.lastfmSessionName;
 lastfm.unavailableMessage = i18n("lastfmUnavailable");
-
-var lyricsProvider;
 
 /* -------------------------------- */
 /* --- shared utility functions --- */
@@ -500,19 +499,26 @@ var openLyrics = exports.openLyrics = function(aSong) {
     if (!song.info) return;
     aSong = {artist: song.info.artist, title: song.info.title};
   }
-  var url = lyricsProvider.buildSearchUrl(aSong);
-  if (url) {
-    chromeTabs.create({ url: url }, function(tab) {
-      chromeTabs.executeScript(tab.id, lyricsProvider.getInjectScript() );
-    });
-    lyricsProvider.opened();
-  } else {
-    lyricsProvider.errorNoUrl();
+  var index = 0;
+  function tryNext(tabId) {
+    var providers = localSettings.lyricsProviders;
+    lyricsProviders[providers[index]].openLyrics(aSong, chromeTabs, function(result, newTabId) {
+      if (!result && settings.lyricsAutoNext && providers[++index]) tryNext(newTabId);
+    }, tabId);
   }
+  tryNext();
 };
 
-exports.fetchLyrics = function(song, cb) {
-  lyricsProvider.fetchLyrics(song, cb);
+var fetchLyrics = exports.fetchLyrics = function(song, cb) {
+  var index = 0;
+  function tryNext() {
+    var providers = localSettings.lyricsProviders;
+    lyricsProviders[providers[index]].fetchLyrics(song, function(result) {
+      if ((result.error || result.noresults) && settings.lyricsAutoNext && providers[++index]) tryNext();
+      else cb(result);
+    });
+  }
+  tryNext();
 };
 
 /** Wrap chrome notifications API for convenience. */
@@ -898,7 +904,7 @@ function onMessageListener(message) {
     localSettings.quicklinks = val.quicklinks;
     refreshContextMenu(); 
   } else if (type == "loadLyrics") {
-    if (song.info) lyricsProvider.fetchLyrics(song.info, function(result) {
+    if (song.info) fetchLyrics(song.info, function(result) {
       //we cannot send jQuery objects with a post, so send plain html
       if (result.lyrics) result.lyrics = result.lyrics.html();
       if (result.credits) result.credits = result.credits.html();
@@ -1952,9 +1958,6 @@ localSettings.w("syncSettings", function(val) {
 });
 localSettings.al("lastfmSessionName", calcScrobbleTime);
 localSettings.al("lyrics", postLyricsState);
-localSettings.w("lyricsProviders", function(val) {
-  lyricsProvider = val[0] ? lyricsProviders[val[0]] : null;
-});
 localSettings.al("lyricsFontSize", postLyricsState);
 localSettings.al("lyricsWidth", postLyricsState);
 localSettings.w("notificationsEnabled", function(val, old) {

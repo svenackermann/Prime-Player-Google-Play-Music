@@ -726,6 +726,10 @@
     "message": "If enabled, links to albums, artist etc. will be opened directly in the miniplayer, otherwise in the Google Music tab. Using Shift+Click you can switch this behavior temporarily.",
     "description": "hint for option to open links in miniplayer"
   },
+  "setting_lyricsAutoNext": {
+    "message": "Auto-load from next site(s) if not found",
+    "description": "label for option to auto-load lyrics from next site"
+  },
   "setting_lyrics": {
     "message": "Activate lyrics",
     "description": "label for option to activate lyrics"
