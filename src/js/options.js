@@ -301,6 +301,31 @@ chrome.runtime.getBackgroundPage(function(bp) {
         current.insertAfter(prev);
         prev = current;
       });
+      $("fieldset.lyrics > *:not([draggable='true'])").off("dragover dragleave drop");
+      
+      function isValidDroptarget(ev) {
+        var types = ev.originalEvent.dataTransfer.types;
+        return types.indexOf("srcprovider") >= 0 && types.indexOf("srcprovider/" + providers[providers.length - 1]) < 0;
+      }
+      if (providers.length > 1) {
+        var div = prev.next();
+        div.on("dragover", function(ev) {
+          var dropAllowed = isValidDroptarget(ev);
+          div.toggleClass("dragging", dropAllowed);
+          return !dropAllowed;
+        }).on("dragleave", function() {
+          div.removeClass("dragging");
+        }).on("drop", function(ev) {
+          div.removeClass("dragging");
+          var src = ev.originalEvent.dataTransfer.getData("srcprovider");
+          if (!src) return false;//just to be sure (in this cases the dragover handler should not allow dropping)
+          providers.splice(providers.indexOf(src), 1);
+          providers.push(src);
+          localSettings.lyricsProviders = providers;//trigger listeners
+          sortProviders();
+          return false;
+        }); 
+      }
     }
 
     $(".lyrics-providers").each(function() {
@@ -319,32 +344,30 @@ chrome.runtime.getBackgroundPage(function(bp) {
         
         function isValidDroptarget(ev) {
           var types = ev.originalEvent.dataTransfer.types;
-          return types.indexOf("srcprovider/" + providerName) < 0 && types.indexOf("srcprovider") >= 0;
+          return types.indexOf("srcprovider") >= 0 && types.indexOf("srcprovider/" + providerName) < 0 && types.indexOf("srcprovider/next/" + providerName) < 0;
         }
         
         div.off();
         if (draggable) {
           div.on("dragover", function(ev) {
             //allow dropping (by returning false) only if not dragged over this provider and if source is another provider
-            return !isValidDroptarget(ev);
-          }).on("dragenter", function(ev) {
-            if (isValidDroptarget(ev)) div.addClass("dragging");
+            var dropAllowed = isValidDroptarget(ev);
+            div.toggleClass("dragging", dropAllowed);
+            return !dropAllowed;
           }).on("dragleave", function() {
             div.removeClass("dragging");
           }).on("dragstart", function(ev) {
             var dt = ev.originalEvent.dataTransfer;
-            //we need 2 data elements here, because in the dragover/dragenter handler the value cannot be read (only the keys are available as "types")
-            dt.setData("srcprovider/" + providerName, "");
             dt.setData("srcprovider", providerName);
+            dt.setData("srcprovider/" + providerName, "");
+            var nextProvider = providers[providers.indexOf(providerName) + 1];
+            dt.setData("srcprovider/next/" + nextProvider, "");
           }).on("drop", function(ev) {
             div.removeClass("dragging");
             var src = ev.originalEvent.dataTransfer.getData("srcprovider");
             if (!src || src == providerName) return false;//just to be sure (in this cases the dragover handler should not allow dropping)
-            var srcIndex = providers.indexOf(src);
-            providers.splice(srcIndex, 1);
-            var destIndex = providers.indexOf(providerName);
-            if (srcIndex == destIndex) destIndex++;//insert after this if it was already the previous element
-            providers.splice(destIndex, 0, src);
+            providers.splice(providers.indexOf(src), 1);
+            providers.splice(providers.indexOf(providerName), 0, src);
             localSettings.lyricsProviders = providers;//trigger listeners
             sortProviders();
             return false;
