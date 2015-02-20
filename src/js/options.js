@@ -294,6 +294,26 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
     setEnabledStates();
     
+    function makeDropTarget(div, isValidDroptarget, insertProvider) {
+      div.on("dragover", function(ev) {
+        var types = ev.originalEvent.dataTransfer.types;
+        var dropAllowed = types.indexOf("srcprovider") >= 0 && isValidDroptarget(types);
+        div.toggleClass("dragging", dropAllowed);
+        return !dropAllowed;
+      }).on("dragleave", function() {
+        div.removeClass("dragging");
+      }).on("drop", function(ev) {
+        div.removeClass("dragging");
+        var src = ev.originalEvent.dataTransfer.getData("srcprovider");
+        if (!src) return false;//just to be sure (in this cases the dragover handler should not allow dropping)
+        providers.splice(providers.indexOf(src), 1);
+        insertProvider(src);
+        localSettings.lyricsProviders = providers;//trigger listeners
+        sortProviders();
+        return false;
+      });
+    }
+    
     function sortProviders() {
       var prev = $(".lyrics-providers").first().prev();
       providers.forEach(function(p) {
@@ -303,28 +323,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
       });
       $("fieldset.lyrics > *:not([draggable='true'])").off("dragover dragleave drop");
       
-      function isValidDroptarget(ev) {
-        var types = ev.originalEvent.dataTransfer.types;
-        return types.indexOf("srcprovider") >= 0 && types.indexOf("srcprovider/" + providers[providers.length - 1]) < 0;
-      }
       if (providers.length > 1) {
-        var div = prev.next();
-        div.on("dragover", function(ev) {
-          var dropAllowed = isValidDroptarget(ev);
-          div.toggleClass("dragging", dropAllowed);
-          return !dropAllowed;
-        }).on("dragleave", function() {
-          div.removeClass("dragging");
-        }).on("drop", function(ev) {
-          div.removeClass("dragging");
-          var src = ev.originalEvent.dataTransfer.getData("srcprovider");
-          if (!src) return false;//just to be sure (in this cases the dragover handler should not allow dropping)
-          providers.splice(providers.indexOf(src), 1);
+        makeDropTarget(prev.next(), function(types) {
+          //drop not allowed for last element
+          return types.indexOf("srcprovider/" + providers[providers.length - 1]) < 0;
+        }, function(src) {
           providers.push(src);
-          localSettings.lyricsProviders = providers;//trigger listeners
-          sortProviders();
-          return false;
-        }); 
+        });
       }
     }
 
@@ -342,35 +347,21 @@ chrome.runtime.getBackgroundPage(function(bp) {
       function setDraggable(draggable) {
         div.attr("draggable", draggable);
         
-        function isValidDroptarget(ev) {
-          var types = ev.originalEvent.dataTransfer.types;
-          return types.indexOf("srcprovider") >= 0 && types.indexOf("srcprovider/" + providerName) < 0 && types.indexOf("srcprovider/next/" + providerName) < 0;
-        }
-        
         div.off();
         if (draggable) {
-          div.on("dragover", function(ev) {
-            //allow dropping (by returning false) only if not dragged over this provider and if source is another provider
-            var dropAllowed = isValidDroptarget(ev);
-            div.toggleClass("dragging", dropAllowed);
-            return !dropAllowed;
-          }).on("dragleave", function() {
-            div.removeClass("dragging");
-          }).on("dragstart", function(ev) {
+          div.on("dragstart", function(ev) {
             var dt = ev.originalEvent.dataTransfer;
             dt.setData("srcprovider", providerName);
             dt.setData("srcprovider/" + providerName, "");
             var nextProvider = providers[providers.indexOf(providerName) + 1];
             dt.setData("srcprovider/next/" + nextProvider, "");
-          }).on("drop", function(ev) {
-            div.removeClass("dragging");
-            var src = ev.originalEvent.dataTransfer.getData("srcprovider");
-            if (!src || src == providerName) return false;//just to be sure (in this cases the dragover handler should not allow dropping)
-            providers.splice(providers.indexOf(src), 1);
+          });
+          
+          makeDropTarget(div, function(types) {
+            //drop not allowed on itself and the next element
+            return types.indexOf("srcprovider/" + providerName) < 0 && types.indexOf("srcprovider/next/" + providerName) < 0;
+          }, function(src) {
             providers.splice(providers.indexOf(providerName), 0, src);
-            localSettings.lyricsProviders = providers;//trigger listeners
-            sortProviders();
-            return false;
           });
         }
       }
