@@ -608,6 +608,16 @@
     "message": "The lyrics could not be loaded.",
     "description": "message when no lyrics could be loaded (in miniplayer and Google Music)"
   },
+  "lyricsSrcProvider": {
+    "message": "Source: $PRV$",
+    "description": "Text for source link to lyrics provider",
+    "placeholders": { "PRV": { "content": "$1", "example": "songlyrics.com" } }
+  },
+  "lyricsSearchProvider": {
+    "message": "Search $PRV$",
+    "description": "Text for link to search with another lyrics provider",
+    "placeholders": { "PRV": { "content": "$1", "example": "songlyrics.com" } }
+  },
   "quicklinks": {
     "message": "Quick links",
     "description": "title for quicklinks view in miniplayer"

@@ -456,6 +456,14 @@
   "loadLyricsError": {
     "message": "Es konnte kein Songtext geladen werden."
   },
+  "lyricsSrcProvider": {
+    "message": "Quelle: $PRV$",
+    "placeholders": { "PRV": { "content": "$1" } }
+  },
+  "lyricsSearchProvider": {
+    "message": "Suche auf $PRV$",
+    "placeholders": { "PRV": { "content": "$1" } }
+  },
   "quicklinks": {
     "message": "Quick-Links"
   },

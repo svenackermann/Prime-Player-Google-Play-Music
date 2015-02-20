@@ -679,6 +679,7 @@ a {
 #lyrics {
   display: none;
   overflow-y: auto;
+  margin-bottom: 10px;
   &.loading .content {
     height: 90%;
     overflow-y: hidden;
@@ -704,6 +705,14 @@ a {
     margin-top: 1ex;
     padding-top: 1ex;
     text-align: center;
+    a {
+      padding-left: 2ex;
+      white-space: nowrap;
+      &.nav {
+        float: left;
+        padding-top: 5px;
+      }
+    }
   }
 }
 

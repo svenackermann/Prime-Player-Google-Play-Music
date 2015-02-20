@@ -552,7 +552,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
 
-  function renderLyrics(lyrics, result) {
+  function renderLyrics(lyrics, options, providers, src, result) {
     lyrics.removeClass("loading");
     var content = lyrics.children(".content");
     var credits = lyrics.children(".credits");
@@ -563,10 +563,22 @@ chrome.runtime.getBackgroundPage(function(bp) {
     } else {
       $("#navHead").children("span").text(result.title.text().trim());
       content.html(result.lyrics.html());
-      if (result.credits) credits.html(result.credits.html() + "<br/>");
+      if (result.credits) credits.html(result.credits.html() + "<br>");
     }
-    if (result.src) credits.append($("<a target='_blank'></a>").attr("href", result.src).text(i18n("lyricsSrc"))).append($("<br/>"));
-    if (result.searchSrc) credits.append($("<a target='_blank'></a>").attr("href", result.searchSrc).text(i18n("lyricsSearchResult")));
+    credits.append(i18n("lyricsSrcProvider", bp.lyricsProviders[src].getUrl()));
+    if (result.src) $("<a target='_blank'></a>").attr("href", result.src).text(i18n("lyricsSrc")).appendTo(credits);
+    if (result.searchSrc) $("<a target='_blank'></a>").attr("href", result.searchSrc).text(i18n("lyricsSearchResult")).appendTo(credits);
+    credits.append("<br>");
+    
+    providers.forEach(function(provider) {
+      var otherProviders = providers.slice();
+      otherProviders.splice(otherProviders.indexOf(provider), 1);
+      $("<a class='nav'>")
+        .data("options", $.extend({}, options, { providers: otherProviders }))
+        .data("link", "lyrics/" + provider)
+        .text(i18n("lyricsSearchProvider", bp.lyricsProviders[provider].getUrl()))
+        .appendTo(credits);
+    });
   }
   
   function switchView(title, link, search, options) {
@@ -591,11 +603,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
     if (link == "quicklinks") {
       resize(localSettings.quicklinksSizing);
       $("#quicklinks").show();
-    } else if (link == "lyrics") {
+    } else if (!link.indexOf("lyrics")) {
       lyrics.addClass("loading");
       resize(localSettings.lyricsSizing);
       lyrics.show();
-      bp.fetchLyrics(options, renderLyrics.bind(window, lyrics));
+      var providerIndex = link.indexOf("/") + 1;
+      if (providerIndex) bp.fetchLyricsFrom(options, link.substr(providerIndex), renderLyrics.bind(window, lyrics, options, options.providers));
+      else bp.fetchLyrics(options, renderLyrics.bind(window, lyrics, options));
     } else {
       $("#navlist").addClass("loading");
       $("#navlistContainer").show();
@@ -689,7 +703,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
       if (link) {
         var options = nav.data("options");
         var title;
-        if (link == "lyrics") {
+        var lyrics = !link.indexOf("lyrics");
+        if (lyrics) {
           if (settings.openLyricsInMiniplayer == e.shiftKey) {
             bp.openLyrics(options);
             return;
@@ -703,7 +718,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
           title = i18n("lyricsTitle", title);
         } else title = nav.data("text") || nav.text();
         
-        if (settings.openLinksInMiniplayer == e.shiftKey && link != "quicklinks" && link != "lyrics") bp.selectLink(link);
+        if (settings.openLinksInMiniplayer == e.shiftKey && link != "quicklinks" && !lyrics) bp.selectLink(link);
         else switchView(title, link, nav.data("search"), options);
         return false;
       }

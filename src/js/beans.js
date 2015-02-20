@@ -130,7 +130,7 @@ function Bean(defaults, useLocalStorage) {
   function parse(name, defaultValue) {
     if (!syncLocalStorage || localStorage[name] === undefined) {
       if ($.isArray(defaultValue)) {
-        return defaultValue.slice(0);
+        return defaultValue.slice();
       }
       if (defaultValue && typeof(defaultValue) == "object") {
         return $.extend(true, {}, defaultValue);

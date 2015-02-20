@@ -509,13 +509,25 @@ var openLyrics = exports.openLyrics = function(aSong) {
   tryNext();
 };
 
-var fetchLyrics = exports.fetchLyrics = function(song, cb) {
+/** Fetch lyrics from a specific provider. */
+var fetchLyricsFrom = exports.fetchLyricsFrom = function(song, provider, cb) {
+  lyricsProviders[provider].fetchLyrics(song, function(result) {
+    cb(provider, result);
+  });
+};
+
+/**
+ * Fetch lyrics for a song.
+ * If lyricsAutoNext is enabled, all enabled providers will be searched until one returns a result.
+ * The callback receives a list of other providers to try and the search result.
+ */
+var fetchLyrics = exports.fetchLyrics = function(aSong, cb) {
   var index = 0;
   function tryNext() {
     var providers = localSettings.lyricsProviders;
-    lyricsProviders[providers[index]].fetchLyrics(song, function(result) {
+    fetchLyricsFrom(aSong, providers[index], function(provider, result) {
       if ((result.error || result.noresults) && settings.lyricsAutoNext && providers[++index]) tryNext();
-      else cb(result);
+      else cb(providers.slice(index + 1), provider, result);
     });
   }
   tryNext();
@@ -904,12 +916,12 @@ function onMessageListener(message) {
     localSettings.quicklinks = val.quicklinks;
     refreshContextMenu(); 
   } else if (type == "loadLyrics") {
-    if (song.info) fetchLyrics(song.info, function(result) {
+    if (song.info) fetchLyrics(song.info, function(providers, src, result) {
       //we cannot send jQuery objects with a post, so send plain html
       if (result.lyrics) result.lyrics = result.lyrics.html();
       if (result.credits) result.credits = result.credits.html();
       if (result.title) result.title = result.title.text().trim();
-      postToGooglemusic({type: "lyrics", result: result});
+      postToGooglemusic({ type: "lyrics", result: result, providers: providers, src: src });
     });
   } else if (type == "rated") {
     if (settings.linkRatings && settings.linkRatingsGpm && val.rating >= settings.linkRatingsMin) {
