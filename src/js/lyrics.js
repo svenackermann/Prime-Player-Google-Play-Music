@@ -135,7 +135,7 @@
       function tabReadyCallback(tab) {
         var executed = false;
         function executeScript(theTabId, changeInfo) {
-          if (!executed && changeInfo.status == "complete") {
+          if (theTabId == tab.id && !executed && changeInfo.status == "complete") {
             executed = true;
             chromeTabs.onUpdated.removeListener(executeScript);
             chromeTabs.executeScript(theTabId, injectScript, function(result) {
