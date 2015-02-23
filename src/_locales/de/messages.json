@@ -375,6 +375,9 @@
   "setting_saveLastPositionHint": {
     "message": "Speichert den letzten Titel (lokal) mit der aktuellen Position, um immer zu wissen, was man vor dem Beenden von Google Music geh\u00F6rt hat. Der letzte Titel wird im Miniplayer wie ein normaler Titel mit einigen Einschr\u00E4nkungen angezeigt. Der Play-Button versucht, das Album des Titels zu laden und den Titel an der letzten Position fortzusetzen. Leider ist es nicht m\u00F6glich, die letzte Wiedergabeliste beim Neustart wiederherzustellen."
   },
+  "setting_hideFavorites": {
+    "message": "Verberge Favoriten im Miniplayer und Kontext-Men\u00FC"
+  },
   "setting_skipRatedLower": {
     "message": "(oder schlechter) bewertete Titel \u00FCberspringen"
   },
@@ -554,7 +557,7 @@
     "message": "Wenn aktiviert, werden Links zu Alben, Interpreten usw. direkt im Miniplayer ge\u00F6ffnet, ansonsten im Google Music Tab. Mit Umschalt+Klick auf den Link wird das Verhalten vor\u00FCbergehend umgekehrt."
   },
   "setting_lyricsAutoNext": {
-    "message": "Probiere automatisch die n\u00E4chsten Seite(n), wenn nicht gefunden"
+    "message": "Probiere automatisch die n\u00E4chste(n) Seite(n), wenn nicht gefunden"
   },
   "setting_lyrics": {
     "message": "Aktiviere Songtexte"
