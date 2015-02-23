@@ -9,7 +9,7 @@ body {
   font-family: arial;
 }
 
-*[draggable='true'] {
+.sortable > *[draggable='true'] {
   cursor: move;
 }
 

@@ -294,25 +294,37 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
     setEnabledStates();
     
-    function makeDropTarget(div, isValidDroptarget, insertProvider) {
-      div.on("dragover", function(ev) {
+    var dragableSelector = "fieldset.lyrics.sortable>[draggable='true']";
+    var droppableSelector = dragableSelector + "," + dragableSelector + "+div";
+    $("#settings")
+      .on("dragover", droppableSelector, function(ev) {
         var types = ev.originalEvent.dataTransfer.types;
-        var dropAllowed = types.indexOf("srcprovider") >= 0 && isValidDroptarget(types);
-        div.toggleClass("dragging", dropAllowed);
+        var providerName = $(this).data("provider");
+        var validTarget = providerName ? types.indexOf("srcprovider/" + providerName) < 0 && types.indexOf("srcprovider/next/" + providerName) < 0 : types.indexOf("srcprovider/" + providers[providers.length - 1]) < 0;
+        var dropAllowed = types.indexOf("srcprovider") >= 0 && validTarget;
+        $(this).toggleClass("dragging", dropAllowed);
         return !dropAllowed;
-      }).on("dragleave", function() {
-        div.removeClass("dragging");
-      }).on("drop", function(ev) {
-        div.removeClass("dragging");
+      }).on("dragleave", droppableSelector, function() {
+        $(this).removeClass("dragging");
+      }).on("drop", droppableSelector, function(ev) {
+        $(this).removeClass("dragging");
         var src = ev.originalEvent.dataTransfer.getData("srcprovider");
         if (!src) return false;//just to be sure (in this cases the dragover handler should not allow dropping)
         providers.splice(providers.indexOf(src), 1);
-        insertProvider(src);
+        var providerName = $(this).data("provider");
+        if (providerName) providers.splice(providers.indexOf(providerName), 0, src);
+        else providers.push(src);
         localSettings.lyricsProviders = providers;//trigger listeners
         sortProviders();
         return false;
+      }).on("dragstart", dragableSelector, function(ev) {
+        var dt = ev.originalEvent.dataTransfer;
+        var providerName = $(this).data("provider");
+        dt.setData("srcprovider", providerName);
+        dt.setData("srcprovider/" + providerName, "");
+        var nextProvider = providers[providers.indexOf(providerName) + 1];
+        dt.setData("srcprovider/next/" + nextProvider, "");
       });
-    }
     
     function sortProviders() {
       var prev = $(".lyrics-providers").first().prev();
@@ -321,16 +333,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
         current.insertAfter(prev);
         prev = current;
       });
-      $("fieldset.lyrics > *:not([draggable='true'])").off("dragover dragleave drop");
-      
-      if (providers.length > 1) {
-        makeDropTarget(prev.next(), function(types) {
-          //drop not allowed for last element
-          return types.indexOf("srcprovider/" + providers[providers.length - 1]) < 0;
-        }, function(src) {
-          providers.push(src);
-        });
-      }
     }
 
     $(".lyrics-providers").each(function() {
@@ -338,6 +340,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       var id = div.attr("id");
       var providerName = id.substr(7);
       var provider = bp.lyricsProviders[providerName];
+      div.data("provider", providerName);
       
       var checkbox = $("<input type='checkbox'>");
       var label = setIdAndAddItWithLabel(checkbox, id);
@@ -346,24 +349,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       
       function setDraggable(draggable) {
         div.attr("draggable", draggable);
-        
-        div.off();
-        if (draggable) {
-          div.on("dragstart", function(ev) {
-            var dt = ev.originalEvent.dataTransfer;
-            dt.setData("srcprovider", providerName);
-            dt.setData("srcprovider/" + providerName, "");
-            var nextProvider = providers[providers.indexOf(providerName) + 1];
-            dt.setData("srcprovider/next/" + nextProvider, "");
-          });
-          
-          makeDropTarget(div, function(types) {
-            //drop not allowed on itself and the next element
-            return types.indexOf("srcprovider/" + providerName) < 0 && types.indexOf("srcprovider/next/" + providerName) < 0;
-          }, function(src) {
-            providers.splice(providers.indexOf(providerName), 0, src);
-          });
-        }
+        div.parent().toggleClass("sortable", providers.length > 1);
       }
       
       function setProviderEnabled(enabled) {
