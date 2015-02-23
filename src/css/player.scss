@@ -285,7 +285,7 @@ a {
 
 .popup {
   body {
-    min-width: 280px;
+    width: 280px;
     min-height: 113px;
   }
   &.hideRatings {
@@ -458,12 +458,12 @@ a {
   #navHead > input {
     display: block;
   }
-  #navlistContainer, #lyrics, #favoritesContainer {
+  >:not(#navHead) {
     top: 36px;
   }
 }
 
-#navlistContainer, #lyrics, #favoritesContainer {
+#nav >:not(#navHead) {
   position: absolute;
   width: 100%;
   top: 18px;
@@ -596,10 +596,6 @@ a {
 }
 
 #navlist {
-  height: 98%;
-  padding: 2px;
-  overflow-y: auto;
-  overflow-x: hidden;
   &.loading {
     background: url(../img/ajax-loader.gif) no-repeat center center;
   }
@@ -735,6 +731,7 @@ a {
 
 #quicklinks {
   display: none;
+  overflow-y: auto;
   > div {
     width: 47%;
     margin: 3px;

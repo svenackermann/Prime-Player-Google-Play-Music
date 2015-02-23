@@ -562,7 +562,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     } else {
       $("#navHead").children("span").text(result.title.text().trim());
       content.html(result.lyrics.html());
-      if (result.credits) credits.html(result.credits.html() + "<br>");
+      if (result.credits) credits.html(result.credits.html() + "<hr>");
     }
     credits.append(i18n("lyricsSrcProvider", bp.lyricsProviders[src].getUrl()));
     if (result.src) $("<a target='_blank'>").attr("href", result.src).text(i18n("lyricsSrc")).appendTo(credits);
