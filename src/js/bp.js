@@ -100,10 +100,10 @@ var localSettings = exports.localSettings = new Bean({
   lyricsFontSize: 11,
   lyricsWidth: 250,
   miniplayerSizing: {
-    normal:   { width: 286, height: 153, left: 0, top: 0 },
-    compact1: { width: 281, height: 118, left: 0, top: 0 },
+    normal:   { width: 310, height: 153, left: 0, top: 0 },
+    compact1: { width: 306, height: 118, left: 0, top: 0 },
     compact2: { width: 211, height: 163, left: 0, top: 0 },
-    hbar:     { width: 531, height: 68,  left: 0, top: 0 }
+    hbar:     { width: 555, height: 68,  left: 0, top: 0 }
   },
   playlistsListSizing: { width: 350, height: 320 },
   playlistSizing: { width: 500, height: 295 },

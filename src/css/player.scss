@@ -285,18 +285,23 @@ a {
 
 .popup {
   body {
-    min-width: 240px;
+    min-width: 280px;
     min-height: 113px;
   }
-  &.hideRatings .lastfm {
-    #rightbuttons {
-      height: 48px;
-      margin-left: 18px;
+  &.hideRatings {
+    body {
+      min-height: 95px;
     }
-    #feelingLucky {
-      position: relative;
-      top: -16px;
-      left: -16px;
+    .lastfm {
+      #rightbuttons {
+        height: 48px;
+        margin-left: 18px;
+      }
+      #feelingLucky {
+        position: relative;
+        top: -16px;
+        left: -16px;
+      }
     }
   }
 }
@@ -362,7 +367,7 @@ a {
         background-color: #ddd;
       }
     }
-    &:not([draggable]) {
+    &:not([draggable]):not(.empty) {
       min-height: 6px;
       flex: 1;
     }

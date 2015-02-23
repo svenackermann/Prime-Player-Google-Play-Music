@@ -310,6 +310,9 @@
 .layout-compact2 {
   body {
     min-width: 180px;
+    &.lyrics, &:not(.hidefav) {
+      min-width: 195px;
+    }
   }
   #top {
     height: 64px;
@@ -323,11 +326,19 @@
     top: 3px;
     left: 72px;
     height: 40px;
-    #repeat {
-      clear:left;
-    }
     > a {
       margin: 0 3px;
+    }
+  }
+  #repeat {
+    clear:left;
+  }
+  body.lyrics:not(.hidefav) {
+    #shuffle {
+      clear:left;
+    }
+    #repeat {
+      clear:none;
     }
   }
   &.hideRatings {
@@ -418,12 +429,20 @@
     #player {
       min-width: 369px;
     }
-    .lyrics {
+    .lyrics, body:not(.hidefav) {
       #time {
         width: 168px;
       }
       #player {
         min-width: 393px;
+      }
+    }
+    body.lyrics:not(.hidefav) {
+      #time {
+        width: 192px;
+      }
+      #player {
+        min-width: 417px;
       }
     }
   }
@@ -440,7 +459,7 @@
     height: 10px;
     padding: 0;
   }
-  .lyrics {
+  .lyrics, body:not(.hidefav) {
     #time {
       width: 285px;
     }
@@ -449,6 +468,17 @@
     }
     #rating {
       left: $height + 336px;
+    }
+  }
+  body.lyrics:not(.hidefav) {
+    #time {
+      width: 309px;
+    }
+    #player {
+      min-width: 534px;
+    }
+    #rating {
+      left: $height + 360px;
     }
   }
   #currentTime, #songTime {
