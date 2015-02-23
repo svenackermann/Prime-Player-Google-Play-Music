@@ -1073,6 +1073,10 @@
   },
   "favorites": {
     "message": "Favorites",
-    "description": "text for favorites sub context menu and header in miniplayer"
+    "description": "text for favorites sub context menu and header/link in miniplayer"
+  },
+  "noFavorites": {
+    "message": "You have no favorites.",
+    "description": "text for favorites view in miniplayer if no favorites exist"
   }
 }

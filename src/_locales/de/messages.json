@@ -809,5 +809,8 @@
   },
   "favorites": {
     "message": "Favoriten"
+  },
+  "noFavorites": {
+    "message": "Du hast keine Favoriten."
   }
 }

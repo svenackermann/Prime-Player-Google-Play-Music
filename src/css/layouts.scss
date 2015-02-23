@@ -133,6 +133,11 @@
     margin: 0 5px 0 #{$size + 10}px;
   }
   
+  #showfavorites {
+    //TODO sprite image for favorites
+    @include hoversprite(16, 0, 1, $size);
+  }
+  
   #showlyrics {
     @include sprite(16, 0, $size);
   }

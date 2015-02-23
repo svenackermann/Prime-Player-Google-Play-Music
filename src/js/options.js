@@ -294,8 +294,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
     setEnabledStates();
     
-    var dragableSelector = "fieldset.lyrics.sortable>[draggable='true']";
-    var droppableSelector = dragableSelector + "," + dragableSelector + "+div";
+    var draggableSelector = "fieldset.lyrics.sortable>[draggable='true']";
+    var droppableSelector = draggableSelector + "," + draggableSelector + "+div";
     $("#settings")
       .on("dragover", droppableSelector, function(ev) {
         var types = ev.originalEvent.dataTransfer.types;
@@ -317,7 +317,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         localSettings.lyricsProviders = providers;//trigger listeners
         sortProviders();
         return false;
-      }).on("dragstart", dragableSelector, function(ev) {
+      }).on("dragstart", draggableSelector, function(ev) {
         var dt = ev.originalEvent.dataTransfer;
         var providerName = $(this).data("provider");
         dt.setData("srcprovider", providerName);

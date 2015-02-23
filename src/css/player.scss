@@ -49,6 +49,10 @@ a {
   }
 }
 
+.dragging {
+  box-shadow: 0 -2px 0 #1D6D6D;
+}
+
 #player {
   height: 100%;
 }
@@ -344,8 +348,53 @@ a {
   }
 }
 
-.hidefav .fav {
-  display: none !important;
+#favorites {
+  display: flex;
+  flex-direction: column;
+  > .empty:after {
+    content: "__MSG_noFavorites__";
+  }
+  > div {
+    height: 8px;
+    &[draggable] {
+      min-height: 18px;
+      &:nth-child(even) {
+        background-color: #ddd;
+      }
+    }
+    &:not([draggable]) {
+      min-height: 6px;
+      flex: 1;
+    }
+    > img {
+      float: left;
+      width: 14px;
+      border: 1px solid #AAA;
+      cursor: pointer;
+      &:hover {
+        opacity: 0.5;
+      }
+    }
+    > .fav {
+      //TODO background-image: trash
+    }
+    > .nav {
+      padding-top: 2px;
+      padding-left: 5px;
+      overflow: hidden;
+      display: block;
+      white-space: nowrap;
+    }
+  }
+}
+
+.hidefav {
+  .fav {
+    display: none !important;
+  }
+  #showfavorites {
+    display: none;
+  }
 }
 
 #nav {
@@ -391,12 +440,12 @@ a {
   #navHead > input {
     display: block;
   }
-  #navlistContainer, #lyrics {
+  #navlistContainer, #lyrics, #favoritesContainer {
     top: 36px;
   }
 }
 
-#navlistContainer, #lyrics {
+#navlistContainer, #lyrics, #favoritesContainer {
   position: absolute;
   width: 100%;
   top: 18px;
@@ -521,6 +570,13 @@ a {
   }
 }
 
+#navlist, #favorites {
+  height: 98%;
+  padding: 2px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 #navlist {
   height: 98%;
   padding: 2px;
@@ -537,7 +593,7 @@ a {
   }
 }
 
-#navlist, #lyrics .content {
+#navlist, #lyrics .content, #favorites {
   > .empty, > .error {
     text-align: center;
     position: relative;
@@ -855,6 +911,10 @@ a {
 
 #prev, #next, #showlyrics {
   opacity: 0.2;
+}
+
+a#showfavorites {
+  cursor: pointer;
 }
 
 #showlyrics {

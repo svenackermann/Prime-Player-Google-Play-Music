@@ -313,7 +313,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
       clearTimeout(timerId);
       timerId = setTimeout(function() {
         if (document.webkitHidden) return;//do not save size of minimized window
-        var sizingSetting;
         var sizing;
         if ($("#player").is(":visible")) {
           sizing = localSettings.miniplayerSizing;
@@ -321,12 +320,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
           sizing[settings.layout].height = window.outerHeight;
           localSettings.miniplayerSizing = sizing;//trigger listener notification
         } else if ($("#nav").is(":visible")) {
-          var type = $("#quicklinks").is(":visible") ? "quicklinks" : $("#navlist").attr("class");
-          sizingSetting = type + "Sizing";
-        } else if ($("#lyrics").is(":visible")) {
-          sizingSetting = "lyricsSizing";
-        }
-        if (sizingSetting) {
+          var type;
+          if ($("#quicklinks").is(":visible")) type = "quicklinks";
+          else if ($("#favoritesContainer").is(":visible")) type = "favorites";
+          else if ($("#lyrics").is(":visible")) type = "lyrics";
+          else type = $("#navlist").attr("class");
+          var sizingSetting = type + "Sizing";
           sizing = localSettings[sizingSetting];
           if (sizing) {
             sizing.width = window.outerWidth;
@@ -422,15 +421,15 @@ chrome.runtime.getBackgroundPage(function(bp) {
   var renderNavList = {
     playlistsList: function(navlist, list) {
       list.forEach(function(pl) {
-        var row = $("<div></div>");
-        $("<img></img>").attr("src", pl.cover || "img/cover.png").appendTo(row);
+        var row = $("<div>");
+        $("<img>").attr("src", pl.cover || "img/cover.png").appendTo(row);
         row.append(getFavoriteIcon(pl.titleLink, pl.title));
         var info = $("<div>");
-        $("<a tabindex='0' class='album nav'></a>").data("link", pl.titleLink).text(pl.title).attr("title", pl.title).appendTo(info);
+        $("<a tabindex='0' class='album nav'>").data("link", pl.titleLink).text(pl.title).attr("title", pl.title).appendTo(info);
         if (pl.subTitleLink) {
-          $("<a tabindex='0' class='nav'></a>").data("link", pl.subTitleLink).text(pl.subTitle).attr("title", pl.subTitle).appendTo(info);
+          $("<a tabindex='0' class='nav'>").data("link", pl.subTitleLink).text(pl.subTitle).attr("title", pl.subTitle).appendTo(info);
         } else if (pl.subTitle) {
-          $("<span></span>").text(pl.subTitle).attr("title", pl.subTitle).appendTo(info);
+          $("<span>").text(pl.subTitle).attr("title", pl.subTitle).appendTo(info);
         }
         row.append(info);
         navlist.append(row);
@@ -449,32 +448,32 @@ chrome.runtime.getBackgroundPage(function(bp) {
       var current;
       list.forEach(function(song) {
         if (navlist.children().length > song.index) return;
-        var row = $("<div data-index='" + song.index + (song.current ? "' class='current'>" : "'></div>"));
-        $("<img></img>").attr("src", song.cover || "img/cover.png").appendTo(row);
-        $("<div class='rating r" + song.rating + "'>" + ratingHtml + "</div>").appendTo(row);
+        var row = $("<div data-index='" + song.index + (song.current ? "' class='current'>" : "'>"));
+        $("<img>").attr("src", song.cover || "img/cover.png").appendTo(row);
+        $("<div class='rating r" + song.rating + "'>").html(ratingHtml).appendTo(row);
         if (song.rating >= 0) noRating = false;
-        var info = $("<div class='info'></div>");
+        var info = $("<div class='info'>");
         var title;
         if (localSettings.lyrics) {
-          title = $("<a tabindex='0' class='nav' data-link='lyrics'></a>").data("options", {artist: song.artist, title: song.title}).attr("title", i18n("lyricsFor", song.title));
+          title = $("<a tabindex='0' class='nav' data-link='lyrics'>").data("options", {artist: song.artist, title: song.title}).attr("title", i18n("lyricsFor", song.title));
         } else {
-          title = $("<span></span>").attr("title", song.title);
+          title = $("<span>").attr("title", song.title);
         }
         title.text(song.title).appendTo(info);
-        $("<span class='duration'></span>").text(song.duration).appendTo(info);
+        $("<span class='duration'>").text(song.duration).appendTo(info);
         duration += bp.parseSeconds(song.duration);
         if (song.artistLink) {
-          $("<a tabindex='0' class='nav'></a>").data("link", song.artistLink).text(song.artist).attr("title", song.artist).appendTo(info);
+          $("<a tabindex='0' class='nav'>").data("link", song.artistLink).text(song.artist).attr("title", song.artist).appendTo(info);
         } else {
-          $("<span></span>").text(song.artist).attr("title", song.artist).appendTo(info);
+          $("<span>").text(song.artist).attr("title", song.artist).appendTo(info);
         }
         
         var currentAlbum = song.albumLink == currentNavList.link;
         var albumCol;
         if (song.albumLink && !currentAlbum) {
-          albumCol = $("<a tabindex='0' class='album nav'></a>").data("link", song.albumLink);
+          albumCol = $("<a tabindex='0' class='album nav'>").data("link", song.albumLink);
         } else if (song.album) {
-          albumCol = $("<span class='album'></span>");
+          albumCol = $("<span class='album'>");
         }
         if (albumCol) {
           albumCol.text(song.album).attr("title", song.album).appendTo(info);
@@ -499,10 +498,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     },
     albumContainers: function(navlist, list) {
       list.forEach(function(ac) {
-        var row = $("<div></div>");
-        $("<img></img>").attr("src", ac.cover || "img/cover.png").appendTo(row);
+        var row = $("<div>");
+        $("<img>").attr("src", ac.cover || "img/cover.png").appendTo(row);
         row.append(getFavoriteIcon(ac.link, ac.title));
-        $("<a tabindex='0' class='nav'></a>").data("link", ac.link).text(ac.title).attr("title", ac.title).appendTo(row);
+        $("<a tabindex='0' class='nav'>").data("link", ac.link).text(ac.title).attr("title", ac.title).appendTo(row);
         navlist.append(row);
       });
     }
@@ -519,11 +518,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function renderSubNavigationList(list, navlist) {
-    var header = $("<h2></h2>").text(list.header);
+    var header = $("<h2>").text(list.header);
     navlist.append(header);
-    var container = $("<div></div>").addClass(list.type).appendTo(navlist);
+    var container = $("<div>").addClass(list.type).appendTo(navlist);
     renderNavList[list.type](container, list.list, false, list.cluster, header);
-    if (list.moreLink) $("<a tabindex='0' class='nav'></a>").data("link", list.moreLink).appendTo(header);
+    if (list.moreLink) $("<a tabindex='0' class='nav'>").data("link", list.moreLink).appendTo(header);
   }
   
   function renderNavigationList(val) {
@@ -532,9 +531,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     currentNavList.controlLink = val.controlLink;
     var navlist = $("#navlist");
     if (val.error) {
-      navlist.removeClass().html("<div class='error'></div>");
+      navlist.removeClass().html("<div class='error'>");
     } else if (val.empty) {
-      navlist.removeClass().html("<div class='empty'></div>");
+      navlist.removeClass().html("<div class='empty'>");
     } else {
       if (!val.update) {
         navlist.empty().removeClass().addClass(val.type);
@@ -557,17 +556,17 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var content = lyrics.children(".content");
     var credits = lyrics.children(".credits");
     if (result.error) {
-      content.html("<div class='error'></div>");
+      content.html("<div class='error'>");
     } else if (result.noresults) {
-      content.html("<div class='empty'></div>");
+      content.html("<div class='empty'>");
     } else {
       $("#navHead").children("span").text(result.title.text().trim());
       content.html(result.lyrics.html());
       if (result.credits) credits.html(result.credits.html() + "<br>");
     }
     credits.append(i18n("lyricsSrcProvider", bp.lyricsProviders[src].getUrl()));
-    if (result.src) $("<a target='_blank'></a>").attr("href", result.src).text(i18n("lyricsSrc")).appendTo(credits);
-    if (result.searchSrc) $("<a target='_blank'></a>").attr("href", result.searchSrc).text(i18n("lyricsSearchResult")).appendTo(credits);
+    if (result.src) $("<a target='_blank'>").attr("href", result.src).text(i18n("lyricsSrc")).appendTo(credits);
+    if (result.searchSrc) $("<a target='_blank'>").attr("href", result.searchSrc).text(i18n("lyricsSearchResult")).appendTo(credits);
     credits.append("<br>");
     
     providers.forEach(function(provider) {
@@ -599,10 +598,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var lyrics = $("#lyrics");
     lyrics.removeClass().hide().children().empty();
     if (!search) $("#navHead > input").val("");
-    $("#player,#navlistContainer,#quicklinks,#navHead .fav").hide();
+    $("#player,#navlistContainer,#quicklinks,#favoritesContainer,#navHead .fav").hide();
     if (link == "quicklinks") {
       resize(localSettings.quicklinksSizing);
       $("#quicklinks").show();
+    } else if (link == "favorites") {
+      resize(localSettings.favoritesSizing);
+      $("#favoritesContainer").show();
     } else if (!link.indexOf("lyrics")) {
       lyrics.addClass("loading");
       resize(localSettings.lyricsSizing);
@@ -672,8 +674,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
         favorites.unshift(fav);
         favoritesCache[link] = true;
       }
-      settings.favorites = favorites;//trigger listener notification
       favElement.toggleClass("isfav", !!favoritesCache[link]);
+      settings.favorites = favorites;//trigger listener notification
     });
     
     var searchInputTimer;
@@ -766,6 +768,35 @@ chrome.runtime.getBackgroundPage(function(bp) {
         if (rating == 5 && settings.linkRatings && !bp.isRatingReset(aSong.rating, rating)) bp.love({ title: aSong.title, artist: aSong.artist }, $.noop);
         bp.executeInGoogleMusic("ratePlaylistSong", { link: currentNavList.controlLink, index: index, cluster: getClusterIndex(songRow), rating: rating });
       }
+    });
+    
+    var dropSelector = "div";
+    var favorites = settings.favorites;
+    $("#favorites").on("click", "img", function() {
+      bp.startPlaylist($(this).siblings(".nav").data("link"));
+      restorePlayer();
+    }).on("dragover", dropSelector, function(ev) {
+      var types = ev.originalEvent.dataTransfer.types;
+      var index = $(this).index();
+      var dropAllowed = types.indexOf("srcfavorite") >= 0 && types.indexOf("srcfavorite/" + index) < 0 && types.indexOf("srcfavorite/" + (index - 1)) < 0;
+      $(this).toggleClass("dragging", dropAllowed);
+      return !dropAllowed;
+    }).on("dragleave", dropSelector, function() {
+      $(this).removeClass("dragging");
+    }).on("drop", dropSelector, function(ev) {
+      $(this).removeClass("dragging");
+      var srcIndex = ev.originalEvent.dataTransfer.getData("srcfavorite");
+      var destIndex = $(this).index();
+      var src = favorites.splice(srcIndex, 1)[0];
+      if (srcIndex < destIndex) destIndex--;
+      favorites.splice(destIndex, 0, src);
+      settings.favorites = favorites;//trigger listeners
+      return false;
+    }).on("dragstart", "div[draggable='true']", function(ev) {
+      var dt = ev.originalEvent.dataTransfer;
+      var index = $(this).index();
+      dt.setData("srcfavorite", index);
+      dt.setData("srcfavorite/" + index, "");
     });
   }
 
@@ -868,6 +899,20 @@ chrome.runtime.getBackgroundPage(function(bp) {
     collectStaticLinks();
   }
 
+  function renderFavorites(favorites) {
+    var favDiv = $("#favorites").empty();
+    if (favorites.length) {
+      favorites.forEach(function(fav) {
+        var div = $("<div draggable='true'>");
+        $("<img>").attr("src", "img/cover.png").appendTo(div);
+        $("<a tabindex='0' class='fav'>").data("fav", fav).appendTo(div);
+        $("<a tabindex='0' class='nav'>").text(fav.title).data("link", fav.link).appendTo(div);
+        favDiv.append(div);
+      });
+      favDiv.append("<div>");
+    }else favDiv.append("<div class='empty'>");
+  }
+  
   function setSongPosition(event) {
     bp.setSongPosition(event.offsetX / $(this).width());
   }
@@ -921,6 +966,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
         return false;
       });
 
+    $("#showfavorites")
+      .data("text", i18n("favorites"))
+      .attr("title", i18n("favorites"));
+
     setupNavigationEvents();
 
     localSettings.w("lastfmSessionName", lastfmUserWatcher, typeClass);
@@ -939,6 +988,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     settings.w("hideSearchfield", hideSearchfieldWatcher, typeClass);
     settings.al("saveLastPosition", saveLastPositionUpdated, typeClass);
     settings.w("hideFavorites", hideFavoritesWatcher, typeClass);
+    settings.w("favorites", renderFavorites, typeClass);
 
     player.w("repeat", repeatWatcher, typeClass);
     player.w("shuffle", shuffleWatcher, typeClass);
