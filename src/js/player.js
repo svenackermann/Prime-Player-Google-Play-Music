@@ -579,7 +579,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
         .appendTo(credits);
     });
   }
-  
+
+  function resetFavoritesView() {
+    $("#favorites").find("input").remove().end().find(".nav").removeAttr("style");
+  }
+
   function switchView(title, link, search, options) {
     if ($("#player").is(":visible") && (typeClass == "miniplayer" || typeClass == "toast")) {
       savedSizing = {
@@ -604,6 +608,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("#quicklinks").show();
     } else if (link == "favorites") {
       resize(localSettings.favoritesSizing);
+      resetFavoritesView();
       $("#favoritesContainer").show();
     } else if (!link.indexOf("lyrics")) {
       lyrics.addClass("loading");
@@ -775,6 +780,24 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#favorites").on("click", "img", function() {
       bp.startPlaylist($(this).siblings(".nav").data("link"));
       restorePlayer();
+    }).on("click", ".edit", function() {
+      var navLink = $(this).siblings(".nav");
+      resetFavoritesView();
+      navLink.hide();
+      var input = $("<input type='text'>").val(navLink.text());
+      navLink.after(input);
+      input.focus();
+    }).on("keyup", "input", function(ev) {
+      var kc = ev.keyCode;
+      if (kc == 27) {//ESC
+        resetFavoritesView();
+      } if (kc == 13) {//Return
+        var navLink = $(this).siblings(".nav");
+        favorites[navLink.parent().index()] = { link: navLink.data("link"), title: $(this).val() };
+        settings.favorites = favorites;//trigger listeners
+        resetFavoritesView();
+      }
+      return false;
     }).on("dragover", dropSelector, function(ev) {
       var types = ev.originalEvent.dataTransfer.types;
       var index = $(this).index();
@@ -906,6 +929,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         var div = $("<div draggable='true'>");
         $("<img>").attr("src", "img/cover.png").appendTo(div);
         $("<a tabindex='0' class='fav'>").data("fav", fav).appendTo(div);
+        $("<a tabindex='0' class='edit'>").appendTo(div);
         $("<a tabindex='0' class='nav'>").text(fav.title).data("link", fav.link).appendTo(div);
         favDiv.append(div);
       });

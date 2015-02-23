@@ -371,6 +371,7 @@ a {
       width: 14px;
       border: 1px solid #AAA;
       cursor: pointer;
+      margin-right: 5px;
       &:hover {
         opacity: 0.5;
       }
@@ -378,9 +379,21 @@ a {
     > .fav {
       //TODO background-image: trash
     }
+    > .edit {
+      float: right;
+      width: 16px;
+      height: 16px;
+      //TODO background-image: pencil
+      background-color: black;
+    }
+    > input {
+      height: 18px;
+      padding: 0;
+      border: 0;
+      font-size: 11px;
+    }
     > .nav {
       padding-top: 2px;
-      padding-left: 5px;
       overflow: hidden;
       display: block;
       white-space: nowrap;
