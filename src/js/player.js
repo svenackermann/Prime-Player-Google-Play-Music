@@ -776,8 +776,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
       settings.favorites = favorites;//trigger listener notification
     });
     
-    var dropSelector = "div";
-    $("#favorites").on("click", "img", function() {
+    var dropSelector = ".sortable div";
+    $("#favoritesContainer").on("click", "img", function() {
       bp.startPlaylist($(this).siblings(".nav").data("link"));
       restorePlayer();
     }).on("click", ".edit", function() {
@@ -821,7 +821,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       favorites.splice(destIndex, 0, src);
       settings.favorites = favorites;//trigger listeners
       return false;
-    }).on("dragstart", "div[draggable='true']", function(ev) {
+    }).on("dragstart", dropSelector + "[draggable='true']", function(ev) {
       var dt = ev.originalEvent.dataTransfer;
       var index = $(this).index();
       dt.setData("srcfavorite", index);
@@ -941,6 +941,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       });
       favDiv.append("<div class='lastdrop'>");
     } else favDiv.append("<div class='empty'>");
+    favDiv.toggleClass("sortable", favorites.length > 1);
   }
   
   function setSongPosition(event) {
