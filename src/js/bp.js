@@ -191,6 +191,8 @@ var settings = exports.settings = new Bean({
   connectedIndicator: true,
   preventCommandRatingReset: true,
   updateNotifier: true,
+  pauseOnLock: false,
+  pauseOnIdle: false,
   gaEnabled: true,
   optionsMode: "beg",
   filterTimer: true,
@@ -533,6 +535,31 @@ var fetchLyrics = exports.fetchLyrics = function(aSong, cb) {
   }
   tryNext();
 };
+
+/** Pause on lock/idle feature */
+var idle = chrome.idle;
+var resumePending = false;
+
+settings.w("pauseOnLock", pauseOnStateHandler);
+settings.w("pauseOnIdle", pauseOnStateHandler);
+
+function pauseOnStateHandler() {
+  if (settings.pauseOnLock || settings.pauseOnIdle) {
+    idle.onStateChanged.addListener(onStateChangedHandler);
+  } else {
+    idle.onStateChanged.removeListener(onStateChangedHandler);
+  }
+}
+
+function onStateChangedHandler(state) {
+  if (player.playing && ((state === 'locked' && settings.pauseOnLock) || (state === 'idle' && settings.pauseOnIdle))) {
+    executePlayPause();
+    resumePending = true;
+  } else if (resumePending && !player.playing && state === 'active') {
+    executePlayPause();
+    resumePending = false;
+  }
+}
 
 /** Wrap chrome notifications API for convenience. */
 var chromeNotifications = chrome.notifications;

@@ -651,6 +651,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initHint("preventCommandRatingReset");
     initCheckbox("updateNotifier");
     initCheckbox("syncSettings", localSettings);
+    initCheckbox("pauseOnLock");
+    initHint("pauseOnLock");
+    initCheckbox("pauseOnIdle");
+    initHint("pauseOnIdle");
     initCheckbox("gaEnabled");
     initHint("gaEnabled");
     

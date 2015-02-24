@@ -342,6 +342,18 @@
   "setting_syncSettings": {
     "message": "Einstellungen mit Chrome sync synchronisieren"
   },
+  "setting_pauseOnLock": {
+    "message": "Pause für Musik, wenn der Computer gesperrt ist"
+  },
+  "setting_pauseOnLockHint": {
+    "message": "Diese Option Pausen Musik, wenn Sie Ihren Computer sperren"
+  },
+  "setting_pauseOnIdle": {
+    "message": "Pause für Musik, wenn Computer im Leerlauf 60 Sekunden"
+  },
+  "setting_pauseOnIdleHint": {
+    "message": "Diese Option Pausen Musik, wenn Ihr Computer im Leerlauf 60 Sekunden"
+  },
   "setting_preventCommandRatingReset": {
     "message": "Setze Bewertungen niemals zur\u00FCck, die nicht sichtbar sind"
   },
