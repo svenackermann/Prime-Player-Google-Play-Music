@@ -9,6 +9,14 @@ body {
   font-family: arial;
 }
 
+.sortable > *[draggable='true'] {
+  cursor: move;
+}
+
+.dragging {
+  box-shadow: 0 -2px 0 #1D6D6D;
+}
+
 #settings {
   float: left;
   &.f-beg .adv, &.f-beg .exp, &.f-adv .exp {

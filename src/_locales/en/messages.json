@@ -360,7 +360,7 @@
     "description": "title for the lyrics settings on options page"
   },
   "legendLyricsHint": {
-    "message": "You can allow Prime Player to load lyrics from songlyrics.com to show them in the miniplayer or the Google Music tab.",
+    "message": "You can allow Prime Player to load lyrics from external websites to show them in the miniplayer or the Google Music tab. For this, you first must enable at least one site below. The enabled sites can be sorted with drag & drop, the first site is always searched first for lyrics.",
     "description": "hint for the lyrics settings on options page"
   },
   "setting_gaEnabled": {
@@ -500,6 +500,10 @@
     "message": "Saves the last played song with its position (locally), so you know where you left off before closing Google Music. The last song will be displayed in the miniplayer like a normal song with some limitations. The play button will try to load the song's album and resume the song at its last position. Unfortunately, it's not possible to restore your last queue or playlist on restart.",
     "description": "hint for option to save last song position"
   },
+  "setting_hideFavorites": {
+    "message": "Hide favorites in miniplayer and context menu",
+    "description": "label for option to hide favorites"
+  },
   "setting_skipRatedLower": {
     "message": "(or lower) rated songs will be skipped",
     "description": "label for option to skip songs that have a low rating"
@@ -607,6 +611,16 @@
   "loadLyricsError": {
     "message": "The lyrics could not be loaded.",
     "description": "message when no lyrics could be loaded (in miniplayer and Google Music)"
+  },
+  "lyricsSrcProvider": {
+    "message": "Source: $PRV$",
+    "description": "Text for source link to lyrics provider",
+    "placeholders": { "PRV": { "content": "$1", "example": "songlyrics.com" } }
+  },
+  "lyricsSearchProvider": {
+    "message": "Search $PRV$",
+    "description": "Text for link to search with another lyrics provider",
+    "placeholders": { "PRV": { "content": "$1", "example": "songlyrics.com" } }
   },
   "quicklinks": {
     "message": "Quick links",
@@ -726,6 +740,10 @@
     "message": "If enabled, links to albums, artist etc. will be opened directly in the miniplayer, otherwise in the Google Music tab. Using Shift+Click you can switch this behavior temporarily.",
     "description": "hint for option to open links in miniplayer"
   },
+  "setting_lyricsAutoNext": {
+    "message": "Auto-load from next site(s) if not found",
+    "description": "label for option to auto-load lyrics from next site"
+  },
   "setting_lyrics": {
     "message": "Activate lyrics",
     "description": "label for option to activate lyrics"
@@ -739,8 +757,9 @@
     "description": "hint for option to open lyrics in miniplayer"
   },
   "lyricsAlert": {
-    "message": "This feature requires access to songlyrics.com to load the lyrics.\nPlease note that not Prime Player but songlyrics.com is responsible for the quality of the search results. Prime Player always shows the first search result from songlyrics.com. So it is possible that the shown lyrics don't match the song. You can check the search results with the links at the bottom of the lyrics page in the miniplayer.",
-    "description": "warning message on first lyrics feature activation"
+    "message": "This requires access to $SITE$ to load the lyrics.\nPlease note that not Prime Player but $SITE$ is responsible for the quality of the search results. Prime Player always shows the first search result from $SITE$. So it is possible that the shown lyrics don't match the song. You can check the search results with the links at the bottom of the lyrics page in the miniplayer.",
+    "description": "warning message on first lyrics feature activation",
+    "placeholders": { "SITE": { "content": "$1", "example": "songlyrics.com" } }
   },
   "setting_hideSearchfield": {
     "message": "Hide search box in miniplayer",
@@ -1058,6 +1077,10 @@
   },
   "favorites": {
     "message": "Favorites",
-    "description": "text for favorites sub context menu and header in miniplayer"
+    "description": "text for favorites sub context menu and header/link in miniplayer"
+  },
+  "noFavorites": {
+    "message": "You have no favorites.\\A\\AMark any playlist (album, artist, ...) as favorite with the star icon in the list navigation view.",
+    "description": "text for favorites view in miniplayer if no favorites exist"
   }
 }

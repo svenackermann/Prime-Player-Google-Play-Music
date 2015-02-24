@@ -7,7 +7,7 @@
  * @license BSD license
  */
 
-/* global chrome, Bean, LastFM, buildLyricsSearchUrl, fetchLyrics, ga */
+/* global chrome, Bean, LastFM, lyricsProviders, ga */
 /* exported toTimeString, extractUrlParam */
 
 /* ---------------------------------- */
@@ -96,29 +96,30 @@ var localSettings = exports.localSettings = new Bean({
   googleAccountNo: 0,
   syncSettings: false,
   lyrics: false,
+  lyricsProviders: [],
   lyricsFontSize: 11,
   lyricsWidth: 250,
   miniplayerSizing: {
-    normal:   { width: 286, height: 153, left: 0, top: 0 },
-    compact1: { width: 281, height: 118, left: 0, top: 0 },
+    normal:   { width: 310, height: 153, left: 0, top: 0 },
+    compact1: { width: 306, height: 118, left: 0, top: 0 },
     compact2: { width: 211, height: 163, left: 0, top: 0 },
-    hbar:     { width: 531, height: 68,  left: 0, top: 0 }
+    hbar:     { width: 555, height: 68,  left: 0, top: 0 }
   },
-  playlistsListSizing: {width: 350, height: 320},
-  playlistSizing: {width: 500, height: 295},
-  quicklinksSizing: {width: 280, height: 160},
-  albumContainersSizing: {width: 220, height: 320},
-  mixedSizing: {width: 350, height: 320},
-  lyricsSizing: {width: 400, height: 400},
+  playlistsListSizing: { width: 350, height: 320 },
+  playlistSizing: { width: 500, height: 295 },
+  albumContainersSizing: { width: 220, height: 320 },
+  mixedSizing: { width: 350, height: 320 },
+  quicklinksSizing: { width: 280, height: 160 },
+  favoritesSizing: { width: 280, height: 200 },
+  lyricsSizing: { width: 400, height: 400 },
   timerMinutes: 60,
   timerAction: "pause",
   timerNotify: true,
   timerPreNotify: 0,
   timerEnd: null,
   notificationsEnabled: true,
-  allinc: false,
   ratingMode: null,
-  quicklinks: null
+  quicklinks: {}
 }, true);
 //do not notify listeners, if not a real change (quicklinks are sent on each connect)
 localSettings.setEqualsFn("quicklinks", Bean.objectEquals);
@@ -165,6 +166,7 @@ var settings = exports.settings = new Bean({
   mpAutoClose: false,
   mpCloseGm: false,
   openLyricsInMiniplayer: true,
+  lyricsAutoNext: false,
   lyricsInGpm: false,
   lyricsAutoReload: false,
   iconStyle: "default",
@@ -289,7 +291,7 @@ var getQuicklinks = exports.getQuicklinks = function() {
     "ap/auto-playlist-promo",
     "ap/shared-with-me"
   ];
-  if (localSettings.allinc) quicklinks.push("exptop", "expnew", "exprec");
+  if (localSettings.quicklinks && localSettings.quicklinks.exptop) quicklinks.push("exptop", "expnew", "exprec");
   else quicklinks.push("ap/google-play-recommends");
   return quicklinks;
 };
@@ -478,9 +480,7 @@ var rate = exports.rate = function(rating) {
 var getTextForQuicklink = exports.getTextForQuicklink = function(link) {
   if (link == "myPlaylists") return i18n("myPlaylists");
   var text;
-  if (link && localSettings.quicklinks) {//try to get text from Google site
-    text = localSettings.quicklinks[link];
-  }
+  if (link) text = localSettings.quicklinks[link];//try to get text from Google site
   //use default
   return text || i18n("quicklink_" + link.replace(/-/g, "_").replace(/\//g, "_"));
 };
@@ -500,15 +500,38 @@ var openLyrics = exports.openLyrics = function(aSong) {
     if (!song.info) return;
     aSong = {artist: song.info.artist, title: song.info.title};
   }
-  var url = buildLyricsSearchUrl(aSong);
-  if (url) {
-    chromeTabs.create({ url: url }, function(tab) {
-      chromeTabs.executeScript(tab.id, { file: "js/cs-songlyrics.js", runAt: "document_end" });
-    });
-    gaEvent("Lyrics", "Open");
-  } else {
-    gaEvent("Lyrics", "Error-noURL");
+  var index = 0;
+  function tryNext(tabId) {
+    var providers = localSettings.lyricsProviders;
+    lyricsProviders[providers[index]].openLyrics(aSong, chromeTabs, function(result, newTabId) {
+      if (!result && settings.lyricsAutoNext && providers[++index]) tryNext(newTabId);
+    }, tabId);
   }
+  tryNext();
+};
+
+/** Fetch lyrics from a specific provider. */
+var fetchLyricsFrom = exports.fetchLyricsFrom = function(song, provider, cb) {
+  lyricsProviders[provider].fetchLyrics(song, function(result) {
+    cb(provider, result);
+  });
+};
+
+/**
+ * Fetch lyrics for a song.
+ * If lyricsAutoNext is enabled, all enabled providers will be searched until one returns a result.
+ * The callback receives a list of other providers to try and the search result.
+ */
+var fetchLyrics = exports.fetchLyrics = function(aSong, cb) {
+  var index = 0;
+  function tryNext() {
+    var providers = localSettings.lyricsProviders;
+    fetchLyricsFrom(aSong, providers[index], function(provider, result) {
+      if ((result.error || result.noresults) && settings.lyricsAutoNext && providers[++index]) tryNext();
+      else cb(providers.slice(index + 1), provider, result);
+    });
+  }
+  tryNext();
 };
 
 /** Wrap chrome notifications API for convenience. */
@@ -898,17 +921,16 @@ function onMessageListener(message) {
     player.connected = true;
     updateBrowserActionInfo();
     iconClickSettingsChanged();
-    localSettings.allinc = val.allinc;
     localSettings.ratingMode = val.ratingMode;
     localSettings.quicklinks = val.quicklinks;
     refreshContextMenu(); 
   } else if (type == "loadLyrics") {
-    if (song.info) fetchLyrics(song.info, function(result) {
+    if (song.info) fetchLyrics(song.info, function(providers, src, result) {
       //we cannot send jQuery objects with a post, so send plain html
       if (result.lyrics) result.lyrics = result.lyrics.html();
       if (result.credits) result.credits = result.credits.html();
       if (result.title) result.title = result.title.text().trim();
-      postToGooglemusic({type: "lyrics", result: result});
+      postToGooglemusic({ type: "lyrics", result: result, providers: providers, src: src });
     });
   } else if (type == "rated") {
     if (settings.linkRatings && settings.linkRatingsGpm && val.rating >= settings.linkRatingsMin) {
@@ -933,7 +955,7 @@ var loadNavlistSearch;
 function loadNavlistIfConnected() {
   if (!loadNavlistLink) return;
   if (player.connected) {
-    postToGooglemusic({type: "getNavigationList", link: loadNavlistLink, search: loadNavlistSearch, omitUnknownAlbums: loadNavlistLink == "albums" && settings.omitUnknownAlbums});
+    postToGooglemusic({ type: "getNavigationList", link: loadNavlistLink, search: loadNavlistSearch, omitUnknownAlbums: loadNavlistLink == "albums" && settings.omitUnknownAlbums });
     loadNavlistLink = null;
     loadNavlistSearch = null;
   } else openGoogleMusicTab(loadNavlistLink);//when connected, we get triggered again
@@ -948,13 +970,23 @@ exports.loadNavigationList = function(link, search) {
 
 /** Select a link in the Google Music tab or open it when not connected. */
 var selectLink = exports.selectLink = function(link) {
-  postToGooglemusic({type: "selectLink", link: link});
+  postToGooglemusic({ type: "selectLink", link: link });
   openGoogleMusicTab(link, true);//if already opened focus the tab, else open & focus a new one
 };
 
+var startPlaylistLink;
+function startPlaylistIfConnected() {
+  if (!startPlaylistLink) return;
+  if (player.connected) {
+    postToGooglemusic({ type: "startPlaylist", link: startPlaylistLink });
+    startPlaylistLink = null;
+  } else openGoogleMusicTab();//when connected, we get triggered again
+}
+
 /** Start a playlist in Google Music. */
-exports.startPlaylist = function(link) {
-  postToGooglemusic({type: "startPlaylist", link: link});
+var startPlaylist = exports.startPlaylist = function(link) {
+  startPlaylistLink = link;
+  startPlaylistIfConnected();
 };
 
 var feelingLucky = false;
@@ -1439,6 +1471,12 @@ function iconClickSettingsChanged() {
 function migrateSettings(previousVersion) {
   function isTrue(setting) { return setting == "btrue"; }
   
+  //--- 1.5 ---
+  //notification type is no longer supported
+  if (settings.miniplayerType == "notification") {
+    settings.miniplayerType = "popup";
+  }
+  
   //--- 2.15 ---
   //if "open miniplayer" or "play/pause" was set as click action, keep it in click action 0
   var icmp = localStorage.iconClickMiniplayer;
@@ -1489,6 +1527,14 @@ function migrateSettings(previousVersion) {
     if (isTrue(icc)) settings.iconClickConnectAction = "gotoGmusic";
     else if (settings.iconClickAction0 == "openMiniplayer" || settings.iconClickAction0 == "feelingLucky") settings.iconClickConnectAction = settings.iconClickAction0;
     localStorage.removeItem("iconClickConnect");
+  }
+  
+  //--- 3.0 ---
+  //set "songlyrics" as provider if lyrics were enabled before
+  if (previousVersion < 3.0 && localSettings.lyrics) {
+    lyricsProviders.songlyrics.checkPermission(function(hasPermission) {
+      if (hasPermission) localSettings.lyricsProviders = ["songlyrics"];
+    });
   }
 }
 
@@ -1752,12 +1798,6 @@ function refreshContextMenu() {
       chromeContextMenus.create({ contexts: ["browser_action"], type: type || "normal", id: id, title: title, checked: checked, parentId: parentId, enabled: enabled }, cb);
     }
     
-    if (localSettings.lastfmSessionKey) createContextMenuEntry("scrobble", i18n("setting_scrobble"), null, null, "checkbox", settings.scrobble);
-    
-    createContextMenuEntry("toast", i18n("setting_toast"), null, null, "checkbox", settings.toast);
-    
-    createContextMenuEntry("sep", null, null, null, "separator");
-    
     if (player.connected) {
       var menuConnectedId = "menuConnected";
       createContextMenuEntry(menuConnectedId, i18n("action"), function() {
@@ -1794,7 +1834,7 @@ function refreshContextMenu() {
       var menuQuicklinksId = "menuQuicklinks";
       createContextMenuEntry(menuQuicklinksId, i18n("quicklinks"), function() {
         getQuicklinks().forEach(function(ql) {
-          createContextMenuEntry("ql_" + ql, getTextForQuicklink(ql).replace(/&/g, "&&"), null, menuQuicklinksId);
+          if (ql != "myPlaylists") createContextMenuEntry("ql_" + ql, getTextForQuicklink(ql).replace(/&/g, "&&"), null, menuQuicklinksId);
         });
       });
     }
@@ -1820,7 +1860,9 @@ function refreshContextMenu() {
 }
 
 localSettings.w("timerEnd", refreshContextMenu);
-localSettings.al("lastfmSessionKey", refreshContextMenu);
+localSettings.al("lastfmSessionKey", function() {
+  if (player.connected) refreshContextMenu();
+});
 localSettings.al("lyrics", function() {
   if (player.connected) refreshContextMenu();
 });
@@ -1835,10 +1877,8 @@ settings.al("hideFavorites", refreshContextMenu);
 settings.w("gaEnabled", gaEnabledChanged);
 settings.w("iconClickAction0", iconClickSettingsChanged);
 settings.al("iconClickConnectAction", iconClickSettingsChanged);
-settings.w("miniplayerType", function(val) {
-  if (val == "notification") {//migrate (notification type is no longer supported)
-    settings.miniplayerType = "popup";
-  } else if (miniplayer) openMiniplayer();//reopen
+settings.w("miniplayerType", function() {
+  if (miniplayer) openMiniplayer();//reopen
 });
 settings.al("layout", function() {
   if (miniplayer) {
@@ -1862,17 +1902,11 @@ settings.w("toastButton1", commandOptionListener.bind(window, updateToast));
 //we need a copy of the updateToast function here to avoid that changes on toastButton1 remove needed listeners for toastButton2
 settings.w("toastButton2", commandOptionListener.bind(window, function() { updateToast(); }));
 settings.al("toastProgress", updateToast);
-settings.al("scrobble", function(val) {
-  chromeContextMenus.update("scrobble", { checked: val });
-  calcScrobbleTime();
-});
+settings.al("scrobble", calcScrobbleTime);
 settings.al("scrobbleMaxDuration", calcScrobbleTime);
 settings.al("scrobblePercent", calcScrobbleTime);
 settings.al("scrobbleTime", calcScrobbleTime);
 settings.al("disableScrobbleOnFf", calcScrobbleTime);
-settings.al("toast", function(val) {
-  chromeContextMenus.update("toast", { checked: val });
-});
 //we need a copy of the updateBrowserActionInfo function here to avoid conflicts with showPlayingIndicator/showProgress listener
 settings.w("iconClickAction0", commandOptionListener.bind(window, function() { updateBrowserActionInfo(); }));
 settings.al("iconStyle", updateBrowserActionInfo);
@@ -1955,6 +1989,7 @@ localSettings.w("notificationsEnabled", function(val, old) {
 player.al("connected", function(val) {
   if (val) {
     loadNavlistIfConnected();
+    startPlaylistIfConnected();
     executeFeelingLuckyIfConnected();
     resumeLastSongIfConnected();
     if (settings.connectedIndicator) postToGooglemusic({type: "connectedIndicator", show: true});
@@ -2281,17 +2316,11 @@ chromeContextMenus.onClicked.addListener(function(info) {
     if (localSettings.timerPreNotify > min * 60) localSettings.timerPreNotify = min * 60;
     localSettings.timerEnd = ($.now() / 1000) + (min * 60);
     startSleepTimer();
-  } else if (cmd.indexOf("fav_") === 0 || cmd.indexOf("ql_") === 0) {
-    var link = cmd.substr(cmd.indexOf("_") + 1);
-    selectLink(link);
-    //TODO start if it is a playlist
+  } else if (cmd.indexOf("fav_") === 0) {
+    startPlaylist(cmd.substr(4));
+  } else if (cmd.indexOf("ql_") === 0) {
+    selectLink(cmd.substr(3));
   } else switch (cmd) {
-    case "scrobble":
-      settings.scrobble = info.checked;
-      break;
-    case "toast":
-      settings.toast = info.checked;
-      break;
     case "stopTimer":
       clearSleepTimer();
       break;

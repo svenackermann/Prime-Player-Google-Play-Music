@@ -133,6 +133,10 @@
     margin: 0 5px 0 #{$size + 10}px;
   }
   
+  #showfavorites {
+    @include hoversprite(17, 0, 1, $size);
+  }
+  
   #showlyrics {
     @include sprite(16, 0, $size);
   }
@@ -236,16 +240,16 @@
       height: $rate-size-px;
     }
     .rating-1 {
-      @include hoversprite(1, 0, 1, $rate-size);
+      @include hoverspriteno(1, 0, 1, $rate-size);
     }
     .rating-5 {
-      @include hoversprite(0, 0, 1, $rate-size);
+      @include hoverspriteno(0, 0, 1, $rate-size);
     }
     &.rating-1 .rating-1, &.rating-2 .rating-1 {
-      @include hoversprite(1, 2, 3, $rate-size);
+      @include hoverspriteno(1, 2, 3, $rate-size);
     }
     &.rating-4 .rating-5, &.rating-5 .rating-5 {
-      @include hoversprite(0, 2, 3, $rate-size);
+      @include hoverspriteno(0, 2, 3, $rate-size);
     }
   }
   .star-rating #googleRating {
@@ -305,6 +309,9 @@
 .layout-compact2 {
   body {
     min-width: 180px;
+    &.lyrics, &:not(.hidefav) {
+      min-width: 195px;
+    }
   }
   #top {
     height: 64px;
@@ -318,11 +325,19 @@
     top: 3px;
     left: 72px;
     height: 40px;
-    #repeat {
-      clear:left;
-    }
     > a {
       margin: 0 3px;
+    }
+  }
+  #repeat {
+    clear:left;
+  }
+  body.lyrics:not(.hidefav) {
+    #shuffle {
+      clear:left;
+    }
+    #repeat {
+      clear:none;
     }
   }
   &.hideRatings {
@@ -413,12 +428,20 @@
     #player {
       min-width: 369px;
     }
-    .lyrics {
+    .lyrics, body:not(.hidefav) {
       #time {
         width: 168px;
       }
       #player {
         min-width: 393px;
+      }
+    }
+    body.lyrics:not(.hidefav) {
+      #time {
+        width: 192px;
+      }
+      #player {
+        min-width: 417px;
       }
     }
   }
@@ -435,7 +458,7 @@
     height: 10px;
     padding: 0;
   }
-  .lyrics {
+  .lyrics, body:not(.hidefav) {
     #time {
       width: 285px;
     }
@@ -444,6 +467,17 @@
     }
     #rating {
       left: $height + 336px;
+    }
+  }
+  body.lyrics:not(.hidefav) {
+    #time {
+      width: 309px;
+    }
+    #player {
+      min-width: 534px;
+    }
+    #rating {
+      left: $height + 360px;
     }
   }
   #currentTime, #songTime {

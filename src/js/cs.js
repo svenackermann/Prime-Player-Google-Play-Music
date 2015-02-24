@@ -272,7 +272,7 @@ $(function() {
     function watchContent(fn, selector, timeout) {
       var content = $(selector);
       if (content.length) {
-        var listener = fn.bind(window, content);
+        var listener;
         if (timeout) {
           var contentTimer;
           listener = function() {
@@ -282,7 +282,7 @@ $(function() {
               fn(content);
             }, timeout);//wait til the DOM manipulation is finished
           };
-        }
+        } else listener = fn.bind(window, content);
         
         var observer = new MutationObserver(function (mutations) { mutations.forEach(listener); });
         observers.push(observer);
@@ -299,21 +299,27 @@ $(function() {
      * @param selector the jQuery selector
      * @param type the type of message to post on change
      * @param getValue an optional special function to get the value (default is to return the changed attribute value)
+     * @param timeout time to wait after DOM manipulation before executing the function
      */
-    function watchAttr(attrs, selector, type, getValue) {
+    function watchAttr(attrs, selector, type, getValue, timeout) {
       var element = $(selector)[0];
       if (element) {
         if (getValue === undefined) {
           getValue = function(el, attr) { return el.getAttribute(attr); };
         }
         var value = getValue(element, attrs);
+        var postTimer;
         var observer = new MutationObserver(function (mutations) {
           mutations.forEach(function(mutation) {
-            var newValue = getValue(mutation.target, mutation.attributeName);
-            if (newValue !== value) {
-              value = newValue;
-              post(type, value);
+            clearTimeout(postTimer);
+            function update() {
+              var newValue = getValue(mutation.target, mutation.attributeName);
+              if (newValue !== value) {
+                value = newValue;
+                post(type, value);
+              }
             }
+            postTimer = setTimeout(update, timeout || 0);
           });
         });
         observers.push(observer);
@@ -327,7 +333,7 @@ $(function() {
     watchContent(sendSong, "#playerSongInfo", 500);
     watchContent(sendPosition, "#time_container_current");
     watchContent(musicContentLoaded, "#music-content", 500);
-    watchAttr("class disabled", "#player > div.player-middle > button[data-id='play-pause']", "player-playing", playingGetter);
+    watchAttr("class disabled", "#player > div.player-middle > button[data-id='play-pause']", "player-playing", playingGetter, 500);
     watchAttr("value", "#player > div.player-middle > button[data-id='repeat']", "player-repeat");
     watchAttr("value", "#player > div.player-middle > button[data-id='shuffle']", "player-shuffle", shuffleGetter);
     watchAttr("class", ratingContainer.selector + " li", "song-rating", ratingGetter);
@@ -381,7 +387,6 @@ $(function() {
         });
         ql.searchPlaceholder = $.trim($("#oneGoogleWrapper input[name='q']").attr("placeholder"));
         post("connected", {
-          allinc: nav.children("a[data-type='exptop']").is(":visible"),
           ratingMode: ratingContainer.hasClass("stars") ? "star" : "thumbs",
           quicklinks: ql
         });
@@ -609,6 +614,7 @@ $(function() {
       case "artists":
       case "genres":
       case "srar":
+      case "sarrar":
       case "srp":
         return "albumContainers";
       case "now":
@@ -618,6 +624,7 @@ $(function() {
       case "sar":
       case "tg":
       case "sral":
+      case "saral":
       case "ar":
       case "exprec":
       case "expnew":
@@ -675,7 +682,7 @@ $(function() {
       }
       if (error) {
         sendError();
-      } else if (link == "exptop" || link == "exprec" || link == "rd" || link.indexOf("expgenres/") === 0) {
+      } else if (link == "exptop" || link == "exprec" || link == "rd" || link.indexOf("expgenres/") === 0 || link.indexOf("artist/") === 0) {
         sendMixed(response);
       } else {
         var type = getListType(link);
