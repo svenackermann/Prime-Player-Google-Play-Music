@@ -11,6 +11,8 @@ body {
 
 .sortable > *[draggable='true'] {
   cursor: move;
+  background: url(../img/sort.png) right no-repeat;
+  background-size: 16px;
 }
 
 .dragging {

@@ -719,13 +719,17 @@ $(function() {
   /** Try to find and resume the last played song from previous session. */
   function resumeSong(msg, error) {
     if (error) return;
+    var topFound = false;
     function sendResume() {
       var rows = $("#music-content .song-row");
       if (rows.length) {
-        if (rows.first().data("index") !== 0) {
-          $("#music-content").scrollTop(0);
-          asyncListTimer = setTimeout(sendResume, 150);
-          return;
+        if (!topFound) {
+          if (rows.first().data("index") !== 0) {
+            $("#music-content").scrollTop(0);
+            asyncListTimer = setTimeout(sendResume, 150);
+            return;
+          }
+          topFound = true;
         }
         var found = false;
         rows.each(function() {

@@ -409,6 +409,12 @@ a {
       white-space: nowrap;
     }
   }
+  &.sortable > div[draggable] {
+    cursor: move;
+    background: url(../img/sort.png) right no-repeat;
+    background-size: 14px;
+    padding-right: 15px;
+  }
 }
 
 .hidefav {
