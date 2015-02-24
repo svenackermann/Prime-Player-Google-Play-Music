@@ -591,14 +591,15 @@ function drawProgress(init) {
     if (init) browserIconWithoutProgressImageData = browserIconCtx.getImageData(0, 0, 38, 38);
     else browserIconCtx.putImageData(browserIconWithoutProgressImageData, 0, 0);
     
-    browserIconCtx.strokeStyle = player.playing ? settings.showProgressColor : settings.showProgressColorPaused;
-    browserIconCtx.globalAlpha = 0.5;
-    browserIconCtx.lineWidth = 6;
-    browserIconCtx.beginPath();
-    var eAngle = lastProgressPosition ? 2 * lastProgressPosition / song.info.durationSec - 0.5 : 1.5;
-    browserIconCtx.arc(18, 19, 14, 1.5 * Math.PI, eAngle * Math.PI);
-    browserIconCtx.stroke();
-    browserIconCtx.globalAlpha = 1.0;
+    if (lastProgressPosition) {
+      browserIconCtx.strokeStyle = player.playing ? settings.showProgressColor : settings.showProgressColorPaused;
+      browserIconCtx.globalAlpha = 0.5;
+      browserIconCtx.lineWidth = 6;
+      browserIconCtx.beginPath();
+      browserIconCtx.arc(18, 19, 14, 1.5 * Math.PI, (2 * lastProgressPosition / song.info.durationSec - 0.5) * Math.PI);
+      browserIconCtx.stroke();
+      browserIconCtx.globalAlpha = 1.0;
+    }
     return true;
   }
   return false;
