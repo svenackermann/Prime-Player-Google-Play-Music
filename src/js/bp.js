@@ -1833,7 +1833,7 @@ function refreshContextMenu() {
     
     var timerEnd = localSettings.timerEnd;
     if (timerEnd !== null) {
-      if (timerEnd > 0) createContextMenuEntry("stopTimer", getStopTimerMenuTitle());
+      if (timerEnd) createContextMenuEntry("stopTimer", getStopTimerMenuTitle());
       else {
         var startTimer = "startTimer";
         createContextMenuEntry(startTimer, i18n("startTimerMenu"), function() {

@@ -129,11 +129,9 @@ function Bean(defaults, useLocalStorage) {
   /** @return value from localStorage converted to correct type */
   function parse(name, defaultValue) {
     if (!syncLocalStorage || localStorage[name] === undefined) {
-      if ($.isArray(defaultValue)) {
-        return defaultValue.slice();
-      }
       if (defaultValue && typeof(defaultValue) == "object") {
-        return $.extend(true, {}, defaultValue);
+        //clone to avoid modification of default value
+        return $.isArray(defaultValue) ? defaultValue.slice() : $.extend(true, {}, defaultValue);
       }
       return defaultValue;
     }
@@ -141,7 +139,7 @@ function Bean(defaults, useLocalStorage) {
     var type = value.substr(0, 1);
     value = value.substr(1);
     switch (type) {
-      case "o": return value[0] == "[" ? JSON.parse(value) : $.extend({}, defaultValue, JSON.parse(value));
+      case "o": return value == "null" ? null : (value[0] == "[" ? JSON.parse(value) : $.extend({}, defaultValue, JSON.parse(value)));
       case "b": return value == "true";
       case "n": return parseFloat(value);
       default: return value;
@@ -166,9 +164,12 @@ function Bean(defaults, useLocalStorage) {
         var equals = equalsFn[name] || defaultEquals;
         if (equals(val, old)) return;
         if (syncLocalStorage) {
-          var type = typeof(val);
-          if (type == "function") throw "cannot store a function in localstorage";
-          localStorage[name] = type.substr(0, 1) + ((type == "object") ? JSON.stringify(val) : val);
+          if (val === undefined || equals(val, defaultValue)) localStorage.removeItem(name);
+          else {
+            var type = typeof(val);
+            if (type == "function") throw "cannot store a function in localstorage";
+            localStorage[name] = type.substr(0, 1) + ((type == "object") ? JSON.stringify(val) : val);
+          }
         }
         cache[name] = val;
         if (useSyncStorage) saveSyncStorage();
