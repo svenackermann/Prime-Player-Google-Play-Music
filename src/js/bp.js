@@ -595,7 +595,8 @@ function drawProgress(init) {
     browserIconCtx.globalAlpha = 0.5;
     browserIconCtx.lineWidth = 6;
     browserIconCtx.beginPath();
-    browserIconCtx.arc(18, 19, 14, 1.5 * Math.PI, (2 * lastProgressPosition / song.info.durationSec - 0.5) * Math.PI);
+    var eAngle = lastProgressPosition ? 2 * lastProgressPosition / song.info.durationSec - 0.5 : 1.5;
+    browserIconCtx.arc(18, 19, 14, 1.5 * Math.PI, eAngle * Math.PI);
     browserIconCtx.stroke();
     browserIconCtx.globalAlpha = 1.0;
     return true;
