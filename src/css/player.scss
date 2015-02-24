@@ -24,7 +24,7 @@ $sprite-y-count: 5;
   }
 }
 
-#rightbuttons > a, .thumbs-rating a[data-rating], #lastfmRating > a, .thumbs-rating .rating-container > a, #playControls > a, #navHead > a:not(.fav) {
+#rightbuttons > a, .thumbs-rating a[data-rating], #lastfmRating > a, .thumbs-rating .rating-container > a, #playControls > a, #navHead > a:not(.fav), #favorites > div > .fav, #favorites > div > .edit {
   background-repeat: no-repeat;
   background-image: url(../img/sprites.png);
 }
@@ -382,14 +382,13 @@ a {
       }
     }
     > .fav {
-      //TODO background-image: trash
+      @include hoversprite(14, 0, 1, 16);
     }
     > .edit {
       float: right;
       width: 16px;
       height: 16px;
-      //TODO background-image: pencil
-      background-color: black;
+      @include hoversprite(18, 0, 1, 16);
     }
     > input {
       height: 18px;

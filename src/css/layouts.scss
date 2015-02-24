@@ -134,8 +134,7 @@
   }
   
   #showfavorites {
-    //TODO sprite image for favorites
-    @include hoversprite(16, 0, 1, $size);
+    @include hoversprite(17, 0, 1, $size);
   }
   
   #showlyrics {
