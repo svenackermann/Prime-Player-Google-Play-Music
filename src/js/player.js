@@ -659,30 +659,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
     $("#navHead .close").attr("title", i18n("close")).click(restorePlayer);
     
-    $("#nav").on("click", ".fav", function() {
-      var favElement = $(this);
-      var fav = favElement.data("fav");
-      var link = fav.link;
-      
-      var favorites = settings.favorites;
-      if (favoritesCache[link]) {
-        var index = -1;
-        favorites.some(function(val, i) {
-          if (val.link == link) {
-            index = i;
-            return true;
-          }
-        });
-        if (index >= 0) favorites.splice(index, 1);
-        delete favoritesCache[link];
-      } else {
-        favorites.unshift(fav);
-        favoritesCache[link] = true;
-      }
-      favElement.toggleClass("isfav", !!favoritesCache[link]);
-      settings.favorites = favorites;//trigger listener notification
-    });
-    
     var searchInputTimer;
     $("#navHead > input").keyup(function() {
       clearTimeout(searchInputTimer);
@@ -775,8 +751,32 @@ chrome.runtime.getBackgroundPage(function(bp) {
       }
     });
     
-    var dropSelector = "div";
     var favorites = settings.favorites;
+    
+    $("#nav").on("click", ".fav", function() {
+      var favElement = $(this);
+      var fav = favElement.data("fav");
+      var link = fav.link;
+      
+      if (favoritesCache[link]) {
+        var index = -1;
+        favorites.some(function(val, i) {
+          if (val.link == link) {
+            index = i;
+            return true;
+          }
+        });
+        if (index >= 0) favorites.splice(index, 1);
+        delete favoritesCache[link];
+      } else {
+        favorites.unshift(fav);
+        favoritesCache[link] = true;
+      }
+      favElement.toggleClass("isfav", !!favoritesCache[link]);
+      settings.favorites = favorites;//trigger listener notification
+    });
+    
+    var dropSelector = "div";
     $("#favorites").on("click", "img", function() {
       bp.startPlaylist($(this).siblings(".nav").data("link"));
       restorePlayer();
@@ -787,15 +787,21 @@ chrome.runtime.getBackgroundPage(function(bp) {
       var input = $("<input type='text'>").val(navLink.text());
       navLink.after(input);
       input.focus();
-    }).on("keyup", "input", function(ev) {
+    }).on("keyup focusout", "input", function(ev) {
       var kc = ev.keyCode;
       if (kc == 27) {//ESC
+        this.done = true;
         resetFavoritesView();
-      } if (kc == 13) {//Return
-        var navLink = $(this).siblings(".nav");
-        favorites[navLink.parent().index()] = { link: navLink.data("link"), title: $(this).val() };
-        settings.favorites = favorites;//trigger listeners
-        resetFavoritesView();
+      } else if (!this.done && (kc == 13 || ev.type == "focusout")) {//Return or blur
+        var title = $.trim($(this).val());
+        if (title) {
+          this.done = true;
+          favorites[$(this).parent().index()].title = title;
+          settings.favorites = favorites;//trigger listeners
+        } else if (ev.type == "focusout") {
+          this.done = true;
+          resetFavoritesView();
+        }
       }
       return false;
     }).on("dragover", dropSelector, function(ev) {
@@ -806,7 +812,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       return !dropAllowed;
     }).on("dragleave", dropSelector, function() {
       $(this).removeClass("dragging");
-    }).on("drop", dropSelector, function(ev) {
+    }).on("drop", dropSelector, function(ev) {	
       $(this).removeClass("dragging");
       var srcIndex = ev.originalEvent.dataTransfer.getData("srcfavorite");
       var destIndex = $(this).index();
@@ -933,8 +939,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
         $("<a tabindex='0' class='nav'>").text(fav.title).data("link", fav.link).appendTo(div);
         favDiv.append(div);
       });
-      favDiv.append("<div>");
-    }else favDiv.append("<div class='empty'>");
+      favDiv.append("<div class='lastdrop'>");
+    } else favDiv.append("<div class='empty'>");
   }
   
   function setSongPosition(event) {

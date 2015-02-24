@@ -1080,7 +1080,7 @@
     "description": "text for favorites sub context menu and header/link in miniplayer"
   },
   "noFavorites": {
-    "message": "You have no favorites.",
+    "message": "You have no favorites.\\A\\AMark any playlist (album, artist, ...) as favorite with the star icon in the list navigation view.",
     "description": "text for favorites view in miniplayer if no favorites exist"
   }
 }

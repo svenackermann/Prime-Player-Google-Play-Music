@@ -814,6 +814,6 @@
     "message": "Favoriten"
   },
   "noFavorites": {
-    "message": "Du hast keine Favoriten."
+    "message": "Du hast keine Favoriten.\\A\\AMarkiere beliebige Wiedergabelisten (Alben, Interpreten, ...) als Favorit mit dem Stern-Symbol in der Listen-Ansicht."
   }
 }

@@ -356,8 +356,14 @@ a {
 #favorites {
   display: flex;
   flex-direction: column;
-  > .empty:after {
-    content: "__MSG_noFavorites__";
+  > .empty {
+    text-align: center;
+    position: relative;
+    top: 20%;
+    &:after {
+      content: "__MSG_noFavorites__";
+      white-space: pre-wrap;
+    }
   }
   > div {
     height: 8px;
@@ -367,7 +373,7 @@ a {
         background-color: #ddd;
       }
     }
-    &:not([draggable]):not(.empty) {
+    &.lastdrop {
       min-height: 6px;
       flex: 1;
     }
@@ -606,7 +612,7 @@ a {
   }
 }
 
-#navlist, #lyrics .content, #favorites {
+#navlist, #lyrics .content {
   > .empty, > .error {
     text-align: center;
     position: relative;
