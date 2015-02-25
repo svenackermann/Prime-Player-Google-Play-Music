@@ -1094,5 +1094,20 @@
   "noFavorites": {
     "message": "You have no favorites.\\A\\AMark any playlist (album, artist, ...) as favorite with the star icon in the list navigation view.",
     "description": "text for favorites view in miniplayer if no favorites exist"
+  },
+  "addfavorite": {
+    "message": "Add '$NAME$' to favorites",
+    "description": "hint for icon to add sth. as favorite",
+    "placeholders": { "NAME": { "content": "$1", "example": "Foals" } }
+  },
+  "delfavorite": {
+    "message": "Remove '$NAME$' from favorites",
+    "description": "hint for icon to remove sth. from favorite",
+    "placeholders": { "NAME": { "content": "$1", "example": "Foals" } }
+  },
+  "editfavorite": {
+    "message": "Edit '$NAME$'",
+    "description": "hint for icon to edit a favorite",
+    "placeholders": { "NAME": { "content": "$1", "example": "Foals" } }
   }
 }

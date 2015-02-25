@@ -824,5 +824,17 @@
   },
   "noFavorites": {
     "message": "Du hast keine Favoriten.\\A\\AMarkiere beliebige Wiedergabelisten (Alben, Interpreten, ...) als Favorit mit dem Stern-Symbol in der Listen-Ansicht."
+  },
+  "addfavorite": {
+    "message": "'$NAME$' zu Favoriten hinzuf\u00FCgen",
+    "placeholders": { "NAME": { "content": "$1" } }
+  },
+  "delfavorite": {
+    "message": "'$NAME$' aus Favoriten entfernen",
+    "placeholders": { "NAME": { "content": "$1" } }
+  },
+  "editfavorite": {
+    "message": "'$NAME$' bearbeiten",
+    "placeholders": { "NAME": { "content": "$1" } }
   }
 }

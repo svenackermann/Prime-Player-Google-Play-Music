@@ -410,11 +410,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
 
+  function updateFavoriteIconState(icon, link, title) {
+    var isfav = !!favoritesCache[link];
+    return icon.data("fav", { link: link, title: title }).attr("title", i18n(isfav ? "delfavorite" : "addfavorite", title)).toggleClass("isfav", isfav);
+  }
+  
   function getFavoriteIcon(link, title) {
     if (isFavoriteCandidate(link)) {
-      var fav = $("<a class='fav'>").data("fav", { link: link, title: title });
-      if (favoritesCache[link]) fav.addClass("isfav");
-      return fav;
+      return updateFavoriteIconState($("<a class='fav'>"), link, title);
     } else return $("<a class='fav' style='visibility:hidden'>");
   }
   
@@ -621,7 +624,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("#navlist").addClass("loading");
       $("#navlistContainer").show();
       if (isFavoriteCandidate(link)) {
-        $("#navHead .fav").toggleClass("isfav", !!favoritesCache[link]).data("fav", { link: link, title: title }).show();
+        updateFavoriteIconState($("#navHead .fav"), link, title).show();
       }
       bp.loadNavigationList(link, search);
     }
@@ -772,7 +775,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         favorites.unshift(fav);
         favoritesCache[link] = true;
       }
-      favElement.toggleClass("isfav", !!favoritesCache[link]);
+      updateFavoriteIconState(favElement, link, fav.title);
       settings.favorites = favorites;//trigger listener notification
     });
     
@@ -796,8 +799,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
         var title = $.trim($(this).val());
         if (title) {
           this.done = true;
-          favorites[$(this).parent().index()].title = title;
-          settings.favorites = favorites;//trigger listeners
+          var favorite = favorites[$(this).parent().index()];
+          if (favorite.title != title) {
+            favorite.title = title;
+            settings.favorites = favorites;//trigger listeners
+          } else resetFavoritesView();
         } else if (ev.type == "focusout") {
           this.done = true;
           resetFavoritesView();
@@ -934,8 +940,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
       favorites.forEach(function(fav) {
         var div = $("<div draggable='true'>");
         $("<img>").attr("src", "img/cover.png").appendTo(div);
-        $("<a tabindex='0' class='fav'>").data("fav", fav).appendTo(div);
-        $("<a tabindex='0' class='edit'>").appendTo(div);
+        $("<a tabindex='0' class='fav'>").data("fav", fav).attr("title", i18n("delfavorite", fav.title)).appendTo(div);
+        $("<a tabindex='0' class='edit'>").attr("title", i18n("editfavorite", fav.title)).appendTo(div);
         $("<a tabindex='0' class='nav'>").text(fav.title).data("link", fav.link).appendTo(div);
         favDiv.append(div);
       });
