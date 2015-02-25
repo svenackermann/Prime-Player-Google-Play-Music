@@ -61,6 +61,7 @@ var chromeLocalStorage = chrome.storage.local;
 var i18n = chrome.i18n.getMessage;
 var getExtensionUrl = chrome.extension.getURL;
 var chromeContextMenus = chrome.contextMenus;
+var chromeIdle = chrome.idle;
 
 var currentVersion = chromeRuntime.getManifest().version;
 
@@ -188,11 +189,11 @@ var settings = exports.settings = new Bean({
   openGoogleMusicPinned: false,
   openGmBackground: false,
   startupAction: "",
+  pauseOnLock: false,
+  pauseOnIdleSec: -60,//negative value means disabled
   connectedIndicator: true,
   preventCommandRatingReset: true,
   updateNotifier: true,
-  pauseOnLock: false,
-  pauseOnIdle: false,
   gaEnabled: true,
   optionsMode: "beg",
   filterTimer: true,
@@ -535,31 +536,6 @@ var fetchLyrics = exports.fetchLyrics = function(aSong, cb) {
   }
   tryNext();
 };
-
-/** Pause on lock/idle feature */
-var idle = chrome.idle;
-var resumePending = false;
-
-settings.w("pauseOnLock", pauseOnStateHandler);
-settings.w("pauseOnIdle", pauseOnStateHandler);
-
-function pauseOnStateHandler() {
-  if (settings.pauseOnLock || settings.pauseOnIdle) {
-    idle.onStateChanged.addListener(onStateChangedHandler);
-  } else {
-    idle.onStateChanged.removeListener(onStateChangedHandler);
-  }
-}
-
-function onStateChangedHandler(state) {
-  if (player.playing && ((state === "locked" && settings.pauseOnLock) || (state === "idle" && settings.pauseOnIdle))) {
-    executePlayPause();
-    resumePending = true;
-  } else if (resumePending && !player.playing && state === "active") {
-    executePlayPause();
-    resumePending = false;
-  }
-}
 
 /** Wrap chrome notifications API for convenience. */
 var chromeNotifications = chrome.notifications;
@@ -1891,6 +1867,32 @@ settings.al("saveLastPosition", function() {
 settings.al("favorites", refreshContextMenu);
 settings.al("hideFavorites", refreshContextMenu);
 
+function onIdleStateChangedHandler(state) {
+  if (player.playing && ((state == "locked" && settings.pauseOnLock) || (state == "idle" && settings.pauseOnIdleSec > 0))) {
+    executePlayPause();
+    chromeLocalStorage.set({ resumeOnActive: true });
+  } else if (!player.playing && state == "active") {
+    chromeLocalStorage.get("resumeOnActive", function(items) {
+      if (items.resumeOnActive) {
+        executePlayPause();
+        chromeLocalStorage.remove("resumeOnActive");
+      }
+    });
+  }
+}
+
+function pauseOnIdleStateHandler() {
+  chromeIdle.onStateChanged.removeListener(onIdleStateChangedHandler);
+  var pauseOnIdle = settings.pauseOnIdleSec > 0;
+  if (settings.pauseOnLock || pauseOnIdle) {
+    if (pauseOnIdle) chromeIdle.setDetectionInterval(settings.pauseOnIdleSec);
+    chromeIdle.onStateChanged.addListener(onIdleStateChangedHandler);
+  }
+}
+
+settings.w("pauseOnLock", pauseOnIdleStateHandler);
+settings.al("pauseOnIdleSec", pauseOnIdleStateHandler);
+
 /* --- register listeners --- */
 
 settings.w("gaEnabled", gaEnabledChanged);
@@ -1972,10 +1974,10 @@ settings.al("showProgress", function(val) {
 settings.al("showProgressColor", updateBrowserActionInfo);
 settings.al("showProgressColorPaused", updateBrowserActionInfo);
 function saveRating(rating) {
-  if (googlemusicport && song.info) chromeLocalStorage.set({"rating": rating});
+  if (googlemusicport && song.info) chromeLocalStorage.set({ rating: rating });
 }
 function saveScrobbled(scrobbled) {
-  if (googlemusicport) chromeLocalStorage.set({"scrobbled": scrobbled, "scrobbleTime": song.scrobbleTime});
+  if (googlemusicport) chromeLocalStorage.set({ scrobbled: scrobbled, scrobbleTime: song.scrobbleTime });
 }
 function saveFf(ff) {
   if (googlemusicport) chromeLocalStorage.set({"ff": ff});

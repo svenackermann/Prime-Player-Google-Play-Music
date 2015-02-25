@@ -107,6 +107,15 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("option[value='resumeLastSong']").prop("disabled", !settings.saveLastPosition);
   }
   
+  function pauseOnIdleChanged() {
+    $("#_pauseOnIdleSec").prop("disabled", settings.pauseOnIdleSec < 0).val(Math.abs(settings.pauseOnIdleSec));
+  }
+  
+  function pauseOnIdleClicked() {
+    settings.pauseOnIdleSec *= -1;
+    pauseOnIdleChanged();
+  }
+  
   function notificationsEnabledChanged(val) {
     settingsView.toggleClass("notifDisabled", !val);
     if (!val && settings.toast && !settings.toastUseMpStyle) $("#_toastUseMpStyle").click();//use click here to change the checkbox value
@@ -224,7 +233,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function initNumberInput(prop, min, max, theSettings) {
     theSettings = theSettings || settings;
     var input = $("<input type='number'>").attr("min", min).attr("max", max);
-    input.val(theSettings[prop]).blur(numberUpdater(prop, theSettings));
+    input.val(theSettings[prop]).blur(function() {
+      var value = parseFloat($(this).val());
+      if (($.isNumeric(min) && value < min) || ($.isNumeric(max) && value > max)) $(this).val(theSettings[prop]);
+      else theSettings[prop] = value;
+    });
     setIdAndAddItWithLabel(input, prop);
     return input;
   }
@@ -644,6 +657,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("openGoogleMusicPinned");
     initCheckbox("openGmBackground");
     initSelectFrom("startupAction", iconClickConnectAction).find("option[value='']").text(i18n("command_"));
+    initCheckbox("pauseOnLock");
+    initCheckbox("pauseOnIdle").unbind().prop("checked", settings.pauseOnIdleSec > 0).click(pauseOnIdleClicked);
+    initNumberInput("pauseOnIdleSec", 15);
     initNumberInput("googleAccountNo", 0, null, localSettings);
     initHint("googleAccountNo");
     initCheckbox("connectedIndicator");
@@ -651,10 +667,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initHint("preventCommandRatingReset");
     initCheckbox("updateNotifier");
     initCheckbox("syncSettings", localSettings);
-    initCheckbox("pauseOnLock");
-    initHint("pauseOnLock");
-    initCheckbox("pauseOnIdle");
-    initHint("pauseOnIdle");
     initCheckbox("gaEnabled");
     initHint("gaEnabled");
     
@@ -682,6 +694,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     iconClickChanged();
     showProgressChanged();
     saveLastPositionChanged();
+    pauseOnIdleChanged();
     
     $("#resetSettings").click(function() {
       settings.reset();

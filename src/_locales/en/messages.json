@@ -457,20 +457,16 @@
     "description": "label for option to sync settings"
   },
   "setting_pauseOnLock": {
-    "message": "Pause music when computer is locked",
+    "message": "Pause music when computer is locked (resume on unlock)",
     "description": "label for option to pause on lock"
   },
-  "setting_pauseOnLockHint": {
-    "message": "This option pauses music when you lock your computer and resumes it on unlock",
-    "description": "hint for option to pause on lock"
-  },
   "setting_pauseOnIdle": {
-    "message": "Pause music when computer is idle for 60s",
+    "message": "Pause music when computer is idle (resume on any action)",
     "description": "label for option to pause on idle"
   },
-  "setting_pauseOnIdleHint": {
-    "message": "This option pauses music when your computer is idle for 60s and resumes it on any action",
-    "description": "hint for option to pause on lock"
+  "setting_pauseOnIdleSec": {
+    "message": "Seconds to be idle before music is paused",
+    "description": "label for option to set the seconds for pause on idle"
   },
   "setting_preventCommandRatingReset": {
     "message": "Prevent rating resets without feedback",
