@@ -552,10 +552,10 @@ function pauseOnStateHandler() {
 }
 
 function onStateChangedHandler(state) {
-  if (player.playing && ((state === 'locked' && settings.pauseOnLock) || (state === 'idle' && settings.pauseOnIdle))) {
+  if (player.playing && ((state === "locked" && settings.pauseOnLock) || (state === "idle" && settings.pauseOnIdle))) {
     executePlayPause();
     resumePending = true;
-  } else if (resumePending && !player.playing && state === 'active') {
+  } else if (resumePending && !player.playing && state === "active") {
     executePlayPause();
     resumePending = false;
   }
