@@ -713,12 +713,8 @@ function getCommandIconUrl(cmd) {
  * @param cmd the command the option is set to
  */
 function commandOptionListener(updateFn, cmd) {
-  if (cmd == "playPause") player.al("playing", updateFn);
-  else player.rl("playing", updateFn);
-  
-  if (cmd == "loveUnloveSong") song.al("loved", updateFn);
-  else song.rl("loved", updateFn);
-  
+  player.arl("playing", updateFn, cmd == "playPause");
+  song.arl("loved", updateFn, cmd == "loveUnloveSong");
   updateFn();
 }
 
@@ -1237,8 +1233,7 @@ function drawToastImage() {
 /** Callbacks when toast has been closed. */
 function toastClosed() {
   toastOptions = null;
-  song.rl("rating", drawToastImage);
-  song.rl("loved", drawToastImage);
+  song.rl("rating loved", drawToastImage);
   settings.rl("toastRating", drawToastImage);
   if (toastCoverXhr) {
     toastCoverXhr.abort();
@@ -1310,8 +1305,7 @@ function openToast() {
         addNotificationListener("close", nid, toastClosed);
         addNotificationListener("click", nid, function() { if (settings.toastClick) executeCommand(settings.toastClick, "toast"); });
         addNotificationListener("btnClick", nid, toastButtonClicked);
-        song.w("rating", drawToastImage);
-        song.al("loved", drawToastImage);
+        song.w("rating loved", drawToastImage);
         settings.al("toastRating", drawToastImage);
       });
       if (settings.toastDuration > 0) {
@@ -1855,17 +1849,13 @@ function refreshContextMenu() {
 }
 
 localSettings.w("timerEnd", refreshContextMenu);
-localSettings.al("lastfmSessionKey", function() {
-  if (player.connected) refreshContextMenu();
-});
-localSettings.al("lyrics", function() {
+localSettings.al("lastfmSessionKey lyrics", function() {
   if (player.connected) refreshContextMenu();
 });
 settings.al("saveLastPosition", function() {
   if (!player.connected && !connecting) refreshContextMenu();
 });
-settings.al("favorites", refreshContextMenu);
-settings.al("hideFavorites", refreshContextMenu);
+settings.al("favorites hideFavorites", refreshContextMenu);
 
 function onIdleStateChangedHandler(state) {
   console.debug("onIdleStateChangedHandler", state, player.playing);
@@ -1891,14 +1881,12 @@ function pauseOnIdleStateHandler() {
   }
 }
 
-settings.w("pauseOnLock", pauseOnIdleStateHandler);
-settings.al("pauseOnIdleSec", pauseOnIdleStateHandler);
+settings.w("pauseOnLock pauseOnIdleSec", pauseOnIdleStateHandler);
 
 /* --- register listeners --- */
 
 settings.w("gaEnabled", gaEnabledChanged);
-settings.w("iconClickAction0", iconClickSettingsChanged);
-settings.al("iconClickConnectAction", iconClickSettingsChanged);
+settings.w("iconClickAction0 iconClickConnectAction", iconClickSettingsChanged);
 settings.w("miniplayerType", function() {
   if (miniplayer) openMiniplayer();//reopen
 });
@@ -1919,61 +1907,40 @@ settings.al("showLastfmInfo", function(val) {
   if (val && song.lastfmInfo === null) loadCurrentLastfmInfo();
 });
 settings.al("toastUseMpStyle", closeToast);
-settings.al("toastClick", updateToast);
+settings.al("toastClick toastProgress", updateToast);
 settings.w("toastButton1", commandOptionListener.bind(window, updateToast));
 //we need a copy of the updateToast function here to avoid that changes on toastButton1 remove needed listeners for toastButton2
 settings.w("toastButton2", commandOptionListener.bind(window, function() { updateToast(); }));
-settings.al("toastProgress", updateToast);
-settings.al("scrobble", calcScrobbleTime);
-settings.al("scrobbleMaxDuration", calcScrobbleTime);
-settings.al("scrobblePercent", calcScrobbleTime);
-settings.al("scrobbleTime", calcScrobbleTime);
-settings.al("disableScrobbleOnFf", calcScrobbleTime);
+settings.al("scrobble scrobbleMaxDuration scrobblePercent scrobbleTime disableScrobbleOnFf", calcScrobbleTime);
 //we need a copy of the updateBrowserActionInfo function here to avoid conflicts with showPlayingIndicator/showProgress listener
 settings.w("iconClickAction0", commandOptionListener.bind(window, function() { updateBrowserActionInfo(); }));
-settings.al("iconStyle", updateBrowserActionInfo);
-settings.al("iconClickConnectAction", updateBrowserActionInfo);
+settings.al("iconStyle iconClickConnectAction showProgressColor showProgressColorPaused", updateBrowserActionInfo);
 settings.al("connectedIndicator", function(val) {
   postToGooglemusic({type: "connectedIndicator", show: val});
 });
 settings.w("mpAutoOpen", function(val) {
-  if (val) player.w("playing", openMpOnPlaying);
-  else player.rl("playing", openMpOnPlaying);
+  player.wrl("playing", openMpOnPlaying, val);
 });
 settings.w("mpAutoClose", function(val) {
-  if (val) player.al("connected", closeMpOnDisconnect);
-  else player.rl("connected", closeMpOnDisconnect);
+  player.arl("connected", closeMpOnDisconnect, val);
 });
-settings.al("lyricsInGpm", postLyricsState);
-settings.al("lyricsAutoReload", postLyricsState);
-settings.w("showPlayingIndicator", function(val) {
-  if (val || settings.showProgress) player.al("playing", updateBrowserActionInfo);
-  else player.rl("playing", updateBrowserActionInfo);
+settings.al("lyricsInGpm lyricsAutoReload", postLyricsState);
+settings.w("showPlayingIndicator showProgress", function() {
+  player.arl("playing", updateBrowserActionInfo, settings.showPlayingIndicator || settings.showProgress);
   updateBrowserActionInfo();
 });
 settings.w("showScrobbledIndicator", function(val) {
-  if (val) song.al("scrobbled", updateBrowserActionInfo);
-  else song.rl("scrobbled", updateBrowserActionInfo);
+  song.arl("scrobbled", updateBrowserActionInfo, val);
   updateBrowserActionInfo();
 });
 settings.w("showLovedIndicator", function(val) {
-  if (val) song.al("loved", updateBrowserActionInfo);
-  else song.rl("loved", updateBrowserActionInfo);
+  song.arl("loved", updateBrowserActionInfo, val);
   updateBrowserActionInfo();
 });
 settings.w("showRatingIndicator", function(val) {
-  if (val) song.al("rating", updateBrowserActionInfo);
-  else song.rl("rating", updateBrowserActionInfo);
+  song.arl("rating", updateBrowserActionInfo, val);
   updateBrowserActionInfo();
 });
-settings.al("showProgress", function(val) {
-  //watch playing state for color change
-  if (val || settings.showPlayingIndicator) player.al("playing", updateBrowserActionInfo);
-  else player.rl("playing", updateBrowserActionInfo);
-  updateBrowserActionInfo();
-});
-settings.al("showProgressColor", updateBrowserActionInfo);
-settings.al("showProgressColorPaused", updateBrowserActionInfo);
 function saveRating(rating) {
   if (googlemusicport && song.info) chromeLocalStorage.set({ rating: rating });
 }
@@ -1981,7 +1948,7 @@ function saveScrobbled(scrobbled) {
   if (googlemusicport) chromeLocalStorage.set({ scrobbled: scrobbled, scrobbleTime: song.scrobbleTime });
 }
 function saveFf(ff) {
-  if (googlemusicport) chromeLocalStorage.set({"ff": ff});
+  if (googlemusicport) chromeLocalStorage.set({ ff: ff });
 }
 settings.w("saveLastPosition", function(val) {
   var addOrRemove = val ? song.al : song.rl;
@@ -2000,9 +1967,7 @@ localSettings.w("syncSettings", function(val) {
   });
 });
 localSettings.al("lastfmSessionName", calcScrobbleTime);
-localSettings.al("lyrics", postLyricsState);
-localSettings.al("lyricsFontSize", postLyricsState);
-localSettings.al("lyricsWidth", postLyricsState);
+localSettings.al("lyrics lyricsFontSize lyricsWidth", postLyricsState);
 localSettings.w("notificationsEnabled", function(val, old) {
   if (val) initNotifications();
   else if (old) gaEvent("Options", "notifications-disabled");
@@ -2234,8 +2199,7 @@ function updateIconClickActionListeners(cmd) {
   //song.info listener always triggers updateBrowserActionInfo
   
   function updateListener(add, bean, prop) {
-    if (add && settings.iconShowAction) bean.al(prop, updateBrowserActionInfo);
-    else bean.rl(prop, updateBrowserActionInfo);
+    bean.arl(prop, updateBrowserActionInfo, add && settings.iconShowAction);
   }
   
   updateListener(cmd.indexOf("volume") === 0, player, "volume");

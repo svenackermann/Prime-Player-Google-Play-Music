@@ -22,24 +22,34 @@ function Bean(defaults, useLocalStorage) {
   var that = this;
   
   /**
-   * Adds a listener function for the given property.
+   * Adds a listener function for the given (space separated) properties.
    * The function gets passed 3 parameters:
    * 1. the new value
    * 2. the previous value
    * 3. the name of the property
    * If the value has been set but did not actually change, the callbacks won't be notified.
    */
-  this.al = function(prop, listener, src) {
-    if (src) {
-      if (!srcListeners[src]) srcListeners[src] = [];
-      srcListeners[src].push({ l: listener, p: prop });
-    }
-    if (!callbacks[prop].has(listener)) callbacks[prop].add(listener);
+  this.al = function(props, listener, src) {
+    props.split(" ").forEach(function(prop) {
+      if (src) {
+        if (!srcListeners[src]) srcListeners[src] = [];
+        srcListeners[src].push({ l: listener, p: prop });
+      }
+      if (!callbacks[prop].has(listener)) callbacks[prop].add(listener);
+    });
   };
   
-  /** Removes a listener function for the given property. */
-  this.rl = function(prop, listener) {
-    callbacks[prop].remove(listener);
+  /** Removes a listener function for the given (space separated) properties. */
+  this.rl = function(props, listener) {
+    props.split(" ").forEach(function(prop) {
+      callbacks[prop].remove(listener);
+    });
+  };
+  
+  /** Either adds or removes (specified by 'add' argument) a listener function for the given (space separated) properties. */
+  this.arl = function(props, listener, add, src) {
+    if (add) that.al(props, listener, src);
+    else that.rl(props, listener);
   };
   
   /** Removes all callbacks for the given source. */
@@ -53,10 +63,20 @@ function Bean(defaults, useLocalStorage) {
     }
   };
   
-  /** Same as al, except that the listener will be called immediately with the current value for old and new value. */
-  this.w = function(prop, listener, src) {
-    listener(cache[prop], cache[prop], prop);
-    that.al(prop, listener, src);
+  /**
+   * Same as al, except that the listener will be called immediately with the current value for old and new value.
+   * If multiple properties are given, the listener will be called only once without parameters.
+   */
+  this.w = function(props, listener, src) {
+    if (props.indexOf(" ") < 0) listener(cache[props], cache[props], props);
+    else listener();
+    that.al(props, listener, src);
+  };
+  
+  /** Either watches or removes (specified by 'add' argument) a listener function for the given (space separated) properties. */
+  this.wrl = function(props, listener, add, src) {
+    if (add) that.w(props, listener, src);
+    else that.rl(props, listener);
   };
   
   /**
