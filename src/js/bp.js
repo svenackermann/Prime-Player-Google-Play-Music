@@ -430,7 +430,7 @@ var loadCurrentLastfmInfo = exports.loadCurrentLastfmInfo = function() {
     song.lastfmInfo = lastfmInfo;
     song.loved = loved;
     if (settings.linkRatings && settings.linkRatingsAuto) {
-      if (loved === true && song.rating === 0) executeInGoogleMusic("rate", {rating: 5});
+      if (loved === true && song.rating === 0) executeInGoogleMusic("rate", { rating: 5 });
       else if (loved === false && (song.rating >= settings.linkRatingsMin || (isThumbsRatingMode() && song.rating >= 4))) loveTrack();
     }
   });
@@ -458,12 +458,12 @@ var getLastSong = exports.getLastSong = function(cb) {
 
 /** Change the volume in Google Music. */
 var setVolume = exports.setVolume = function(percent) {
-  executeInGoogleMusic("setVolume", {percent: percent});
+  executeInGoogleMusic("setVolume", { percent: percent });
 };
 
 /** Change the song position in Google Music. */
 var setSongPosition = exports.setSongPosition = function(percent) {
-  executeInGoogleMusic("setPosition", {percent: percent});
+  executeInGoogleMusic("setPosition", { percent: percent });
 };
 
 /** @return true, if a change from old to new rating would result in a rating reset in Google Music */
@@ -476,7 +476,7 @@ var rate = exports.rate = function(rating) {
   if (song.rating < 0) return;//negative ratings cannot be changed
   //auto-love if no reset and not loved yet
   if (settings.linkRatings && rating >= settings.linkRatingsMin && !isRatingReset(song.rating, rating)) loveTrack();
-  executeInGoogleMusic("rate", {rating: rating});
+  executeInGoogleMusic("rate", { rating: rating });
 };
 
 /** @return the label for a quick link, if connected to Google Music, the labels from the site are used. */
@@ -1019,8 +1019,8 @@ var resumeLastSong = exports.resumeLastSong = function(lastSong) {
 };
 
 /** Shortcut to call the play/pause command in Google Music. */
-var executePlayPause = exports.executePlayPause = function() {
-  executeInGoogleMusic("playPause");
+var executePlayPause = exports.executePlayPause = function(resume) {
+  executeInGoogleMusic("playPause", { resume: resume });
 };
 
 /** Calculate and set the song position in seconds (song.scrobbleTime) when the song will be scrobbled or -1 if disabled */
@@ -1623,8 +1623,8 @@ var startSleepTimer = exports.startSleepTimer = function() {
         if (player.playing) {
           msg = i18n("timerNotificationMsgPause");
           btnTitle = i18n("timerNotificationBtnPause");
-          undoAction = executePlayPause;
-          executePlayPause();
+          undoAction = executePlayPause.bind(window, true);
+          executePlayPause(false);
         }
         break;
       case "closeGm":
@@ -1868,13 +1868,14 @@ settings.al("favorites", refreshContextMenu);
 settings.al("hideFavorites", refreshContextMenu);
 
 function onIdleStateChangedHandler(state) {
+  console.debug("onIdleStateChangedHandler", state, player.playing);
   if (player.playing && ((state == "locked" && settings.pauseOnLock) || (state == "idle" && settings.pauseOnIdleSec > 0))) {
-    executePlayPause();
+    executePlayPause(false);
     chromeLocalStorage.set({ resumeOnActive: true });
-  } else if (!player.playing && state == "active") {
+  } else if (state == "active") {
     chromeLocalStorage.get("resumeOnActive", function(items) {
       if (items.resumeOnActive) {
-        executePlayPause();
+        executePlayPause(true);
         chromeLocalStorage.remove("resumeOnActive");
       }
     });

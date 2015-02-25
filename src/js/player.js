@@ -120,7 +120,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       renderRating(song.rating);
       getLastSongInfo = null;
       lastSongInfo = false;
-      $("#resume").removeClass("lastSongEnabled").unbind().click(googleMusicExecutor("playPause"));
+      $("#resume").removeClass("lastSongEnabled").unbind().click(googleMusicExecutor("playPause", { resume: true }));
     }
     $("body").toggleClass("hasSong", !!val);
     if (val) {
@@ -835,16 +835,15 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
   }
 
-  function googleMusicExecutor(command) {
+  function googleMusicExecutor(command, options) {
     return function() {
-      if ($(this).css("opacity") == 1) bp.executeInGoogleMusic(command);
+      if ($(this).css("opacity") == 1) bp.executeInGoogleMusic(command, options);
     };
   }
 
   function renderPlayControls() {
-    $(".playPause").click(googleMusicExecutor("playPause")).each(function() {
-      $(this).attr("title", i18n(this.id + "Song"));
-    });
+    $("#pause").click(googleMusicExecutor("playPause", { resume: false })).attr("title", i18n("pauseSong"));
+    $("#resume").click(googleMusicExecutor("playPause", { resume: true })).attr("title", i18n("resumeSong"));
     $("#prev").click(googleMusicExecutor("prevSong")).attr("title", i18n("prevSong"));
     $("#next").click(googleMusicExecutor("nextSong")).attr("title", i18n("nextSong"));
     $("#repeat").click(googleMusicExecutor("toggleRepeat")).attr("title", i18n("command_toggleRepeat"));
