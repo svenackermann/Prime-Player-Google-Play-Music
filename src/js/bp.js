@@ -62,6 +62,7 @@ var i18n = chrome.i18n.getMessage;
 var getExtensionUrl = chrome.extension.getURL;
 var chromeContextMenus = chrome.contextMenus;
 var chromeIdle = chrome.idle;
+var chromeOmnibox = chrome.omnibox;
 
 var currentVersion = chromeRuntime.getManifest().version;
 
@@ -953,7 +954,7 @@ function loadNavlistIfConnected() {
 }
 
 /** Load a navigation list in Google Music and wait for message from there (player.navigationList will be updated). If not connected, open a Google Music tab and try again. */
-exports.loadNavigationList = function(link, search) {
+var loadNavigationList = exports.loadNavigationList = function(link, search) {
   loadNavlistLink = link;
   loadNavlistSearch = search;
   loadNavlistIfConnected();
@@ -2274,6 +2275,84 @@ function executeCommand(command, src) {
       }
   }
 }
+
+/* --- BEGIN omnibox handling --- */
+
+function xmlEscape(text) {
+  return text && text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+}
+
+var linkPrefix = " - link:";
+var omniboxSuggest, omniboxSearch;
+chromeOmnibox.onInputStarted.addListener(function() {
+  omniboxSuggest = omniboxSearch = null;
+  chromeOmnibox.setDefaultSuggestion({ description: "Search in Google Music or type 'f:' to search in favorites" });
+});
+
+chromeOmnibox.onInputChanged.addListener(function(text, suggest) {
+  omniboxSuggest = omniboxSearch = null;
+  text = text.trim();
+  if (!text.indexOf("f:")) {
+    var search = text.substr(2).trim().toLowerCase();
+    if (search) {
+      var suggestions = [];
+      var searchRegex = new RegExp(xmlEscape(search), "gi");
+      settings.favorites.forEach(function(fav) {
+        var title = xmlEscape(fav.title);
+        if (searchRegex.test(title)) suggestions.push({ content: "Open " + title + linkPrefix + fav.link, description: title.replace(searchRegex, "<match>$&</match>") });
+      });
+      chromeOmnibox.setDefaultSuggestion({ description: suggestions.length ? "Favorites matching <match>" + xmlEscape(text.substr(2)) + "</match>:" : "No favorites found for <match>" + xmlEscape(text.substr(2)) + "</match>." });
+      suggest(suggestions);
+    } else chromeOmnibox.setDefaultSuggestion({ description: "Type to search in favorites" });
+  } else if (text.length > 1) {
+    chromeOmnibox.setDefaultSuggestion({ description: "Loading results for <match>" + xmlEscape(text) + "</match>..." });
+    omniboxSuggest = suggest;
+    omniboxSearch = text;
+    loadNavigationList("search", text);
+  }
+});
+
+chromeOmnibox.onInputEntered.addListener(function(text) {
+  omniboxSuggest = omniboxSearch = null;
+  var index = text.lastIndexOf(linkPrefix);
+  if (index >= 0) startPlaylist(text.substr(index + linkPrefix.length));
+});
+
+player.al("navigationList", function(navlist) {
+  if (!navlist || !omniboxSuggest || navlist.search != omniboxSearch || navlist.link != "search") return;
+  player.navigationList = null;//free memory
+  var search = xmlEscape(omniboxSearch);
+  var suggestions = [];
+  if (!navlist.error && !navlist.empty) {
+    var searchRegex = new RegExp(search, "gi");
+    var countEnd = 0;
+    for (var listIndex = 0; countEnd < navlist.lists.length; listIndex++) {
+      countEnd = 0;
+      for (var navlistIndex = 0; navlistIndex < navlist.lists.length; navlistIndex++) {
+        var list = navlist.lists[navlistIndex];
+        var type = navlist.lists[navlistIndex].type;
+        var entry = list.list[listIndex];
+        if (!entry || !(list.type == "albumContainers" || list.type == "playlistsList")) {
+          countEnd++;
+          continue;
+        }
+        var title = xmlEscape(entry.title);
+        var description = title;
+        if (entry.subTitle) {
+          var suffix = " (" + xmlEscape(entry.subTitle) + ")";
+          title += suffix;
+          description += "<dim>" + suffix + "</dim>";
+        }
+        var description = description.replace(searchRegex, "<match>$&</match>") + "<dim> - " + xmlEscape(list.header) + "</dim>";
+        suggestions.push({ content: "Open " + title + linkPrefix + (list.type == "playlistsList" ? entry.titleLink : entry.link), description: description });
+      }
+    }
+  }
+  chromeOmnibox.setDefaultSuggestion({ description: suggestions.length ? "Results for <match>" + search + "</match>:" : "No results found for <match>" + search + "</match>." });
+  omniboxSuggest(suggestions);
+});
+
+/* --- END omnibox handling --- */
 
 function updateNotificationsEnabled(level) {
   localSettings.notificationsEnabled = level == "granted";

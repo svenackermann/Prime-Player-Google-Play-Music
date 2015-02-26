@@ -118,5 +118,6 @@
     "openLyrics": {
       "description": "__MSG_command_openLyrics__"
     }
-  }
+  },
+  "omnibox": { "keyword" : "pp" }
 }
