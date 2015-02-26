@@ -87,6 +87,8 @@ var lastSongInfo;
 /** while we are connecting to Google Music, the browser icon should not allow for any action */
 var connecting = false;
 var connectingTabId;
+/** if a Google Music tab is to be opened, force it to open in background */
+var forceOpenGmInBackground;
 //} private variables
 
 //{ beans
@@ -1726,7 +1728,7 @@ var clearSleepTimer = exports.clearSleepTimer = function() {
 
 /** Open or activate a Google Music tab. */
 var openGoogleMusicTab = exports.openGoogleMusicTab = function(link, forceActive) {
-  var active = forceActive === true || !settings.openGmBackground;
+  var active = forceActive === true || (!settings.openGmBackground && !forceOpenGmInBackground);
   if (googlemusictabId) {
     if (active) chromeTabs.update(googlemusictabId, { active: true });
   } else if (!connecting) {
@@ -2349,32 +2351,32 @@ function xmlEscape(text) {
 
 var linkPrefix = " - link:";
 var omniboxSuggest, omniboxSearch;
-chromeOmnibox.onInputStarted.addListener(function() {
-  omniboxSuggest = omniboxSearch = null;
-  chromeOmnibox.setDefaultSuggestion({ description: "Search in Google Music or type 'f:' to search in favorites" });
-});
+function setDefaultSuggestion(msgKey, search) {
+  chromeOmnibox.setDefaultSuggestion({ description: i18n(msgKey, search && "<match>" + search + "</match>") });
+}
 
 chromeOmnibox.onInputChanged.addListener(function(text, suggest) {
   omniboxSuggest = omniboxSearch = null;
-  text = text.trim();
-  if (!text.indexOf("f:")) {
-    var search = text.substr(2).trim().toLowerCase();
+  if (!text.indexOf("f ")) {
+    var search = text.substr(2).trim();
     if (search) {
       var suggestions = [];
       var searchRegex = new RegExp(xmlEscape(search), "gi");
       settings.favorites.forEach(function(fav) {
         var title = xmlEscape(fav.title);
-        if (searchRegex.test(title)) suggestions.push({ content: "Open " + title + linkPrefix + fav.link, description: title.replace(searchRegex, "<match>$&</match>") });
+        if (searchRegex.test(title)) suggestions.push({ content: i18n("ob_startsugg", title) + linkPrefix + fav.link, description: title.replace(searchRegex, "<match>$&</match>") });
       });
-      chromeOmnibox.setDefaultSuggestion({ description: suggestions.length ? "Favorites matching <match>" + xmlEscape(text.substr(2)) + "</match>:" : "No favorites found for <match>" + xmlEscape(text.substr(2)) + "</match>." });
+      setDefaultSuggestion(suggestions.length ? "ob_foundfavorites" : "ob_nofavorites", xmlEscape(search));
       suggest(suggestions);
-    } else chromeOmnibox.setDefaultSuggestion({ description: "Type to search in favorites" });
-  } else if (text.length > 1) {
-    chromeOmnibox.setDefaultSuggestion({ description: "Loading results for <match>" + xmlEscape(text) + "</match>..." });
+    } else setDefaultSuggestion("ob_favoritessugg");
+  } else if (text.trim().length > 1) {
+    setDefaultSuggestion("ob_loading", xmlEscape(text));
     omniboxSuggest = suggest;
-    omniboxSearch = text;
-    loadNavigationList("search", text);
-  }
+    omniboxSearch = text.trim();
+    forceOpenGmInBackground = true;
+    loadNavigationList("search", omniboxSearch);
+    forceOpenGmInBackground = false;
+  } else setDefaultSuggestion("ob_defaultsugg");
 });
 
 chromeOmnibox.onInputEntered.addListener(function(text) {
@@ -2408,11 +2410,11 @@ player.al("navigationList", function(navlist) {
           description += "<dim>" + suffix + "</dim>";
         }
         description = description.replace(searchRegex, "<match>$&</match>") + "<dim> - " + xmlEscape(list.header) + "</dim>";
-        suggestions.push({ content: "Open " + title + linkPrefix + (list.type == "playlistsList" ? entry.titleLink : entry.link), description: description });
+        suggestions.push({ content: i18n("ob_startsugg", title) + linkPrefix + (list.type == "playlistsList" ? entry.titleLink : entry.link), description: description });
       }
     }
   }
-  chromeOmnibox.setDefaultSuggestion({ description: suggestions.length ? "Results for <match>" + search + "</match>:" : "No results found for <match>" + search + "</match>." });
+  setDefaultSuggestion(suggestions.length ? "ob_results" : "ob_noresults", search);
   omniboxSuggest(suggestions);
 });
 //} omnibox handling

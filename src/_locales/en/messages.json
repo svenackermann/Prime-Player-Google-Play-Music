@@ -1109,5 +1109,43 @@
     "message": "Edit '$NAME$'",
     "description": "hint for icon to edit a favorite",
     "placeholders": { "NAME": { "content": "$1", "example": "Foals" } }
+  },
+  "ob_defaultsugg": {
+    "message": "Search in Google Music or start with 'f ' to search in favorites",
+    "description": "default suggestion for omnibox when typed less then 2 characters"
+  },
+  "ob_startsugg": {
+    "message": "Start $SUG$",
+    "description": "omnibox content text to start a suggestion",
+    "placeholders": { "SUG": { "content": "$1", "example": "MyFavorite" } }
+  },
+  "ob_favoritessugg": {
+    "message": "Type to search in favorites",
+    "description": "default suggestion for omnibox when searching for favorites, but nothing is typed yet"
+  },
+  "ob_foundfavorites": {
+    "message": "Favorites matching $TEXT$:",
+    "description": "omnibox default suggestion text for found favorites",
+    "placeholders": { "TEXT": { "content": "$1", "example": "mysearch" } }
+  },
+  "ob_nofavorites": {
+    "message": "No favorites found for $TEXT$.",
+    "description": "omnibox default suggestion text if no favorites found",
+    "placeholders": { "TEXT": { "content": "$1", "example": "mysearch" } }
+  },
+  "ob_loading": {
+    "message": "Loading results for $TEXT$...",
+    "description": "omnibox default suggestion text while searching for results",
+    "placeholders": { "TEXT": { "content": "$1", "example": "mysearch" } }
+  },
+  "ob_results": {
+    "message": "Results matching $TEXT$:",
+    "description": "omnibox default suggestion text for found results",
+    "placeholders": { "TEXT": { "content": "$1", "example": "mysearch" } }
+  },
+  "ob_noresults": {
+    "message": "No results found for $TEXT$.",
+    "description": "omnibox default suggestion text if no results found",
+    "placeholders": { "TEXT": { "content": "$1", "example": "mysearch" } }
   }
 }

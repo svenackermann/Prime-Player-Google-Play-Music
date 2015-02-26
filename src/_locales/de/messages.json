@@ -836,5 +836,35 @@
   "editfavorite": {
     "message": "'$NAME$' bearbeiten",
     "placeholders": { "NAME": { "content": "$1" } }
+  },
+  "ob_defaultsugg": {
+    "message": "Suche in Google Music oder starte mit 'f ', um in Favoriten zu suchen"
+  },
+  "ob_startsugg": {
+    "message": "Starte $SUG$",
+    "placeholders": { "SUG": { "content": "$1" } }
+  },
+  "ob_favoritessugg": {
+    "message": "Tippen, um in Favoriten zu suchen"
+  },
+  "ob_foundfavorites": {
+    "message": "Favoriten f\u00FCr $TEXT$:",
+    "placeholders": { "TEXT": { "content": "$1" } }
+  },
+  "ob_nofavorites": {
+    "message": "Keine Favoriten gefunden f\u00FCr $TEXT$.",
+    "placeholders": { "TEXT": { "content": "$1" } }
+  },
+  "ob_loading": {
+    "message": "Lade Ergebnisse f\u00FCr $TEXT$...",
+    "placeholders": { "TEXT": { "content": "$1" } }
+  },
+  "ob_results": {
+    "message": "Ergebnisse f\u00FCr $TEXT$:",
+    "placeholders": { "TEXT": { "content": "$1" } }
+  },
+  "ob_noresults": {
+    "message": "Keine Ergebnisse gefunden f\u00FCr $TEXT$.",
+    "placeholders": { "TEXT": { "content": "$1" } }
   }
 }
