@@ -32,7 +32,7 @@ $(function() {
   
   /** @return converted text (e.g. from artist name) that is usable in the URL hash */
   function forHash(text) {
-    return encodeURIComponent(text).replace(/%20/g, "+");
+    return encodeURIComponent($.trim(text)).replace(/[%20]+/g, "+");
   }
   
   /** @return link (for hash) constructed from attributes data-type and data-id */
@@ -673,7 +673,7 @@ $(function() {
   }
   
   /** Select, parse and send a list to bp. */
-  function sendNavigationList(link, omitUnknownAlbums, search) {
+  function sendNavigationList(link, omitUnknownAlbums) {
     selectAndExecute(link, function(error) {
       var response = {link: link, controlLink: location.hash};
       function sendError() {
@@ -682,7 +682,7 @@ $(function() {
       }
       if (error) {
         sendError();
-      } else if (link == "exptop" || link == "exprec" || link == "rd" || link.indexOf("expgenres/") === 0 || link.indexOf("artist/") === 0) {
+      } else if (link == "exptop" || link == "exprec" || link == "rd" || !link.indexOf("expgenres/") || !link.indexOf("artist/") || !link.indexOf("sr/")) {
         sendMixed(response);
       } else {
         var type = getListType(link);
@@ -690,7 +690,6 @@ $(function() {
         //e.g. in recommendations list the album link might not work in which case we get redirected to albums page
         if (type == getListType(location.hash.substr(2))) {
           response.type = type;
-          response.search = search;
           parseNavigationList[type]($("#music-content"), undefined, function(list, update) {
             response.list = list;
             response.update = update;
@@ -701,18 +700,6 @@ $(function() {
           sendError();
         }
       }
-    });
-  }
-  
-  /** Select search page and send parsed result to bp. */
-  function sendSearchResult(search) {
-    selectAndExecute("sr/" + forHash(search), function() {
-      var response = {
-        link: "search",
-        search: search,
-        controlLink: location.hash
-      };
-      sendMixed(response);
     });
   }
   
@@ -763,8 +750,7 @@ $(function() {
         clearTimeout(asyncListTimer);
         listRatings = null;
         if (msg.link == "myPlaylists") sendMyPlaylists();
-        else if (msg.link == "search") sendSearchResult(msg.search);
-        else sendNavigationList(msg.link, msg.omitUnknownAlbums, msg.search);
+        else sendNavigationList(msg.link, msg.omitUnknownAlbums);
         break;
       case "selectLink":
         selectAndExecute(msg.link);

@@ -40,6 +40,10 @@ function extractUrlParam(name, queryString) {
   if (matched === null || matched.length < 2) return null;
   return matched[1];
 }
+
+function fixForUri(string) {
+  return encodeURIComponent($.trim(string)).replace(/[%20]+/g, "+");
+}
 //} shared utility functions (not used by bp)
 
 /* -------------------- */
@@ -343,6 +347,10 @@ var openOptions = exports.openOptions = function() {
   }
 };
 chromeNotifications.onShowSettings.addListener(openOptions);
+
+var getSearchLink = exports.getSearchLink = function(search) {
+  return "sr/" + fixForUri(search);
+};
 //} shared utility functions
 
 //{ lastfm functions
@@ -646,20 +654,17 @@ function postLyricsState() {
 }
 
 var loadNavlistLink;
-var loadNavlistSearch;
 function loadNavlistIfConnected() {
   if (!loadNavlistLink) return;
   if (player.connected) {
-    postToGooglemusic({ type: "getNavigationList", link: loadNavlistLink, search: loadNavlistSearch, omitUnknownAlbums: loadNavlistLink == "albums" && settings.omitUnknownAlbums });
+    postToGooglemusic({ type: "getNavigationList", link: loadNavlistLink, omitUnknownAlbums: loadNavlistLink == "albums" && settings.omitUnknownAlbums });
     loadNavlistLink = null;
-    loadNavlistSearch = null;
   } else openGoogleMusicTab(loadNavlistLink);//when connected, we get triggered again
 }
 
 /** Load a navigation list in Google Music and wait for message from there (player.navigationList will be updated). If not connected, open a Google Music tab and try again. */
-var loadNavigationList = exports.loadNavigationList = function(link, search) {
+var loadNavigationList = exports.loadNavigationList = function(link) {
   loadNavlistLink = link;
-  loadNavlistSearch = search;
   loadNavlistIfConnected();
 };
 
@@ -2355,7 +2360,11 @@ function setDefaultSuggestion(msgKey, search) {
   chromeOmnibox.setDefaultSuggestion({ description: i18n(msgKey, search && "<match>" + search + "</match>") });
 }
 
+chromeOmnibox.onInputStarted.addListener(function() { console.debug("started"); });
+chromeOmnibox.onInputCancelled.addListener(function() { console.debug("cancelled"); });
+
 chromeOmnibox.onInputChanged.addListener(function(text, suggest) {
+  console.debug("changed", text);
   omniboxSuggest = omniboxSearch = null;
   if (!text.indexOf("f ")) {
     var search = text.substr(2).trim();
@@ -2374,19 +2383,20 @@ chromeOmnibox.onInputChanged.addListener(function(text, suggest) {
     omniboxSuggest = suggest;
     omniboxSearch = text.trim();
     forceOpenGmInBackground = true;
-    loadNavigationList("search", omniboxSearch);
+    loadNavigationList(getSearchLink(omniboxSearch));
     forceOpenGmInBackground = false;
   } else setDefaultSuggestion("ob_defaultsugg");
 });
 
 chromeOmnibox.onInputEntered.addListener(function(text) {
+  console.debug("entered", text);
   omniboxSuggest = omniboxSearch = null;
   var index = text.lastIndexOf(linkPrefix);
   if (index >= 0) startPlaylist(text.substr(index + linkPrefix.length));
 });
 
 player.al("navigationList", function(navlist) {
-  if (!navlist || !omniboxSuggest || navlist.search != omniboxSearch || navlist.link != "search") return;
+  if (!navlist || !omniboxSuggest || navlist.link != getSearchLink(omniboxSearch)) return;
   player.navigationList = null;//free memory
   var search = xmlEscape(omniboxSearch);
   var suggestions = [];

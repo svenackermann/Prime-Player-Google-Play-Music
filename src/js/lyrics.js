@@ -6,7 +6,7 @@
  * @license BSD license
  */
 
-/* global gaEvent, chrome */
+/* global gaEvent, chrome, fixForUri */
 /* exported lyricsProviders */
 
 (function(exports) {
@@ -19,10 +19,6 @@
     parsed = parsed.not("script");//remove top level scripts
     parsed.find("script").remove();//remove other scripts
     return parsed;
-  }
-  
-  function fixForUri(string) {
-    return encodeURIComponent($.trim(string)).replace(/[%20]+/g, "+");
   }
   
   function fixTitle(title) {

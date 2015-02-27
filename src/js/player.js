@@ -25,7 +25,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   /** the cached last.fm info for the saved last song, if any or false if not loaded yet */
   var lastSongInfo = false;
   /** store the static links referenced in markup that should not be candidates for favorites **/
-  var staticLinks = { search: true };
+  var staticLinks = {};
   /** cache favorites for quick test if they exist **/
   var favoritesCache = {};
 
@@ -41,7 +41,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   });
 
   function isFavoriteCandidate(link) {
-    return !staticLinks[link] && link.indexOf("sm/") !== 0;
+    return !staticLinks[link] && !!link.indexOf("sm/") && !!link.indexOf("sr/");
   }
   
   if (typeClass == "popup") {
@@ -529,7 +529,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function renderNavigationList(val) {
-    if (!val || val.link != currentNavList.link || val.search != currentNavList.search) return;
+    if (!val || val.link != currentNavList.link) return;
     player.navigationList = null;//free memory
     currentNavList.controlLink = val.controlLink;
     var navlist = $("#navlist");
@@ -547,7 +547,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         navlist.removeData("cluster");
         header.text(val.header);
         val.lists.forEach(function(list) { renderSubNavigationList(list, navlist); });
-        navlist.find("h2 a.nav").data("text", val.header).data("search", val.search).text(val.moreText);
+        navlist.find("h2 a.nav").data("text", val.header).text(val.moreText);
       } else {
         renderNavList[val.type](navlist, val.list, val.update, 0, header);
       }
@@ -588,6 +588,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function switchView(title, link, search, options) {
+    function isSearch(link) {
+      return !link.indexOf("sr/");
+    }
+    
     if ($("#player").is(":visible") && (typeClass == "miniplayer" || typeClass == "toast")) {
       savedSizing = {
         height: window.outerHeight,
@@ -596,7 +600,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         screenY: window.screenY
       };
     }
-    if (currentNavList.link && currentNavList.link != link) {
+    if (currentNavList.link && currentNavList.link != link && !(isSearch(currentNavList.link) && isSearch(link))) {
       navHistory.push(currentNavList);
     }
     currentNavList = { link: link, title: title, search: search, options: options };
@@ -604,7 +608,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#navlist").empty().removeClass();
     var lyrics = $("#lyrics");
     lyrics.removeClass().hide().children().empty();
-    if (!search) $("#navHead > input").val("");
+    if (!isSearch(link)) $("#navHead > input").val("");
     $("#player,#navlistContainer,#quicklinks,#favoritesContainer,#navHead .fav").hide();
     if (link == "quicklinks") {
       resize(localSettings.quicklinksSizing);
@@ -626,7 +630,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       if (isFavoriteCandidate(link)) {
         updateFavoriteIconState($("#navHead .fav"), link, title).show();
       }
-      bp.loadNavigationList(link, search);
+      bp.loadNavigationList(link);
     }
     $("#nav").show();
   }
@@ -667,7 +671,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       clearTimeout(searchInputTimer);
       searchInputTimer = setTimeout(function() {
         var text = $.trim($("#navHead > input").val());
-        if (text.length > 1) switchView(i18n("searchResults"), "search", text);
+        if (text.length > 1) switchView(i18n("searchResults"), bp.getSearchLink(text), text);
       }, 500);
     });
 
@@ -705,7 +709,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         } else title = nav.data("text") || nav.text();
         
         if (settings.openLinksInMiniplayer == e.shiftKey && link != "quicklinks" && !lyrics) bp.selectLink(link);
-        else switchView(title, link, nav.data("search"), options);
+        else switchView(title, link, null, options);
         return false;
       }
     });
