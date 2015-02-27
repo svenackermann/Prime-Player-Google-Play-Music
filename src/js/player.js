@@ -41,7 +41,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   });
 
   function isFavoriteCandidate(link) {
-    return !staticLinks[link] && !!link.indexOf("sm/") && !!link.indexOf("sr/");
+    return !staticLinks[link] && !!link.indexOf("sm/") && !!link.indexOf("sr");
   }
   
   if (typeClass == "popup") {

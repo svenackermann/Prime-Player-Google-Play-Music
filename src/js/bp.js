@@ -2297,17 +2297,14 @@ function xmlEscape(text) {
 }
 
 var linkPrefix = " - link:";
-var omniboxSuggest, omniboxSearch;
+var omniboxSuggest, omniboxSearch, omniboxTimer;
 function setDefaultSuggestion(msgKey, search) {
   chromeOmnibox.setDefaultSuggestion({ description: i18n(msgKey, search && "<match>" + search + "</match>") });
 }
 
-chromeOmnibox.onInputStarted.addListener(function() { console.debug("started"); });
-chromeOmnibox.onInputCancelled.addListener(function() { console.debug("cancelled"); });
-
 chromeOmnibox.onInputChanged.addListener(function(text, suggest) {
-  console.debug("changed", text);
   omniboxSuggest = omniboxSearch = null;
+  clearTimeout(omniboxTimer);
   if (!text.indexOf("f ")) {
     var search = text.substr(2).trim();
     if (search) {
@@ -2322,16 +2319,17 @@ chromeOmnibox.onInputChanged.addListener(function(text, suggest) {
     } else setDefaultSuggestion("ob_favoritessugg");
   } else if (text.trim().length > 1) {
     setDefaultSuggestion("ob_loading", xmlEscape(text));
-    omniboxSuggest = suggest;
-    omniboxSearch = text.trim();
-    forceOpenGmInBackground = true;
-    loadNavigationList(getSearchLink(omniboxSearch));
-    forceOpenGmInBackground = false;
+    omniboxTimer = setTimeout(function() {
+      omniboxSuggest = suggest;
+      omniboxSearch = text.trim();
+      forceOpenGmInBackground = true;
+      loadNavigationList(getSearchLink(omniboxSearch));
+      forceOpenGmInBackground = false;
+    }, 500);
   } else setDefaultSuggestion("ob_defaultsugg");
 });
 
 chromeOmnibox.onInputEntered.addListener(function(text) {
-  console.debug("entered", text);
   omniboxSuggest = omniboxSearch = null;
   var index = text.lastIndexOf(linkPrefix);
   if (index >= 0) startPlaylist(text.substr(index + linkPrefix.length));

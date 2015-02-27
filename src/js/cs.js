@@ -255,7 +255,7 @@ $(function() {
     /** Execute 'executeOnContentLoad' (if set) when #music-content is changed. */
     function musicContentLoaded() {
       if ($.isFunction(executeOnContentLoad)) {
-        if (contentLoadDestination && location.hash != contentLoadDestination) return;//wait til we are on the correct page
+        if (contentLoadDestination && location.hash != "#/" + contentLoadDestination) return;//wait til we are on the correct page
         var fn = executeOnContentLoad;
         executeOnContentLoad = null;
         contentLoadDestination = null;
@@ -332,7 +332,7 @@ $(function() {
     
     watchContent(sendSong, "#playerSongInfo", 500);
     watchContent(sendPosition, "#time_container_current");
-    watchContent(musicContentLoaded, "#music-content", 500);
+    watchContent(musicContentLoaded, "#music-content", 1000);
     watchAttr("class disabled", "#player > div.player-middle > button[data-id='play-pause']", "player-playing", playingGetter, 500);
     watchAttr("value", "#player > div.player-middle > button[data-id='repeat']", "player-repeat");
     watchAttr("value", "#player > div.player-middle > button[data-id='shuffle']", "player-shuffle", shuffleGetter);
@@ -456,8 +456,8 @@ $(function() {
     var id = hash.substr(hash.indexOf("/") + 1);
     var type = hash.substr(0, hash.indexOf("/"));
     if ($(".card[data-id='" + id + "'][data-type='" + type + "']").length) {
-      contentLoadDestination = "#/ap/queue";
-      sendCommand("clickCard", {id: id});
+      contentLoadDestination = "ap/queue";
+      sendCommand("clickCard", { id: id });
       return true;
     }
     return false;
@@ -469,8 +469,7 @@ $(function() {
       if (cb) cb();
     } else {
       executeOnContentLoad = cb;
-      contentLoadDestination = hash.indexOf("im/") === 0 ? "#/ap/queue" : null;//type im is automatically started
-      if (hash.indexOf("st/") === 0 || hash.indexOf("sm/") === 0 || hash.indexOf("situations/") === 0) {//setting hash does not work for these types
+      if (!hash.indexOf("st/") || !hash.indexOf("sm/") || !hash.indexOf("situations/")) {//setting hash does not work for these types
         if (!clickListCard(hash)) {
           selectAndExecute("rd", function() {//try to find it on the mixes page
             executeOnContentLoad = cb;//set again (was overwritten by the recursive call)
@@ -480,7 +479,10 @@ $(function() {
             }
           });
         }
-      } else location.hash = "/" + hash;
+      } else {
+        contentLoadDestination = !hash.indexOf("im/") ? "#/ap/queue" : hash;//type im is automatically started
+        location.hash = "/" + hash;
+      }
     }
   }
   
@@ -757,8 +759,8 @@ $(function() {
         break;
       case "startPlaylist":
         selectAndExecute(msg.link, function(error) {
-          //type "im"/"st" starts automatically
-          if (!error && msg.link.indexOf("im/") !== 0 && msg.link.indexOf("st/") !== 0) sendCommand("startPlaylist");
+          //types im, st, sm and situations start automatically
+          if (!error && !!msg.link.indexOf("im/") && !!msg.link.indexOf("st/") && !!msg.link.indexOf("sm/") && !!msg.link.indexOf("situations/")) sendCommand("startPlaylist");
         });
         break;
       case "resumeLastSong":
