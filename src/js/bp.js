@@ -2331,6 +2331,7 @@ chromeOmnibox.onInputChanged.addListener(function(text, suggest) {
 
 chromeOmnibox.onInputEntered.addListener(function(text) {
   omniboxSuggest = omniboxSearch = null;
+  clearTimeout(omniboxTimer);
   var index = text.lastIndexOf(linkPrefix);
   if (index >= 0) startPlaylist(text.substr(index + linkPrefix.length));
 });
