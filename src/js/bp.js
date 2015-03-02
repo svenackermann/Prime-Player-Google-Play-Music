@@ -2317,19 +2317,21 @@ chromeOmnibox.onInputChanged.addListener(function(text, suggest) {
     } else setDefaultSuggestion("ob_favoritessugg");
   } else if (text.trim().length > 1) {
     setDefaultSuggestion("ob_loading", xmlEscape(text));
+    omniboxSearch = text.trim();
     omniboxTimer = setTimeout(function() {
       omniboxSuggest = suggest;
-      omniboxSearch = text.trim();
       loadNavigationList(getSearchLink(omniboxSearch));
     }, 500);
   } else setDefaultSuggestion("ob_defaultsugg");
 });
 
 chromeOmnibox.onInputEntered.addListener(function(text) {
-  omniboxSuggest = omniboxSearch = null;
+  omniboxSuggest = null;
   clearTimeout(omniboxTimer);
   var index = text.lastIndexOf(linkPrefix);
   if (index >= 0) startPlaylist(text.substr(index + linkPrefix.length));
+  else if (omniboxSearch) selectLink(getSearchLink(omniboxSearch));
+  omniboxSearch = null;
 });
 
 player.al("navigationList", function(navlist) {
