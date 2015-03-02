@@ -65,8 +65,6 @@ var lastSongInfo;
 /** while we are connecting to Google Music, the browser icon should not allow for any action */
 var connecting = false;
 var connectingTabId;
-/** if a Google Music tab is to be opened, force it to open in background */
-var forceOpenGmInBackground;
 //} private variables
 
 //{ beans
@@ -631,7 +629,7 @@ function loadNavlistIfConnected() {
   if (player.connected) {
     postToGooglemusic({ type: "getNavigationList", link: loadNavlistLink, omitUnknownAlbums: loadNavlistLink == "albums" && settings.omitUnknownAlbums });
     loadNavlistLink = null;
-  } else openGoogleMusicTab(loadNavlistLink);//when connected, we get triggered again
+  } else openGoogleMusicTab(loadNavlistLink, false, true);//when connected, we get triggered again
 }
 /** Load a navigation list in Google Music and wait for message from there (player.navigationList will be updated). If not connected, open a Google Music tab and try again. */
 function loadNavigationList(link) {
@@ -651,7 +649,7 @@ function startPlaylistIfConnected() {
   if (player.connected) {
     postToGooglemusic({ type: "startPlaylist", link: startPlaylistLink });
     startPlaylistLink = null;
-  } else openGoogleMusicTab();//when connected, we get triggered again
+  } else openGoogleMusicTab(null, false, true);//when connected, we get triggered again
 }
 /** Start a playlist in Google Music. */
 function startPlaylist(link) {
@@ -665,7 +663,7 @@ function executeFeelingLuckyIfConnected() {
   if (player.connected) {
     executeInGoogleMusic("feelingLucky");
     feelingLucky = false;
-  } else openGoogleMusicTab();//when connected, we get triggered again
+  } else openGoogleMusicTab(null, false, true);//when connected, we get triggered again
 }
 /** Execute "feeling lucky" in Google Music. If not connected, open a Google Music tab and try again. */
 function executeFeelingLucky() {
@@ -683,7 +681,7 @@ function resumeLastSongIfConnected() {
       duration: lastSongToResume.info.duration,
       position: lastSongToResume.positionSec / lastSongToResume.info.durationSec
     });
-  } else openGoogleMusicTab();//when connected, we get triggered again
+  } else openGoogleMusicTab(null, false, true);//when connected, we get triggered again
 }
 /** Resume the saved last song in Google Music. If not connected, open a Google Music tab and try again. */
 function resumeLastSong(lastSong) {
@@ -1214,15 +1212,15 @@ function updateToast() {
 
 //{ Google tab handling
 /** Open or activate a Google Music tab. */
-function openGoogleMusicTab(link, forceActive) {
-  var active = forceActive === true || (!settings.openGmBackground && !forceOpenGmInBackground);
+function openGoogleMusicTab(link, forceActive, forceBackground) {
+  var active = forceActive === true || (!settings.openGmBackground && !forceBackground);
   if (googlemusictabId) {
     if (active) chromeTabs.update(googlemusictabId, { active: true });
   } else if (!connecting) {
     var url = "http://play.google.com/music/listen";
     if (localSettings.googleAccountNo) url += "?u=" + localSettings.googleAccountNo;
     if (typeof(link) == "string") url += "#/" + link;
-    chromeTabs.create({url: url, pinned: settings.openGoogleMusicPinned, active: active }, function(tab) {
+    chromeTabs.create({ url: url, pinned: settings.openGoogleMusicPinned, active: active }, function(tab) {
       connectingTabId = tab.id;
       connecting = true;
       refreshContextMenu();
@@ -2322,9 +2320,7 @@ chromeOmnibox.onInputChanged.addListener(function(text, suggest) {
     omniboxTimer = setTimeout(function() {
       omniboxSuggest = suggest;
       omniboxSearch = text.trim();
-      forceOpenGmInBackground = true;
       loadNavigationList(getSearchLink(omniboxSearch));
-      forceOpenGmInBackground = false;
     }, 500);
   } else setDefaultSuggestion("ob_defaultsugg");
 });
