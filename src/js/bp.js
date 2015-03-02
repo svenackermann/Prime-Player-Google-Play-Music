@@ -638,23 +638,23 @@ function loadNavigationList(link) {
 }
 
 /** Select a link in the Google Music tab or open it when not connected. */
-function selectLink(link) {
+function selectLink(link, openGmInCurrentTab) {
   postToGooglemusic({ type: "selectLink", link: link });
-  openGoogleMusicTab(link, true);//if already opened focus the tab, else open & focus a new one
+  openGoogleMusicTab(link, true, false, openGmInCurrentTab);//if already opened focus the tab, else open & focus a new one
 }
 
 var startPlaylistLink;
-function startPlaylistIfConnected() {
+function startPlaylistIfConnected(openGmInCurrentTab) {
   if (!startPlaylistLink) return;
   if (player.connected) {
     postToGooglemusic({ type: "startPlaylist", link: startPlaylistLink });
     startPlaylistLink = null;
-  } else openGoogleMusicTab(null, false, true);//when connected, we get triggered again
+  } else openGoogleMusicTab(startPlaylistLink, false, true, openGmInCurrentTab);//when connected, we get triggered again
 }
 /** Start a playlist in Google Music. */
-function startPlaylist(link) {
+function startPlaylist(link, openGmInCurrentTab) {
   startPlaylistLink = link;
-  startPlaylistIfConnected();
+  startPlaylistIfConnected(openGmInCurrentTab);
 }
 
 var feelingLucky = false;
@@ -1212,7 +1212,7 @@ function updateToast() {
 
 //{ Google tab handling
 /** Open or activate a Google Music tab. */
-function openGoogleMusicTab(link, forceActive, forceBackground) {
+function openGoogleMusicTab(link, forceActive, forceBackground, openGmInCurrentTab) {
   var active = forceActive === true || (!settings.openGmBackground && !forceBackground);
   if (googlemusictabId) {
     if (active) chromeTabs.update(googlemusictabId, { active: true });
@@ -1220,7 +1220,8 @@ function openGoogleMusicTab(link, forceActive, forceBackground) {
     var url = "http://play.google.com/music/listen";
     if (localSettings.googleAccountNo) url += "?u=" + localSettings.googleAccountNo;
     if (typeof(link) == "string") url += "#/" + link;
-    chromeTabs.create({ url: url, pinned: settings.openGoogleMusicPinned, active: active }, function(tab) {
+    var createFn = openGmInCurrentTab ? chromeTabs.update : chromeTabs.create;
+    createFn({ url: url, pinned: settings.openGoogleMusicPinned, active: active }, function(tab) {
       connectingTabId = tab.id;
       connecting = true;
       refreshContextMenu();
@@ -2329,8 +2330,8 @@ chromeOmnibox.onInputEntered.addListener(function(text) {
   omniboxSuggest = null;
   clearTimeout(omniboxTimer);
   var index = text.lastIndexOf(linkPrefix);
-  if (index >= 0) startPlaylist(text.substr(index + linkPrefix.length));
-  else if (omniboxSearch) selectLink(getSearchLink(omniboxSearch));
+  if (index >= 0) startPlaylist(text.substr(index + linkPrefix.length), true);
+  else if (omniboxSearch) selectLink(getSearchLink(omniboxSearch), true);
   omniboxSearch = null;
 });
 
