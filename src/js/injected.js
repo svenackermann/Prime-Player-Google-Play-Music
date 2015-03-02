@@ -82,10 +82,25 @@
   function withPlaylistCols(index, cluster, cb) {
     var content = document.getElementById("music-content");
     if (content) {
-      if (cluster) content = content.getElementsByClassName("cluster")[cluster] || content;
-      content = content.getElementsByClassName("song-table")[0];
-      if (content) {
-        var rows = content.getElementsByClassName("song-row");
+      if (cluster) content = content.getElementsByClassName("cluster")[cluster - 1];
+      var songTables = content.getElementsByClassName("song-table");
+      
+      var songTable;
+      if (cluster) songTable = songTables[0];
+      else {
+        //make sure that we do not take a song-table from a cluster
+        [].some.call(songTables, function(el) {
+          while (el && el.id != content.id) {
+            if (el.classList.contains("cluster")) return false;
+            el = el.parentElement;
+          }
+          songTable = el;
+          return true;
+        });
+      }
+      
+      if (songTable) {
+        var rows = songTable.getElementsByClassName("song-row");
         if (rows[0]) {
           index = index - rows[0].dataset.index;
           if (rows[index]) {

@@ -22,7 +22,9 @@ $(function() {
   var lyricsAutoReload = false;
   var lyricsAutoReloadTimer;
   var position;
-  var ratingContainer = $("#player-right-wrapper .player-rating-container ul.rating-container");
+  var ratingContainerSelector = "#player-right-wrapper .player-rating-container ul.rating-container";
+  var ratingContainer = $(ratingContainerSelector);
+  var clusterSelector = ".cluster,.genre-stations-container";
   var i18n = chrome.i18n.getMessage;
   
   /** send update to background page */
@@ -168,7 +170,15 @@ $(function() {
   
   function getClusterIndex(el) {
     var cluster = el.closest(".cluster");
-    return cluster.length ? cluster.index() : 0;
+    return cluster.length ? cluster.parent().children(".cluster").index(cluster) + 1 : 0;
+  }
+  
+  function subclusterFilter(cont) {
+    return function() {
+      var cluster = $(this).closest(clusterSelector);
+      //include if not contained in a cluster (top level sublist) or if contained in this cluster
+      return !cluster.length || cluster[0] == cont[0];
+    };
   }
   
   /** add listeners/observers and extend DOM */
@@ -336,7 +346,7 @@ $(function() {
     watchAttr("class disabled", "#player > div.player-middle > button[data-id='play-pause']", "player-playing", playingGetter, 500);
     watchAttr("value", "#player > div.player-middle > button[data-id='repeat']", "player-repeat");
     watchAttr("value", "#player > div.player-middle > button[data-id='shuffle']", "player-shuffle", shuffleGetter);
-    watchAttr("class", ratingContainer.selector + " li", "song-rating", ratingGetter);
+    watchAttr("class", ratingContainerSelector + " li", "song-rating", ratingGetter);
     watchAttr("aria-valuenow", "#vslider", "player-volume");
     
     $("#music-content").on("DOMSubtreeModified", ".song-row td[data-col='rating']", function() {
@@ -428,8 +438,8 @@ $(function() {
   function sendPlaylistRowCommand(command, options) {
     if (location.hash != options.link) return;
     var body = $("#music-content");
-    if (options.cluster) body = body.find(".cluster")[options.cluster] || body[0];//ok if cluster is 0 or undefined, because the first .song-table in #music-content is the same as in the first cluster
-    body = $(body).find(".song-table > tbody");
+    if (options.cluster) body = $(body.find(clusterSelector)[options.cluster - 1]);
+    body = body.find(".song-table > tbody").filter(subclusterFilter(body));
     if (!body.length || options.index > body.data("count") - 1) return;
     pausePlaylistParsing = true;
     /* jshint -W082 */
@@ -513,7 +523,7 @@ $(function() {
   var parseNavigationList = {
     playlistsList: function(parent, end, cb, omitUnknownAlbums) {
       var playlists = [];
-      parent.find(".card").slice(0, end).each(function() {
+      parent.children(".card").slice(0, end).each(function() {
         var card = $(this);
         var id = card.data("id");
         if (omitUnknownAlbums && id.substr(1).indexOf("/") < 0) return;
@@ -534,7 +544,7 @@ $(function() {
       listRatings = listRatings || [];
       var ci = getClusterIndex(parent);
       var clusterRatings = [];
-      var count = parent.find(".song-row").parent().data("count");
+      var count = parent.find("[data-count]").data("count");
       var update = false;
       var lastIndex = -1;
       function loadNextSongs() {
@@ -585,7 +595,7 @@ $(function() {
     },
     albumContainers: function(parent, end, cb) {
       var items = [];
-      parent.find(".card").slice(0, end).each(function() {
+      parent.children(".card").slice(0, end).each(function() {
         var card = $(this);
         var item = {};
         var img = card.find(".image-inner-wrapper img:first");
@@ -617,7 +627,6 @@ $(function() {
       case "genres":
       case "srar":
       case "sarrar":
-      case "srp":
         return "albumContainers";
       case "now":
       case "albums":
@@ -626,6 +635,7 @@ $(function() {
       case "sar":
       case "tg":
       case "sral":
+      case "srp":
       case "saral":
       case "ar":
       case "exprec":
@@ -642,19 +652,23 @@ $(function() {
   /** @return parsed sublist (e.g. found albums on search page) or null if no matching content found */
   function parseSublist(cont) {
     var type;
-    if (cont.find(".song-table").length) type = "playlist";
+    var filter = subclusterFilter(cont);
+    var listParent = cont.find(".song-table").filter(filter);
+    if (listParent.length) type = "playlist";
     else {
       //look at first ".card" and check its type, our type must be one step higher in the hierarchy
-      var cardType = cont.find(".card").first().data("type");
+      var firstCard = cont.find(".card").filter(filter).first();
+      var cardType = firstCard.data("type");
       if (!cardType) return null;//maybe no ".card" found
       type = getListType(cardType) == "playlist" ? "playlistsList" : "albumContainers";
+      listParent = firstCard.parent();
     }
-    var list = parseNavigationList[type](cont, 10);
+    var list = parseNavigationList[type](listParent, 10);
     if (!list.length) return null;
     return {
       list: list,
       type: type,
-      header: $.trim(cont.find(".header .title").text()) || $.trim(cont.find(".section-header").text()),
+      header: $.trim(cont.find(".header .title").filter(filter).text()) || $.trim(cont.find(".section-header").filter(filter).text()),
       moreLink: cont.hasClass("has-more") ? getLink(cont) : null,
       cluster: getClusterIndex(cont)
     };
@@ -666,7 +680,7 @@ $(function() {
     response.lists = [];
     response.moreText = $.trim(view.find("div .header .more:visible").first().text());
     response.header = $.trim($("#header-tabs-container .header-tab-title.selected:visible").text()) || $.trim($("#breadcrumbs .tab-text:visible").text()) || $.trim($("#header-tabs-container .genre-dropdown-title .dropdown-title-text:visible").text());
-    view.find(".cluster, .genre-stations-container").each(function() {
+    view.find(clusterSelector).addBack().each(function() {
       var list = parseSublist($(this));
       if (list) response.lists.push(list);
     });
@@ -692,7 +706,7 @@ $(function() {
         //e.g. in recommendations list the album link might not work in which case we get redirected to albums page
         if (type == getListType(location.hash.substr(2))) {
           response.type = type;
-          parseNavigationList[type]($("#music-content"), undefined, function(list, update) {
+          parseNavigationList[type]($("#music-content").find(":has(>.card),.song-table"), undefined, function(list, update) {
             response.list = list;
             response.update = update;
             response.empty = !list.length;
