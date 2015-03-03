@@ -336,7 +336,7 @@ function isThumbsRatingMode() {
 //{ lastfm functions
 /** @return true, if scrobbling is available, i.e. user is logged in and enabled scrobbling */
 function isScrobblingEnabled() {
-  return settings.scrobble && localSettings.lastfmSessionKey !== null;
+  return settings.scrobble && !!localSettings.lastfmSessionKey;
 }
 
 /** open the last.fm authentication page */
@@ -1728,6 +1728,8 @@ function refreshContextMenu() {
       chromeContextMenus.create({ contexts: ["browser_action"], type: type || "normal", id: id, title: title, checked: checked, parentId: parentId, enabled: enabled }, cb);
     }
     
+    if (localSettings.lastfmSessionKey) createContextMenuEntry("toggleScrobble", i18n("setting_scrobble"), null, null, "checkbox", settings.scrobble);
+    
     if (player.connected) {
       var menuConnectedId = "menuConnected";
       createContextMenuEntry(menuConnectedId, i18n("action"), function() {
@@ -1808,6 +1810,9 @@ chromeContextMenus.onClicked.addListener(function(info) {
     case "stopTimer":
       clearSleepTimer();
       break;
+    case "toggleScrobble":
+      settings.scrobble = info.checked;
+      break;
     case "resumeLastSong":
     case "gotoGmusic":
       executeConnectAction(cmd);
@@ -1817,14 +1822,15 @@ chromeContextMenus.onClicked.addListener(function(info) {
   }
 });
 
-localSettings.w("timerEnd", refreshContextMenu);
-localSettings.al("lastfmSessionKey lyrics", function() {
+localSettings.w("lastfmSessionKey timerEnd", refreshContextMenu);
+localSettings.al("lyrics", function() {
   if (player.connected) refreshContextMenu();
 });
 settings.al("saveLastPosition", function() {
   if (!player.connected && !connecting) refreshContextMenu();
 });
 settings.al("favorites hideFavorites", refreshContextMenu);
+settings.al("scrobble", function(val) { chromeContextMenus.update("toggleScrobble", { checked: val }); });
 //} context menu
 
 //{ idle/locked handling
