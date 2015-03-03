@@ -342,6 +342,15 @@
   "setting_syncSettings": {
     "message": "Einstellungen mit Chrome sync synchronisieren"
   },
+  "setting_pauseOnLock": {
+    "message": "Pausiere Musik, wenn der Computer gesperrt wird (fortsetzen bei Entsperren)"
+  },
+  "setting_pauseOnIdle": {
+    "message": "Pausiere Musik, wenn der Computer im Leerlauf ist (fortsetzen bei erster Aktion)"
+  },
+  "setting_pauseOnIdleSec": {
+    "message": "Sekunden im Leerlauf, bevor die Musik pausiert wird"
+  },
   "setting_preventCommandRatingReset": {
     "message": "Setze Bewertungen niemals zur\u00FCck, die nicht sichtbar sind"
   },
@@ -815,5 +824,47 @@
   },
   "noFavorites": {
     "message": "Du hast keine Favoriten.\\A\\AMarkiere beliebige Wiedergabelisten (Alben, Interpreten, ...) als Favorit mit dem Stern-Symbol in der Listen-Ansicht."
+  },
+  "addfavorite": {
+    "message": "'$NAME$' zu Favoriten hinzuf\u00FCgen",
+    "placeholders": { "NAME": { "content": "$1" } }
+  },
+  "delfavorite": {
+    "message": "'$NAME$' aus Favoriten entfernen",
+    "placeholders": { "NAME": { "content": "$1" } }
+  },
+  "editfavorite": {
+    "message": "'$NAME$' bearbeiten",
+    "placeholders": { "NAME": { "content": "$1" } }
+  },
+  "ob_defaultsugg": {
+    "message": "Suche in Google Music oder starte mit 'f ', um in Favoriten zu suchen"
+  },
+  "ob_startsugg": {
+    "message": "Starte $SUG$",
+    "placeholders": { "SUG": { "content": "$1" } }
+  },
+  "ob_favoritessugg": {
+    "message": "Tippen, um in Favoriten zu suchen"
+  },
+  "ob_foundfavorites": {
+    "message": "Favoriten f\u00FCr $TEXT$:",
+    "placeholders": { "TEXT": { "content": "$1" } }
+  },
+  "ob_nofavorites": {
+    "message": "Keine Favoriten gefunden f\u00FCr $TEXT$.",
+    "placeholders": { "TEXT": { "content": "$1" } }
+  },
+  "ob_loading": {
+    "message": "Lade Ergebnisse f\u00FCr $TEXT$...",
+    "placeholders": { "TEXT": { "content": "$1" } }
+  },
+  "ob_results": {
+    "message": "Ergebnisse f\u00FCr $TEXT$:",
+    "placeholders": { "TEXT": { "content": "$1" } }
+  },
+  "ob_noresults": {
+    "message": "Keine Ergebnisse gefunden f\u00FCr $TEXT$.",
+    "placeholders": { "TEXT": { "content": "$1" } }
   }
 }

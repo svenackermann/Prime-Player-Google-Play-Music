@@ -16,9 +16,10 @@
     "*://play.google.com/music/listen*",
     "notifications",
     "storage",
-    "contextMenus"
+    "contextMenus",
+    "idle"
   ],
-  "optional_permissions": [ "http://www.songlyrics.com/*", "http://lyrics.wikia.com/*" ],
+  "optional_permissions": [ "http://www.songlyrics.com/*", "http://lyrics.wikia.com/*", "https://www.musixmatch.com/*" ],
   "browser_action": {
     "default_icon": {
       "38": "img/icon/default/notconnected.png"
@@ -51,6 +52,7 @@
     "js/cs.js.map",
     "js/cs-songlyrics.js.map",
     "js/cs-lyricswikia.js.map",
+    "js/cs-musixmatch.js.map",
     "css/gpm.css.map"
   ],
   "commands": {
@@ -118,5 +120,6 @@
     "openLyrics": {
       "description": "__MSG_command_openLyrics__"
     }
-  }
+  },
+  "omnibox": { "keyword" : "pp" }
 }

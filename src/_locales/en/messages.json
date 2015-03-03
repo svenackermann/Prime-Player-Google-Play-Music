@@ -456,6 +456,18 @@
     "message": "Sync settings with Chrome sync",
     "description": "label for option to sync settings"
   },
+  "setting_pauseOnLock": {
+    "message": "Pause music when computer is locked (resume on unlock)",
+    "description": "label for option to pause on lock"
+  },
+  "setting_pauseOnIdle": {
+    "message": "Pause music when computer is idle (resume on any action)",
+    "description": "label for option to pause on idle"
+  },
+  "setting_pauseOnIdleSec": {
+    "message": "Seconds to be idle before music is paused",
+    "description": "label for option to set the seconds for pause on idle"
+  },
   "setting_preventCommandRatingReset": {
     "message": "Prevent rating resets without feedback",
     "description": "label for option to prevent rating resets"
@@ -1082,5 +1094,58 @@
   "noFavorites": {
     "message": "You have no favorites.\\A\\AMark any playlist (album, artist, ...) as favorite with the star icon in the list navigation view.",
     "description": "text for favorites view in miniplayer if no favorites exist"
+  },
+  "addfavorite": {
+    "message": "Add '$NAME$' to favorites",
+    "description": "hint for icon to add sth. as favorite",
+    "placeholders": { "NAME": { "content": "$1", "example": "Foals" } }
+  },
+  "delfavorite": {
+    "message": "Remove '$NAME$' from favorites",
+    "description": "hint for icon to remove sth. from favorite",
+    "placeholders": { "NAME": { "content": "$1", "example": "Foals" } }
+  },
+  "editfavorite": {
+    "message": "Edit '$NAME$'",
+    "description": "hint for icon to edit a favorite",
+    "placeholders": { "NAME": { "content": "$1", "example": "Foals" } }
+  },
+  "ob_defaultsugg": {
+    "message": "Search in Google Music or start with 'f ' to search in favorites",
+    "description": "default suggestion for omnibox when typed less then 2 characters"
+  },
+  "ob_startsugg": {
+    "message": "Start $SUG$",
+    "description": "omnibox content text to start a suggestion",
+    "placeholders": { "SUG": { "content": "$1", "example": "MyFavorite" } }
+  },
+  "ob_favoritessugg": {
+    "message": "Type to search in favorites",
+    "description": "default suggestion for omnibox when searching for favorites, but nothing is typed yet"
+  },
+  "ob_foundfavorites": {
+    "message": "Favorites matching $TEXT$:",
+    "description": "omnibox default suggestion text for found favorites",
+    "placeholders": { "TEXT": { "content": "$1", "example": "mysearch" } }
+  },
+  "ob_nofavorites": {
+    "message": "No favorites found for $TEXT$.",
+    "description": "omnibox default suggestion text if no favorites found",
+    "placeholders": { "TEXT": { "content": "$1", "example": "mysearch" } }
+  },
+  "ob_loading": {
+    "message": "Loading results for $TEXT$...",
+    "description": "omnibox default suggestion text while searching for results",
+    "placeholders": { "TEXT": { "content": "$1", "example": "mysearch" } }
+  },
+  "ob_results": {
+    "message": "Results matching $TEXT$:",
+    "description": "omnibox default suggestion text for found results",
+    "placeholders": { "TEXT": { "content": "$1", "example": "mysearch" } }
+  },
+  "ob_noresults": {
+    "message": "No results found for $TEXT$.",
+    "description": "omnibox default suggestion text if no results found",
+    "placeholders": { "TEXT": { "content": "$1", "example": "mysearch" } }
   }
 }
