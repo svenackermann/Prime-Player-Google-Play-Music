@@ -13,6 +13,16 @@ h1 {
   font-weight: bold;
 }
 
+.sortable > *[draggable='true'] {
+  cursor: move;
+  background: url(../img/sort.png) right no-repeat;
+  background-size: 16px;
+}
+
+.dragging {
+  box-shadow: 0 -2px 0 #1D6D6D;
+}
+
 #settings {
   float: left;
   &.f-beg .adv, &.f-beg .exp, &.f-adv .exp {
@@ -34,18 +44,6 @@ h1 {
   }
   &.filterTimer .timer, &.filterLastfm .lastfm, &.filterToast .toast, &.filterMiniplayer .miniplayer, &.filterLyrics .lyrics, &.filterLookfeel .lookfeel {
     display: none;
-  }
-  
-  .allinc {
-    display: none;
-  }
-  &.allinc {
-    .noallinc {
-      display: none;
-    }
-    .allinc {
-      display: block;
-    }
   }
   
   &.thumbs .stars, &.star .thumbs, .thumbsOnly, .starsOnly {
@@ -236,6 +234,10 @@ div {
 #timerStatus {
   margin-left: 15ex;
   font-weight: bold;
+}
+
+#iconStyle img {
+  width: 19px;
 }
 
 #filter {

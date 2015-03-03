@@ -1,5 +1,5 @@
 /**
- * Content script for songlyrics.com.
+ * Content script for lyrics.wikia.com.
  * Will only be injected in tabs opened by the extension to automatically open the first search result.
  */
 /**
@@ -7,9 +7,12 @@
  * @license BSD license
  */
 (function() {
-  var result = document.getElementsByClassName("serpresult")[0];
-  if (result) {
-    var link = result.getElementsByTagName("a")[0];
+  var pre = document.getElementsByTagName("pre")[0];
+  if (!pre || !pre.textContent || pre.textContent.trim() == "Not found") return false;
+  
+  var ul = document.getElementsByTagName("ul")[0];
+  if (ul) {
+    var link = ul.getElementsByTagName("a")[0];
     if (link) {
       document.location.href = link.href;
       return true;

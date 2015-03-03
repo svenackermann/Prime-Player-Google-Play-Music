@@ -20,7 +20,7 @@ var full = argv.full;
 
 var paths = {
   js_bp: ["src/js/md5.min.js", "src/js/lastfm.api.js", "src/js/beans.js", "src/js/lyrics.js", "src/js/bp.js"],
-  js_single: ["src/js/cs.js", "src/js/cs-songlyrics.js", "src/js/injected.js", "src/js/lastfmCallback.js", "src/js/options.js", "src/js/player.js", "src/js/updateNotifier.js"],
+  js_single: ["src/js/cs.js", "src/js/cs-*.js", "src/js/injected.js", "src/js/lastfmCallback.js", "src/js/options.js", "src/js/player.js", "src/js/updateNotifier.js"],
   scss: ["src/css/*.scss", "!src/css/layouts.scss"],
   scss_all: "src/css/*.*",
   other: ["src/img/**/*.*", "src/**/*.json", "src/**/*.html", "src/js/jquery-2.0.2.min.js"],

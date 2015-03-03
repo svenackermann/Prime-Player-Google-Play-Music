@@ -24,11 +24,6 @@
   /** Simulate a click event on an element. */
   var simulateClick = simulateMouseEvent.bind(window, "click");
   
-  /** Start the currently displayed playlist. */
-  function startPlaylist() {
-    simulateClick(document.getElementsByClassName("overlay-icon")[0]);
-  }
-  
   /**
    * Execute a function for an element which matches a dataset attribute.
    * @param list the array to lookup the element
@@ -47,6 +42,19 @@
     });
   }
   
+  /** Start the currently displayed playlist. */
+  function startPlaylist() {
+    if (location.hash.indexOf("artist/") == 2) {
+      if (withMatchingDataset(document.getElementsByClassName("button"), "id", "radio", simulateClick)) return;
+    }
+    if (location.hash.indexOf("expgenres/") == 2) {
+      if (withMatchingDataset(document.getElementsByClassName("button"), "id", "start-genre-radio", simulateClick)) return;
+    }
+    var overlay = document.getElementsByClassName("overlay-icon")[0];
+    if (overlay) simulateClick(overlay);
+    else startPlaylistSong({ index: 0 });
+  }
+  
   /** Simulate a click on a .card with given id. */
   function clickCard(id) {
     withMatchingDataset(document.getElementsByClassName("card"), "id", id, function(card) {
@@ -56,23 +64,43 @@
   
   /** Click the feeling lucky button. */
   function clickFeelingLucky() {
-    withMatchingDataset(document.getElementsByTagName("button"), "id", "im-feeling-lucky", simulateClick);
+    withMatchingDataset(document.getElementsByClassName("button"), "id", "im-feeling-lucky", simulateClick);
   }
   
-  /** Click the player button with given id. */
-  function clickPlayerButton(id) {
+  /** Click the player button with given id. If given, only click if the button has class includeClass and doesn't have class excludeClass. */
+  function clickPlayerButton(id, includeClass, excludeClass) {
     var player = document.getElementById("player");
-    if (player) withMatchingDataset(player.getElementsByClassName("player-middle")[0].childNodes, "id", id, simulateClick);
+    if (player) withMatchingDataset(player.getElementsByClassName("player-middle")[0].childNodes, "id", id, function(el) {
+      var classes = el.className || "";
+      if (includeClass && classes.indexOf(includeClass) < 0) return;
+      if (excludeClass && classes.indexOf(excludeClass) >= 0) return;
+      simulateClick(el);
+    });
   }
   
   /** Execute callback with the list of TD elements for the playlist row with given index and cluster or with an empty array if not found. */
   function withPlaylistCols(index, cluster, cb) {
     var content = document.getElementById("music-content");
     if (content) {
-      if (cluster) content = content.getElementsByClassName("cluster")[cluster] || content;
-      content = content.getElementsByClassName("song-table")[0];
-      if (content) {
-        var rows = content.getElementsByClassName("song-row");
+      if (cluster) content = content.getElementsByClassName("cluster")[cluster - 1];
+      var songTables = content.getElementsByClassName("song-table");
+      
+      var songTable;
+      if (cluster) songTable = songTables[0];
+      else {
+        //make sure that we do not take a song-table from a cluster
+        [].some.call(songTables, function(el) {
+          while (el && el.id != content.id) {
+            if (el.classList.contains("cluster")) return false;
+            el = el.parentElement;
+          }
+          songTable = el;
+          return true;
+        });
+      }
+      
+      if (songTable) {
+        var rows = songTable.getElementsByClassName("song-row");
         if (rows[0]) {
           index = index - rows[0].dataset.index;
           if (rows[index]) {
@@ -168,7 +196,8 @@
     console.debug("cs->inj: ", event.data);
     switch (event.data.command) {
       case "playPause":
-        clickPlayerButton("play-pause");
+        var resume = event.data.options.resume;
+        clickPlayerButton("play-pause", resume === false ? "playing" : null, resume ? "playing" : null);
         break;
       case "nextSong":
         clickPlayerButton("forward");

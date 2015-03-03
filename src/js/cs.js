@@ -22,7 +22,9 @@ $(function() {
   var lyricsAutoReload = false;
   var lyricsAutoReloadTimer;
   var position;
-  var ratingContainer = $("#player-right-wrapper .player-rating-container ul.rating-container");
+  var ratingContainerSelector = "#player-right-wrapper .player-rating-container ul.rating-container";
+  var ratingContainer = $(ratingContainerSelector);
+  var clusterSelector = ".cluster,.genre-stations-container";
   var i18n = chrome.i18n.getMessage;
   
   /** send update to background page */
@@ -32,7 +34,7 @@ $(function() {
   
   /** @return converted text (e.g. from artist name) that is usable in the URL hash */
   function forHash(text) {
-    return encodeURIComponent(text).replace(/%20/g, "+");
+    return encodeURIComponent($.trim(text)).replace(/[%20]+/g, "+");
   }
   
   /** @return link (for hash) constructed from attributes data-type and data-id */
@@ -168,7 +170,15 @@ $(function() {
   
   function getClusterIndex(el) {
     var cluster = el.closest(".cluster");
-    return cluster.length ? cluster.index() : 0;
+    return cluster.length ? cluster.parent().children(".cluster").index(cluster) + 1 : 0;
+  }
+  
+  function subclusterFilter(cont) {
+    return function() {
+      var cluster = $(this).closest(clusterSelector);
+      //include if not contained in a cluster (top level sublist) or if contained in this cluster
+      return !cluster.length || cluster[0] == cont[0];
+    };
   }
   
   /** add listeners/observers and extend DOM */
@@ -255,7 +265,7 @@ $(function() {
     /** Execute 'executeOnContentLoad' (if set) when #music-content is changed. */
     function musicContentLoaded() {
       if ($.isFunction(executeOnContentLoad)) {
-        if (contentLoadDestination && location.hash != contentLoadDestination) return;//wait til we are on the correct page
+        if (contentLoadDestination && location.hash != "#/" + contentLoadDestination) return;//wait til we are on the correct page
         var fn = executeOnContentLoad;
         executeOnContentLoad = null;
         contentLoadDestination = null;
@@ -272,7 +282,7 @@ $(function() {
     function watchContent(fn, selector, timeout) {
       var content = $(selector);
       if (content.length) {
-        var listener = fn.bind(window, content);
+        var listener;
         if (timeout) {
           var contentTimer;
           listener = function() {
@@ -282,7 +292,7 @@ $(function() {
               fn(content);
             }, timeout);//wait til the DOM manipulation is finished
           };
-        }
+        } else listener = fn.bind(window, content);
         
         var observer = new MutationObserver(function (mutations) { mutations.forEach(listener); });
         observers.push(observer);
@@ -299,21 +309,27 @@ $(function() {
      * @param selector the jQuery selector
      * @param type the type of message to post on change
      * @param getValue an optional special function to get the value (default is to return the changed attribute value)
+     * @param timeout time to wait after DOM manipulation before executing the function
      */
-    function watchAttr(attrs, selector, type, getValue) {
+    function watchAttr(attrs, selector, type, getValue, timeout) {
       var element = $(selector)[0];
       if (element) {
         if (getValue === undefined) {
           getValue = function(el, attr) { return el.getAttribute(attr); };
         }
         var value = getValue(element, attrs);
+        var postTimer;
         var observer = new MutationObserver(function (mutations) {
           mutations.forEach(function(mutation) {
-            var newValue = getValue(mutation.target, mutation.attributeName);
-            if (newValue !== value) {
-              value = newValue;
-              post(type, value);
+            clearTimeout(postTimer);
+            function update() {
+              var newValue = getValue(mutation.target, mutation.attributeName);
+              if (newValue !== value) {
+                value = newValue;
+                post(type, value);
+              }
             }
+            postTimer = setTimeout(update, timeout || 0);
           });
         });
         observers.push(observer);
@@ -326,11 +342,11 @@ $(function() {
     
     watchContent(sendSong, "#playerSongInfo", 500);
     watchContent(sendPosition, "#time_container_current");
-    watchContent(musicContentLoaded, "#music-content", 500);
-    watchAttr("class disabled", "#player > div.player-middle > button[data-id='play-pause']", "player-playing", playingGetter);
+    watchContent(musicContentLoaded, "#music-content", 1000);
+    watchAttr("class disabled", "#player > div.player-middle > button[data-id='play-pause']", "player-playing", playingGetter, 500);
     watchAttr("value", "#player > div.player-middle > button[data-id='repeat']", "player-repeat");
     watchAttr("value", "#player > div.player-middle > button[data-id='shuffle']", "player-shuffle", shuffleGetter);
-    watchAttr("class", ratingContainer.selector + " li", "song-rating", ratingGetter);
+    watchAttr("class", ratingContainerSelector + " li", "song-rating", ratingGetter);
     watchAttr("aria-valuenow", "#vslider", "player-volume");
     
     $("#music-content").on("DOMSubtreeModified", ".song-row td[data-col='rating']", function() {
@@ -381,7 +397,6 @@ $(function() {
         });
         ql.searchPlaceholder = $.trim($("#oneGoogleWrapper input[name='q']").attr("placeholder"));
         post("connected", {
-          allinc: nav.children("a[data-type='exptop']").is(":visible"),
           ratingMode: ratingContainer.hasClass("stars") ? "star" : "thumbs",
           quicklinks: ql
         });
@@ -423,8 +438,8 @@ $(function() {
   function sendPlaylistRowCommand(command, options) {
     if (location.hash != options.link) return;
     var body = $("#music-content");
-    if (options.cluster) body = body.find(".cluster")[options.cluster] || body[0];//ok if cluster is 0 or undefined, because the first .song-table in #music-content is the same as in the first cluster
-    body = $(body).find(".song-table > tbody");
+    if (options.cluster) body = $(body.find(clusterSelector)[options.cluster - 1]);
+    body = body.find(".song-table > tbody").filter(subclusterFilter(body));
     if (!body.length || options.index > body.data("count") - 1) return;
     pausePlaylistParsing = true;
     /* jshint -W082 */
@@ -451,8 +466,8 @@ $(function() {
     var id = hash.substr(hash.indexOf("/") + 1);
     var type = hash.substr(0, hash.indexOf("/"));
     if ($(".card[data-id='" + id + "'][data-type='" + type + "']").length) {
-      contentLoadDestination = "#/ap/queue";
-      sendCommand("clickCard", {id: id});
+      contentLoadDestination = "ap/queue";
+      sendCommand("clickCard", { id: id });
       return true;
     }
     return false;
@@ -464,8 +479,7 @@ $(function() {
       if (cb) cb();
     } else {
       executeOnContentLoad = cb;
-      contentLoadDestination = hash.indexOf("im/") === 0 ? "#/ap/queue" : null;//type im is automatically started
-      if (hash.indexOf("st/") === 0 || hash.indexOf("sm/") === 0 || hash.indexOf("situations/") === 0) {//setting hash does not work for these types
+      if (!hash.indexOf("st/") || !hash.indexOf("sm/") || !hash.indexOf("situations/")) {//setting hash does not work for these types
         if (!clickListCard(hash)) {
           selectAndExecute("rd", function() {//try to find it on the mixes page
             executeOnContentLoad = cb;//set again (was overwritten by the recursive call)
@@ -475,7 +489,10 @@ $(function() {
             }
           });
         }
-      } else location.hash = "/" + hash;
+      } else {
+        contentLoadDestination = !hash.indexOf("im/") ? "#/ap/queue" : hash;//type im is automatically started
+        location.hash = "/" + hash;
+      }
     }
   }
   
@@ -506,7 +523,7 @@ $(function() {
   var parseNavigationList = {
     playlistsList: function(parent, end, cb, omitUnknownAlbums) {
       var playlists = [];
-      parent.find(".card").slice(0, end).each(function() {
+      parent.children(".card").slice(0, end).each(function() {
         var card = $(this);
         var id = card.data("id");
         if (omitUnknownAlbums && id.substr(1).indexOf("/") < 0) return;
@@ -527,7 +544,7 @@ $(function() {
       listRatings = listRatings || [];
       var ci = getClusterIndex(parent);
       var clusterRatings = [];
-      var count = parent.find(".song-row").parent().data("count");
+      var count = parent.find("[data-count]").data("count");
       var update = false;
       var lastIndex = -1;
       function loadNextSongs() {
@@ -578,7 +595,7 @@ $(function() {
     },
     albumContainers: function(parent, end, cb) {
       var items = [];
-      parent.find(".card").slice(0, end).each(function() {
+      parent.children(".card").slice(0, end).each(function() {
         var card = $(this);
         var item = {};
         var img = card.find(".image-inner-wrapper img:first");
@@ -609,7 +626,7 @@ $(function() {
       case "artists":
       case "genres":
       case "srar":
-      case "srp":
+      case "sarrar":
         return "albumContainers";
       case "now":
       case "albums":
@@ -618,6 +635,8 @@ $(function() {
       case "sar":
       case "tg":
       case "sral":
+      case "srp":
+      case "saral":
       case "ar":
       case "exprec":
       case "expnew":
@@ -633,19 +652,23 @@ $(function() {
   /** @return parsed sublist (e.g. found albums on search page) or null if no matching content found */
   function parseSublist(cont) {
     var type;
-    if (cont.find(".song-table").length) type = "playlist";
+    var filter = subclusterFilter(cont);
+    var listParent = cont.find(".song-table").filter(filter);
+    if (listParent.length) type = "playlist";
     else {
       //look at first ".card" and check its type, our type must be one step higher in the hierarchy
-      var cardType = cont.find(".card").first().data("type");
+      var firstCard = cont.find(".card").filter(filter).first();
+      var cardType = firstCard.data("type");
       if (!cardType) return null;//maybe no ".card" found
       type = getListType(cardType) == "playlist" ? "playlistsList" : "albumContainers";
+      listParent = firstCard.parent();
     }
-    var list = parseNavigationList[type](cont, 10);
+    var list = parseNavigationList[type](listParent, 10);
     if (!list.length) return null;
     return {
       list: list,
       type: type,
-      header: $.trim(cont.find(".header .title").text()) || $.trim(cont.find(".section-header").text()),
+      header: $.trim(cont.find(".header .title").filter(filter).text()) || $.trim(cont.find(".section-header").filter(filter).text()),
       moreLink: cont.hasClass("has-more") ? getLink(cont) : null,
       cluster: getClusterIndex(cont)
     };
@@ -657,7 +680,7 @@ $(function() {
     response.lists = [];
     response.moreText = $.trim(view.find("div .header .more:visible").first().text());
     response.header = $.trim($("#header-tabs-container .header-tab-title.selected:visible").text()) || $.trim($("#breadcrumbs .tab-text:visible").text()) || $.trim($("#header-tabs-container .genre-dropdown-title .dropdown-title-text:visible").text());
-    view.find(".cluster, .genre-stations-container").each(function() {
+    view.find(clusterSelector).addBack().each(function() {
       var list = parseSublist($(this));
       if (list) response.lists.push(list);
     });
@@ -666,7 +689,7 @@ $(function() {
   }
   
   /** Select, parse and send a list to bp. */
-  function sendNavigationList(link, omitUnknownAlbums, search) {
+  function sendNavigationList(link, omitUnknownAlbums) {
     selectAndExecute(link, function(error) {
       var response = {link: link, controlLink: location.hash};
       function sendError() {
@@ -675,7 +698,7 @@ $(function() {
       }
       if (error) {
         sendError();
-      } else if (link == "exptop" || link == "exprec" || link == "rd" || link.indexOf("expgenres/") === 0) {
+      } else if (link == "exptop" || link == "exprec" || link == "rd" || !link.indexOf("expgenres/") || !link.indexOf("artist/") || !link.indexOf("sr/")) {
         sendMixed(response);
       } else {
         var type = getListType(link);
@@ -683,8 +706,7 @@ $(function() {
         //e.g. in recommendations list the album link might not work in which case we get redirected to albums page
         if (type == getListType(location.hash.substr(2))) {
           response.type = type;
-          response.search = search;
-          parseNavigationList[type]($("#music-content"), undefined, function(list, update) {
+          parseNavigationList[type]($("#music-content").find(":has(>.card),.song-table"), undefined, function(list, update) {
             response.list = list;
             response.update = update;
             response.empty = !list.length;
@@ -697,28 +719,20 @@ $(function() {
     });
   }
   
-  /** Select search page and send parsed result to bp. */
-  function sendSearchResult(search) {
-    selectAndExecute("sr/" + forHash(search), function() {
-      var response = {
-        link: "search",
-        search: search,
-        controlLink: location.hash
-      };
-      sendMixed(response);
-    });
-  }
-  
   /** Try to find and resume the last played song from previous session. */
   function resumeSong(msg, error) {
     if (error) return;
+    var topFound = false;
     function sendResume() {
       var rows = $("#music-content .song-row");
       if (rows.length) {
-        if (rows.first().data("index") !== 0) {
-          $("#music-content").scrollTop(0);
-          asyncListTimer = setTimeout(sendResume, 150);
-          return;
+        if (!topFound) {
+          if (rows.first().data("index") !== 0) {
+            $("#music-content").scrollTop(0);
+            asyncListTimer = setTimeout(sendResume, 150);
+            return;
+          }
+          topFound = true;
         }
         var found = false;
         rows.each(function() {
@@ -752,16 +766,15 @@ $(function() {
         clearTimeout(asyncListTimer);
         listRatings = null;
         if (msg.link == "myPlaylists") sendMyPlaylists();
-        else if (msg.link == "search") sendSearchResult(msg.search);
-        else sendNavigationList(msg.link, msg.omitUnknownAlbums, msg.search);
+        else sendNavigationList(msg.link, msg.omitUnknownAlbums);
         break;
       case "selectLink":
         selectAndExecute(msg.link);
         break;
       case "startPlaylist":
         selectAndExecute(msg.link, function(error) {
-          //type "im"/"st" starts automatically
-          if (!error && msg.link.indexOf("im/") !== 0 && msg.link.indexOf("st/") !== 0) sendCommand("startPlaylist");
+          //types im, st, sm and situations start automatically
+          if (!error && !!msg.link.indexOf("im/") && !!msg.link.indexOf("st/") && !!msg.link.indexOf("sm/") && !!msg.link.indexOf("situations/")) sendCommand("startPlaylist");
         });
         break;
       case "resumeLastSong":

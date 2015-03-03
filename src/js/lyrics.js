@@ -6,46 +6,13 @@
  * @license BSD license
  */
 
-/* global gaEvent */
-/* exported buildLyricsSearchUrl, fetchLyrics */
+/* global gaEvent, chrome, fixForUri */
+/* exported lyricsProviders */
 
-/** @return an URL to songlyrics.com for the song or null if too little information */
-function buildLyricsSearchUrl(song) {
-  var artist = "";
-  var title = "";
-  var search = "";
-  if (song.artist) {
-    artist = encodeURIComponent(song.artist).replace(/%20/g, "+");
-    search = artist;
-  }
-  if (song.title) {
-    title = song.title;
-    if (title.indexOf("(") > 0) {//remove remix/version info
-      title = title.replace(/\(.*\)/, "").trim();
-    }
-    title = encodeURIComponent(title).replace(/%20/g, "+");
-    search = (search ? search + "+" : "") + title;
-  }
-  var url = null;
-  if (search) {
-    url = "http://www.songlyrics.com/index.php?section=search&searchW=" + search + "&submit=Search";
-    if (artist) url += "&searchIn1=artist";
-    if (title) url += "&searchIn3=song";
-  }
-  return url;
-}
+(function(exports) {
 
-/**
- * Get lyrics for a song from songlyrics.com.
- * The callback gets an object with either:
- * - 'title' (jQuery h1 containing the song title), 'lyrics' (jQuery div containing the lyrics), 'credits' (jQuery p containing the credits or null)
- * - 'noresults' set to true
- * - 'error' set to true
- * In addition the following attributes might be provided:
- * - 'src': the URL to the song lyrics page
- * - 'searchSrc': the URL to the search results page
- */
-function fetchLyrics(song, cb) {
+  var chromePermissions = chrome.permissions;
+
   function cleanAndParse(data) {
     //remove images to avoid them to be loaded
     var parsed = $(data.replace(/<img[^>]*>/gi, ""));
@@ -54,42 +21,263 @@ function fetchLyrics(song, cb) {
     return parsed;
   }
   
-  var url = buildLyricsSearchUrl(song);
-  if (url) {
-    $.get(url)
-      .done(function(resultPage) {
-        var href = cleanAndParse(resultPage).find(".serpresult > a").attr("href");
-        if (href) {
-          $.get(href)
-            .done(function(lyricsPage) {
-              var page = cleanAndParse(lyricsPage);
-              var lyrics = page.find("#songLyricsDiv");
-              var trimmedLyrics = lyrics.text().trim();
-              if (trimmedLyrics.length === 0 || trimmedLyrics.indexOf("We do not have the lyrics for") === 0) {
-                gaEvent("Lyrics", "NoLyrics");
-                cb({noresults: true, src: href, searchSrc: url});
-              } else {
-                var credits = page.find(".albuminfo > li > p");
-                if (credits.length === 0) credits = null;
-                gaEvent("Lyrics", "OK");
-                cb({title: page.find(".pagetitle h1"), lyrics: lyrics, credits: credits, src: href, searchSrc: url});
-              }
-            })
-            .fail(function() {
-              gaEvent("Lyrics", "Error-GET-Result");
-              cb({error: true, src: href, searchSrc: url});
-            });
-        } else {
-          gaEvent("Lyrics", "NoResult");
-          cb({noresults: true, searchSrc: url});
-        }
-      })
-      .fail(function() {
-        gaEvent("Lyrics", "Error-GET-Search");
-        cb({error: true, searchSrc: url});
-      });
-  } else {
-    gaEvent("Lyrics", "Error-noURL");
-    cb({error: true});
+  function fixTitle(title) {
+    if (title.indexOf("(") > 0) {//remove remix/version info
+      title = title.replace(/\(.*\)/, "").trim();
+    }
+    return fixForUri(title);
   }
-}
+  
+  exports.lyricsProviders = {};
+  
+  function LyricsProvider(name, homepage, searchLyrics, buildSearchUrl) {
+    
+    var permissions = { origins: [homepage + "/*"] };
+    
+    var injectScript = { file: "js/cs-" + name + ".js", runAt: "document_end" };
+    
+    /** cache if we have permission */
+    var hasPermission = null;
+    
+    function lyricsGaEvent(evt) {
+      gaEvent("Lyrics-" + name, evt);
+    }
+    
+    function errorNoUrl() {
+      lyricsGaEvent("Error-noURL");
+    }
+    
+    function errorNoPermission() {
+      lyricsGaEvent("Error-noPermission");
+    }
+    
+    this.checkPermission = function(cb) {
+      if (hasPermission !== null) return cb(hasPermission);
+      chromePermissions.contains(permissions, function(result) {
+        hasPermission = result;
+        cb(result);
+      });
+    };
+    
+    this.checkPermission($.noop);//cache it now
+    
+    this.getUrl = function() {
+      return homepage.substr(homepage.indexOf("://") + 3);
+    };
+    
+    this.getHomepage = function() {
+      return homepage;
+    };
+    
+    this.requestPermission = function(cb) {
+      chrome.permissions.request(permissions, function(granted) {
+        hasPermission = granted;
+        cb(granted);
+      });
+    };
+    
+    this.errorGetSearch = function(cb, searchSrc) {
+      lyricsGaEvent("Error-GET-Search");
+      cb({ error: true, searchSrc: searchSrc });
+    };
+    
+    this.noResult = function(cb, searchSrc) {
+      lyricsGaEvent("NoResult");
+      cb({ noresults: true, searchSrc: searchSrc });
+    };
+    
+    this.noLyrics = function(cb, src, searchSrc) {
+      lyricsGaEvent("NoLyrics");
+      cb({ noresults: true, src: src, searchSrc: searchSrc });
+    };
+    
+    this.errorGetResult = function(cb, src, searchSrc) {
+      lyricsGaEvent("Error-GET-Result");
+      cb({ error: true, src: src, searchSrc: searchSrc });
+    };
+    
+    this.foundLyrics = function(cb, title, lyrics, credits, src, searchSrc) {
+      lyricsGaEvent("OK");
+      cb({ title: title, lyrics: lyrics, credits: credits && credits.length ? credits : null, src: src, searchSrc: searchSrc });
+    };
+    
+    /**
+     * Get lyrics for a song.
+     * The callback gets an object with either:
+     * - 'title' (jQuery h1 containing the song title), 'lyrics' (jQuery div containing the lyrics), 'credits' (jQuery element containing the credits or null)
+     * - 'noresults' set to true
+     * - 'error' set to true
+     * In addition the following attributes might be provided:
+     * - 'src': the URL to the song lyrics page
+     * - 'searchSrc': the URL to the search results page
+     */
+    this.fetchLyrics = function(song, cb) {
+      if (!hasPermission) {
+        errorNoPermission();
+        cb({ error: true });
+        return;
+      }
+      var searchUrl = buildSearchUrl.call(this, song);
+      if (searchUrl) {
+        searchLyrics(cb, searchUrl, this);
+      } else {
+        errorNoUrl();
+        cb({ error: true });
+      }
+    };
+    
+    this.openLyrics = function(song, chromeTabs, cb, tabId) {
+      if (!hasPermission) {
+        errorNoPermission();
+        cb(false, tabId);
+        return;
+      }
+      var searchUrl = buildSearchUrl.call(this, song);
+      
+      function tabReadyCallback(tab) {
+        var executed = false;
+        function executeScript(theTabId, changeInfo) {
+          if (theTabId == tab.id && !executed && changeInfo.status == "complete") {
+            executed = true;
+            chromeTabs.onUpdated.removeListener(executeScript);
+            chromeTabs.executeScript(theTabId, injectScript, function(result) {
+              cb(result[0], theTabId);
+            });
+          }
+        }
+        chromeTabs.onUpdated.addListener(executeScript);
+        executeScript(tab.id, { status: tab.status });
+      }
+      
+      if (searchUrl) {
+        if (tabId) {
+          chromeTabs.update(tabId, { url: searchUrl }, tabReadyCallback);
+          lyricsGaEvent("Update");
+        } else {
+          chromeTabs.create({ url: searchUrl }, tabReadyCallback);
+          lyricsGaEvent("Open");
+        }
+      } else {
+        errorNoUrl();
+        cb(false, tabId);
+      }
+    };
+    
+    exports.lyricsProviders[name] = this;
+  }
+  
+  new LyricsProvider("songlyrics", "http://www.songlyrics.com", function(cb, searchUrl, report) {
+    $.get(searchUrl).done(function(resultPage) {
+      var href = cleanAndParse(resultPage).find(".serpresult > a").attr("href");
+      if (href) {
+        $.get(href)
+          .done(function(lyricsPage) {
+            var page = cleanAndParse(lyricsPage);
+            var lyrics = page.find("#songLyricsDiv");
+            var trimmedLyrics = lyrics.text().trim();
+            if (!trimmedLyrics.length || trimmedLyrics.indexOf("We do not have the lyrics for") === 0) {
+              report.noLyrics(cb, href, searchUrl);
+            } else {
+              report.foundLyrics(cb, page.find(".pagetitle h1"), lyrics, page.find(".albuminfo > li > p"), href, searchUrl);
+            }
+          })
+          .fail(function() {
+            report.errorGetResult(cb, href, searchUrl);
+          });
+      } else report.noResult(cb, searchUrl);
+    }).fail(function() {
+      report.errorGetSearch(cb, searchUrl);
+    });
+  }, function(song) {
+    var artist = "";
+    var title = "";
+    var search = "";
+    if (song.artist) {
+      artist = fixForUri(song.artist);
+      search = artist;
+    }
+    if (song.title) {
+      title = fixTitle(song.title);
+      search = (search ? search + "+" : "") + title;
+    }
+    var searchUrl = null;
+    if (search) {
+      searchUrl = this.getHomepage() + "/index.php?section=search&searchW=" + search + "&submit=Search";
+      if (artist) searchUrl += "&searchIn1=artist";
+      if (title) searchUrl += "&searchIn3=song";
+    }
+    return searchUrl;
+  });
+  
+  new LyricsProvider("lyricswikia", "http://lyrics.wikia.com", function(cb, searchUrl, report) {
+    $.getJSON(searchUrl, "fmt=realjson").done(function(result) {
+      if (result.url && result.lyrics && $.trim(result.lyrics) != "Not found") {
+        $.get(result.url)
+          .done(function(lyricsPage) {
+            var page = cleanAndParse(lyricsPage);
+            var lyrics = page.find(".lyricbox");
+            var trimmedLyrics = lyrics.text().trim();
+            if (!trimmedLyrics.length) {
+              report.noLyrics(cb, result.url, searchUrl);
+            } else {
+              var credits = page.find(".song-credit-box");
+              if (credits.length) {
+                var parsed = $("<p>");
+                credits.find("tr").each(function() {
+                  parsed.append($(this).text(), "<br>");
+                });
+                if (parsed.children().length) {
+                  parsed.find("br").last().remove();
+                  credits = parsed;
+                }
+              }
+              report.foundLyrics(cb, page.find("#WikiaPageHeader h1"), lyrics, credits, result.url, searchUrl);
+            }
+          })
+          .fail(function() {
+            report.errorGetResult(cb, result.url, searchUrl);
+          });
+      } else report.noResult(cb, searchUrl);
+    }).fail(function() {
+      report.errorGetSearch(cb, searchUrl);
+    });
+  }, function(song) {
+    if (!song.artist || !song.title) return null;
+    return this.getHomepage() + "/api.php?artist=" + fixForUri(song.artist) + "&song=" + fixTitle(song.title);
+  });
+  
+  new LyricsProvider("musixmatch", "https://www.musixmatch.com", function(cb, searchUrl, report) {
+    $.get(searchUrl).done(function(resultPage) {
+      var body = cleanAndParse(resultPage).find(".media-card-body").filter(function() { return !$(".add-lyrics-button", this).length; });
+      var href = body.find("a.title").attr("href");
+      if (href) {
+        href = report.getHomepage() + href;
+        $.get(href)
+          .done(function(lyricsPage) {
+            var page = cleanAndParse(lyricsPage);
+            var lyrics = page.find("#lyrics-html");
+            var trimmedLyrics = lyrics.text().trim();
+            if (!trimmedLyrics.length) {
+              report.noLyrics(cb, href, searchUrl);
+            } else {
+              lyrics = $("<div>").html(trimmedLyrics.replace(/\n/g, "<br>"));
+              var credits = $("<div>").html($.trim(page.find("#copyright").text()));
+              var title = $.trim(page.find(".track-title").first().text());
+              var artist = $.trim(page.find(".track-authors").first().text());
+              if (artist) title = artist + " - " + title;
+              report.foundLyrics(cb, $("<h1>").text(title), lyrics, credits || null, href, searchUrl);
+            }
+          })
+          .fail(function() {
+            report.errorGetResult(cb, href, searchUrl);
+          });
+      } else report.noResult(cb, searchUrl);
+    }).fail(function() {
+      report.errorGetSearch(cb, searchUrl);
+    });
+  }, function(song) {
+    if (!song.artist || !song.title) return null;
+    return this.getHomepage() + "/search/" + fixForUri(song.artist) + "+" + fixTitle(song.title) + "/tracks";
+  });
+  
+})(this);

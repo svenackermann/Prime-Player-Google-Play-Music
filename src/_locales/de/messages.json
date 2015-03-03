@@ -270,7 +270,7 @@
     "message": "Songtexte Einstellungen"
   },
   "legendLyricsHint": {
-    "message": "Du kannst Prime Player erlaubt, Songtexte von songlyrics.com zu laden, um diese im Miniplayer und/oder dem Google Music Tab anzuzeigen."
+    "message": "Du kannst Prime Player erlauben, Songtexte von externen Webseiten zu laden, um diese im Miniplayer und/oder dem Google Music Tab anzuzeigen. Dazu musst du zun\u00E4chst mind. eine Seite unten aktivieren. Die aktivierten Seiten k\u00F6nnen per Drag & Drop sortiert werden, die erste Seite wird immer zuerst durchsucht."
   },
   "setting_gaEnabled": {
     "message": "Google Analytics aktivieren"
@@ -342,6 +342,15 @@
   "setting_syncSettings": {
     "message": "Einstellungen mit Chrome sync synchronisieren"
   },
+  "setting_pauseOnLock": {
+    "message": "Pausiere Musik, wenn der Computer gesperrt wird (fortsetzen bei Entsperren)"
+  },
+  "setting_pauseOnIdle": {
+    "message": "Pausiere Musik, wenn der Computer im Leerlauf ist (fortsetzen bei erster Aktion)"
+  },
+  "setting_pauseOnIdleSec": {
+    "message": "Sekunden im Leerlauf, bevor die Musik pausiert wird"
+  },
   "setting_preventCommandRatingReset": {
     "message": "Setze Bewertungen niemals zur\u00FCck, die nicht sichtbar sind"
   },
@@ -374,6 +383,9 @@
   },
   "setting_saveLastPositionHint": {
     "message": "Speichert den letzten Titel (lokal) mit der aktuellen Position, um immer zu wissen, was man vor dem Beenden von Google Music geh\u00F6rt hat. Der letzte Titel wird im Miniplayer wie ein normaler Titel mit einigen Einschr\u00E4nkungen angezeigt. Der Play-Button versucht, das Album des Titels zu laden und den Titel an der letzten Position fortzusetzen. Leider ist es nicht m\u00F6glich, die letzte Wiedergabeliste beim Neustart wiederherzustellen."
+  },
+  "setting_hideFavorites": {
+    "message": "Verberge Favoriten im Miniplayer und Kontext-Men\u00FC"
   },
   "setting_skipRatedLower": {
     "message": "(oder schlechter) bewertete Titel \u00FCberspringen"
@@ -455,6 +467,14 @@
   },
   "loadLyricsError": {
     "message": "Es konnte kein Songtext geladen werden."
+  },
+  "lyricsSrcProvider": {
+    "message": "Quelle: $PRV$",
+    "placeholders": { "PRV": { "content": "$1" } }
+  },
+  "lyricsSearchProvider": {
+    "message": "Suche auf $PRV$",
+    "placeholders": { "PRV": { "content": "$1" } }
   },
   "quicklinks": {
     "message": "Quick-Links"
@@ -545,6 +565,9 @@
   "setting_openLinksInMiniplayerHint": {
     "message": "Wenn aktiviert, werden Links zu Alben, Interpreten usw. direkt im Miniplayer ge\u00F6ffnet, ansonsten im Google Music Tab. Mit Umschalt+Klick auf den Link wird das Verhalten vor\u00FCbergehend umgekehrt."
   },
+  "setting_lyricsAutoNext": {
+    "message": "Probiere automatisch die n\u00E4chste(n) Seite(n), wenn nicht gefunden"
+  },
   "setting_lyrics": {
     "message": "Aktiviere Songtexte"
   },
@@ -555,7 +578,8 @@
     "message": "Wenn aktiviert, werden Songtexte direkt im Miniplayer angezeigt, ansonsten wird ein neuer Tab ge\u00F6ffnet. Mit Umschalt+Klick auf den Link wird das Verhalten vor\u00FCbergehend umgekehrt."
   },
   "lyricsAlert": {
-    "message": "Diese Funktion ben\u00F6tigt Zugriff auf songlyrics.com, um die Texte zu laden.\nBitte beachte, dass f\u00FCr die Qualit\u00E4t der Suchergebnisse nicht Prime Player, sondern songlyrics.com verantwortlich ist. Prime Player zeigt immer das erste Suchergebnis auf songlyrics.com an. Es kann daher vorkommen, dass der angezeigte Text nicht zum Titel passt. Mit den Links am Ende des angezeigten Textes im Miniplayer kannst du die Suchergebnisse kontrollieren."
+    "message": "Diese Funktion ben\u00F6tigt Zugriff auf $SITE$ um die Texte zu laden.\nBitte beachte, dass f\u00FCr die Qualit\u00E4t der Suchergebnisse nicht Prime Player, sondern $SITE$ verantwortlich ist. Prime Player zeigt immer das erste Suchergebnis von $SITE$ an. Es kann daher vorkommen, dass der angezeigte Text nicht zum Titel passt. Mit den Links am Ende des angezeigten Textes im Miniplayer kannst du die Suchergebnisse kontrollieren.",
+    "placeholders": { "SITE": { "content": "$1" } }
   },
   "setting_hideSearchfield": {
     "message": "Verstecke Suchfeld im Miniplayer"
@@ -729,6 +753,23 @@
   "cancelTimer": {
     "message": "Timer stoppen"
   },
+  "startTimerMenu": {
+    "message": "Timer starten"
+  },
+  "timerInOneMinute": {
+    "message": "1 Minute"
+  },
+  "timerInMin": {
+    "message": "$MIN$ Minuten",
+    "placeholders": { "MIN": { "content": "$1" } }
+  },
+  "timerInOneHour": {
+    "message": "1 Stunde"
+  },
+  "timerInHours": {
+    "message": "$HOU$ Stunden",
+    "placeholders": { "HOU": { "content": "$1" } }
+  },
   "filterHint": {
     "message": "Hier kannst du die sichtbaren Optionen einschr\u00E4nken."
   },
@@ -774,5 +815,56 @@
   },
   "openPopup": {
     "message": "Popup \u00F6ffnen"
+  },
+  "action": {
+    "message": "Aktion"
+  },
+  "favorites": {
+    "message": "Favoriten"
+  },
+  "noFavorites": {
+    "message": "Du hast keine Favoriten.\\A\\AMarkiere beliebige Wiedergabelisten (Alben, Interpreten, ...) als Favorit mit dem Stern-Symbol in der Listen-Ansicht."
+  },
+  "addfavorite": {
+    "message": "'$NAME$' zu Favoriten hinzuf\u00FCgen",
+    "placeholders": { "NAME": { "content": "$1" } }
+  },
+  "delfavorite": {
+    "message": "'$NAME$' aus Favoriten entfernen",
+    "placeholders": { "NAME": { "content": "$1" } }
+  },
+  "editfavorite": {
+    "message": "'$NAME$' bearbeiten",
+    "placeholders": { "NAME": { "content": "$1" } }
+  },
+  "ob_defaultsugg": {
+    "message": "Suche in Google Music oder starte mit 'f ', um in Favoriten zu suchen"
+  },
+  "ob_startsugg": {
+    "message": "Starte $SUG$",
+    "placeholders": { "SUG": { "content": "$1" } }
+  },
+  "ob_favoritessugg": {
+    "message": "Tippen, um in Favoriten zu suchen"
+  },
+  "ob_foundfavorites": {
+    "message": "Favoriten f\u00FCr $TEXT$:",
+    "placeholders": { "TEXT": { "content": "$1" } }
+  },
+  "ob_nofavorites": {
+    "message": "Keine Favoriten gefunden f\u00FCr $TEXT$.",
+    "placeholders": { "TEXT": { "content": "$1" } }
+  },
+  "ob_loading": {
+    "message": "Lade Ergebnisse f\u00FCr $TEXT$...",
+    "placeholders": { "TEXT": { "content": "$1" } }
+  },
+  "ob_results": {
+    "message": "Ergebnisse f\u00FCr $TEXT$:",
+    "placeholders": { "TEXT": { "content": "$1" } }
+  },
+  "ob_noresults": {
+    "message": "Keine Ergebnisse gefunden f\u00FCr $TEXT$.",
+    "placeholders": { "TEXT": { "content": "$1" } }
   }
 }

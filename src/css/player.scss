@@ -17,7 +17,14 @@ $sprite-y-count: 5;
   }
 }
 
-#rightbuttons > a, .thumbs-rating a[data-rating], #lastfmRating > a, .thumbs-rating .rating-container > a, #playControls > a, #navHead > a {
+@mixin hoverspriteno($x, $y, $hy, $size) {
+  @include sprite($x, $y, $size);
+  &:hover:not(.disabled) {
+    @include sprite($x, $hy, $size);
+  }
+}
+
+#rightbuttons > a, .thumbs-rating a[data-rating], #lastfmRating > a, .thumbs-rating .rating-container > a, #playControls > a, #navHead > a:not(.fav), #favorites > div > .fav, #favorites > div > .edit {
   background-repeat: no-repeat;
   background-image: url(../img/sprites.png);
 }
@@ -40,6 +47,10 @@ a {
   &:focus {
     outline: none;
   }
+}
+
+.dragging {
+  box-shadow: 0 -2px 0 #1D6D6D;
 }
 
 #player {
@@ -110,9 +121,6 @@ a {
   #googleRating {
     > .rating-container > a {
       cursor: default;
-      &:hover {
-        background: initial !important;
-      }
     }
     opacity: 0.75;
   }
@@ -277,18 +285,23 @@ a {
 
 .popup {
   body {
-    min-width: 240px;
+    width: 280px;
     min-height: 113px;
   }
-  &.hideRatings .lastfm {
-    #rightbuttons {
-      height: 48px;
-      margin-left: 18px;
+  &.hideRatings {
+    body {
+      min-height: 95px;
     }
-    #feelingLucky {
-      position: relative;
-      top: -16px;
-      left: -16px;
+    .lastfm {
+      #rightbuttons {
+        height: 48px;
+        margin-left: 18px;
+      }
+      #feelingLucky {
+        position: relative;
+        top: -16px;
+        left: -16px;
+      }
     }
   }
 }
@@ -323,6 +336,94 @@ a {
 ::-webkit-scrollbar-thumb {
     border-radius: 10px;
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+}
+
+.fav {
+  width: 16px;
+  height: 16px;
+  background-size: 14px;
+  background-repeat: no-repeat;
+  float: right;
+  background-image: url(../img/star-background.png);
+  &.isfav {
+    background-image: url(../img/star-active.png);
+  }
+  &:hover {
+    background-image: url(../img/star-hover.png);
+  }
+}
+
+#favorites {
+  display: flex;
+  flex-direction: column;
+  > .empty {
+    text-align: center;
+    position: relative;
+    top: 20%;
+    &:after {
+      content: "__MSG_noFavorites__";
+      white-space: pre-wrap;
+    }
+  }
+  > div {
+    height: 8px;
+    &[draggable] {
+      min-height: 18px;
+      &:nth-child(even) {
+        background-color: #ddd;
+      }
+    }
+    &.lastdrop {
+      min-height: 6px;
+      flex: 1;
+    }
+    > img {
+      float: left;
+      width: 14px;
+      border: 1px solid #AAA;
+      cursor: pointer;
+      margin-right: 5px;
+      &:hover {
+        opacity: 0.5;
+      }
+    }
+    > .fav {
+      @include hoversprite(14, 0, 1, 16);
+    }
+    > .edit {
+      float: right;
+      width: 16px;
+      height: 16px;
+      @include hoversprite(18, 0, 1, 16);
+    }
+    > input {
+      height: 18px;
+      padding: 0;
+      border: 0;
+      font-size: 11px;
+    }
+    > .nav {
+      padding-top: 2px;
+      overflow: hidden;
+      display: block;
+      white-space: nowrap;
+    }
+  }
+  &.sortable > div[draggable] {
+    cursor: move;
+    background: url(../img/sort.png) right no-repeat;
+    background-size: 14px;
+    padding-right: 15px;
+  }
+}
+
+.hidefav {
+  .fav {
+    display: none !important;
+  }
+  #showfavorites {
+    display: none;
+  }
 }
 
 #nav {
@@ -368,12 +469,12 @@ a {
   #navHead > input {
     display: block;
   }
-  #navlistContainer, #lyrics {
+  >:not(#navHead) {
     top: 36px;
   }
 }
 
-#navlistContainer, #lyrics {
+#nav >:not(#navHead) {
   position: absolute;
   width: 100%;
   top: 18px;
@@ -383,7 +484,20 @@ a {
 #navlistContainer {
   .playlistsList, .playlist, .albumContainers {
     > div {
+      height: 18px;
       white-space: nowrap;
+      > *:not(img) {
+        padding-top: 4px;
+      }
+      > img {
+        float: left;
+        margin-right: 4px;
+        height: 16px;
+      }
+      > .fav {
+        margin-top: 2px;
+        padding-top: 0;
+      }
       span:not(.duration) {
         color: #888;
       }
@@ -392,10 +506,18 @@ a {
       }
     }
   }
+  .albumContainers > div {
+    > img {
+      width: 32px;
+    }
+    > .nav {
+      display: block;
+      overflow: hidden;
+    }
+  }
   .playlistsList, .playlist {
     > div {
       > img {
-        height: 16px;
         width: 16px;
         border: 1px solid #AAA;
         cursor: pointer;
@@ -406,23 +528,22 @@ a {
     }
   }
   .playlistsList > div {
-    > a, > span {
-      display: inline-block;
-      margin-left: 4px;
-      vertical-align: top;
+    > div {
       overflow: hidden;
-      white-space: nowrap;
-      padding-top: 2px;
-    }
-    > a.album {
-      width: 50%;
-      &:last-child {
-        width: auto;
+      > a, > span {
+        display: inline-block;
+        overflow: hidden;
+        margin-right: 3px;
+      }
+      > a.album {
+        width: 60%;
+        &:last-child {
+          width: auto;
+        }
       }
     }
   }
   .playlist > div {
-    height: 18px;
     &.current {
       background-image: url(../img/paused.png);
       background-repeat: no-repeat;
@@ -433,16 +554,13 @@ a {
       > .timebar {
         height: 2px;
         position: relative;
-        bottom: 2px;
+        bottom: 6px;
+        padding-top: 0;
         > div {
           height: 100%;
           width: 0;
         }
       }
-    }
-    > img {
-      float: left;
-      margin-right: 4px;
     }
     > div.info {
       overflow: hidden;
@@ -454,7 +572,6 @@ a {
         white-space: nowrap;
         display: inline-block;
         margin-right: 1ex;
-        padding-top: 2px;
       }
       > :first-child {
         width: 40%;
@@ -482,11 +599,14 @@ a {
   }
 }
 
-#navlist {
+#navlist, #favorites {
   height: 98%;
   padding: 2px;
   overflow-y: auto;
   overflow-x: hidden;
+}
+
+#navlist {
   &.loading {
     background: url(../img/ajax-loader.gif) no-repeat center center;
   }
@@ -582,17 +702,6 @@ a {
   }
 }
 
-#navlistContainer .albumContainers > div {
-  > img {
-    height: 16px;
-  }
-  > a {
-    margin-left: 5px;
-    vertical-align: top;
-    white-space: nowrap;
-  }
-}
-
 #navlist.mixed {
   > h2 {
     margin: 0;
@@ -633,17 +742,7 @@ a {
 
 #quicklinks {
   display: none;
-  .allinc {
-    display: none;
-  }
-  &.allinc {
-    .noallinc {
-      display: none;
-    }
-    .allinc {
-      display: block;
-    }
-  }
+  overflow-y: auto;
   > div {
     width: 47%;
     margin: 3px;
@@ -662,6 +761,7 @@ a {
 #lyrics {
   display: none;
   overflow-y: auto;
+  margin-bottom: 10px;
   &.loading .content {
     height: 90%;
     overflow-y: hidden;
@@ -687,6 +787,14 @@ a {
     margin-top: 1ex;
     padding-top: 1ex;
     text-align: center;
+    a {
+      padding-left: 2ex;
+      white-space: nowrap;
+      &.nav {
+        float: left;
+        padding-top: 5px;
+      }
+    }
   }
 }
 
@@ -751,16 +859,16 @@ a {
     float: left;
   }
   .rating-1 {
-    @include hoversprite(1, 0, 1, 16);
+    @include hoverspriteno(1, 0, 1, 16);
   }
   .rating-5 {
-    @include hoversprite(0, 0, 1, 16);
+    @include hoverspriteno(0, 0, 1, 16);
   }
   &.rating-1 .rating-1, &.rating-2 .rating-1 {
-    @include hoversprite(1, 2, 3, 16);
+    @include hoverspriteno(1, 2, 3, 16);
   }
   &.rating-4 .rating-5, &.rating-5 .rating-5 {
-    @include hoversprite(0, 2, 3, 16);
+    @include hoverspriteno(0, 2, 3, 16);
   }
 }
 
@@ -786,7 +894,7 @@ a {
       display: block;
       position: absolute;
       height: inherit;
-      &:hover {
+      &:hover:not(.disabled) {
         background: repeat-x url(../img/star-hover.png);
       }
       @for $i from 1 through 5 {
@@ -829,6 +937,10 @@ a {
 
 #prev, #next, #showlyrics {
   opacity: 0.2;
+}
+
+a#showfavorites {
+  cursor: pointer;
 }
 
 #showlyrics {
