@@ -6,7 +6,7 @@
  * @license BSD license
  */
 
-/* global chrome */
+/* global chrome, initGA */
 
 chrome.runtime.getBackgroundPage(function(bp) {
 
@@ -15,7 +15,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
   var i18n = chrome.i18n.getMessage;
   var settings = bp.settings;
   var localSettings = bp.localSettings;
-    
+
+  /** Google analytics */
+  var GA = initGA(settings, context, bp.getGADimensions);
+
   chrome.runtime.onMessage.addListener(function(msg) {
     if (msg.type == "lastfmStatusChanged") {
       var statusDiv = $("#lastfmStatus");
@@ -693,7 +696,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#resetSettings").click(function() {
       settings.reset();
       localSettings.reset();
-      bp.gaEvent("Options", "reset");
+      GA.event("Options", "reset");
       location.reload();
     }).text(i18n("resetSettings"));
     
@@ -725,7 +728,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
     
     $("#credits").on("click", "a[data-network]", function() {
-      bp.gaSocial($(this).data("network"), $(this).data("action") || "show");
+      var link = $(this);
+      GA.social(link.data("network"), link.data("action") || "show", link.attr("href"));
     });
     
     initFilter();

@@ -28,7 +28,7 @@
     "default_popup": "player.html"
   },
   "background": {
-    "scripts": ["js/jquery-2.0.2.min.js", "js/bp.js"],
+    "scripts": ["js/jquery-2.0.2.min.js", "js/ga.js", "js/bp.js"],
     "persistent": false
   },
   "options_ui": {

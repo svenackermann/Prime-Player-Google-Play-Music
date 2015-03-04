@@ -6,7 +6,7 @@
  * @license BSD license
  */
 
-/* global chrome */
+/* global chrome, initGA */
 
 chrome.runtime.getBackgroundPage(function(bp) {
 
@@ -36,6 +36,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
   var player = bp.player;
   var song = bp.song;
 
+  /** Google analytics */
+  var GA = initGA(settings, typeClass, bp.getGADimensions);
+  
   settings.favorites.forEach(function(fav) {
     favoritesCache[fav.link] = true;
   });
@@ -610,6 +613,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     lyrics.removeClass().hide().children().empty();
     if (!isSearch(link)) $("#navHead > input").val("");
     $("#player,#navlistContainer,#quicklinks,#favoritesContainer,#navHead .fav").hide();
+    var gaTitle = link;
     if (link == "quicklinks") {
       resize(localSettings.quicklinksSizing);
       $("#quicklinks").show();
@@ -625,6 +629,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       if (providerIndex) bp.fetchLyricsFrom(options, link.substr(providerIndex), renderLyrics.bind(window, lyrics, options, options.providers));
       else bp.fetchLyrics(options, renderLyrics.bind(window, lyrics, options));
     } else {
+      gaTitle = "navlist";
       $("#navlist").addClass("loading");
       $("#navlistContainer").show();
       if (isFavoriteCandidate(link)) {
@@ -633,6 +638,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       bp.loadNavigationList(link);
     }
     $("#nav").show();
+    GA.pageview(gaTitle);
   }
 
   function restorePlayer() {
@@ -647,7 +653,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
     navHistory = [];
     currentNavList = {};
-    $("#player").show();
+    var player = $("#player");
+    if (!player.is(":visible")) GA.pageview(typeClass);
+    player.show();
   }
 
   function updateNavHead(title) {

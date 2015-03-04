@@ -7,7 +7,7 @@
  * @license BSD license
  */
 
-/* global chrome, Bean, LastFM, lyricsProviders, ga */
+/* global chrome, Bean, LastFM, lyricsProviders, initGA */
 /* exported optionsWin, fixForUri */
 
 //{ global public declarations
@@ -40,6 +40,9 @@ var chromeIdle = chrome.idle;
 var chromeOmnibox = chrome.omnibox;
 
 var currentVersion = chromeRuntime.getManifest().version;
+
+var gaCategoryLastFm = "LastFM";
+var gaCategoryOptions = "Options";
 
 /** the miniplayer instance, if opened */
 var miniplayer = null;
@@ -260,6 +263,11 @@ function isNewerVersion(version) {
   return version.length > prev.length;//version is longer (e.g. 1.0.1 > 1.0), else same version
 }
 
+function getGADimensions() {
+  return [currentVersion, localSettings.lyrics.toString(), isScrobblingEnabled().toString(), settings.toast.toString(), settings.layout];
+}
+var GA = initGA(settings, "bp", getGADimensions);
+
 function getQuicklinks() {
   var quicklinks = [
     "now",
@@ -339,18 +347,19 @@ function isThumbsRatingMode() {
 //{ lastfm functions
 /** @return true, if scrobbling is available, i.e. user is logged in and enabled scrobbling */
 function isScrobblingEnabled() {
-  return settings.scrobble && localSettings.lastfmSessionKey !== null;
+  return settings.scrobble && !!localSettings.lastfmSessionKey;
 }
 
 /** open the last.fm authentication page */
 function lastfmLogin() {
   var url = lastfm.getLoginUrl(getExtensionUrl("lastfmCallback.html"));
   chromeTabs.create({ url: url }, function(tab) { lastfmAuthTabId = tab.id; });
-  gaEvent("LastFM", "AuthorizeStarted");
+  GA.event(gaCategoryLastFm, "AuthorizeStarted");
 }
 
 /** reset last.fm session */
 function lastfmLogout() {
+  GA.event(gaCategoryLastFm, "Logout");
   lastfm.session = {};
   localSettings.lastfmSessionKey = null;
   localSettings.lastfmSessionName = null;
@@ -385,7 +394,7 @@ function getLastfmInfo(songInfo, cb) {
       },
       error: function(code, msg) {
         cb(msg, null);
-        gaEvent("LastFM", "getInfoError-" + code);
+        GA.event(gaCategoryLastFm, "getInfoError-" + code);
       }
     });
   } else cb(null, null);
@@ -401,7 +410,7 @@ function love(songInfo, cb) {
       success: function() { cb(true); },
       error: function(code, msg) {
         cb(msg);
-        gaEvent("LastFM", "loveError-" + code);
+        GA.event(gaCategoryLastFm, "loveError-" + code);
       }
     });
   }
@@ -417,7 +426,7 @@ function unlove(songInfo, cb) {
       success: function() { cb(false); },
       error: function(code, msg) {
         cb(msg);
-        gaEvent("LastFM", "unloveError-" + code);
+        GA.event(gaCategoryLastFm, "unloveError-" + code);
       }
     });
   }
@@ -512,12 +521,12 @@ function scrobbleCachedSongs() {
     lastfm.track.scrobble(params, {
       success: function() {
         localStorage.removeItem("scrobbleCache");
-        gaEvent("LastFM", "ScrobbleCachedOK");
+        GA.event(gaCategoryLastFm, "ScrobbleCachedOK");
       },
       error: function(code) {
         console.warn("Error on cached scrobbling: " + code);
         if (!isScrobbleRetriable(code)) localStorage.removeItem("scrobbleCache");
-        gaEvent("LastFM", "ScrobbleCachedError-" + code);
+        GA.event(gaCategoryLastFm, "ScrobbleCachedError-" + code);
       }
     });
   }
@@ -535,13 +544,13 @@ function scrobble() {
   var cloned = $.extend({}, params);//clone now, lastfm API will enrich params with additional values we don't need
   lastfm.track.scrobble(params, {
     success: function() {
-      gaEvent("LastFM", "ScrobbleOK");
+      GA.event(gaCategoryLastFm, "ScrobbleOK");
       scrobbleCachedSongs();//try cached songs again now that the service seems to work again
     },
     error: function(code) {
       console.warn("Error on scrobbling '" + params.track + "': " + code);
       if (isScrobbleRetriable(code)) cacheForLaterScrobbling(cloned);
-      gaEvent("LastFM", "ScrobbleError-" + code);
+      GA.event(gaCategoryLastFm, "ScrobbleError-" + code);
     }
   });
 }
@@ -554,10 +563,10 @@ function sendNowPlaying() {
     album: song.info.album,
     duration: song.info.durationSec
   }, {
-    success: function() { gaEvent("LastFM", "NowPlayingOK"); },
+    success: function() { GA.event(gaCategoryLastFm, "NowPlayingOK"); },
     error: function(code) {
       console.warn("Error on now playing '" + song.info.title + "': " + code);
-      gaEvent("LastFM", "NowPlayingError-" + code);
+      GA.event(gaCategoryLastFm, "NowPlayingError-" + code);
     }
   });
 }
@@ -1485,16 +1494,16 @@ function updatedListener(details) {
       function notifOrBtnClicked(buttonIndex) {
         clearNotification(nid);
         if (buttonIndex == 1) {
-          gaEvent("Options", "welcome-toWiki");
+          GA.event(gaCategoryOptions, "welcome-toWiki");
           chromeTabs.create({ url: "http://goo.gl/9gEuI7" });
         } else {//button 0 or notification clicked
-          gaEvent("Options", "welcome-toOptions");
+          GA.event(gaCategoryOptions, "welcome-toOptions");
           openOptions();
         }
       }
       addNotificationListener("click", nid, notifOrBtnClicked);
       addNotificationListener("btnClick", nid, notifOrBtnClicked);
-      addNotificationListener("close", nid, function(byUser) { if (byUser) gaEvent("Options", "welcome-close"); });
+      addNotificationListener("close", nid, function(byUser) { if (byUser) GA.event(gaCategoryOptions, "welcome-close"); });
     });
   }
 }
@@ -1683,33 +1692,6 @@ function clearSleepTimer() {
 }
 //} timer handling
 
-//{ Google Analytics
-/** send an event to Google Analytics, if enabled */
-function gaEvent(category, eventName) {
-  if (settings.gaEnabled) ga("send", "event", category, eventName);
-}
-
-function gaEnabledChanged(val) {
-  if (val) {
-    settings.rl("gaEnabled", gaEnabledChanged);//init only once
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');//jshint ignore:line
-    ga("create", "UA-41499181-1", "auto");
-    ga("set", "checkProtocolTask", function(){});
-    ga("set", "dimension1", currentVersion);
-    ga("set", "dimension2", localSettings.lyrics.toString());
-    ga("set", "dimension3", isScrobblingEnabled().toString());
-    ga("set", "dimension4", settings.toast.toString());
-    ga("set", "dimension5", settings.layout);
-    ga("send", "pageview", {
-      "metric1": settings.scrobblePercent,
-      "metric2": settings.toastDuration
-    });
-  }
-}
-
-settings.w("gaEnabled", gaEnabledChanged);
-//} Google Analytics
-
 //{ context menu
 function updateContextMenuConnectedItem(cmds) {
   if (player.connected) {
@@ -1724,6 +1706,8 @@ function refreshContextMenu() {
     function createContextMenuEntry(id, title, cb, parentId, type, checked, enabled) {
       chromeContextMenus.create({ contexts: ["browser_action"], type: type || "normal", id: id, title: title, checked: checked, parentId: parentId, enabled: enabled }, cb);
     }
+    
+    if (localSettings.lastfmSessionKey) createContextMenuEntry("toggleScrobble", i18n("setting_scrobble"), null, null, "checkbox", settings.scrobble);
     
     if (player.connected) {
       var menuConnectedId = "menuConnected";
@@ -1805,6 +1789,9 @@ chromeContextMenus.onClicked.addListener(function(info) {
     case "stopTimer":
       clearSleepTimer();
       break;
+    case "toggleScrobble":
+      settings.scrobble = info.checked;
+      break;
     case "resumeLastSong":
     case "gotoGmusic":
       executeConnectAction(cmd);
@@ -1814,14 +1801,15 @@ chromeContextMenus.onClicked.addListener(function(info) {
   }
 });
 
-localSettings.w("timerEnd", refreshContextMenu);
-localSettings.al("lastfmSessionKey lyrics", function() {
+localSettings.w("lastfmSessionKey timerEnd", refreshContextMenu);
+localSettings.al("lyrics", function() {
   if (player.connected) refreshContextMenu();
 });
 settings.al("saveLastPosition", function() {
   if (!player.connected && !connecting) refreshContextMenu();
 });
 settings.al("favorites hideFavorites", refreshContextMenu);
+settings.al("scrobble", function(val) { chromeContextMenus.update("toggleScrobble", { checked: val }); });
 //} context menu
 
 //{ idle/locked handling
@@ -1941,7 +1929,7 @@ localSettings.al("lastfmSessionName", calcScrobbleTime);
 localSettings.al("lyrics lyricsFontSize lyricsWidth", postLyricsState);
 localSettings.w("notificationsEnabled", function(val, old) {
   if (val) initNotifications();
-  else if (old) gaEvent("Options", "notifications-disabled");
+  else if (old) GA.event(gaCategoryOptions, "notifications-disabled");
 });
 
 player.al("connected", function(val) {
@@ -2430,6 +2418,7 @@ exports.getCommandOptionText = function(cmd) {
       return getCommandText(cmd);
   }
 };
+exports.getGADimensions = getGADimensions;
   //} utility functions
 
   //{ lastfm functions
@@ -2459,7 +2448,7 @@ exports.getLastfmSession = function(token) {
       localSettings.lastfmSessionName = session.name;
       sendStatusChangedMessage(true);
       lastfm.session = session;
-      gaEvent("LastFM", "AuthorizeOK");
+      GA.event(gaCategoryLastFm, "AuthorizeOK");
       loadCurrentLastfmInfo();
       scrobbleCachedSongs();
     },
@@ -2467,7 +2456,7 @@ exports.getLastfmSession = function(token) {
       var title = i18n("lastfmConnectError");
       if (message) title += ": " + message;
       sendStatusChangedMessage(title);
-      gaEvent("LastFM", "AuthorizeError-" + code);
+      GA.event(gaCategoryLastFm, "AuthorizeError-" + code);
     }
   });
 };
@@ -2506,14 +2495,6 @@ exports.updateInfosViewed = function() {
   //{ timer handling
 exports.startSleepTimer = startSleepTimer;
 exports.clearSleepTimer = clearSleepTimer;
-  //}
-
-  //{ Google Analytics
-exports.gaEvent = gaEvent;
-/** send a social event to Google Analytics, if enabled */
-exports.gaSocial = function(network, action) {
-  if (settings.gaEnabled) ga("send", "social", network, action);
-};
   //}
 //} exports
 
