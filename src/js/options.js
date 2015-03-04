@@ -18,7 +18,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   var localSettings = bp.localSettings;
 
   /** Google analytics */
-  var GA = initGA(settings, context, bp.getGADimensions);
+  var GA = initGA(settings, context);
   
   /** request and store last.fm session info */
   function getLastfmSession(token) {

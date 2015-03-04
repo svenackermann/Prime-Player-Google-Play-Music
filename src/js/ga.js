@@ -9,15 +9,15 @@
 /* global ga */
 /* exported initGA */
 
-function initGA(settings, context, getGADimensions) {
+function initGA(settings, context, initDimensions, initMetrics) {
   
   /** send an event to Google Analytics, if enabled */
-  function gaEvent(category, eventName) {
+  function event(category, eventName) {
     if (settings.gaEnabled) ga("send", "event", category, eventName);
   }
 
   /** send a pageview to Google Analytics, if enabled */
-  function gaPageview(title) {
+  function pageview(title) {
     if (settings.gaEnabled) {
       ga("set", "title", title);
       ga("send", "pageview");
@@ -25,8 +25,24 @@ function initGA(settings, context, getGADimensions) {
   }
 
   /** send a social interaction to Google Analytics, if enabled */
-  function gaSocial(network, action, target) {
+  function social(network, action, target) {
     if (settings.gaEnabled) ga("send", "social", network, action, target);
+  }
+  
+  function setDimensions(dimensions) {
+    if (settings.gaEnabled && dimensions) {
+      dimensions.forEach(function(dim, i) {
+        ga("set", "dimension" + (i + 2), dim);
+      });
+    }
+  }
+  
+  function setMetrics(metrics) {
+    if (settings.gaEnabled && metrics) {
+      metrics.forEach(function(met, i) {
+        ga("set", "metric" + (i + 1), met);
+      });
+    }
   }
   
   function gaEnabledChanged(val) {
@@ -36,22 +52,22 @@ function initGA(settings, context, getGADimensions) {
       ga("create", "UA-41499181-1", "auto");
       ga("set", {
         checkProtocolTask: function(){},
-        metric1: settings.scrobblePercent.toString(),
-        metric2: settings.toastDuration.toString(),
+        dimension1: chrome.runtime.getManifest().version,
         page: "/primeplayer/" + context
       });
-      getGADimensions().forEach(function(dim, i) {
-        ga("set", "dimension" + (i + 1), dim);
-      });
-      gaPageview(context);
+      setDimensions(initDimensions);
+      setMetrics(initMetrics);
+      pageview(context);
     }
   }
 
   settings.w("gaEnabled", gaEnabledChanged, context);
   
   return {
-    event: gaEvent,
-    pageview: gaPageview,
-    social: gaSocial
+    event: event,
+    pageview: pageview,
+    social: social,
+    setDimensions: setDimensions,
+    setMetrics: setMetrics
   };
 }
