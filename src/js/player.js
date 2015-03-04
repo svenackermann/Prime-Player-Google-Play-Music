@@ -37,7 +37,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   var song = bp.song;
 
   /** Google analytics */
-  var GA = initGA(settings, typeClass, bp.getGADimensions);
+  var GA = initGA(settings, typeClass);
   
   settings.favorites.forEach(function(fav) {
     favoritesCache[fav.link] = true;

@@ -39,8 +39,6 @@ var chromeContextMenus = chrome.contextMenus;
 var chromeIdle = chrome.idle;
 var chromeOmnibox = chrome.omnibox;
 
-var currentVersion = chromeRuntime.getManifest().version;
-
 var gaCategoryLastFm = "LastFM";
 var gaCategoryOptions = "Options";
 
@@ -263,11 +261,6 @@ function isNewerVersion(version) {
   return version.length > prev.length;//version is longer (e.g. 1.0.1 > 1.0), else same version
 }
 
-function getGADimensions() {
-  return [currentVersion, localSettings.lyrics.toString(), isScrobblingEnabled().toString(), settings.toast.toString(), settings.layout];
-}
-var GA = initGA(settings, "bp", getGADimensions);
-
 function getQuicklinks() {
   var quicklinks = [
     "now",
@@ -343,6 +336,25 @@ function isThumbsRatingMode() {
   return localSettings.ratingMode == "thumbs";
 }
 //} utility functions
+
+//{ Google Analytics
+function getGADimensions() {
+  return [localSettings.lyrics.toString(), isScrobblingEnabled().toString(), settings.toast.toString(), settings.layout];
+}
+
+function getGAMetrics() {
+  return [settings.scrobblePercent.toString(), settings.toastDuration.toString()];
+}
+
+var GA = initGA(settings, "bp", getGADimensions(), getGAMetrics());
+
+function updateGADimensions() {
+  GA.setDimensions(getGADimensions());
+}
+localSettings.al("lyrics lastfmSessionKey", updateGADimensions);
+settings.al("scrobble toast layout", updateGADimensions);
+settings.al("scrobblePercent toastDuration", function() { GA.setMetrics(getGAMetrics()); });
+//} Google Analytics
 
 //{ lastfm functions
 /** @return true, if scrobbling is available, i.e. user is logged in and enabled scrobbling */
@@ -1472,7 +1484,7 @@ function updatedListener(details) {
   if (details.reason == "update") {
     if (settings.updateNotifier) {
       previousVersion = details.previousVersion;
-      if (isNewerVersion(currentVersion)) {
+      if (isNewerVersion(chromeRuntime.getManifest().version)) {
         localStorage.previousVersion = previousVersion;
         viewUpdateNotifier = true;
         localStorage.viewUpdateNotifier = viewUpdateNotifier;
@@ -2418,7 +2430,6 @@ exports.getCommandOptionText = function(cmd) {
       return getCommandText(cmd);
   }
 };
-exports.getGADimensions = getGADimensions;
   //} utility functions
 
   //{ lastfm functions

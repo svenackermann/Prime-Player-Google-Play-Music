@@ -17,7 +17,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   var localSettings = bp.localSettings;
 
   /** Google analytics */
-  var GA = initGA(settings, context, bp.getGADimensions);
+  var GA = initGA(settings, context);
 
   chrome.runtime.onMessage.addListener(function(msg) {
     if (msg.type == "lastfmStatusChanged") {
