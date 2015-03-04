@@ -6,7 +6,7 @@
  * @license BSD license
  */
 
-/* global ga */
+/* global ga, chrome */
 /* exported initGA */
 
 function initGA(settings, context, initDimensions, initMetrics) {
