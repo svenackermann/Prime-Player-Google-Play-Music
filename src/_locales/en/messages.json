@@ -801,6 +801,10 @@
     "message": "Width (in pixels) of lyrics panel in Google Music",
     "description": "label for option to change the width for the lyrics panel"
   },
+  "setting_skipSongSeconds": {
+    "message": "Change song after x seconds played (0=disabled)",
+    "description": "label for option to skip to next song after x seconds"
+  },
   "moreThanOneDay": {
     "message": "> 1 day",
     "description": "playlist duration info if list is longer than 1 day (will be appended to list name)"

@@ -97,6 +97,7 @@ var localSettings = new Bean({
   timerNotify: true,
   timerPreNotify: 0,
   timerEnd: null,
+  skipSongSeconds: 0,
   notificationsEnabled: true,
   ratingMode: null,
   quicklinks: {}
@@ -713,6 +714,10 @@ function resumeLastSong(lastSong) {
 /** Shortcut to call the play/pause command in Google Music. */
 function executePlayPause(resume) {
   executeInGoogleMusic("playPause", { resume: resume });
+}
+
+function skipSong() {
+  executeInGoogleMusic("nextSong");
 }
 //} content script post functions
 
@@ -1988,10 +1993,7 @@ song.al("position", function(position) {
     positionFromBackup = false;
 
     if (newPos == 2) {//new/resumed song, repeat single or rewinded -> reset some properties
-      if (settings.skipRatedLower && song.rating > 0 && song.rating <= settings.skipRatedLower) {
-        executeInGoogleMusic("nextSong");
-        return;
-      }
+      if (settings.skipRatedLower && song.rating > 0 && song.rating <= settings.skipRatedLower) skipSong();
       song.timestamp = null;
       song.nowPlayingSent = false;
       if (settings.scrobbleRepeated) {
@@ -1999,6 +2001,8 @@ song.al("position", function(position) {
         calcScrobbleTime();
       }
     } else if (newPos >= 3) {//information (song info, rating, position, ...) should be in sync from here
+      if (localSettings.skipSongSeconds && newPos >= localSettings.skipSongSeconds) skipSong();
+      
       if (isScrobblingEnabled()) {
         if (!song.timestamp) {//keep timestamp once it's set (here or from backup)
           song.timestamp = lastSongTimestamp || Math.round($.now() / 1000) - newPos;

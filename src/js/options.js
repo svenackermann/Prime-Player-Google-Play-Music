@@ -663,6 +663,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("pauseOnLock");
     initCheckbox("pauseOnIdle").unbind().prop("checked", settings.pauseOnIdleSec > 0).click(pauseOnIdleClicked);
     initNumberInput("pauseOnIdleSec", 15);
+    initNumberInput("skipSongSeconds", 0, null, localSettings);
     initNumberInput("googleAccountNo", 0, null, localSettings);
     initHint("googleAccountNo");
     initCheckbox("connectedIndicator");
