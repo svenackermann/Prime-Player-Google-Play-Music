@@ -1479,11 +1479,13 @@ function migrateSettings(previousVersion) {
   }
   
   //--- 3.0 ---
-  //set "songlyrics" as provider if lyrics were enabled before
-  if (previousVersion < 3.0 && localSettings.lyrics) {
-    lyricsProviders.songlyrics.checkPermission(function(hasPermission) {
+  if (previousVersion < 3.0) {
+    //set "songlyrics" as provider if lyrics were enabled before
+    if (localSettings.lyrics) lyricsProviders.songlyrics.checkPermission(function(hasPermission) {
       if (hasPermission) localSettings.lyricsProviders = ["songlyrics"];
     });
+    //fix skipRatedLower property that might have become a string
+    settings.skipRatedLower = parseInt(settings.skipRatedLower);
   }
 }
 

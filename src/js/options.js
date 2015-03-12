@@ -652,7 +652,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initCheckbox("saveLastPosition").click(saveLastPositionChanged);
     initCheckbox("hideFavorites");
     initHint("saveLastPosition");
-    var skipRatedLower = initSelect("skipRatedLower", [0, 1, 2, 3, 4]).change(function() { $("#_skipRatedThumbsDown").prop("checked", settings.skipRatedLower > 0); });
+    var skipRatedLower = initSelect("skipRatedLower", [0, 1, 2, 3, 4], null, numberUpdater).change(function() { $("#_skipRatedThumbsDown").prop("checked", settings.skipRatedLower > 0); });
     initCheckbox("skipRatedThumbsDown").unbind().prop("checked", settings.skipRatedLower > 0).click(function() {
        settings.skipRatedLower = $(this).prop("checked") ? 2 : 0;
        skipRatedLower.val(settings.skipRatedLower);
