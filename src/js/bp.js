@@ -100,7 +100,8 @@ var localSettings = new Bean({
   skipSongSeconds: 0,
   notificationsEnabled: true,
   ratingMode: null,
-  quicklinks: {}
+  quicklinks: {},
+  favorites: []
 }, true);
 //do not notify listeners, if not a real change (quicklinks are sent on each connect)
 localSettings.setEqualsFn("quicklinks", Bean.objectEquals);
@@ -181,8 +182,7 @@ var settings = new Bean({
   filterToast: true,
   filterMiniplayer: true,
   filterLyrics: true,
-  filterLookfeel: true,
-  favorites: []
+  filterLookfeel: true
 }, true);
 
 /** the song currently loaded */
@@ -1754,10 +1754,10 @@ function refreshContextMenu() {
     }
     
     if (!connecting) {
-      if (!settings.hideFavorites && settings.favorites.length) {
+      if (!settings.hideFavorites && localSettings.favorites.length) {
         var menuFavoritesId = "menuFavorites";
         createContextMenuEntry(menuFavoritesId, i18n("favorites"), function() {
-          settings.favorites.forEach(function(fav) {
+          localSettings.favorites.forEach(function(fav) {
             createContextMenuEntry("fav_" + fav.link, fav.title, null, menuFavoritesId);
           });
         });
@@ -1821,14 +1821,14 @@ chromeContextMenus.onClicked.addListener(function(info) {
   }
 });
 
-localSettings.w("lastfmSessionKey timerEnd", refreshContextMenu);
+localSettings.w("lastfmSessionKey favorites timerEnd", refreshContextMenu);
 localSettings.al("lyrics", function() {
   if (player.connected) refreshContextMenu();
 });
 settings.al("saveLastPosition", function() {
   if (!player.connected && !connecting) refreshContextMenu();
 });
-settings.al("favorites hideFavorites", refreshContextMenu);
+settings.al("hideFavorites", refreshContextMenu);
 settings.al("scrobble", function(val) { chromeContextMenus.update("toggleScrobble", { checked: val }); });
 //} context menu
 
@@ -2319,7 +2319,7 @@ chromeOmnibox.onInputChanged.addListener(function(text, suggest) {
     if (search) {
       var suggestions = [];
       var searchRegex = new RegExp(xmlEscape(search), "gi");
-      settings.favorites.forEach(function(fav) {
+      localSettings.favorites.forEach(function(fav) {
         var title = xmlEscape(fav.title);
         if (searchRegex.test(title)) suggestions.push({ content: i18n("ob_startsugg", title) + linkPrefix + fav.link, description: title.replace(searchRegex, "<match>$&</match>") });
       });

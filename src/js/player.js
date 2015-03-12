@@ -39,7 +39,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   /** Google analytics */
   var GA = initGA(settings, typeClass);
   
-  settings.favorites.forEach(function(fav) {
+  localSettings.favorites.forEach(function(fav) {
     favoritesCache[fav.link] = true;
   });
 
@@ -766,7 +766,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       }
     });
     
-    var favorites = settings.favorites;
+    var favorites = localSettings.favorites;
     
     $("#nav").on("click", ".fav", function() {
       var favElement = $(this);
@@ -788,7 +788,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         favoritesCache[link] = true;
       }
       updateFavoriteIconState(favElement, link, fav.title);
-      settings.favorites = favorites;//trigger listener notification
+      localSettings.favorites = favorites;//trigger listener notification
     });
     
     var dropSelector = ".sortable div";
@@ -814,7 +814,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
           var favorite = favorites[$(this).parent().index()];
           if (favorite.title != title) {
             favorite.title = title;
-            settings.favorites = favorites;//trigger listeners
+            localSettings.favorites = favorites;//trigger listeners
           } else resetFavoritesView();
         } else if (ev.type == "focusout") {
           this.done = true;
@@ -837,7 +837,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       var src = favorites.splice(srcIndex, 1)[0];
       if (srcIndex < destIndex) destIndex--;
       favorites.splice(destIndex, 0, src);
-      settings.favorites = favorites;//trigger listeners
+      localSettings.favorites = favorites;//trigger listeners
       return false;
     }).on("dragstart", dropSelector + "[draggable='true']", function(ev) {
       var dt = ev.originalEvent.dataTransfer;
@@ -1025,6 +1025,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     localSettings.w("lyricsFontSize", lyricsFontSizeWatcher, typeClass);
     localSettings.w("quicklinks", renderQuicklinks, typeClass);
     localSettings.w("ratingMode", ratingModeWatcher, typeClass);
+    localSettings.w("favorites", renderFavorites, typeClass);
     
     settings.w("scrobble", scrobbleWatcher, typeClass);
     settings.w("showLastfmInfo", showLastfmInfoWatcher, typeClass);
@@ -1036,7 +1037,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     settings.w("hideSearchfield", hideSearchfieldWatcher, typeClass);
     settings.al("saveLastPosition", saveLastPositionUpdated, typeClass);
     settings.w("hideFavorites", hideFavoritesWatcher, typeClass);
-    settings.w("favorites", renderFavorites, typeClass);
 
     player.w("repeat", repeatWatcher, typeClass);
     player.w("shuffle", shuffleWatcher, typeClass);
