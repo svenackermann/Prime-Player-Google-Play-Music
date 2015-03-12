@@ -205,9 +205,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     return $("<label>").attr("for", input.attr("id")).text(i18n("setting_" + input.parent().attr("id"))).insertAfter(input);
   }
   
-  function setIdAndAddItWithLabel(input, prop) {
+  function setIdAndAddItWithLabel(input, prop, synced) {
     input.attr("id", "_" + prop);
-    $("#" + prop).append(input);
+    $("#" + prop).toggleClass("synced", synced).append(input);
     return addLabel(input);
   }
   
@@ -221,7 +221,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     theSettings = theSettings || settings;
     var input = $("<input type='checkbox'>");
     input.prop("checked", theSettings[prop]).click(boolUpdater(prop, theSettings));
-    setIdAndAddItWithLabel(input, prop);
+    setIdAndAddItWithLabel(input, prop, theSettings == settings);
     return input;
   }
 
@@ -241,7 +241,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       if (($.isNumeric(min) && value < min) || ($.isNumeric(max) && value > max)) $(this).val(theSettings[prop]);
       else theSettings[prop] = value;
     });
-    setIdAndAddItWithLabel(input, prop);
+    setIdAndAddItWithLabel(input, prop, theSettings == settings);
     return input;
   }
 
@@ -261,7 +261,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("<option>").attr("value", value).text(getOptionText(value)).appendTo(input);
     });
     input.val(settings[prop]).change(updater(prop, settings));
-    setIdAndAddItWithLabel(input, prop);
+    setIdAndAddItWithLabel(input, prop, true);
     return input;
   }
   
@@ -285,7 +285,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function initColorInput(prop) {
     var input = $("<input type='color'>");
     input.val(settings[prop]).change(stringUpdater(prop, settings));
-    setIdAndAddItWithLabel(input, prop);
+    setIdAndAddItWithLabel(input, prop, true);
     return input;
   }
   
@@ -359,7 +359,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       div.data("provider", providerName);
       
       var checkbox = $("<input type='checkbox'>");
-      var label = setIdAndAddItWithLabel(checkbox, id);
+      var label = setIdAndAddItWithLabel(checkbox, id, false);
       var link = $("<a target='_blank'>").attr("href", provider.getHomepage()).text(provider.getUrl());
       label.html(link);
       
@@ -671,6 +671,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initHint("preventCommandRatingReset");
     initCheckbox("updateNotifier");
     initCheckbox("syncSettings", localSettings);
+    initHint("syncSettings");
     initCheckbox("gaEnabled");
     initHint("gaEnabled");
     
@@ -682,9 +683,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     localSettings.w("notificationsEnabled", notificationsEnabledChanged, context);
     //update timer
     localSettings.w("timerEnd", timerEndChanged, context);
-    localSettings.al("timerAction", function(val) {
-      $("#timerAction").val(val);
-    }, context);
+    localSettings.al("timerAction", function(val) { $("#timerAction").val(val); }, context);
     localSettings.al("timerMinutes", function(val) {
       $("#timerMin").val(val);
       updatePreNotifyMax();
@@ -692,6 +691,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     //Google account dependent options
     localSettings.w("ratingMode", ratingModeChanged, context);
     localSettings.w("quicklinks", quicklinksChanged, context);
+    localSettings.w("syncSettings", function(val) { $("body").toggleClass("syncenabled", val); }, context);
     
     //disable inputs if neccessary
     lyricsChanged();

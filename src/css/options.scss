@@ -19,6 +19,11 @@ body {
   box-shadow: 0 -2px 0 #1D6D6D;
 }
 
+.syncenabled .synced label:after {
+  content: "*";
+  padding-left: 1ex;
+}
+
 #settings {
   float: left;
   &.f-beg .adv, &.f-beg .exp, &.f-adv .exp {
@@ -79,6 +84,9 @@ body {
 
   img.hint {
     cursor: pointer;
+  }
+  .synced label:after {
+    float: right;
   }
 }
 

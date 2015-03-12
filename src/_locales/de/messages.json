@@ -342,6 +342,9 @@
   "setting_syncSettings": {
     "message": "Einstellungen mit Chrome sync synchronisieren"
   },
+  "setting_syncSettingsHint": {
+    "message": "Um dies zu nutzen, musst du mit deinem Google-Konto bei Chrome angemeldet sein und die Synchronisierung von Erweiterungen aktiviert haben. Aus verschiedenen Gr\u00FCnden k\u00F6nnen nicht alle Einstellungen synchronisiert werden, nur die mit einem * markierten werden synchronisiert. Beachte auch, dass die Einstellungen nur beim Starten von Prime Player (z.B. Installation, Update oder Chrome Start) bzw. wenn die Option aktiviert wird, geladen werden. Die Einstellungen werden aber bei jeder \u00c4nderung in deinem Google-Konto (zeitverz\u00F6gert) gespeichert."
+  },
   "setting_pauseOnLock": {
     "message": "Pausiere Musik, wenn der Computer gesperrt wird (fortsetzen bei Entsperren)"
   },

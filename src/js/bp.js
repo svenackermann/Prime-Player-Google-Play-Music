@@ -108,6 +108,7 @@ localSettings.setEqualsFn("quicklinks", Bean.objectEquals);
 
 /** settings that should be synced with Chrome sync if enabled */
 var settings = new Bean({
+  //{ lastfm
   scrobble: true,
   scrobblePercent: 50,
   scrobbleTime: 240,
@@ -118,9 +119,9 @@ var settings = new Bean({
   linkRatingsGpm: false,
   linkRatingsAuto: false,
   linkRatingsMin: 5,
-  showLovedIndicator: false,
-  showScrobbledIndicator: true,
   showLastfmInfo: false,
+  //}
+  //{ toast
   toast: true,
   toastDuration: 0,
   toastIfMpOpen: false,
@@ -133,6 +134,8 @@ var settings = new Bean({
   toastClick: "",
   toastButton1: "nextSong",
   toastButton2: "playPause",
+  //}
+  //{ miniplayer
   miniplayerType: "popup",
   layout: "normal",
   color: "turq",
@@ -147,13 +150,19 @@ var settings = new Bean({
   mpAutoOpen: false,
   mpAutoClose: false,
   mpCloseGm: false,
-  openLyricsInMiniplayer: true,
+  //}
+  //{ lyrics
   lyricsAutoNext: false,
-  lyricsInGpm: false,
+  openLyricsInMiniplayer: true,
   lyricsAutoReload: false,
+  lyricsInGpm: false,
+  //}
+  //{ look & feel
   iconStyle: "default",
   showPlayingIndicator: true,
   showRatingIndicator: false,
+  showLovedIndicator: false,
+  showScrobbledIndicator: true,
   showProgress: false,
   showProgressColor: "#ff0000",
   showProgressColorPaused: "#800000",
@@ -176,6 +185,8 @@ var settings = new Bean({
   preventCommandRatingReset: true,
   updateNotifier: true,
   gaEnabled: true,
+  //}
+  //{ filter
   optionsMode: "beg",
   filterTimer: true,
   filterLastfm: true,
@@ -183,6 +194,7 @@ var settings = new Bean({
   filterMiniplayer: true,
   filterLyrics: true,
   filterLookfeel: true
+  //}
 }, true);
 
 /** the song currently loaded */

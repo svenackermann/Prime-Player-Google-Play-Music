@@ -456,6 +456,10 @@
     "message": "Sync settings with Chrome sync",
     "description": "label for option to sync settings"
   },
+  "setting_syncSettingsHint": {
+    "message": "To use this, you must be logged in to Chrome with your Google account and have synchronisation of extensions enabled. For different reasons not all settings can be synchronized, only settings marked with a * will be. Also note that the settings will be loaded from your account only during startup of Prime Player (e.g. on install, update or Chrome start) and when you enable the option, but are saved (with a short delay) to your account whenever you change them.",
+    "description": "hint for option to sync settings"
+  },
   "setting_pauseOnLock": {
     "message": "Pause music when computer is locked (resume on unlock)",
     "description": "label for option to pause on lock"
