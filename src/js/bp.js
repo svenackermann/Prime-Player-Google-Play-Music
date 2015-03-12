@@ -233,6 +233,11 @@ lastfm.unavailableMessage = i18n("lastfmUnavailable");
 //}
 
 //{ utility functions
+/** check chrome.runtime.lastError to avoid error message in the console */
+function ignoreLastError() {
+  if (chrome.runtime.lastError) $.noop();
+}
+
 /** @return time in seconds that a time string represents (e.g. 4:23 -> 263) */
 function parseSeconds(time) {
   if (typeof(time) != "string") return 0;
@@ -1946,7 +1951,7 @@ function lastSongInfoChanged() {
       updateBrowserActionInfo();
       iconClickSettingsChanged();
     }
-    chromeContextMenus.update("resumeLastSong", { enabled: isCommandAvailable("resumeLastSong"), title: getCommandText("resumeLastSong") });
+    chromeContextMenus.update("resumeLastSong", { enabled: isCommandAvailable("resumeLastSong"), title: getCommandText("resumeLastSong") }, ignoreLastError);
   }
 }
 settings.w("saveLastPosition", function(val) {

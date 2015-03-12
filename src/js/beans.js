@@ -20,6 +20,7 @@ function Bean(defaults, useLocalStorage) {
   var useSyncStorage = false;
   var saveSyncStorageTimer;
   var that = this;
+  var chromeStorageSync = chrome.storage.sync;
   
   /**
    * Adds a listener function for the given (space separated) properties.
@@ -90,14 +91,14 @@ function Bean(defaults, useLocalStorage) {
   
   /** Load properties from synced storage, call cb when done. */
   function loadSyncStorage(cb) {
-    chrome.storage.sync.get(null, function(items) {
+    chromeStorageSync.get(null, function(items) {
       var error = chrome.runtime.lastError;
       if (error) {
         console.warn("Could not load settings: " + error.message);
-        setTimeout(loadSyncStorage, 30000);//try again in 30s
+        setTimeout(function() { loadSyncStorage(cb); }, 30000);//try again in 30s
       } else {
         for (var prop in items) {
-          that[prop] = items[prop];
+          if (defaults.hasOwnProperty(prop)) that[prop] = items[prop];
         }
         if ($.isFunction(cb)) cb();
       }
@@ -108,7 +109,7 @@ function Bean(defaults, useLocalStorage) {
   function saveSyncStorage() {
     clearTimeout(saveSyncStorageTimer);
     saveSyncStorageTimer = setTimeout(function() {
-      chrome.storage.sync.set(cache, function() {
+      chromeStorageSync.set(cache, function() {
         var error = chrome.runtime.lastError;
         if (error) {
           console.warn("Could not store settings: " + error.message);
@@ -123,11 +124,8 @@ function Bean(defaults, useLocalStorage) {
    * If true, the callback will be called after loading the settings.
    */
   this.setSyncStorage = function(syncStorage, syncedCallback) {
-    if (syncStorage) {
-      loadSyncStorage(syncedCallback);
-    } else {
-      clearTimeout(saveSyncStorageTimer);
-    }
+    if (syncStorage) loadSyncStorage(syncedCallback);
+    else clearTimeout(saveSyncStorageTimer);
     useSyncStorage = syncStorage;
   };
   
@@ -142,7 +140,7 @@ function Bean(defaults, useLocalStorage) {
     }
     if (useSyncStorage) {
       clearTimeout(saveSyncStorageTimer);
-      chrome.storage.sync.clear();
+      chromeStorageSync.clear();
     }
   };
   
