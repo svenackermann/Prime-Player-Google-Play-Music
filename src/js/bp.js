@@ -1437,12 +1437,6 @@ function iconClickSettingsChanged() {
 function migrateSettings(previousVersion) {
   function isTrue(setting) { return setting == "btrue"; }
   
-  //--- 1.5 ---
-  //notification type is no longer supported
-  if (settings.miniplayerType == "notification") {
-    settings.miniplayerType = "popup";
-  }
-  
   //--- 2.15 ---
   //if "open miniplayer" or "play/pause" was set as click action, keep it in click action 0
   var icmp = localStorage.iconClickMiniplayer;
