@@ -23,7 +23,7 @@ var paths = {
   js_single: ["src/js/cs.js", "src/js/cs-*.js", "src/js/ga.js", "src/js/injected.js", "src/js/options.js", "src/js/player.js", "src/js/updateNotifier.js"],
   scss: ["src/css/*.scss", "!src/css/layouts.scss"],
   scss_all: "src/css/*.*",
-  other: ["src/img/**/*.*", "src/**/*.json", "src/**/*.html", "src/js/jquery-2.0.2.min.js"],
+  other: ["src/img/**/*.*", "src/**/*.json", "src/**/*.html", "src/js/jquery-2.1.3.min.js"],
   dest: "build/",
   dest_js: "build/js/",
   dest_css: "build/css/",

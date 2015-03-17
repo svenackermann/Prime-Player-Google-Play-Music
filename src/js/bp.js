@@ -1297,7 +1297,7 @@ function connectGoogleMusicTabs() {
   chromeTabs.query({url:"*://play.google.com/music/listen*"}, function(tabs) {
     tabs.forEach(function(tab) {
       chromeTabs.insertCSS(tab.id, {file: "css/gpm.css"});
-      chromeTabs.executeScript(tab.id, {file: "js/jquery-2.0.2.min.js"});
+      chromeTabs.executeScript(tab.id, {file: "js/jquery-2.1.3.min.js"});
       chromeTabs.executeScript(tab.id, {file: "js/cs.js"});
     });
   });
