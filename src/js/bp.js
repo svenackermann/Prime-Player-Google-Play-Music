@@ -18,7 +18,7 @@ var optionsTabId = null;
 var previousVersion = localStorage.previousVersion;
 
 function fixForUri(string) {
-  return encodeURIComponent($.trim(string)).replace(/[%20]+/g, "+");
+  return encodeURIComponent($.trim(string)).replace(/(%20)+/g, "+");
 }
 //} global public declarations
 

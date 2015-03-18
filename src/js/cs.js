@@ -34,7 +34,7 @@ $(function() {
   
   /** @return converted text (e.g. from artist name) that is usable in the URL hash */
   function forHash(text) {
-    return encodeURIComponent($.trim(text)).replace(/[%20]+/g, "+");
+    return encodeURIComponent($.trim(text)).replace(/(%20)+/g, "+");
   }
   
   /** @return link (for hash) constructed from attributes data-type and data-id */
