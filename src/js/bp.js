@@ -1931,7 +1931,7 @@ settings.w("showRatingIndicator", function(val) {
 });
 
 function saveLastSongInfo(info) {
-  if (googlemusicport) {//if info is null but we are still connected (playlist finished), clear the lastSong storage
+  if (settings.saveLastPosition && googlemusicport) {//if info is null but we are still connected (playlist finished), clear the lastSong storage
     chromeLocalStorage.set({ lastSong: info, lastPosition: song.position, rating: song.rating });
     lastSongInfo = info; 
   }
@@ -1959,7 +1959,7 @@ function lastSongInfoChanged() {
   }
 }
 settings.w("saveLastPosition", function(val) {
-  song.wrl("info", saveLastSongInfo, val);
+  saveLastSongInfo(song.info);
   song.arl("position", saveLastSongPosition, val);
   song.arl("rating", saveLastSongRating, val);
   song.wrl("scrobbled", saveLastSongScrobbled, val);
@@ -2013,7 +2013,7 @@ song.al("position", function(position) {
     if (!positionFromBackup && !song.ff && newPos > oldPos + 5) {
       song.ff = true;
       if (settings.disableScrobbleOnFf && !song.scrobbled) song.scrobbleTime = -1;
-    } else if (song.ff && newPos <= 5) {//prev pressed or gone back
+    } else if (song.ff && newPos <= 5 && !lastSongPositionSec) {//prev pressed or gone back
       song.ff = false;
       if (settings.disableScrobbleOnFf) calcScrobbleTime();
     }
@@ -2096,6 +2096,8 @@ song.al("info", function(info, old) {
     }
     if (!settings.hideRatings || settings.showLastfmInfo) loadCurrentLastfmInfo();
   } else closeToast();
+  
+  saveLastSongInfo(info);
   
   updateBrowserActionInfo();
   calcScrobbleTime();
