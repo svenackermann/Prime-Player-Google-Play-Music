@@ -105,6 +105,7 @@ gulp.task("zip", function() {
           if (war[i].search(/\.map\b/) > 0) war.splice(i, 1);
           else i++;
         }
+        delete json.key;
       }
       return json;
     }))

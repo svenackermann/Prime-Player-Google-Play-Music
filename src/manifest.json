@@ -121,5 +121,6 @@
       "description": "__MSG_command_openLyrics__"
     }
   },
-  "omnibox": { "keyword" : "pp" }
+  "omnibox": { "keyword" : "pp" },
+  "key": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCtBwmcNVs4EF/5EHOstfl3X21yzBIc9iD4MhH+hPg6zklXXEMnzuz19jGBRxtbjBAQOaM5MnKqBREeQmceLRbILQuC6mwpiGjeja17pFaSWhPXws87k/wgAia1vZ18aQY7LAPloeFrNmki1/gf2IpsKBwJ/0TD+EVIy6p9ilr8SQIDAQAC"
 }
