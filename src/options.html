@@ -17,10 +17,10 @@
   <div id="settings">
     <fieldset class="timer">
       <legend id="legendTimer"></legend>
-      <div class="v-2.20" id="timerMinutes"></div><div id="timerStatus"></div>
-      <div class="v-2.20 adv notif" id="timerNotify"></div>
-      <div class="v-2.22 adv notif" id="timerPreNotify"></div>
-      <div class="v-2.20" id="timerAction"></div>
+      <div class="v-2.20 local i-n" id="timerMinutes" data-min="1"></div><div id="timerStatus"></div>
+      <div class="v-2.20 adv notif local i-c" id="timerNotify"></div>
+      <div class="v-2.22 adv notif local i-n" id="timerPreNotify" data-min="0"></div>
+      <div class="v-2.20 local i-s" id="timerAction" data-options="pause,closeGm"></div>
       <button id="startTimer"></button>
       <button id="stopTimer"></button>
     </fieldset>
@@ -34,66 +34,66 @@
         <img class="success" src="img/check.png">
         <img class="failure" src="img/cross.png">
       </div>
-      <div id="scrobble"></div>
+      <div class="i-c" id="scrobble"></div>
       <div class="sub synced" id="scrobblePercent">
         <input id="_scrobblePercent" type="range" min="1" max="100" step="1"/>
         (<span></span>%)
       </div>
-      <div class="sub exp" id="scrobbleTime"></div>
-      <div class="sub exp" id="scrobbleMaxDuration"></div>
-      <div class="sub v-1.2 adv" id="disableScrobbleOnFf"></div>
-      <div class="sub v-2.15 exp" id="scrobbleRepeated"></div>
-      <div class="v-1.2 adv" id="linkRatings"></div>
-      <div class="sub v-2.26 exp stars" id="linkRatingsMin"></div>
-      <div class="sub v-2.24 adv" id="linkRatingsGpm"></div>
-      <div class="sub v-2.24 adv" id="linkRatingsAuto"></div>
-      <div class="v-2.17 miniplayer" id="showLastfmInfo"></div>
+      <div class="sub exp i-n" id="scrobbleTime" data-min="0"></div>
+      <div class="sub exp i-n" id="scrobbleMaxDuration" data-min="0"></div>
+      <div class="sub v-1.2 adv i-c i-h" id="disableScrobbleOnFf"></div>
+      <div class="sub v-2.15 exp i-c" id="scrobbleRepeated"></div>
+      <div class="v-1.2 adv i-c i-h" id="linkRatings"></div>
+      <div class="sub v-2.26 exp stars i-n" id="linkRatingsMin" data-min="2" data-max="5"></div>
+      <div class="sub v-2.24 adv i-c" id="linkRatingsGpm"></div>
+      <div class="sub v-2.24 adv i-c i-h" id="linkRatingsAuto"></div>
+      <div class="v-2.17 miniplayer i-c" id="showLastfmInfo"></div>
     </fieldset>
     <fieldset class="toast">
       <legend id="legendToast"></legend>
       <div id="notificationDisabledWarning"></div>
-      <div id="toast"></div>
-      <div class="sub v-2.18" id="toastDuration"></div>
-      <div class="sub v-2.6 exp miniplayer" id="toastIfMpOpen"></div>
-      <div class="sub2 v-2.27 exp miniplayer" id="toastIfMpMinimized"></div>
-      <div class="sub v-2.26 exp" id="toastNotIfGmActive"></div>
-      <div class="sub v-1.6 exp" id="toastUseMpStyle"></div>
-      <div class="sub2 exp v-2.24 notif" id="toastPriority"></div>
-      <div class="sub2 v-2.24 adv notif" id="toastProgress"></div>
-      <div class="sub2 v-2.25 adv notif" id="toastRating"></div>
-      <div class="sub2 v-2.8 adv notif" id="toastClick"></div>
-      <div class="sub2 v-2.8 adv notif" id="toastButton1"></div>
-      <div class="sub2 v-2.8 adv notif" id="toastButton2"></div>
+      <div id="toast i-c i-h"></div>
+      <div class="sub v-2.18 i-n i-h" id="toastDuration" data-min="0"></div>
+      <div class="sub v-2.6 exp miniplayer i-c" id="toastIfMpOpen"></div>
+      <div class="sub2 v-2.27 exp miniplayer i-c" id="toastIfMpMinimized"></div>
+      <div class="sub v-2.26 exp i-c" id="toastNotIfGmActive"></div>
+      <div class="sub v-1.6 exp i-c i-h" id="toastUseMpStyle"></div>
+      <div class="sub2 exp v-2.24 notif i-s" id="toastPriority" data-options="1,2,3" data-type="n"></div>
+      <div class="sub2 v-2.24 adv notif i-c" id="toastProgress"></div>
+      <div class="sub2 v-2.25 adv notif i-c" id="toastRating"></div>
+      <div class="sub2 v-2.8 adv notif i-s" id="toastClick" data-options=",playPause,prevSong,nextSong,ff,openMiniplayer:miniplayer,volumeUp,volumeDown,volumeMute,toggleRepeat,toggleShuffle,loveUnloveSong:lastfm,rate-1,rate-2:stars,rate-3:stars,rate-4:stars,rate-5,feelingLucky,openLyrics:lyrics" data-getoptionstext="commandOptionText"></div>
+      <div class="sub2 v-2.8 adv notif i-sf" id="toastButton1" data-from="toastClick"></div>
+      <div class="sub2 v-2.8 adv notif i-sf" id="toastButton2" data-from="toastClick"></div>
     </fieldset>
     <fieldset class="miniplayer">
       <legend id="legendMiniplayer"></legend>
-      <div class="exp" id="miniplayerType"></div>
-      <div id="layout"></div>
-      <div id="color"></div>
-      <div class="v-2.19 adv" id="mpBgColor"></div>
-      <div class="v-2.19 adv" id="mpTextColor"></div>
-      <div class="v-2.26 adv" id="coverClickLink"></div>
-      <div class="v-2.26 adv" id="titleClickLink"></div>
-      <div class="v-2.0 exp" id="openLinksInMiniplayer"></div>
-      <div class="v-2.1 adv" id="hideSearchfield"></div>
-      <div class="v-1.11 exp" id="hideRatings"></div>
-      <div class="v-2.0 exp" id="omitUnknownAlbums"></div>
-      <div class="v-2.2 adv" id="mpAutoOpen"></div>
-      <div class="v-2.2 adv" id="mpAutoClose"></div>
-      <div class="v-2.15 adv" id="mpCloseGm"></div>
+      <div class="exp i-s i-h" id="miniplayerType" data-options="normal,popup,panel,detached_panel"></div>
+      <div class="i-s i-h" id="layout" data-options="normal,compact1,compact2,hbar"></div>
+      <div class="i-s" id="color" data-options="turq,green,red,blue,black,orange"></div>
+      <div class="v-2.19 adv i-co" id="mpBgColor"></div>
+      <div class="v-2.19 adv i-co" id="mpTextColor"></div>
+      <div class="v-2.26 adv i-s" id="coverClickLink"></div>
+      <div class="v-2.26 adv i-s" id="titleClickLink"></div>
+      <div class="v-2.0 exp i-c i-h" id="openLinksInMiniplayer"></div>
+      <div class="v-2.1 adv i-c" id="hideSearchfield"></div>
+      <div class="v-1.11 exp i-c" id="hideRatings"></div>
+      <div class="v-2.0 exp i-c i-h" id="omitUnknownAlbums"></div>
+      <div class="v-2.2 adv i-c" id="mpAutoOpen"></div>
+      <div class="v-2.2 adv i-c" id="mpAutoClose"></div>
+      <div class="v-2.15 adv i-c" id="mpCloseGm"></div>
     </fieldset>
     <fieldset class="lyrics">
       <legend id="legendLyrics"></legend>
       <div class="lyrics-providers v-3.0" id="lyrics_songlyrics"></div>
       <div class="lyrics-providers v-3.0" id="lyrics_lyricswikia"></div>
       <div class="lyrics-providers v-3.0" id="lyrics_musixmatch"></div>
-      <div class="sub v-3.0 adv" id="lyricsAutoNext"></div>
-      <div class="v-2.8" id="lyrics"></div>
-      <div class="sub v-2.8 exp miniplayer" id="openLyricsInMiniplayer"></div>
-      <div class="sub v-2.10 adv" id="lyricsAutoReload"></div>
-      <div class="sub v-2.10 adv" id="lyricsFontSize"></div>
-      <div class="sub v-2.9" id="lyricsInGpm"></div>
-      <div class="sub2 v-2.10 adv" id="lyricsWidth"></div>
+      <div class="sub v-3.0 adv i-c" id="lyricsAutoNext"></div>
+      <div class="v-2.8 i-c local" id="lyrics"></div>
+      <div class="sub v-2.8 exp miniplayer i-c i-h" id="openLyricsInMiniplayer"></div>
+      <div class="sub v-2.10 adv i-c" id="lyricsAutoReload"></div>
+      <div class="sub v-2.10 adv local i-n" id="lyricsFontSize" data-min="1"></div>
+      <div class="sub v-2.9 i-c" id="lyricsInGpm"></div>
+      <div class="sub2 v-2.10 adv local i-n" id="lyricsWidth" data-min="50"></div>
     </fieldset>
     <fieldset class="lookfeel">
       <legend id="legendLookfeel"></legend>
@@ -101,41 +101,41 @@
         <a tabindex="0" id="shortcutsLink"></a>
       </div>
       <div class="v-2.11 synced" id="iconStyle"></div>
-      <div class="v-2.11" id="showPlayingIndicator"></div>
-      <div class="v-2.11" id="showRatingIndicator"></div>
-      <div class="v-2.11 lastfm" id="showLovedIndicator"></div>
-      <div class="v-2.11 lastfm" id="showScrobbledIndicator"></div>
-      <div class="v-2.21" id="showProgress"></div>
-      <div class="v-2.21 adv sub" id="showProgressColor"></div>
-      <div class="v-2.28 adv sub" id="showProgressColorPaused"></div>
+      <div class="v-2.11 i-c" id="showPlayingIndicator"></div>
+      <div class="v-2.11 i-c" id="showRatingIndicator"></div>
+      <div class="v-2.11 lastfm i-c" id="showLovedIndicator"></div>
+      <div class="v-2.11 lastfm i-c" id="showScrobbledIndicator"></div>
+      <div class="v-2.21 i-c" id="showProgress"></div>
+      <div class="v-2.21 adv sub i-co" id="showProgressColor"></div>
+      <div class="v-2.28 adv sub i-co" id="showProgressColorPaused"></div>
       <fieldset class="adv">
         <legend id="legendIc"></legend>
-        <div class="v-2.28" id="iconClickConnectAction"></div>
+        <div class="v-2.28 i-s" id="iconClickConnectAction" data-options=",feelingLucky,resumeLastSong,gotoGmusic,openMiniplayer" data-getoptionstext="connectActionText"></div>
         <h3 id="iconClickActionTitle"></h3>
-        <div class="v-2.15 sub" id="iconClickAction0"></div>
-        <div class="v-2.15 sub" id="iconClickAction1"></div>
-        <div class="v-2.15 sub" id="iconClickAction2"></div>
-        <div class="v-2.15 sub" id="iconClickAction3"></div>
-        <div class="v-2.15 sub" id="iconDoubleClickTime"></div>
-        <div class="v-2.28 exp" id="iconShowAction"></div>
+        <div class="v-2.15 sub i-sf" id="iconClickAction0" data-from="toastClick"></div>
+        <div class="v-2.15 sub i-sf" id="iconClickAction1" data-from="toastClick"></div>
+        <div class="v-2.15 sub i-sf" id="iconClickAction2" data-from="toastClick"></div>
+        <div class="v-2.15 sub i-sf" id="iconClickAction3" data-from="toastClick"></div>
+        <div class="v-2.15 sub i-n i-h" id="iconDoubleClickTime" data-min="0" data-max="1000"></div>
+        <div class="v-2.28 exp i-c" id="iconShowAction"></div>
       </fieldset>
-      <div class="v-2.13" id="saveLastPosition"></div>
-      <div class="v-3.0 adv" id="hideFavorites"></div>
-      <div class="v-2.19 adv stars" id="skipRatedLower"></div>
-      <div class="v-2.26 adv thumbsOnly" id="skipRatedThumbsDown"></div>
-      <div class="v-1.1 exp" id="openGoogleMusicPinned"></div>
-      <div class="v-2.26 exp" id="openGmBackground"></div>
-      <div class="v-2.26 adv" id="startupAction"></div>
-      <div class="v-3.0 adv" id="pauseOnLock"></div>
-      <div class="v-3.0 adv" id="pauseOnIdle"></div>
-      <div class="v-3.0 adv sub" id="pauseOnIdleSec"></div>
-      <div class="v-3.0 exp" id="skipSongSeconds"></div>
-      <div class="v-2.14 exp" id="googleAccountNo"></div>
-      <div class="v-2.0 exp" id="connectedIndicator"></div>
-      <div class="v-2.7.1 exp" id="preventCommandRatingReset"></div>
-      <div class="v-1.1 adv" id="updateNotifier"></div>
-      <div class="v-1.4 adv" id="syncSettings"></div>
-      <div class="exp" id="gaEnabled"></div>
+      <div class="v-2.13 i-c i-h" id="saveLastPosition"></div>
+      <div class="v-3.0 adv i-c" id="hideFavorites"></div>
+      <div class="v-2.19 adv stars i-s" id="skipRatedLower" data-options="0,1,2,3,4" data-type="n"></div>
+      <div class="v-2.26 adv thumbsOnly i-c" id="skipRatedThumbsDown"></div>
+      <div class="v-1.1 exp i-c" id="openGoogleMusicPinned"></div>
+      <div class="v-2.26 exp i-c" id="openGmBackground"></div>
+      <div class="v-2.26 adv i-sf" id="startupAction" data-from="iconClickConnectAction"></div>
+      <div class="v-3.0 adv i-c" id="pauseOnLock"></div>
+      <div class="v-3.0 adv i-c" id="pauseOnIdle"></div>
+      <div class="v-3.0 adv sub i-n" id="pauseOnIdleSec" data-min="15"></div>
+      <div class="v-3.0 exp local i-n" id="skipSongSeconds" data-min="0"></div>
+      <div class="v-2.14 exp local i-n i-h" id="googleAccountNo" data-min="0"></div>
+      <div class="v-2.0 exp i-c" id="connectedIndicator"></div>
+      <div class="v-2.7.1 exp i-c i-h" id="preventCommandRatingReset"></div>
+      <div class="v-1.1 adv i-c" id="updateNotifier"></div>
+      <div class="v-1.4 adv local i-c i-h" id="syncSettings"></div>
+      <div class="exp i-c i-h" id="gaEnabled"></div>
     </fieldset>
     <button id="resetSettings"></button>
   </div>
@@ -143,7 +143,17 @@
     <div id="filter" class="v-2.23">
       <h2>Filter</h2>
       <p></p>
-      <div id="optionsMode"></div>
+      <div id="optionsMode" class="i-s" data-options="bge,adv,exp"></div>
+      <div>
+        <div class="i-c" id="filterTimer"></div>
+        <div class="i-c" id="filterLastfm"></div>
+        <div class="i-c" id="filterToast"></div>
+      </div>
+      <div>
+        <div class="i-c" id="filterMiniplayer"></div>
+        <div class="i-c" id="filterLyrics"></div>
+        <div class="i-c" id="filterLookfeel"></div>
+      </div>
     </div>
     <div id="credits">
       <h2>Credits</h2>
