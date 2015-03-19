@@ -231,9 +231,16 @@ div {
   }
 }
 
+#timerMinutes {
+  float: left;
+}
+
 #timerStatus {
-  margin-left: 15ex;
+  float: right;
   font-weight: bold;
+  + * {
+    clear: left;
+  }
 }
 
 #iconStyle img {

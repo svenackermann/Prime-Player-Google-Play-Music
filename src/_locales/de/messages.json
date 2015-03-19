@@ -706,22 +706,22 @@
   "configShortcuts": {
     "message": "Tastaturk\u00FCrzel"
   },
-  "timerMinutes": {
+  "setting_timerMinutes": {
     "message": "Minuten f\u00FCr Countdown"
   },
-  "timerNotify": {
+  "setting_timerNotify": {
     "message": "Bei Ablauf benachrichtigen"
   },
-  "timerPreNotify": {
+  "setting_timerPreNotify": {
     "message": "Sekunden vor Ablauf warnen (0=nicht warnen)"
   },
-  "timerAction": {
+  "setting_timerAction": {
     "message": "Aktion bei Ablauf"
   },
-  "timerAction_closeGm": {
+  "setting_timerAction_closeGm": {
     "message": "Google Music schlie\u00DFen"
   },
-  "timerAction_pause": {
+  "setting_timerAction_pause": {
     "message": "Musik pausieren"
   },
   "startTimer": {

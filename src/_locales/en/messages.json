@@ -938,27 +938,27 @@
     "message": "Keyboard shortcuts",
     "description": "text for link to open the keyboard shortcuts settings"
   },
-  "timerMinutes": {
+  "setting_timerMinutes": {
     "message": "Countdown minutes",
     "description": "label for timer minutes setting"
   },
-  "timerNotify": {
+  "setting_timerNotify": {
     "message": "Notify on timeout",
     "description": "label for timer notification setting"
   },
-  "timerPreNotify": {
+  "setting_timerPreNotify": {
     "message": "seconds to warn before before timeout (0=do not warn)",
     "description": "label for timer warning setting"
   },
-  "timerAction": {
+  "setting_timerAction": {
     "message": "Action on timeout",
     "description": "label for timer action setting"
   },
-  "timerAction_closeGm": {
+  "setting_timerAction_closeGm": {
     "message": "Close Google Music",
     "description": "label for timer action option to close Google Music"
   },
-  "timerAction_pause": {
+  "setting_timerAction_pause": {
     "message": "Pause music",
     "description": "label for timer action option to pause music"
   },

@@ -1791,7 +1791,7 @@ function refreshContextMenu() {
         createContextMenuEntry(startTimer, i18n("startTimerMenu"), function() {
           //we do not have to listen for changes on localSettings.timerAction, because if it is changed on options page, the timer gets started immediately and thus the menu is rebuilt anyway
           ["pause", "closeGm"].forEach(function(action) {
-            createContextMenuEntry("timerAction_" + action, i18n("timerAction_" + action), null, startTimer, "radio", localSettings.timerAction == action);
+            createContextMenuEntry("timerAction_" + action, i18n("setting_timerAction_" + action), null, startTimer, "radio", localSettings.timerAction == action);
           });
           
           [5, 10, 30, 60, 120, 180, 240, 360, 600].forEach(function(min) {

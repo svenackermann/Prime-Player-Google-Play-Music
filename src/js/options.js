@@ -129,7 +129,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function updateTimerStatus(timerEnd) {
     var countdown = Math.floor((timerEnd || 0) - ($.now() / 1000));
     if (countdown > 0) {
-      $("#timerStatus").text(i18n("timerAction_" + localSettings.timerAction) + " in " + bp.toTimeString(countdown));
+      $("#timerStatus").text(i18n("setting_timerAction_" + localSettings.timerAction) + " in " + bp.toTimeString(countdown));
     } else {
       $("#timerStatus").empty();
       clearInterval(countdownInterval);
@@ -142,7 +142,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       countdownInterval = setInterval(updateTimerStatus.bind(window, timerEnd), 1000);
     }
     updateTimerStatus(timerEnd);
-    $("#startTimer, #timerMin, #timerNotify, #timerPreNotify, #timerAction").prop("disabled", timerEnd !== 0);
+    $("#startTimer, #_timerMinutes, #_timerNotify, #_timerPreNotify, #_timerAction").prop("disabled", timerEnd !== 0);
     $("#stopTimer").prop("disabled", !timerEnd);
   }
   
@@ -251,16 +251,18 @@ chrome.runtime.getBackgroundPage(function(bp) {
    * @param values array with the values for the options
    * @param getOptionText function that takes the option's value as argument and returns the label for the option, the default i18n key for option "<opt>" is "setting_" + prop + "_<opt>"
    * @param updater a custom updater for the option's value, defaults to "stringUpdater"
+   * @param theSettings the settings object, defaults to settings
    * @return the select input element
    */
-  function initSelect(prop, values, getOptionText, updater) {
+  function initSelect(prop, values, getOptionText, updater, theSettings) {
     getOptionText = getOptionText || function(val) {return i18n("setting_" + prop + "_" + val);};
     updater = updater || stringUpdater;
+    theSettings = theSettings || settings; 
     var input = $("<select>");
     values.forEach(function(value) {
       $("<option>").attr("value", value).text(getOptionText(value)).appendTo(input);
     });
-    input.val(settings[prop]).change(updater(prop, settings));
+    input.val(theSettings[prop]).change(updater(prop, theSettings));
     setIdAndAddItWithLabel(input, prop, true);
     return input;
   }
@@ -432,28 +434,25 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
   
   function updatePreNotifyMax() {
-    var timerPreNotify = $("#timerPreNotify");
-    var max = $("#timerMin").val() * 60;
+    var timerPreNotify = $("#_timerPreNotify");
+    var max = $("#_timerMinutes").val() * 60;
     timerPreNotify.attr("max", max);
     if (timerPreNotify.val() > max) timerPreNotify.val(max);
   }
   
   /** Setup UI and logic for the timer. */
   function initTimer() {
-    $("#timerMin").val(localSettings.timerMinutes).change(updatePreNotifyMax).parent().find("label").text(i18n("timerMinutes"));
-    $("#timerNotify").prop("checked", localSettings.timerNotify).parent().find("label").text(i18n("timerNotify"));
-    $("#timerPreNotify").val(localSettings.timerPreNotify).parent().find("label").text(i18n("timerPreNotify"));
-    $("#timerAction").val(localSettings.timerAction).parent().find("label").text(i18n("timerAction"));
-    $("#timerAction").find("option").each(function() {
-      $(this).text(i18n("timerAction_" + $(this).attr("value")));
-    });
+    initNumberInput("timerMinutes", 1, null, localSettings).unbind().change(updatePreNotifyMax);
+    initCheckbox("timerNotify", localSettings).unbind();
+    initNumberInput("timerPreNotify", 0, null, localSettings).unbind();
+    initSelect("timerAction", ["pause", "closeGm"], null, null, localSettings).unbind();
     $("#startTimer").text(i18n("startTimer")).click(function() {
-      var min = $("#timerMin").val();
+      var min = $("#_timerMinutes").val();
       if (min) {
         localSettings.timerMinutes = min;
-        localSettings.timerAction = $("#timerAction").val();
-        localSettings.timerNotify = $("#timerNotify").prop("checked");
-        localSettings.timerPreNotify = $("#timerPreNotify").val();
+        localSettings.timerAction = $("#_timerAction").val();
+        localSettings.timerNotify = $("#_timerNotify").prop("checked");
+        localSettings.timerPreNotify = $("#_timerPreNotify").val();
         localSettings.timerEnd = ($.now() / 1000) + (min * 60);
         bp.startSleepTimer();
       }
@@ -683,9 +682,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     localSettings.w("notificationsEnabled", notificationsEnabledChanged, context);
     //update timer
     localSettings.w("timerEnd", timerEndChanged, context);
-    localSettings.al("timerAction", function(val) { $("#timerAction").val(val); }, context);
+    localSettings.al("timerAction", function(val) { $("#_timerAction").val(val); }, context);
     localSettings.al("timerMinutes", function(val) {
-      $("#timerMin").val(val);
+      $("#_timerMinutes").val(val);
       updatePreNotifyMax();
     }, context);
     //Google account dependent options

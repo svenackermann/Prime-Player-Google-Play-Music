@@ -17,26 +17,10 @@
   <div id="settings">
     <fieldset class="timer">
       <legend id="legendTimer"></legend>
-      <div class="v-2.20">
-        <input id="timerMin" type="number" min="1"/>
-        <label for="timerMin"></label>
-        <span id="timerStatus"></span>
-      </div>
-      <div class="v-2.20 adv notif">
-        <input id="timerNotify" type="checkbox"/>
-        <label for="timerNotify"></label>
-      </div>
-      <div class="v-2.22 adv notif">
-        <input id="timerPreNotify" type="number" min="0"/>
-        <label for="timerPreNotify"></label>
-      </div>
-      <div class="v-2.20">
-        <select id="timerAction">
-          <option value="pause"></option>
-          <option value="closeGm"></option>
-        </select>
-        <label for="timerAction"></label>
-      </div>
+      <div class="v-2.20" id="timerMinutes"></div><div id="timerStatus"></div>
+      <div class="v-2.20 adv notif" id="timerNotify"></div>
+      <div class="v-2.22 adv notif" id="timerPreNotify"></div>
+      <div class="v-2.20" id="timerAction"></div>
       <button id="startTimer"></button>
       <button id="stopTimer"></button>
     </fieldset>
