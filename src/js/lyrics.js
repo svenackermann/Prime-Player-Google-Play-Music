@@ -6,10 +6,10 @@
  * @license BSD license
  */
 
-/* global gaEvent, chrome, fixForUri */
-/* exported lyricsProviders */
+/* global chrome, fixForUri */
+/* exported initLyricsProviders */
 
-(function(exports) {
+function initLyricsProviders(GA) {
 
   var chromePermissions = chrome.permissions;
 
@@ -28,7 +28,7 @@
     return fixForUri(title);
   }
   
-  exports.lyricsProviders = {};
+  var lyricsProviders = {};
   
   function LyricsProvider(name, homepage, searchLyrics, buildSearchUrl) {
     
@@ -40,7 +40,7 @@
     var hasPermission = null;
     
     function lyricsGaEvent(evt) {
-      gaEvent("Lyrics-" + name, evt);
+      GA.event("Lyrics-" + name, evt);
     }
     
     function errorNoUrl() {
@@ -163,7 +163,7 @@
       }
     };
     
-    exports.lyricsProviders[name] = this;
+    lyricsProviders[name] = this;
   }
   
   new LyricsProvider("songlyrics", "http://www.songlyrics.com", function(cb, searchUrl, report) {
@@ -280,4 +280,5 @@
     return this.getHomepage() + "/search/" + fixForUri(song.artist) + "+" + fixTitle(song.title) + "/tracks";
   });
   
-})(this);
+  return lyricsProviders;
+}

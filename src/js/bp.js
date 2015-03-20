@@ -7,7 +7,7 @@
  * @license BSD license
  */
 
-/* global chrome, Bean, LastFM, lyricsProviders, initGA */
+/* global chrome, Bean, LastFM, initLyricsProviders, initGA */
 /* exported fixForUri */
 
 //{ global public declarations
@@ -370,6 +370,8 @@ localSettings.al("lyrics lastfmSessionKey", updateGADimensions);
 settings.al("scrobble toast layout", updateGADimensions);
 settings.al("scrobblePercent toastDuration", function() { GA.setMetrics(getGAMetrics()); });
 //} Google Analytics
+
+var lyricsProviders = initLyricsProviders(GA);
 
 //{ lastfm functions
 /** @return true, if scrobbling is available, i.e. user is logged in and enabled scrobbling */
@@ -2483,11 +2485,12 @@ exports.resumeLastSong = resumeLastSong;
 exports.executePlayPause = executePlayPause;
   //} content script post functions
 
-  //{ lyrics functions
+  //{ lyrics
+exports.lyricsProviders = lyricsProviders;
 exports.openLyrics = openLyrics;
 exports.fetchLyricsFrom = fetchLyricsFrom;
 exports.fetchLyrics = fetchLyrics;
-  //} lyrics functions
+  //} lyrics
 
   //{ update handling
 /** called by update notifier page when it is first opened after an update */
