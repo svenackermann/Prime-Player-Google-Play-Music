@@ -18,7 +18,7 @@ function Bean(defaults, useLocalStorage) {
   var syncLocalStorage = useLocalStorage || false;
   var equalsFn = {};
   var useSyncStorage = false;
-  var saveSyncStorageTimer;
+  var loadSyncStorageTimer, saveSyncStorageTimer;
   var that = this;
   var chromeStorageSync = chrome.storage.sync;
   
@@ -91,11 +91,12 @@ function Bean(defaults, useLocalStorage) {
   
   /** Load properties from synced storage, call cb when done. */
   function loadSyncStorage(cb) {
+    clearTimeout(loadSyncStorageTimer);
     chromeStorageSync.get(null, function(items) {
       var error = chrome.runtime.lastError;
       if (error) {
         console.warn("Could not load settings: " + error.message);
-        setTimeout(function() { loadSyncStorage(cb); }, 30000);//try again in 30s
+        loadSyncStorageTimer = setTimeout(function() { loadSyncStorage(cb); }, 30000);//try again in 30s
       } else {
         for (var prop in items) {
           if (defaults.hasOwnProperty(prop)) that[prop] = items[prop];
@@ -125,7 +126,10 @@ function Bean(defaults, useLocalStorage) {
    */
   this.setSyncStorage = function(syncStorage, syncedCallback) {
     if (syncStorage) loadSyncStorage(syncedCallback);
-    else clearTimeout(saveSyncStorageTimer);
+    else {
+      clearTimeout(loadSyncStorageTimer);
+      clearTimeout(saveSyncStorageTimer);
+    }
     useSyncStorage = syncStorage;
   };
   
