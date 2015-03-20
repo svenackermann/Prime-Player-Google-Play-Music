@@ -590,6 +590,9 @@
   "resetSettings": {
     "message": "Einstellungen auf Standard zur\u00FCcksetzen"
   },
+  "resetSettingsConfirm": {
+    "message": "Willst du wirklich alle deine Einstellungen zur\u00FCcksetzen? Dadurch werden auch deine Favoriten, deine last.fm-Verbindung und alle deine Prime-Player-bezogenen Daten in Chrome sync entfernt."
+  },
   "setting_connectedIndicator": {
     "message": "Zeige 'P'-Symbol in dem verbundenen Google Music Tab an"
   },

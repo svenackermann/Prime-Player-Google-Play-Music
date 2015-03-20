@@ -785,6 +785,10 @@
     "message": "Reset settings to default",
     "description": "text for reset settings button"
   },
+  "resetSettingsConfirm": {
+    "message": "Do really want to reset all your settings? This will also remove your favorites and last.fm connection and remove all your Prime Player related data from Chrome sync.",
+    "description": "text for reset settings confirm dialogue"
+  },
   "setting_connectedIndicator": {
     "message": "Show 'P'-icon on connected Google Music tab",
     "description": "label for option to show the Prime Player icon in Google Music"

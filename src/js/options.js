@@ -634,10 +634,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
     pauseOnIdleChanged();
     
     $("#resetSettings").click(function() {
-      settings.reset();
-      localSettings.reset();
-      GA.event("Options", "reset");
-      location.reload();
+      if (confirm(i18n("resetSettingsConfirm"))) {
+        settings.reset();
+        localSettings.reset();
+        GA.event("Options", "reset");
+        location.reload();
+      }
     }).text(i18n("resetSettings"));
     
     //tell the background page that we're open
