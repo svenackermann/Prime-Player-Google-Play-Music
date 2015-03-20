@@ -129,13 +129,21 @@ function Bean(defaults, useLocalStorage) {
     useSyncStorage = syncStorage;
   };
   
+  function cloneValue(value) {
+    if (value && typeof(value) == "object") {
+      //clone to avoid modification of default value
+      return $.isArray(value) ? value.slice() : $.extend(true, {}, value);
+    }
+    return value;
+  }
+  
   /**
    * Resets all values of this bean to their defaults.
    * The values are also removed from localStorage/Chrome sync, if this bean uses it.
    */
   this.reset = function() {
     for (var prop in defaults) {
-      that[prop] = defaults[prop];
+      that[prop] = cloneValue(defaults[prop]);
       if (syncLocalStorage) localStorage.removeItem(prop);
     }
     if (useSyncStorage) {
@@ -146,18 +154,13 @@ function Bean(defaults, useLocalStorage) {
   
   /** @return value from localStorage converted to correct type */
   function parse(name, defaultValue) {
-    if (!syncLocalStorage || localStorage[name] === undefined) {
-      if (defaultValue && typeof(defaultValue) == "object") {
-        //clone to avoid modification of default value
-        return $.isArray(defaultValue) ? defaultValue.slice() : $.extend(true, {}, defaultValue);
-      }
-      return defaultValue;
-    }
+    var clonedDefault = cloneValue(defaultValue);
+    if (!syncLocalStorage || localStorage[name] === undefined) return clonedDefault;
     var value = localStorage[name];
     var type = value.substr(0, 1);
     value = value.substr(1);
     switch (type) {
-      case "o": return value == "null" ? null : (value[0] == "[" ? JSON.parse(value) : $.extend({}, defaultValue, JSON.parse(value)));
+      case "o": return value == "null" ? null : (value[0] == "[" ? JSON.parse(value) : $.extend(clonedDefault, JSON.parse(value)));
       case "b": return value == "true";
       case "n": return parseFloat(value);
       default: return value;
