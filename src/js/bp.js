@@ -1060,6 +1060,15 @@ function onMessageListener(message) {
   var val = message.value;
   var type = message.type;
   console.debug("cs->bp", type, val);
+  
+  function postLyrics(src, result, providers) {
+    //we cannot send jQuery objects with a post, so send plain html
+    if (result.lyrics) result.lyrics = result.lyrics.html();
+    if (result.credits) result.credits = result.credits.html();
+    if (result.title) result.title = result.title.text().trim();
+    postToGooglemusic({ type: "lyrics", result: result, providers: providers, srcUrl: lyricsProviders[src].getUrl() });
+  }
+  
   if (type.indexOf("song-") === 0) {
     if (type == "song-position" && !val) val = "0:00";
     song[type.substring(5)] = val;
@@ -1074,12 +1083,14 @@ function onMessageListener(message) {
     localSettings.quicklinks = val.quicklinks;
     refreshContextMenu(); 
   } else if (type == "loadLyrics") {
-    if (song.info) fetchLyrics(song.info, function(providers, src, result) {
-      //we cannot send jQuery objects with a post, so send plain html
-      if (result.lyrics) result.lyrics = result.lyrics.html();
-      if (result.credits) result.credits = result.credits.html();
-      if (result.title) result.title = result.title.text().trim();
-      postToGooglemusic({ type: "lyrics", result: result, providers: providers, src: src });
+    if (!song.info) return;
+    if (val) fetchLyricsFrom(song.info, val, postLyrics);
+    else fetchLyrics(song.info, function(providers, src, result) {
+      var providersWithUrl = [];
+      providers.forEach(function(provider) {
+        providersWithUrl.push({ provider: provider, url: lyricsProviders[provider].getUrl() });
+      });
+      postLyrics(src, result, providersWithUrl);
     });
   } else if (type == "rated") {
     if (settings.linkRatings && settings.linkRatingsGpm && val.rating >= settings.linkRatingsMin) {

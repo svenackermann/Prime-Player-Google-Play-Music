@@ -86,6 +86,11 @@
   margin-top: 1ex;
   padding-top: 1ex;
   padding-bottom: 10px;
+  a {
+    text-decoration: underline;
+    cursor: pointer;
+    line-height: 150%;
+  }
 }
 
 #ppLyricsButton {

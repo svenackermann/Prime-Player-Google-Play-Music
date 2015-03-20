@@ -29,7 +29,7 @@ $(function() {
   
   /** send update to background page */
   function post(type, value) {
-    if (port) port.postMessage({type: type, value: value});
+    if (port) port.postMessage({ type: type, value: value });
   }
   
   /** @return converted text (e.g. from artist name) that is usable in the URL hash */
@@ -78,7 +78,7 @@ $(function() {
   }
   
   /** Render lyrics sent from the bp if the lyrics container is visible. */
-  function renderLyrics(result) {
+  function renderLyrics(result, providers, srcUrl) {
     var lyrics = $("#ppLyricsContainer");
     if (lyrics.is(":visible")) {
       lyrics.removeClass("loading");
@@ -93,18 +93,35 @@ $(function() {
         content.html(result.lyrics);
         if (result.credits) credits.html(result.credits + "<br/>");
       }
+      credits.append(i18n("lyricsSrcProvider", srcUrl));
+      credits.append("<br>");
       if (result.src) credits.append($("<a target='_blank'></a>").attr("href", result.src).text(i18n("lyricsSrc"))).append($("<br/>"));
       if (result.searchSrc) credits.append($("<a target='_blank'></a>").attr("href", result.searchSrc).text(i18n("lyricsSearchResult")));
+      
+      providers = providers || credits.data("providers");
+      credits.removeData("providers");
+      providers.forEach(function(provider) {
+        credits.append("<br>");
+        $("<a>")
+          .text(i18n("lyricsSearchProvider", provider.url))
+          .click(function() {
+            var otherProviders = providers.slice();
+            otherProviders.splice(otherProviders.indexOf(provider), 1);
+            credits.data("providers", otherProviders);
+            loadLyrics(provider.provider);
+          })
+          .appendTo(credits);
+      });
     }
   }
   
   /** Request lyrics from the bp. */
-  function loadLyrics() {
+  function loadLyrics(provider) {
     $("#ppLyricsTitle").children("div").removeAttr("title").empty();
     $("#ppLyricsContent").empty();
     $("#ppLyricsCredits").empty();
     $("#ppLyricsContainer").addClass("loading").show();
-    post("loadLyrics");
+    post("loadLyrics", provider);
   }
   
   /** Adjust the music content size to make the lyrics container fit in the page. */
@@ -147,7 +164,7 @@ $(function() {
         .click(toggleLyrics)
         .appendTo("#player-right-wrapper");
       $("<div id='ppLyricsContainer'><div id='ppLyricsTitle'><a class='reloadLyrics'></a><div></div></div><div id='ppLyricsScroller'><div id='ppLyricsContent'></div><div id='ppLyricsCredits'></div></div></div>")
-        .on("click", ".reloadLyrics", loadLyrics)
+        .on("click", ".reloadLyrics", loadLyrics.bind(window, null))
         .insertAfter("#music-content");
     }
     $("#ppLyricsContainer").css({"font-size": fontSize + "px", width: width});
@@ -781,7 +798,7 @@ $(function() {
         selectAndExecute(msg.albumLink, resumeSong.bind(window, msg));
         break;
       case "lyrics":
-        renderLyrics(msg.result);
+        renderLyrics(msg.result, msg.providers, msg.srcUrl);
         break;
       case "connected":
         init();
