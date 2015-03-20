@@ -56,7 +56,7 @@ var googlemusictabId;
 /** ports waiting for a connection when another tab was already connected (if multiple tabs with Google Music are opened) */
 var parkedPorts = [];
 /** whether to view the update notifier (set in onInstalled event listener) */
-var viewUpdateNotifier = localStorage.viewUpdateNotifier || false;
+var viewUpdateNotifier = localStorage.viewUpdateNotifier || null;
 /** the volume before mute for restoring */
 var volumeBeforeMute;
 /** if resumeLastSong was called while not connected */
@@ -785,7 +785,6 @@ function fetchLyrics(aSong, cb) {
 var notifications = {};
 var RELOGIN = "pp.relogin";
 var TOAST = "pp.toast";
-var WELCOME = "pp.welcome";
 var TIMEREND = "pp.timerEnd";
 var TIMERWARN = "pp.timerwarn";
 
@@ -903,7 +902,7 @@ function doUpdateBrowserActionInfo() {
   chromeBrowserAction.setBadgeText({text: ""});
   if (viewUpdateNotifier) {
     path = iconPath + "updated";
-    title += " - " + i18n("browserActionTitle_updated");
+    title += " - " + i18n("browserActionTitle_" + viewUpdateNotifier);
   } else if (player.connected) {
     path += "connected";
     if (song.info) {
@@ -1423,7 +1422,7 @@ function iconClickSettingsChanged() {
   }
   
   if (viewUpdateNotifier) {
-    chromeBrowserAction.setPopup({ popup: "updateNotifier.html" });
+    chromeBrowserAction.setPopup({ popup: "updateNotifier.html#" + viewUpdateNotifier });
   } else if (!player.connected) {
     //set popup if we are currently connecting
     if (!connecting && getAvailableIconClickConnectAction()) setIconClickConnectAction();
@@ -1502,48 +1501,32 @@ function migrateSettings(previousVersion) {
 
 /** handler for onInstalled event (show the orange icon on update / notification on install) */
 function updatedListener(details) {
+  function setViewUpdateNotifier() {
+    viewUpdateNotifier = details.reason;
+    localStorage.viewUpdateNotifier = viewUpdateNotifier;
+    iconClickSettingsChanged();
+    updateBrowserActionInfo();
+  }
+  
   if (details.reason == "update") {
     if (settings.updateNotifier) {
       previousVersion = details.previousVersion;
       if (isNewerVersion(chromeRuntime.getManifest().version)) {
         localStorage.previousVersion = previousVersion;
-        viewUpdateNotifier = true;
-        localStorage.viewUpdateNotifier = viewUpdateNotifier;
-        iconClickSettingsChanged();
-        updateBrowserActionInfo();
+        setViewUpdateNotifier();
       } else {
         previousVersion = null;
       }
     }
     migrateSettings(parseFloat(details.previousVersion));
   } else if (details.reason == "install") {
-    createNotification(WELCOME, {
-      type: "basic",
-      title: i18n("welcomeTitle"),
-      message: i18n("welcomeMessage"),
-      buttons: [{title: i18n("toOptions")}, {title: i18n("toWiki")}],
-      iconUrl: getExtensionUrl("img/icon-48x48.png")
-    }, function(nid) {
-      function notifOrBtnClicked(buttonIndex) {
-        clearNotification(nid);
-        if (buttonIndex == 1) {
-          GA.event(gaCategoryOptions, "welcome-toWiki");
-          chromeTabs.create({ url: "http://goo.gl/9gEuI7" });
-        } else {//button 0 or notification clicked
-          GA.event(gaCategoryOptions, "welcome-toOptions");
-          openOptions();
-        }
-      }
-      addNotificationListener("click", nid, notifOrBtnClicked);
-      addNotificationListener("btnClick", nid, notifOrBtnClicked);
-      addNotificationListener("close", nid, function(byUser) { if (byUser) GA.event(gaCategoryOptions, "welcome-close"); });
-    });
+    setViewUpdateNotifier();
   }
 }
 chromeRuntime.onInstalled.addListener(updatedListener);
 
 function updateNotifierDone() {
-  viewUpdateNotifier = false;
+  viewUpdateNotifier = null;
   localStorage.removeItem("viewUpdateNotifier");
   iconClickSettingsChanged();
   updateBrowserActionInfo();

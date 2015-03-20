@@ -576,15 +576,27 @@
     "message": "Automatically close Google Music, when miniplayer is closed",
     "description": "label for option to close Google Music on miniplayer close"
   },
+  "installNotifierTitle": {
+    "message": "Prime Player installed",
+    "description": "title for install notification"
+  },
+  "installNotifierText": {
+    "message": "The extension has a bunch of options that you can adjust to fit your needs. Also note the FAQ on the extension's homepage at the Chrome Store and the Wiki on Github. And now have fun with Prime Player!",
+    "description": "message for install notification"
+  },
   "updateNotifierTitle": {
-    "message": "Prime Player Updated",
+    "message": "Prime Player updated",
     "description": "title for update notification"
   },
   "updateNotifierText": {
     "message": "The extension just updated. Go to the options page to see what's new.",
     "description": "message for update notification"
   },
-  "browserActionTitle_updated": {
+  "browserActionTitle_install": {
+    "message": "just installed",
+    "description": "browser icon tooltip when extension was installed"
+  },
+  "browserActionTitle_update": {
     "message": "just updated",
     "description": "browser icon tooltip when extension was updated"
   },
@@ -641,14 +653,6 @@
   "quicklinks": {
     "message": "Quick links",
     "description": "title for quicklinks view in miniplayer"
-  },
-  "welcomeTitle": {
-    "message": "Prime Player installed",
-    "description": "title for notification that is shown directly after install"
-  },
-  "welcomeMessage": {
-    "message": "The extension has a bunch of options that you can adjust to fit your needs. Also note the FAQ on the extension's homepage at the Chrome Store. And now have fun with Prime Player!",
-    "description": "welcome message that is shown in notification directly after install"
   },
   "toOptions": {
     "message": "To the options",

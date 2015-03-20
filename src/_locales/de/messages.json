@@ -432,13 +432,22 @@
   "setting_mpCloseGm": {
     "message": "Google Music automatisch schlie\u00DFen, wenn Miniplayer geschlossen wird"
   },
+  "installNotifierTitle": {
+    "message": "Prime Player wurde installiert"
+  },
+  "installNotifierText": {
+    "message": "Prime Player bietet viele Optionen, die du an deine Bed\u00FCrfnisse anpassen kannst. Beachte auch die FAQ auf der Homepage der Erweiterung im Chrome Store und das Wiki auf Github. Und nun viel Spa\u00DF mit Prime Player!"
+  },
   "updateNotifierTitle": {
     "message": "Prime Player wurde aktualisiert"
   },
   "updateNotifierText": {
     "message": "Die Erweiterung wurde gerade aktualisiert. \u00D6ffne die Optionen um zu sehen, was es Neues gibt."
   },
-  "browserActionTitle_updated": {
+  "browserActionTitle_install": {
+    "message": "Wurde installiert"
+  },
+  "browserActionTitle_update": {
     "message": "Wurde aktualisiert"
   },
   "browserActionTitle_paused": {
@@ -481,12 +490,6 @@
   },
   "quicklinks": {
     "message": "Quick-Links"
-  },
-  "welcomeTitle": {
-    "message": "Prime Player wurde installiert"
-  },
-  "welcomeMessage": {
-    "message": "Prime Player bietet viele Optionen, die du an deine Bed\u00FCrfnisse anpassen kannst. Beachte auch die FAQ auf der Homepage der Erweiterung im Chrome Store. Und nun viel Spa\u00DF mit Prime Player!"
   },
   "toOptions": {
     "message": "Zu den Optionen"
