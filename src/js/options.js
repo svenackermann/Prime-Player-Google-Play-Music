@@ -674,9 +674,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("#changelog").toggleClass(this.id.substr(3,1));
     });
     
-    $("#credits").on("click", "a[data-network]", function() {
+    $("#credits").on("click", "[data-network]", function() {
       var link = $(this);
-      GA.social(link.data("network"), link.data("action") || "show", link.attr("href"));
+      GA.social(link.data("network"), link.data("action") || "show", link.attr("href") || "-");
     });
     
     initFilter();
