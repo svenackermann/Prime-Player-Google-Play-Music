@@ -1,7 +1,7 @@
 # Prime Player for Google Play Music
 
 [![Build Status](https://travis-ci.org/svenackermann/Prime-Player-Google-Play-Music.svg?branch=develop)](https://travis-ci.org/svenackermann/Prime-Player-Google-Play-Music)
-[![devDependency Status](https://david-dm.org/svenackermann/Prime-Player-Google-Play-Music/dev-status.svg)](https://david-dm.org/svenackermann/Prime-Player-Google-Play-Music#info=devDependencies)
+[![devDependency Status](https://david-dm.org/svenackermann/Prime-Player-Google-Play-Music/develop/dev-status.svg)](https://david-dm.org/svenackermann/Prime-Player-Google-Play-Music/develop#info=devDependencies)
 
 ### Description
 
