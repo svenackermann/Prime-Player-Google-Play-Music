@@ -7,6 +7,7 @@ var sourcemaps = require("gulp-sourcemaps");
 var changed = require("gulp-changed");
 var del = require("del");
 var rename = require("gulp-rename");
+var replace = require("gulp-replace");
 var zip = require("gulp-zip");
 var merge = require("merge-stream");
 var htmlminify = require("gulp-minify-html");
@@ -55,6 +56,7 @@ gulp.task("compile-js-bp", function() {
 gulp.task("compile-js-single", function() {
   return gulp.src(paths.js_single)
     .pipe(changed(paths.dest))
+    .pipe(gulpif(function(file) { return !develop && /.*[\/|\\]ga\.js$/.test(file.path); }, replace("UA-41499181-3", "UA-41499181-1")))
     .pipe(gulpif(develop && !full, sourcemaps.init()))
     .pipe(myUglify())
     .pipe(gulpif(develop && !full, sourcemaps.write("./")))
@@ -112,7 +114,7 @@ gulp.task("zip", function() {
     .pipe(n2a({ reverse: false }));
 
   var html = gulp.src("build/**/*.html", { base: "build" })
-    .pipe(htmlminify({ empty: true }));
+    .pipe(gulpif(!full, htmlminify({ empty: true })));
 
   var rest = gulp.src(["build/**", "!**/*.json", "!**/*.html"]);
 
