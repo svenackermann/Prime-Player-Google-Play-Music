@@ -329,12 +329,12 @@ $(function() {
      * @param timeout time to wait after DOM manipulation before executing the function
      */
     function watchAttr(attrs, selector, type, getValue, timeout) {
-      var element = $(selector)[0];
-      if (element) {
+      var elements = $(selector);
+      if (elements.length) {
         if (getValue === undefined) {
           getValue = function(el, attr) { return el.getAttribute(attr); };
         }
-        var value = getValue(element, attrs);
+        var value = getValue(elements[0], attrs);
         var postTimer;
         var observer = new MutationObserver(function (mutations) {
           mutations.forEach(function(mutation) {
@@ -350,10 +350,12 @@ $(function() {
           });
         });
         observers.push(observer);
-        observer.observe(element, { attributes: true, attributeFilter: attrs.split(" ") });
+        elements.each(function() {
+          observer.observe(this, { attributes: true, attributeFilter: attrs.split(" ") });
+        });
         post(type, value);//trigger once to initialize the info
       } else {
-        console.error("element does not exist (did Google change their site?): " + selector);
+        console.error("element(s) not exist (did Google change their site?): " + selector);
       }
     }
     

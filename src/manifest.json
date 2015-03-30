@@ -3,7 +3,7 @@
   "name": "Prime Player for Google Play Music\u2122",
   "short_name": "__MSG_extTitle__",
   "description": "__MSG_extDesc__",
-  "version": "2.28",
+  "version": "2.28.1",
   "author": "Sven Ackermann",
   "minimum_chrome_version": "35",
   "default_locale": "en",
