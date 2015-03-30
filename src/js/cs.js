@@ -301,12 +301,12 @@ $(function() {
      * @param getValue an optional special function to get the value (default is to return the changed attribute value)
      */
     function watchAttr(attrs, selector, type, getValue) {
-      var element = $(selector)[0];
-      if (element) {
+      var elements = $(selector);
+      if (elements.length) {
         if (getValue === undefined) {
           getValue = function(el, attr) { return el.getAttribute(attr); };
         }
-        var value = getValue(element, attrs);
+        var value = getValue(elements[0], attrs);
         var observer = new MutationObserver(function (mutations) {
           mutations.forEach(function(mutation) {
             var newValue = getValue(mutation.target, mutation.attributeName);
@@ -317,10 +317,12 @@ $(function() {
           });
         });
         observers.push(observer);
-        observer.observe(element, { attributes: true, attributeFilter: attrs.split(" ") });
+        elements.each(function() {
+          observer.observe(this, { attributes: true, attributeFilter: attrs.split(" ") });
+        });
         post(type, value);//trigger once to initialize the info
       } else {
-        console.error("element does not exist (did Google change their site?): " + selector);
+        console.error("element(s) not exist (did Google change their site?): " + selector);
       }
     }
     
