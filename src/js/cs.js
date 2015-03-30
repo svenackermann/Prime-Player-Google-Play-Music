@@ -331,9 +331,7 @@ $(function() {
     function watchAttr(attrs, selector, type, getValue, timeout) {
       var elements = $(selector);
       if (elements.length) {
-        if (getValue === undefined) {
-          getValue = function(el, attr) { return el.getAttribute(attr); };
-        }
+        getValue = getValue || function(el, attr) { return el.getAttribute(attr); };
         var value = getValue(elements[0], attrs);
         var postTimer;
         var observer = new MutationObserver(function (mutations) {
