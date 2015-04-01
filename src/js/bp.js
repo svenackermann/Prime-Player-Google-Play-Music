@@ -406,7 +406,7 @@ function lastfmLogout() {
  */
 function getLastfmInfo(songInfo, cb) {
   if (songInfo) {
-    var params = { track: songInfo.title, artist: songInfo.artist };
+    var params = { artist: songInfo.artist, track: songInfo.title };
     if (localSettings.lastfmSessionName) params.username = localSettings.lastfmSessionName;
     lastfm.track.getInfo(params, {
       success: function(response) {
@@ -437,8 +437,8 @@ function getLastfmInfo(songInfo, cb) {
 function love(songInfo, cb) {
   if (localSettings.lastfmSessionKey && songInfo) {
     lastfm.track.love({
-      track: songInfo.title,
-      artist: songInfo.artist
+      artist: songInfo.artist,
+      track: songInfo.title
     }, {
       success: function() { cb(true); },
       error: function(code, msg) {
@@ -453,8 +453,8 @@ function love(songInfo, cb) {
 function unlove(songInfo, cb) {
   if (localSettings.lastfmSessionKey && songInfo) {
     lastfm.track.unlove({
-      track: songInfo.title,
-      artist: songInfo.artist
+      artist: songInfo.artist,
+      track: songInfo.title
     }, {
       success: function() { cb(false); },
       error: function(code, msg) {
@@ -567,15 +567,24 @@ function scrobbleCachedSongs() {
   }
 }
 
+function getSongLastFmParams() {
+  var params = {
+    artist: song.info.artist,
+    duration: song.info.durationSec,
+    track: song.info.title
+  };
+  var album = song.info.album;
+  if (album) params.album = album;
+  var albumArtist = song.info.albumArtist;
+  if (albumArtist && albumArtist != params.artist) params.albumArtist = albumArtist;
+  return params;
+}
+
 /** Scrobble the current song. */
 function scrobble() {
-  var params = {
-    track: song.info.title,
-    timestamp: song.timestamp,
-    artist: song.info.artist,
-    album: song.info.album,
-    duration: song.info.durationSec
-  };
+  var params = getSongLastFmParams();
+  params.timestamp = song.timestamp;
+  if (song.info.albumArtist) params.albumArtist = song.info.albumArtist;
   var cloned = $.extend({}, params);//clone now, lastfm API will enrich params with additional values we don't need
   lastfm.track.scrobble(params, {
     success: function() {
@@ -592,12 +601,7 @@ function scrobble() {
 
 /** Send updateNowPlaying for the current song. */
 function sendNowPlaying() {
-  lastfm.track.updateNowPlaying({
-    track: song.info.title,
-    artist: song.info.artist,
-    album: song.info.album,
-    duration: song.info.durationSec
-  }, {
+  lastfm.track.updateNowPlaying(getSongLastFmParams(), {
     success: function() { GA.event(gaCategoryLastFm, "NowPlayingOK"); },
     error: function(code) {
       console.warn("Error on now playing '" + song.info.title + "': " + code);

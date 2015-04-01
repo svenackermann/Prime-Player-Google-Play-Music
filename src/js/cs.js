@@ -37,6 +37,11 @@ $(function() {
     return encodeURIComponent($.trim(text)).replace(/(%20)+/g, "+");
   }
   
+  /** @return hash(-part) converted back to text (e.g. to extract album artist from album hash) */
+  function parseHash(hash) {
+    return hash && decodeURIComponent(hash.replace(/(\+)+/g, "%20"));
+  }
+  
   /** @return link (for hash) constructed from attributes data-type and data-id */
   function getLink(el) {
     if (el.data("id")) return el.data("type") + "/" + el.data("id");
@@ -218,10 +223,12 @@ $(function() {
       if ($("#playerSongInfo").find("div").length) {
         var artist = $("#player-artist");
         var album = $("#playerSongInfo").find(".player-album");
+        var albumId = album.data("id");
         var info = {
           artist: $.trim(artist.text()),
           title: $.trim($("#playerSongTitle").text()),
           album: $.trim(album.text()),
+          albumArtist: albumId && parseHash(albumId.split("/")[1]),
           duration: $.trim($("#time_container_duration").text())
         };
         if (extended) {
