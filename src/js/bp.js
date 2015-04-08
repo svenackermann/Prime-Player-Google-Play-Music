@@ -24,7 +24,6 @@ function fixForUri(string) {
 
 // private part
 (function(exports) {
-
 //{ private variables
 //save chrome APIs to allow for minimisation
 var chromeRuntime = chrome.runtime;
@@ -334,7 +333,7 @@ function openOptions() {
   if (optionsTabId) {
     chromeTabs.update(optionsTabId, { active: true });
   } else {
-    chromeTabs.create({url: getExtensionUrl("options.html")});
+    chromeTabs.create({ url: getExtensionUrl("options.html") });
   }
 }
 chromeNotifications.onShowSettings.addListener(openOptions);
@@ -476,7 +475,7 @@ function loveTrack(event) {
   if (song.loved !== true) {
     updateTrackLoved(love);
     //auto-rate if called by click event and not rated yet
-    if (event && settings.linkRatings && song.rating === 0) executeInGoogleMusic("rate", {rating: 5});
+    if (event && settings.linkRatings && song.rating === 0) executeInGoogleMusic("rate", { rating: 5 });
   }
 }
 
@@ -527,7 +526,7 @@ function cacheForLaterScrobbling(songInfo) {
     scrobbleCache.songs = [];
     scrobbleCache.user = localSettings.lastfmSessionName;
   }
-  
+
   while (scrobbleCache.songs.length >= 50) {
     scrobbleCache.songs.shift();
   }
@@ -660,7 +659,8 @@ function rate(rating) {
 
 /** Tell the connected Google Music port about changes in the lyrics settings. */
 function postLyricsState() {
-  postToGooglemusic({type: "lyricsState",
+  postToGooglemusic({
+    type: "lyricsState",
     enabled: localSettings.lyrics && settings.lyricsInGpm,
     fontSize: localSettings.lyricsFontSize,
     width: localSettings.lyricsWidth,
@@ -719,7 +719,8 @@ function executeFeelingLucky() {
 function resumeLastSongIfConnected() {
   if (!lastSongToResume) return;
   if (player.connected) {
-    postToGooglemusic({type: "resumeLastSong",
+    postToGooglemusic({
+      type: "resumeLastSong",
       albumLink: lastSongToResume.info.albumLink,
       artist: lastSongToResume.info.artist,
       title: lastSongToResume.info.title,
@@ -749,7 +750,7 @@ function skipSong() {
 function openLyrics(aSong) {
   if (!aSong) {
     if (!song.info) return;
-    aSong = {artist: song.info.artist, title: song.info.title};
+    aSong = { artist: song.info.artist, title: song.info.title };
   }
   var index = 0;
   function tryNext(tabId) {
@@ -808,7 +809,7 @@ function addNotificationListener(evt, id, cb) {
 
 function createNotification(id, options, cb) {
   if (localSettings.notificationsEnabled) chromeNotifications.create(id, options, function(nid) {
-    notifications[nid] = {click: [], btnClick: [], close: []};
+    notifications[nid] = { click: [], btnClick: [], close: [] };
     cb(nid);
     addNotificationListener("close", nid, function() { delete(notifications[nid]); });
   });
@@ -846,10 +847,10 @@ var lastProgressPosition = 0;
 function drawProgress(init) {
   if (settings.showProgress && browserIconCtx && song.info && (init || Math.abs(song.positionSec - lastProgressPosition) > 2)) {
     lastProgressPosition = song.positionSec;
-    
+
     if (init) browserIconWithoutProgressImageData = browserIconCtx.getImageData(0, 0, 38, 38);
     else browserIconCtx.putImageData(browserIconWithoutProgressImageData, 0, 0);
-    
+
     if (lastProgressPosition) {
       browserIconCtx.strokeStyle = player.playing ? settings.showProgressColor : settings.showProgressColorPaused;
       browserIconCtx.globalAlpha = 0.5;
@@ -905,7 +906,7 @@ function doUpdateBrowserActionInfo() {
   var title = i18n("extTitle");
   var iconPaths = [];
   var clickAction;
-  chromeBrowserAction.setBadgeText({text: ""});
+  chromeBrowserAction.setBadgeText({ text: "" });
   if (viewUpdateNotifier) {
     path = iconPath + "updated";
     title += " - " + i18n("browserActionTitle_" + viewUpdateNotifier);
@@ -922,7 +923,7 @@ function doUpdateBrowserActionInfo() {
       }
       if (song.rating && settings.showRatingIndicator) {
         if (isStarRatingMode()) {
-          chromeBrowserAction.setBadgeText({text: "" + song.rating});
+          chromeBrowserAction.setBadgeText({ text: "" + song.rating });
         } else if (isThumbsRatingMode()) {
           if (song.rating >= 4) {
             iconPaths.push(iconPath + "thumbsUp");
@@ -948,14 +949,14 @@ function doUpdateBrowserActionInfo() {
     path += "notconnected";
     if (connecting) {
       //we are currently connecting, (content script is about to initialise or Google Music has been opened but content script did not connect yet)
-      chromeBrowserAction.setBadgeText({text: "..."});
+      chromeBrowserAction.setBadgeText({ text: "..." });
       title += " - " + i18n("browserActionTitle_connecting");
     } else clickAction = getAvailableIconClickConnectAction();
   }
   path += ".png";
-  
+
   if (isCommandAvailable(clickAction)) title += " - " + getCommandText(clickAction);
-  
+
   drawIcon(path, iconPaths, function(iconCtx) {
     browserIconCtx = iconCtx;
     drawProgress(true);
@@ -964,7 +965,7 @@ function doUpdateBrowserActionInfo() {
   if (iconPaths.length) drawIcon(path, iconPaths.concat(), function(iconCtx) {
     player.favicon = iconCtx.canvas.toDataURL();
   }); else player.favicon = path;
-  chromeBrowserAction.setTitle({title: title});
+  chromeBrowserAction.setTitle({ title: title });
 }
 
 /** handler for all events that need to update the browser action icon/title */
@@ -999,7 +1000,7 @@ function connectPort(port) {
     iconClickSettingsChanged();
   }
   connectingTabId = null;//from now on, connection cancelling is handled by onDisconnectListener
-  port.postMessage({type: "connected"});
+  port.postMessage({ type: "connected" });
 }
 
 /** Check if the given port's tab is already connected. */
@@ -1009,7 +1010,7 @@ function isConnectedTab(port) {
   return parkedPorts.some(function(parkedPort) { return portTabId == parkedPort.sender.tab.id; });
 }
 
-/** 
+/**
  * Handler for onConnect event:
  * - check origin
  * - check if tab already connected
@@ -1018,10 +1019,10 @@ function isConnectedTab(port) {
  */
 function onConnectListener(port) {
   if (port.name != "googlemusic") throw "invalid port: " + port.name;
-  
+
   console.debug("cs connects");
   if (isConnectedTab(port)) {
-    port.postMessage({type: "alreadyConnected"});
+    port.postMessage({ type: "alreadyConnected" });
   } else {
     if (googlemusicport) {
       parkedPorts.push(port);
@@ -1039,13 +1040,13 @@ function onDisconnectListener() {
   googlemusicport = null;
   googlemusictabId = null;
   connecting = false;
-  refreshContextMenu(); 
-  
+  refreshContextMenu();
+
   song.reset();
   player.reset();
   updateBrowserActionInfo();
   iconClickSettingsChanged();
-  
+
   //try to connect another tab
   while (parkedPorts.length > 0) {
     var parkedPort = parkedPorts.shift();
@@ -1064,7 +1065,7 @@ function onMessageListener(message) {
   var val = message.value;
   var type = message.type;
   console.debug("cs->bp", type, val);
-  
+
   function postLyrics(src, result, providers) {
     //we cannot send jQuery objects with a post, so send plain html
     if (result.lyrics) result.lyrics = result.lyrics.html();
@@ -1072,7 +1073,7 @@ function onMessageListener(message) {
     if (result.title) result.title = result.title.text().trim();
     postToGooglemusic({ type: "lyrics", result: result, providers: providers, srcUrl: lyricsProviders[src].getUrl() });
   }
-  
+
   if (type.indexOf("song-") === 0) {
     if (type == "song-position" && !val) val = "0:00";
     song[type.substring(5)] = val;
@@ -1085,7 +1086,7 @@ function onMessageListener(message) {
     iconClickSettingsChanged();
     localSettings.ratingMode = val.ratingMode;
     localSettings.quicklinks = val.quicklinks;
-    refreshContextMenu(); 
+    refreshContextMenu();
   } else if (type == "loadLyrics") {
     if (!song.info) return;
     if (val) fetchLyricsFrom(song.info, val, postLyrics);
@@ -1125,7 +1126,7 @@ function getToastBtn(cmd) {
       if (isThumbsRatingMode()) return null;
       break;
   }
-  return {title: getCommandText(cmd), iconUrl: getExtensionUrl(getCommandIconUrl(cmd) + ".png")};
+  return { title: getCommandText(cmd), iconUrl: getExtensionUrl(getCommandIconUrl(cmd) + ".png") };
 }
 
 /** Updates the toast's iconUrl with the album cover and rating. */
@@ -1156,12 +1157,12 @@ function drawToastImage() {
     toastOptions.iconUrl = ctx.canvas.toDataURL();
     updateNotification(TOAST, toastOptions);
   }
-  
+
   if (settings.toastRating && (song.rating > 0 || song.loved === true)) {
     rating.onload = function() { ratingReady = true;  if (coverReady) draw(); };
     rating.src = getExtensionUrl("img/rating.png");
   } else ratingReady = true;
-  
+
   cover.onload = function() { coverReady = true; if (ratingReady) draw(); };
   if (song.info.cover) {
     //we need a Cross-origin XMLHttpRequest
@@ -1217,7 +1218,7 @@ function getToastOptions() {
   if (btn) btns.push(btn);
   btn = getToastBtn(settings.toastButton2);
   if (btn) btns.push(btn);
-  
+
   var options = {
     type: settings.toastProgress ? "progress" : "basic",
     title: song.info.title,
@@ -1310,11 +1311,11 @@ chromeTabs.onRemoved.addListener(function(tabId) {
 
 /** Connect existing Google Music tabs on startup. */
 function connectGoogleMusicTabs() {
-  chromeTabs.query({url:"*://play.google.com/music/listen*"}, function(tabs) {
+  chromeTabs.query({ url:"*://play.google.com/music/listen*" }, function(tabs) {
     tabs.forEach(function(tab) {
-      chromeTabs.insertCSS(tab.id, {file: "css/gpm.css"});
-      chromeTabs.executeScript(tab.id, {file: "js/jquery-2.1.3.min.js"});
-      chromeTabs.executeScript(tab.id, {file: "js/cs.js"});
+      chromeTabs.insertCSS(tab.id, { file: "css/gpm.css" });
+      chromeTabs.executeScript(tab.id, { file: "js/jquery-2.1.3.min.js" });
+      chromeTabs.executeScript(tab.id, { file: "js/cs.js" });
     });
   });
 }
@@ -1363,7 +1364,7 @@ function openMiniplayer() {
     //miniplayerClosed callback will open it again
     return;
   }
-  
+
   createPlayer("miniplayer", function(win) {
     miniplayer = win;
     chromeWindows.onRemoved.addListener(miniplayerClosed);
@@ -1432,12 +1433,12 @@ function setIconClickActionOrPopup() {
 function iconClickSettingsChanged() {
   resetIconClickActionAndPopup();
   chromeBrowserAction.onClicked.removeListener(executeIconClickConnectAction);
-  
+
   function setIconClickConnectAction() {
     resetBrowserActionPopup();
     chromeBrowserAction.onClicked.addListener(executeIconClickConnectAction);
   }
-  
+
   if (viewUpdateNotifier) {
     chromeBrowserAction.setPopup({ popup: "updateNotifier.html#" + viewUpdateNotifier });
   } else if (!player.connected) {
@@ -1452,7 +1453,7 @@ function iconClickSettingsChanged() {
 /** Do necessary migrations on update. */
 function migrateSettings(previousVersion) {
   function isTrue(setting) { return setting == "btrue"; }
-  
+
   //--- 2.15 ---
   //if "open miniplayer" or "play/pause" was set as click action, keep it in click action 0
   var icmp = localStorage.iconClickMiniplayer;
@@ -1462,13 +1463,13 @@ function migrateSettings(previousVersion) {
     localStorage.removeItem("iconClickMiniplayer");
     localStorage.removeItem("iconClickPlayPause");
   }
-  
+
   //--- 2.18 ---
   //toast duration now has an effect on notifications, so reset to default
   if (previousVersion < 2.18 && !settings.toastUseMpStyle) {
     settings.toastDuration = 0;
   }
-  
+
   //--- 2.19 ---
   //convert boolean value to number
   var sds = localStorage.skipDislikedSongs;
@@ -1476,11 +1477,11 @@ function migrateSettings(previousVersion) {
     settings.skipRatedLower = isTrue(sds) ? 1 : 0;
     localStorage.removeItem("skipDislikedSongs");
   }
-  
+
   //--- 2.23 ---
   //use expert mode for existing users
   if (previousVersion < 2.23) settings.optionsMode = "exp";
-  
+
   //--- 2.26 ---
   //renamed "searchresult" to "mixed" (mixed display is now supported for other views than search results)
   var srs = localStorage.searchresultSizing;
@@ -1495,7 +1496,7 @@ function migrateSettings(previousVersion) {
       chromeLocalStorage.remove("ratingMode");
     }
   });
-  
+
   //--- 2.28 ---
   //set gotoGmusic as connect action if it was enabled by flag or copy iconClickAction0 if applicable
   var icc = localStorage.iconClickConnect;
@@ -1504,7 +1505,7 @@ function migrateSettings(previousVersion) {
     else if (settings.iconClickAction0 == "openMiniplayer" || settings.iconClickAction0 == "feelingLucky") settings.iconClickConnectAction = settings.iconClickAction0;
     localStorage.removeItem("iconClickConnect");
   }
-  
+
   //--- 3.0 ---
   if (previousVersion < 3.0) {
     //set "songlyrics" as provider if lyrics were enabled before
@@ -1524,7 +1525,7 @@ function updatedListener(details) {
     iconClickSettingsChanged();
     updateBrowserActionInfo();
   }
-  
+
   if (details.reason == "update") {
     if (settings.updateNotifier) {
       previousVersion = details.previousVersion;
@@ -1631,7 +1632,7 @@ function startSleepTimer() {
   var countdownSec = Math.max(0, localSettings.timerEnd - nowSec);
   sleepTimer = setTimeout(function() {
     clearSleepTimer();
-    
+
     var msg, btnTitle, undoAction;
     switch (localSettings.timerAction) {
       case "pause":
@@ -1670,9 +1671,7 @@ function startSleepTimer() {
       });
     }
   }, countdownSec * 1000);
-  
-  
-  
+
   if (localSettings.timerPreNotify > 0 && countdownSec > 0) {
     preNotifyTimer = setTimeout(function() {
       preNotifyTimer = null;
@@ -1706,7 +1705,7 @@ function startSleepTimer() {
       });
     }, Math.max(0, (countdownSec - localSettings.timerPreNotify) * 1000));
   }
-  
+
   contextMenuInterval = setInterval(function() {
     chromeContextMenus.update("stopTimer", { title: getStopTimerMenuTitle() });
   }, 60000);
@@ -1739,9 +1738,9 @@ function refreshContextMenu() {
     function createContextMenuEntry(id, title, cb, parentId, type, checked, enabled) {
       chromeContextMenus.create({ contexts: ["browser_action"], type: type || "normal", id: id, title: title, checked: checked, parentId: parentId, enabled: enabled }, cb);
     }
-    
+
     if (localSettings.lastfmSessionKey) createContextMenuEntry("toggleScrobble", i18n("setting_scrobble"), null, null, "checkbox", settings.scrobble);
-    
+
     if (player.connected) {
       var menuConnectedId = "menuConnected";
       createContextMenuEntry(menuConnectedId, i18n("action"), function() {
@@ -1765,7 +1764,7 @@ function refreshContextMenu() {
         });
       });
     }
-    
+
     if (!connecting) {
       if (!settings.hideFavorites && localSettings.favorites.length) {
         var menuFavoritesId = "menuFavorites";
@@ -1782,7 +1781,7 @@ function refreshContextMenu() {
         });
       });
     }
-    
+
     var timerEnd = localSettings.timerEnd;
     if (timerEnd !== null) {
       if (timerEnd) createContextMenuEntry("stopTimer", getStopTimerMenuTitle());
@@ -1793,7 +1792,7 @@ function refreshContextMenu() {
           ["pause", "closeGm"].forEach(function(action) {
             createContextMenuEntry("timerAction_" + action, i18n("setting_timerAction_" + action), null, startTimer, "radio", localSettings.timerAction == action);
           });
-          
+
           [5, 10, 30, 60, 120, 180, 240, 360, 600].forEach(function(min) {
             createContextMenuEntry("timerActionIn_" + min, getTimerMinutesLabel(min), null, startTimer);
           });
@@ -1805,7 +1804,7 @@ function refreshContextMenu() {
 
 chromeContextMenus.onClicked.addListener(function(info) {
   var cmd = info.menuItemId;
-  
+
   if (cmd.indexOf("timerAction_") === 0) {
     localSettings.timerAction = cmd.substr(12);
   } else if (cmd.indexOf("timerActionIn_") === 0) {
@@ -1904,7 +1903,7 @@ settings.al("scrobble scrobbleMaxDuration scrobblePercent scrobbleTime disableSc
 settings.w("iconClickAction0", commandOptionListener.bind(window, function() { updateBrowserActionInfo(); }));
 settings.al("iconStyle iconClickConnectAction showProgressColor showProgressColorPaused", updateBrowserActionInfo);
 settings.al("connectedIndicator", function(val) {
-  postToGooglemusic({type: "connectedIndicator", show: val});
+  postToGooglemusic({ type: "connectedIndicator", show: val });
 });
 settings.w("mpAutoOpen", function(val) {
   player.wrl("playing", openMpOnPlaying, val);
@@ -1933,7 +1932,7 @@ settings.w("showRatingIndicator", function(val) {
 function saveLastSongInfo(info) {
   if (settings.saveLastPosition && googlemusicport) {//if info is null but we are still connected (playlist finished), clear the lastSong storage
     chromeLocalStorage.set({ lastSong: info, lastPosition: song.position, rating: song.rating });
-    lastSongInfo = info; 
+    lastSongInfo = info;
   }
 }
 function saveLastSongParam(param, value) {
@@ -1990,7 +1989,7 @@ player.al("connected", function(val) {
     startPlaylistIfConnected();
     executeFeelingLuckyIfConnected();
     resumeLastSongIfConnected();
-    if (settings.connectedIndicator) postToGooglemusic({type: "connectedIndicator", show: true});
+    if (settings.connectedIndicator) postToGooglemusic({ type: "connectedIndicator", show: true });
     if (localSettings.lyrics && settings.lyricsInGpm) postLyricsState();
     localSettings.timerEnd = 0;
   } else {
@@ -2006,7 +2005,7 @@ var lastSongTimestamp = null;
 song.al("position", function(position) {
   var oldPos = lastSongPositionSec || song.positionSec;
   var newPos = song.positionSec = parseSeconds(position);
-  
+
   if (song.info) {
     //check for fast forward
     if (lastSongPositionSec && (newPos >= lastSongPositionSec || newPos > 5)) lastSongPositionSec = null;
@@ -2029,24 +2028,24 @@ song.al("position", function(position) {
       }
     } else if (newPos >= 3) {//information (song info, rating, position, ...) should be in sync from here
       if (localSettings.skipSongSeconds && newPos >= localSettings.skipSongSeconds) skipSong();
-      
+
       if (isScrobblingEnabled()) {
         if (!song.timestamp) {//keep timestamp once it's set (here or from backup)
           song.timestamp = lastSongTimestamp || Math.round($.now() / 1000) - newPos;
           lastSongTimestamp = null;
         }
-        
+
         if (!song.nowPlayingSent) {
           song.nowPlayingSent = true;
           sendNowPlaying();
         }
-        
+
         if (!song.scrobbled && song.scrobbleTime >= 0 && newPos >= song.scrobbleTime) {
           song.scrobbled = true;
           scrobble();
         }
       }
-      
+
       if (settings.toastProgress && toastOptions) {
         var progress = Math.floor(newPos * 100 / song.info.durationSec);
         if (progress > toastOptions.progress) {//avoid update on noop
@@ -2054,7 +2053,7 @@ song.al("position", function(position) {
           updateNotification(TOAST, toastOptions);
         }
       }
-      
+
       if (drawProgress()) updateBrowserIcon();
     }
   }
@@ -2076,7 +2075,7 @@ song.al("info", function(info, old) {
   song.lastfmInfo = null;
   song.loved = null;
   song.timestamp = null;
-  
+
   function doToast() {
     if (!settings.toastNotIfGmActive) openToast();
     else chromeTabs.get(googlemusictabId, function(tab) {
@@ -2084,7 +2083,7 @@ song.al("info", function(info, old) {
       else openToast();
     });
   }
-  
+
   if (info) {
     info.durationSec = parseSeconds(info.duration);
     if (settings.toast && (!miniplayer && !(settings.mpAutoOpen && !player.playing) || settings.toastIfMpOpen)) {
@@ -2096,9 +2095,9 @@ song.al("info", function(info, old) {
     }
     if (!settings.hideRatings || settings.showLastfmInfo) loadCurrentLastfmInfo();
   } else closeToast();
-  
+
   saveLastSongInfo(info);
-  
+
   updateBrowserActionInfo();
   calcScrobbleTime();
   if (!old != !info) {//jshint ignore:line
@@ -2118,7 +2117,7 @@ function getCommandText(cmd) {
       break;
     case "resumeLastSong":
       if (lastSongInfo && settings.saveLastPosition) return i18n("resumeLastSongWithTitle", lastSongInfo.artist + " - " + lastSongInfo.title);
-      /* falls through */ 
+      /* falls through */
     case "prevSong":
     case "nextSong":
     case "openMiniplayer":
@@ -2165,7 +2164,7 @@ function getCommandIconUrl(cmd) {
   return "img/cmd/" + icon;
 }
 
-/** 
+/**
  * Listener that handles updates on a command option such as toastButton1 or iconClickAction0.
  * If some of that options change, the UI (browser icon or toast button) needs to be updated
  * and listeners for player.playing or song.loved might need to be (un-)registered.
@@ -2239,11 +2238,11 @@ function isCommandAvailable(cmd) {
 function updateIconClickActionListeners(cmd) {
   //player.playing is already watched if cmd=="playPause"
   //song.info listener always triggers updateBrowserActionInfo
-  
+
   function updateListener(add, bean, prop) {
     bean.arl(prop, updateBrowserActionInfo, add && settings.iconShowAction);
   }
-  
+
   updateListener(cmd.indexOf("volume") === 0, player, "volume");
   updateListener(cmd == "toggleRepeat", player, "repeat");
   updateListener(cmd == "toggleShuffle", player, "shuffle");
@@ -2523,5 +2522,4 @@ exports.startSleepTimer = startSleepTimer;
 exports.clearSleepTimer = clearSleepTimer;
   //}
 //} exports
-
 })(this);

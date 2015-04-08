@@ -13,7 +13,7 @@
     if (lyricsExist) link = body.getElementsByClassName("title")[0];
     return lyricsExist;
   });
-  
+
   if (link && link.href) {
     document.location.href = link.href;
     return true;

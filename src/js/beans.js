@@ -21,7 +21,7 @@ function Bean(defaults, useLocalStorage) {
   var loadSyncStorageTimer, saveSyncStorageTimer;
   var that = this;
   var chromeStorageSync = chrome.storage.sync;
-  
+
   /**
    * Adds a listener function for the given (space separated) properties.
    * The function gets passed 3 parameters:
@@ -39,20 +39,20 @@ function Bean(defaults, useLocalStorage) {
       if (!callbacks[prop].has(listener)) callbacks[prop].add(listener);
     });
   };
-  
+
   /** Removes a listener function for the given (space separated) properties. */
   this.rl = function(props, listener) {
     props.split(" ").forEach(function(prop) {
       callbacks[prop].remove(listener);
     });
   };
-  
+
   /** Either adds or removes (specified by 'add' argument) a listener function for the given (space separated) properties. */
   this.arl = function(props, listener, add, src) {
     if (add) that.al(props, listener, src);
     else that.rl(props, listener);
   };
-  
+
   /** Removes all callbacks for the given source. */
   this.ral = function(src) {
     var listeners = srcListeners[src];
@@ -63,7 +63,7 @@ function Bean(defaults, useLocalStorage) {
       });
     }
   };
-  
+
   /**
    * Same as al, except that the listener will be called immediately with the current value for old and new value.
    * If multiple properties are given, the listener will be called only once without parameters.
@@ -73,13 +73,13 @@ function Bean(defaults, useLocalStorage) {
     else listener();
     that.al(props, listener, src);
   };
-  
+
   /** Either watches or removes (specified by 'add' argument) a listener function for the given (space separated) properties. */
   this.wrl = function(props, listener, add, src) {
     if (add) that.w(props, listener, src);
     else that.rl(props, listener);
   };
-  
+
   /**
    * Allows to set a function that checks equality for a given property.
    * On modification, this function will be used to check if the callbacks must be notified.
@@ -88,7 +88,7 @@ function Bean(defaults, useLocalStorage) {
   this.setEqualsFn = function(prop, equals) {
     equalsFn[prop] = equals;
   };
-  
+
   /** Load properties from synced storage, call cb when done. */
   function loadSyncStorage(cb) {
     clearTimeout(loadSyncStorageTimer);
@@ -105,7 +105,7 @@ function Bean(defaults, useLocalStorage) {
       }
     });
   }
-  
+
   /** Save current values to synced storage. */
   function saveSyncStorage() {
     clearTimeout(saveSyncStorageTimer);
@@ -119,7 +119,7 @@ function Bean(defaults, useLocalStorage) {
       });
     }, 10000);
   }
-  
+
   /**
    * Set if the values should be synced with Chrome sync.
    * If true, the callback will be called after loading the settings.
@@ -132,7 +132,7 @@ function Bean(defaults, useLocalStorage) {
     }
     useSyncStorage = syncStorage;
   };
-  
+
   function cloneValue(value) {
     if (value && typeof(value) == "object") {
       //clone to avoid modification of default value
@@ -140,7 +140,7 @@ function Bean(defaults, useLocalStorage) {
     }
     return value;
   }
-  
+
   /**
    * Resets all values of this bean to their defaults.
    * The values are also removed from localStorage/Chrome sync, if this bean uses it.
@@ -155,7 +155,7 @@ function Bean(defaults, useLocalStorage) {
       chromeStorageSync.clear();
     }
   };
-  
+
   /** @return value from localStorage converted to correct type */
   function parse(name, defaultValue) {
     var clonedDefault = cloneValue(defaultValue);
@@ -170,18 +170,18 @@ function Bean(defaults, useLocalStorage) {
       default: return value;
     }
   }
-  
+
   /** @return true, if both values are the same, for objects always returns false (except for null==null) */
   function defaultEquals(val, old) {
     //setting the same object again should always trigger notify, except for setting null to null (typeof(null) is object)
     return val === old && (typeof(val) != "object" || val === null);
   }
-  
+
   /** Setup an object property with the given name */
   function setting(name, defaultValue) {
     cache[name] = parse(name, defaultValue);
     callbacks[name] = $.Callbacks();
-    
+
     Object.defineProperty(that, name, {
       get: function() { return cache[name]; },
       set: function(val) {
@@ -203,7 +203,7 @@ function Bean(defaults, useLocalStorage) {
       enumerable: true
     });
   }
-  
+
   for (var prop in defaults) {
     setting(prop, defaults[prop]);
   }

@@ -9,7 +9,7 @@
 (function() {
   var pre = document.getElementsByTagName("pre")[0];
   if (!pre || !pre.textContent || pre.textContent.trim() == "Not found") return false;
-  
+
   var ul = document.getElementsByTagName("ul")[0];
   if (ul) {
     var link = ul.getElementsByTagName("a")[0];

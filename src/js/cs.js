@@ -26,28 +26,28 @@ $(function() {
   var ratingContainer = $(ratingContainerSelector);
   var clusterSelector = ".cluster,.genre-stations-container";
   var i18n = chrome.i18n.getMessage;
-  
+
   /** send update to background page */
   function post(type, value) {
     if (port) port.postMessage({ type: type, value: value });
   }
-  
+
   /** @return converted text (e.g. from artist name) that is usable in the URL hash */
   function forHash(text) {
     return encodeURIComponent($.trim(text)).replace(/(%20)+/g, "+");
   }
-  
+
   /** @return hash(-part) converted back to text (e.g. to extract album artist from album hash) */
   function parseHash(hash) {
     return hash && decodeURIComponent(hash.replace(/(\+)+/g, "%20"));
   }
-  
+
   /** @return link (for hash) constructed from attributes data-type and data-id */
   function getLink(el) {
     if (el.data("id")) return el.data("type") + "/" + el.data("id");
     return null;
   }
-  
+
   /** @return valid cover URL from src attribute of the element or null */
   function parseCover(el) {
     var cover = el.attr("src");
@@ -55,7 +55,7 @@ $(function() {
     if (cover && cover.indexOf("//") === 0) cover = "https:" + cover;
     return cover;
   }
-  
+
   /** @return parsed rating from the element's 'data-rating' attribute, 0 if this attribute is missing or onNullRating/-1 if the element is missing */
   function parseRating(container, onNullRating) {
     if (container) {
@@ -64,7 +64,7 @@ $(function() {
     }
     return $.isNumeric(onNullRating) ? onNullRating : -1;
   }
-  
+
   /** Show the P-icon as indicator for successful connection. */
   function showConnectedIndicator() {
     //inject icon with title to mark the tab as connected
@@ -76,12 +76,12 @@ $(function() {
         cleanup();
       });
   }
-  
+
   /** Hide the P-icon as indicator for successful connection. */
   function hideConnectedIndicator() {
     $(".music-banner-icon").removeAttr("title").removeClass("ppconnected").off("click");
   }
-  
+
   /** Render lyrics sent from the bp if the lyrics container is visible. */
   function renderLyrics(result, providers, srcUrl) {
     var lyrics = $("#ppLyricsContainer");
@@ -102,7 +102,7 @@ $(function() {
       credits.append("<br>");
       if (result.src) credits.append($("<a target='_blank'></a>").attr("href", result.src).text(i18n("lyricsSrc"))).append($("<br/>"));
       if (result.searchSrc) credits.append($("<a target='_blank'></a>").attr("href", result.searchSrc).text(i18n("lyricsSearchResult")));
-      
+
       providers = providers || credits.data("providers");
       credits.removeData("providers");
       providers.forEach(function(provider) {
@@ -119,7 +119,7 @@ $(function() {
       });
     }
   }
-  
+
   /** Request lyrics from the bp. */
   function loadLyrics(provider) {
     $("#ppLyricsTitle").children("div").removeAttr("title").empty();
@@ -128,18 +128,18 @@ $(function() {
     $("#ppLyricsContainer").addClass("loading").show();
     post("loadLyrics", provider);
   }
-  
+
   /** Adjust the music content size to make the lyrics container fit in the page. */
   function contentResize() {
     $("#music-content").css("width", ($("#content-container").width() - $("#ppLyricsContainer").width() - 10) + "px");
   }
-  
+
   /** Undo the music content resize. */
   function resetContentResize() {
     $(window).off("resize", contentResize);
     $("#music-content").removeAttr("style");
   }
-  
+
   /** Show/hide the lyrics container. */
   function toggleLyrics() {
     var lyrics = $("#ppLyricsContainer");
@@ -152,13 +152,13 @@ $(function() {
       contentResize();
     }
   }
-  
+
   /** Remove all artifacts for the lyrics feature from the site. */
   function disableLyrics() {
     $("#ppLyricsButton, #ppLyricsContainer").remove();
     resetContentResize();
   }
-  
+
   /** Setup lyrics feature on the site. */
   function enableLyrics(fontSize, width) {
     if (!$("#ppLyricsButton").length) {
@@ -172,10 +172,10 @@ $(function() {
         .on("click", ".reloadLyrics", loadLyrics.bind(window, null))
         .insertAfter("#music-content");
     }
-    $("#ppLyricsContainer").css({"font-size": fontSize + "px", width: width});
+    $("#ppLyricsContainer").css({ "font-size": fontSize + "px", width: width });
     if ($("#ppLyricsContainer").is(":visible")) contentResize();
   }
-  
+
   /** remove all listeners/observers and revert DOM modifications */
   function cleanup() {
     sendCommand("cleanup");
@@ -189,12 +189,12 @@ $(function() {
     disableLyrics();
     port = null;
   }
-  
+
   function getClusterIndex(el) {
     var cluster = el.closest(".cluster");
     return cluster.length ? cluster.parent().children(".cluster").index(cluster) + 1 : 0;
   }
-  
+
   function subclusterFilter(cont) {
     return function() {
       var cluster = $(this).closest(clusterSelector);
@@ -202,7 +202,7 @@ $(function() {
       return !cluster.length || cluster[0] == cont[0];
     };
   }
-  
+
   /** add listeners/observers and extend DOM */
   function init() {
     function onCleanupCsDone(event) {
@@ -217,7 +217,7 @@ $(function() {
       window.postMessage({ type: "FROM_PRIMEPLAYER", msg: "cleanupCs" }, location.href);
       return;//wait for callback
     }
-  
+
     /** @return info object for the current song or null if none is playing */
     function parseSongInfo(extended) {
       if ($("#playerSongInfo").find("div").length) {
@@ -246,7 +246,7 @@ $(function() {
       }
       return null;
     }
-    
+
     /** Send current song info to bp. */
     function sendSong() {
       var info = parseSongInfo(true);
@@ -257,7 +257,7 @@ $(function() {
       $("#ppLyricsButton").toggleClass("active", info !== null);
       post("song-info", info);
     }
-    
+
     /** Send current position info to bp. */
     function sendPosition(el) {
       var parsed = $.trim(el.text());
@@ -266,18 +266,18 @@ $(function() {
         post("song-position", position);
       }
     }
-    
+
     /** @return null if play button is disabled or true/false if a song is playing/paused */
     function playingGetter(el) {
       var play = $(el);
       return play.is(":disabled") ? null : play.hasClass("playing");
     }
-    
+
     /** @return shuffle state (NO_SHUFFLE/ALL_SHUFFLE) or null if shuffle is not available */
     function shuffleGetter(el) {
       return $(el).is(":disabled") ? null : el.value;
     }
-    
+
     /** @return rating for the current song (0-5) or -1 if the song is not rateable */
     function ratingGetter() {
       //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
@@ -285,7 +285,7 @@ $(function() {
       if (ratingContainer.is(":visible")) return parseRating(ratingContainer.children("li.selected")[0], 0);
       return -1;
     }
-    
+
     /** Execute 'executeOnContentLoad' (if set) when #music-content is changed. */
     function musicContentLoaded() {
       if ($.isFunction(executeOnContentLoad)) {
@@ -296,7 +296,7 @@ $(function() {
         fn();
       }
     }
-  
+
     /**
      * Execute a function after DOM manipulation on selected elements is finished.
      * @param fn function to execute, gets the jQuery object for the selector as parameter
@@ -317,8 +317,8 @@ $(function() {
             }, timeout);//wait til the DOM manipulation is finished
           };
         } else listener = fn.bind(window, content);
-        
-        var observer = new MutationObserver(function (mutations) { mutations.forEach(listener); });
+
+        var observer = new MutationObserver(function(mutations) { mutations.forEach(listener); });
         observers.push(observer);
         observer.observe(content[0], { childList: true, subtree: true });
         listener();
@@ -326,7 +326,7 @@ $(function() {
         console.error("element(s) do(es) not exist (did Google change their site?): " + selector);
       }
     }
-    
+
     /**
      * Watch changes of attributes on DOM elements specified by the selector.
      * @param attrs the space separated names of the attributes
@@ -341,7 +341,7 @@ $(function() {
         getValue = getValue || function(el, attr) { return el.getAttribute(attr); };
         var value = getValue(elements[0], attrs);
         var postTimer;
-        var observer = new MutationObserver(function (mutations) {
+        var observer = new MutationObserver(function(mutations) {
           mutations.forEach(function(mutation) {
             clearTimeout(postTimer);
             function update() {
@@ -363,7 +363,7 @@ $(function() {
         console.error("element(s) not exist (did Google change their site?): " + selector);
       }
     }
-    
+
     watchContent(sendSong, "#playerSongInfo", 500);
     watchContent(sendPosition, "#time_container_current");
     watchContent(musicContentLoaded, "#music-content", 1000);
@@ -372,7 +372,7 @@ $(function() {
     watchAttr("value", "#player > div.player-middle > button[data-id='shuffle']", "player-shuffle", shuffleGetter);
     watchAttr("class", ratingContainerSelector + " li", "song-rating", ratingGetter);
     watchAttr("aria-valuenow", "#vslider", "player-volume");
-    
+
     $("#music-content").on("DOMSubtreeModified", ".song-row td[data-col='rating']", function() {
       if (listRatings) {
         var rating = parseRating(this);
@@ -382,7 +382,7 @@ $(function() {
         var clusterRatings = listRatings[cluster];
         if (clusterRatings && clusterRatings[index] != rating) {
           clusterRatings[index] = rating;
-          post("player-listrating", {index: index, cluster: cluster, rating: rating, controlLink: location.hash});
+          post("player-listrating", { index: index, cluster: cluster, rating: rating, controlLink: location.hash });
         }
       }
     });
@@ -400,11 +400,11 @@ $(function() {
     $("#music-content").on("mouseup", ".song-row td[data-col='rating'] ul.rating-container li:not(.selected)[data-rating]", function() {
       post("rated", { song: parseSongRow($(this).closest(".song-row"), true), rating: parseRating(this) });
     });
-    
+
     window.addEventListener("message", onMessage);
     //we must add this script to the DOM for the code to be executed in the correct context
     $("<script id='primeplayerinjected' type='text/javascript'></script>").attr("src", chrome.extension.getURL("js/injected.js")).appendTo("head");
-    
+
     var sendConnectedInterval;
     function sendConnected() {
       if (!$("#loading-progress").is(":visible")) {
@@ -429,7 +429,7 @@ $(function() {
     sendConnectedInterval = setInterval(sendConnected, 500);
     sendConnected();
   }
-  
+
   /** callback for messages from the injected script */
   function onMessage(event) {
     // We only accept messages from the injected script
@@ -452,12 +452,12 @@ $(function() {
         break;
     }
   }
-  
+
   /** Send a command to the injected script. */
   function sendCommand(command, options) {
     window.postMessage({ type: "FROM_PRIMEPLAYER", command: command, options: options }, location.href);
   }
-  
+
   /** Send a command for a playlist row to the injected script. Ensures that the row is visible. */
   function sendPlaylistRowCommand(command, options) {
     if (location.hash != options.link) return;
@@ -481,7 +481,7 @@ $(function() {
     }
     callForRow();
   }
-  
+
   /**
    * Click a card to start a playlist. Should always lead to the queue.
    * @return true, if the card was found
@@ -496,7 +496,7 @@ $(function() {
     }
     return false;
   }
-  
+
   /** Set the hash to the given value to navigate to another page and call the function when finished. */
   function selectAndExecute(hash, cb) {
     if (location.hash == "#/" + hash) {//we're already here
@@ -519,7 +519,7 @@ $(function() {
       }
     }
   }
-  
+
   /** @return parsed song info for a playlist row */
   function parseSongRow(song, basic) {
     var title = song.find("td[data-col='title'] .content");
@@ -542,7 +542,7 @@ $(function() {
     }
     return item;
   }
-  
+
   /** parse handlers for the different list types (playlistsList, playlist or albumContainers) */
   var parseNavigationList = {
     playlistsList: function(parent, end, cb, omitUnknownAlbums) {
@@ -632,16 +632,16 @@ $(function() {
       cb(items);
     }
   };
-  
+
   /** Send the user's playlists to bp. */
   function sendMyPlaylists() {
     var playlists = [];
     $("#playlists").children("a").each(function() {
-      playlists.push({title: $.trim($(this).find(".tooltip").text()), titleLink: getLink($(this))});
+      playlists.push({ title: $.trim($(this).find(".tooltip").text()), titleLink: getLink($(this)) });
     });
-    post("player-navigationList", {type: "playlistsList", link: "myPlaylists", list: playlists, empty: playlists.length === 0});
+    post("player-navigationList", { type: "playlistsList", link: "myPlaylists", list: playlists, empty: !playlists.length });
   }
-  
+
   /** @return the type of list for a hash value ("playlistsList" [e.g. artist page showing albums], "playlist" [e.g. album page] or "albumContainers" [e.g. genre page showing artists]) */
   function getListType(hash) {
     var i = hash.indexOf("/");
@@ -672,7 +672,7 @@ $(function() {
         return "playlist";
     }
   }
-  
+
   /** @return parsed sublist (e.g. found albums on search page) or null if no matching content found */
   function parseSublist(cont) {
     var type;
@@ -697,7 +697,7 @@ $(function() {
       cluster: getClusterIndex(cont)
     };
   }
-  
+
   function sendMixed(response) {
     var view = $("#music-content");
     response.type = "mixed";
@@ -711,11 +711,11 @@ $(function() {
     response.empty = !response.lists.length;
     post("player-navigationList", response);
   }
-  
+
   /** Select, parse and send a list to bp. */
   function sendNavigationList(link, omitUnknownAlbums) {
     selectAndExecute(link, function(error) {
-      var response = {link: link, controlLink: location.hash};
+      var response = { link: link, controlLink: location.hash };
       function sendError() {
         response.error = true;
         post("player-navigationList", response);
@@ -742,7 +742,7 @@ $(function() {
       }
     });
   }
-  
+
   /** Try to find and resume the last played song from previous session. */
   function resumeSong(msg, error) {
     if (error) return;
@@ -763,7 +763,7 @@ $(function() {
           var song = parseSongRow($(this));
           if (song.title == msg.title && song.duration == msg.duration && (!song.artist || !msg.artist || song.artist == msg.artist)) {
             found = true;
-            sendPlaylistRowCommand("resumePlaylistSong", {index: song.index, position: msg.position, link: location.hash});
+            sendPlaylistRowCommand("resumePlaylistSong", { index: song.index, position: msg.position, link: location.hash });
             return false;
           }
         });
@@ -776,8 +776,8 @@ $(function() {
     }
     sendResume();
   }
-  
-  port = chrome.runtime.connect({name: "googlemusic"});
+
+  port = chrome.runtime.connect({ name: "googlemusic" });
   port.onDisconnect.addListener(cleanup);
   port.onMessage.addListener(function(msg) {
     console.debug("bp->cs: ", msg);

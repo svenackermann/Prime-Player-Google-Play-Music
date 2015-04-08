@@ -9,7 +9,6 @@
 /* global chrome, initGA */
 
 chrome.runtime.getBackgroundPage(function(bp) {
-
   var thisTabId;
   var context = "options";
   var settingsView = $("#settings");
@@ -19,12 +18,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   /** Google analytics */
   var GA = initGA(settings, context);
-  
+
   /** request and store last.fm session info */
   function getLastfmSession(token) {
     var status = $("#lastfmStatus");
     status.find(".loader").show();
-    bp.lastfm.auth.getSession({token: token},
+    bp.lastfm.auth.getSession({ token: token },
       {
         success: function(response) {
           status.find(".loader").hide();
@@ -45,7 +44,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function setSubsEnabled(id, enabled) {
     $("#" + id).nextUntil("*:not(.sub)").children("input").prop("disabled", !enabled);
   }
-  
+
   function scrobbleChanged(val) {
     var se = bp.isScrobblingEnabled();
     $("#_showScrobbledIndicator").prop("disabled", !se);
@@ -56,7 +55,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function linkRatingsChanged() {
     setSubsEnabled("linkRatings", settings.linkRatings && localSettings.lastfmSessionName);
   }
-  
+
   function toastChanged() {
     $("#_toast").prop("checked", settings.toast);
     $("#_toastIfMpOpen, #_toastNotIfGmActive, #_toastDuration").prop("disabled", !settings.toast);
@@ -65,13 +64,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("fieldset.toast > .notif").children("input, select").prop("disabled", !settings.toast || settings.toastUseMpStyle);
     $("#toast").children(".hint").toggle(!settings.toastIfMpOpen);
   }
-  
+
   function lyricsChanged() {
     setSubsEnabled("lyrics", localSettings.lyrics);
     $("#_lyricsWidth").prop("disabled", !localSettings.lyrics || !settings.lyricsInGpm);
     $("option.lyrics").prop("disabled", !localSettings.lyrics);
   }
-  
+
   function lastfmUserChanged(user) {
     var action;
     var actionText;
@@ -101,7 +100,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#_iconClickAction2").prop("disabled", !settings.iconClickAction1 || noClickTime).val(settings.iconClickAction2);
     $("#_iconClickAction3").prop("disabled", !settings.iconClickAction2 || noClickTime).val(settings.iconClickAction3);
   }
-  
+
   function showProgressChanged() {
     setSubsEnabled("showProgress", settings.showProgress);
   }
@@ -109,22 +108,22 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function saveLastPositionChanged() {
     $("option[value='resumeLastSong']").prop("disabled", !settings.saveLastPosition);
   }
-  
+
   function pauseOnIdleChanged() {
     $("#_pauseOnIdleSec").prop("disabled", settings.pauseOnIdleSec < 0).val(Math.abs(settings.pauseOnIdleSec));
   }
-  
+
   function pauseOnIdleClicked() {
     settings.pauseOnIdleSec *= -1;
     pauseOnIdleChanged();
   }
-  
+
   function notificationsEnabledChanged(val) {
     settingsView.toggleClass("notifDisabled", !val);
     if (!val && settings.toast && !settings.toastUseMpStyle) $("#_toastUseMpStyle").click();//use click here to change the checkbox value
     else toastChanged();//in if clause this is triggered by the click listener on #toastUseMpStyle
   }
-  
+
   var countdownInterval;
   function updateTimerStatus(timerEnd) {
     var countdown = Math.floor((timerEnd || 0) - ($.now() / 1000));
@@ -135,7 +134,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       clearInterval(countdownInterval);
     }
   }
-  
+
   function timerEndChanged(timerEnd) {
     clearInterval(countdownInterval);
     if (timerEnd) {
@@ -145,7 +144,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#startTimer, #_timerMinutes, #_timerNotify, #_timerPreNotify, #_timerAction").prop("disabled", timerEnd !== 0);
     $("#stopTimer").prop("disabled", !timerEnd);
   }
-  
+
   function ratingModeChanged(val) {
     settingsView.removeClass("star thumbs");
     if (val) settingsView.addClass(val);
@@ -154,7 +153,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $(this).text(bp.getCommandOptionText($(this).attr("value")));
     });
   }
-  
+
   function quicklinksChanged() {
     var linkSelects = $("#_coverClickLink,#_titleClickLink");
     linkSelects.empty();
@@ -165,7 +164,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $(this).val(settings[this.id.substr(1)]);
     });
   }
-  
+
   function stringUpdater(prop, theSettings) {
     return function() { theSettings[prop] = $(this).val(); };
   }
@@ -187,7 +186,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("<img src='img/hint.png' class='hint'/>").click(function() {hint.slideToggle("fast");}).appendTo(container);
     return hint;
   }
-  
+
   /**
    * Adds a question mark symbol for an option and an element containing the hint text, that will be toggled on click on the symbol.
    * The i18n key for the hint is "setting_" + prop + "Hint".
@@ -204,13 +203,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function addLabel(input) {
     return $("<label>").attr("for", input.attr("id")).text(i18n("setting_" + input.parent().attr("id"))).insertAfter(input);
   }
-  
+
   function setIdAndAddItWithLabel(input, prop, synced) {
     input.attr("id", "_" + prop);
     $("#" + prop).toggleClass("synced", synced).append(input);
     return addLabel(input);
   }
-  
+
   /**
    * Initialize a checkbox input for an option.
    * @param prop the option name
@@ -268,7 +267,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     setIdAndAddItWithLabel(input, prop, theSettings == settings);
     return input;
   }
-  
+
   /**
    * Initialize a select input for an option based on the options of another select input.
    * @param prop the option name in settings
@@ -280,7 +279,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     select.append(from.children().clone()).val(settings[prop]);
     return select;
   }
-  
+
   /**
    * Initialize a color input for an option.
    * @param prop the option name in settings
@@ -292,7 +291,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     setIdAndAddItWithLabel(input, prop, true);
     return input;
   }
-  
+
   /** Initialize the icon style radio buttons. */
   function initIconStyle() {
     var iconStyle = $("#iconStyle");
@@ -303,17 +302,17 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
     iconStyle.find("input[value='" + settings.iconStyle + "']").prop("checked", true);
   }
-  
+
   /** Handle the optional lyrics permission. */
   function initLyricsProviders(lyrics) {
     var providers = localSettings.lyricsProviders;
-    
+
     function setEnabledStates() {
       lyrics.prop("disabled", !providers.length);
       $("#_lyricsAutoNext").prop("disabled", providers.length < 2);
     }
     setEnabledStates();
-    
+
     var draggableSelector = "fieldset.lyrics.sortable>[draggable='true']";
     var droppableSelector = draggableSelector + "," + draggableSelector + "+div";
     $("#settings")
@@ -345,7 +344,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         var nextProvider = providers[providers.indexOf(providerName) + 1];
         dt.setData("srcprovider/next/" + nextProvider, "");
       });
-    
+
     function sortProviders() {
       var prev = $(".lyrics-providers").first().prev();
       providers.forEach(function(p) {
@@ -361,17 +360,17 @@ chrome.runtime.getBackgroundPage(function(bp) {
       var providerName = id.substr(7);
       var provider = bp.lyricsProviders[providerName];
       div.data("provider", providerName);
-      
+
       var checkbox = $("<input type='checkbox'>");
       var label = setIdAndAddItWithLabel(checkbox, id, false);
       var link = $("<a target='_blank'>").attr("href", provider.getHomepage()).text(provider.getUrl());
       label.html(link);
-      
+
       function setDraggable(draggable) {
         div.attr("draggable", draggable);
         div.parent().toggleClass("sortable", providers.length > 1);
       }
-      
+
       function setProviderEnabled(enabled) {
         if (enabled) {
           providers.push(providerName);
@@ -389,17 +388,17 @@ chrome.runtime.getBackgroundPage(function(bp) {
         sortProviders();
         setEnabledStates();
       }
-      
+
       function enableCheckBox() {
         var checked = providers.indexOf(providerName) >= 0;
         checkbox.prop("checked", checked);
         setDraggable(checked);
-        
+
         checkbox.unbind().click(function() {
           setProviderEnabled(checkbox.prop("checked"));
         });
       }
-      
+
       provider.checkPermission(function(hasPermission) {
         if (hasPermission) {
           enableCheckBox();
@@ -422,10 +421,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
         }
       });
     });
-    
+
     sortProviders();
   }
-  
+
   /** @return version from a class attribute (e.g. for an element with class "abc v-1.2.3 def" this returns "1.2.3") */
   function extractVersionFromClass(el) {
     var cl = $(el).attr("class");
@@ -434,14 +433,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var end = cl.indexOf(" ", start);
     return cl.substring(start, end < 0 ? cl.length : end);
   }
-  
+
   function updatePreNotifyMax() {
     var timerPreNotify = $("#_timerPreNotify");
     var max = $("#_timerMinutes").val() * 60;
     timerPreNotify.attr("max", max);
     if (timerPreNotify.val() > max) timerPreNotify.val(max);
   }
-  
+
   /** Setup UI and logic for the timer. */
   function initTimer() {
     var timerMinutes = $("#_timerMinutes").unbind().change(updatePreNotifyMax);
@@ -462,7 +461,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#stopTimer").text(i18n("stopTimer")).click(bp.clearSleepTimer);
     updatePreNotifyMax();
   }
-  
+
   /** Setup UI and logic for the options filter. */
   function initFilter() {
     function optionsModeChanged() {
@@ -470,9 +469,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
     $("#_optionsMode").change(optionsModeChanged);
     optionsModeChanged();
-    
+
     $("#filter p").text(i18n("filterHint"));
-    
+
     $("#filter .i-c").each(function() {
       var id = this.id;
       var label = $(this).children("label").removeAttr("for");
@@ -484,7 +483,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       updateFilter();
     });
   }
-  
+
   /** Set labels and hints for the legends. */
   function initLegends() {
     $("#settings legend").each(function() {
@@ -492,7 +491,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       appendHint(this).text(i18n(this.id + "Hint")).insertAfter(this);
     });
   }
-  
+
   function initInputs() {
     var optionsTextGetter = {
       commandOptionText: bp.getCommandOptionText,
@@ -501,7 +500,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         return i18n("openPopup");
       }
     };
-  
+
     function getSettings(inputContainer) {
       return inputContainer.hasClass("local") ? localSettings : settings;
     }
@@ -531,18 +530,18 @@ chrome.runtime.getBackgroundPage(function(bp) {
       initHint(this.id);
     });
   }
-  
+
   $(function() {
     $("head > title").text(i18n("options") + " - " + i18n("extTitle"));
     initLegends();
-    
+
     $("#lastfmStatus").find("span").text(i18n("lastfmUser"));
     $("#bugfeatureinfo").html(i18n("bugfeatureinfo", "<a target='_blank' href='https://github.com/svenackermann/Prime-Player-Google-Play-Music/issues' data-network='github' data-action='issue'>GitHub</a>"));
-    
+
     initInputs();
-    
+
     initTimer();
-    
+
     //{ last.fm settings
     var percentSpan = $("#scrobblePercent").find("span");
     percentSpan.text(settings.scrobblePercent);
@@ -550,25 +549,25 @@ chrome.runtime.getBackgroundPage(function(bp) {
     scrobblePercent
       .val(settings.scrobblePercent)
       .mouseup(numberUpdater("scrobblePercent", settings))
-      .change(function(){ percentSpan.text($(this).val()); });
+      .change(function() { percentSpan.text($(this).val()); });
     addLabel(scrobblePercent);
     $("#_linkRatings").click(linkRatingsChanged);
     //}
-    
+
     //{ toast settings
     $("#notificationDisabledWarning").text(i18n("notificationsDisabled"));
     $("#_toast").click(toastChanged);
     $("#_toastIfMpOpen").click(toastChanged);
     $("#_toastUseMpStyle").click(toastChanged);
     //}
-    
+
     //{ miniplayer settings
     function setLayoutHintVisibility() {
       var panel = settings.miniplayerType == "panel" || settings.miniplayerType == "detached_panel";
       var mpt = $("#miniplayerType");
       mpt.children(".hint").toggle(panel);
       if (!panel) mpt.children(".hint-text").hide();
-      
+
       var visible = panel && settings.layout == "hbar";
       var layout = $("#layout");
       layout.children(".hint").toggle(visible);
@@ -580,24 +579,24 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#_layout").change(setLayoutHintVisibility);
     setLayoutHintVisibility();
     //}
-    
+
     //{ lyrics settings
     var lyrics = $("#_lyrics").click(lyricsChanged);
     initLyricsProviders(lyrics);
     $("#_lyricsInGpm").click(lyricsChanged);
     //}
-    
+
     //{ look & feel settings
     $("#shortcutsLink").text(i18n("configShortcuts")).click(function() { chrome.tabs.create({ url: "chrome://extensions/configureCommands" }); });
     initIconStyle();
     $("#_showProgress").click(showProgressChanged);
-    
+
     $("#iconClickActionTitle").text(i18n("iconClickActionTitle"));
     $("select[id^='_iconClickAction']")
       .change(iconClickChanged)
       .find("option[value='']").text(i18n("openPopup"));
     $("#_iconDoubleClickTime").change(iconClickChanged);
-    
+
     $("#_saveLastPosition").click(saveLastPositionChanged);
     var skipRatedLower = $("#_skipRatedLower").change(function() { $("#_skipRatedThumbsDown").prop("checked", settings.skipRatedLower > 0); });
     $("#_skipRatedThumbsDown").unbind().prop("checked", settings.skipRatedLower > 0).click(function() {
@@ -607,7 +606,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#_startupAction option[value='']").text(i18n("command_"));
     $("#_pauseOnIdle").unbind().prop("checked", settings.pauseOnIdleSec > 0).click(pauseOnIdleClicked);
     //}
-    
+
     //watch this if changed via miniplayer
     settings.al("scrobble", scrobbleChanged, context);
     //we must watch this as the session could be expired
@@ -625,14 +624,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
     localSettings.w("ratingMode", ratingModeChanged, context);
     localSettings.w("quicklinks", quicklinksChanged, context);
     localSettings.w("syncSettings", function(val) { $("body").toggleClass("syncenabled", val); }, context);
-    
+
     //disable inputs if neccessary
     lyricsChanged();
     iconClickChanged();
     showProgressChanged();
     saveLastPositionChanged();
     pauseOnIdleChanged();
-    
+
     $("#resetSettings").click(function() {
       if (confirm(i18n("resetSettingsConfirm"))) {
         settings.reset();
@@ -641,20 +640,20 @@ chrome.runtime.getBackgroundPage(function(bp) {
         location.reload();
       }
     }).text(i18n("resetSettings"));
-    
+
     //tell the background page that we're open
     chrome.tabs.getCurrent(function(tab) {
       thisTabId = tab.id;
       if (bp.optionsTabId === null) bp.optionsTabId = tab.id;
     });
-    
+
     //get last.fm session if we are the callback page (query param "token" exists)
     var token;
     if (localSettings.lastfmSessionName === null && (token = bp.extractUrlParam("token", location.search))) {
       getLastfmSession(token);
       history.replaceState("", "", chrome.extension.getURL("options.html"));//remove token from URL
     }
-    
+
     //mark new features
     if (bp.previousVersion) {
       $("div[class*='v-']").each(function() {
@@ -663,22 +662,22 @@ chrome.runtime.getBackgroundPage(function(bp) {
       });
       bp.updateInfosViewed();
     }
-    
+
     //set headings in changelog
     $("#changelog > div[class*='v-']").each(function() {
       var version = extractVersionFromClass(this);
       $(this).prepend("<h3>Version " + version + "</h3>");
     });
-    
+
     $("#changelog").on("click", "input[type='checkbox']", function() {
       $("#changelog").toggleClass(this.id.substr(3,1));
     });
-    
+
     $("#credits").on("click", "[data-network]", function() {
       var link = $(this);
       GA.social(link.data("network"), link.data("action") || "show", link.attr("href") || "-");
     });
-    
+
     initFilter();
   });
 
