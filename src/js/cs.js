@@ -131,7 +131,7 @@ $(function() {
 
   /** Adjust the music content size to make the lyrics container fit in the page. */
   function contentResize() {
-    $("#music-content").css("width", ($("#content-container").width() - $("#ppLyricsContainer").width() - 10) + "px");
+    $("#music-content").css("width", $("#content-container").width() - $("#ppLyricsContainer").width() - 10 + "px");
   }
 
   /** Undo the music content resize. */

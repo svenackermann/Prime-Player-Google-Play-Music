@@ -239,7 +239,7 @@ function ignoreLastError() {
 
 /** @return time in seconds that a time string represents (e.g. 4:23 -> 263) */
 function parseSeconds(time) {
-  if (typeof(time) != "string") return 0;
+  if (typeof time != "string") return 0;
   return time.split(":").reverse().reduceRight(function(prev, cur, i) {
     return parseInt(cur) * Math.pow(60, i) + prev;
   }, 0) || 0;//empty string or invalid characters would lead to NaN, return 0 in this case
@@ -250,7 +250,7 @@ function songsEqual(song1, song2) {
   if (song1 == song2) return true;//both null
   if (song1 && song2 &&
       (song1.duration === null || song2.duration === null || song1.duration == song2.duration) &&
-      (!song1.playlist || !song2.playlist || song1.playlist != song2.playlist || (song1.cluster == song2.cluster && song1.index == song2.index)) &&
+      (!song1.playlist || !song2.playlist || song1.playlist != song2.playlist || song1.cluster == song2.cluster && song1.index == song2.index) &&
       song1.title == song2.title &&
       song1.artist == song2.artist &&
       song1.album == song2.album) {
@@ -296,7 +296,7 @@ function getQuicklinks() {
 
 /** @return true, if a change from old to new rating would result in a rating reset in Google Music */
 function isRatingReset(oldRating, newRating) {
-  return oldRating == newRating || (isThumbsRatingMode() && ((oldRating == 2 && newRating == 1) || (oldRating == 4 && newRating == 5)));
+  return oldRating == newRating || isThumbsRatingMode() && (oldRating == 2 && newRating == 1 || oldRating == 4 && newRating == 5);
 }
 
 /** Get the last saved song from local storage. The callback will only be called if one exists. */
@@ -493,7 +493,7 @@ function loadCurrentLastfmInfo() {
     song.loved = loved;
     if (settings.linkRatings && settings.linkRatingsAuto) {
       if (loved === true && song.rating === 0) executeInGoogleMusic("rate", { rating: 5 });
-      else if (loved === false && (song.rating >= settings.linkRatingsMin || (isThumbsRatingMode() && song.rating >= 4))) loveTrack();
+      else if (loved === false && (song.rating >= settings.linkRatingsMin || isThumbsRatingMode() && song.rating >= 4)) loveTrack();
     }
   });
 }
@@ -505,8 +505,8 @@ function calcScrobbleTime() {
     song.info.durationSec > 0 &&
     isScrobblingEnabled() &&
     !(song.ff && settings.disableScrobbleOnFf) &&
-    !(settings.scrobbleMaxDuration > 0 && song.info.durationSec > (settings.scrobbleMaxDuration * 60))) {
-    var scrobbleTime = song.info.durationSec * (settings.scrobblePercent / 100);
+    !(settings.scrobbleMaxDuration > 0 && song.info.durationSec > settings.scrobbleMaxDuration * 60)) {
+    var scrobbleTime = song.info.durationSec * settings.scrobblePercent / 100;
     if (settings.scrobbleTime > 0 && scrobbleTime > settings.scrobbleTime) {
       scrobbleTime = settings.scrobbleTime;
     }
@@ -811,7 +811,7 @@ function createNotification(id, options, cb) {
   if (localSettings.notificationsEnabled) chromeNotifications.create(id, options, function(nid) {
     notifications[nid] = { click: [], btnClick: [], close: [] };
     cb(nid);
-    addNotificationListener("close", nid, function() { delete(notifications[nid]); });
+    addNotificationListener("close", nid, function() { delete notifications[nid]; });
   });
 }
 
@@ -885,7 +885,7 @@ function drawIcon(backgroundSrc, imagePaths, cb, clickAction) {
         iconCtx.globalAlpha = 1.0;
       } else iconCtx.drawImage(image, 0, 0);
     } else {
-      iconCtx.globalAlpha = clickActionAvailable || (settings.showProgress && song.info) ? 0.5 : 1.0;
+      iconCtx.globalAlpha = clickActionAvailable || settings.showProgress && song.info ? 0.5 : 1.0;
       iconCtx.drawImage(image, 0, 0);
       iconCtx.globalAlpha = 1.0;
       backgroundDrawn = true;
@@ -1281,13 +1281,13 @@ function updateToast() {
 //{ Google tab handling
 /** Open or activate a Google Music tab. */
 function openGoogleMusicTab(link, forceActive, forceBackground, openGmInCurrentTab) {
-  var active = forceActive === true || (!settings.openGmBackground && !forceBackground);
+  var active = forceActive === true || !settings.openGmBackground && !forceBackground;
   if (googlemusictabId) {
     if (active) chromeTabs.update(googlemusictabId, { active: true });
   } else if (!connecting) {
     var url = "http://play.google.com/music/listen";
     if (localSettings.googleAccountNo) url += "?u=" + localSettings.googleAccountNo;
-    if (typeof(link) == "string") url += "#/" + link;
+    if (typeof link == "string") url += "#/" + link;
     var createFn = openGmInCurrentTab ? chromeTabs.update : chromeTabs.create;
     createFn({ url: url, pinned: settings.openGoogleMusicPinned, active: active }, function(tab) {
       connectingTabId = tab.id;
@@ -1606,7 +1606,7 @@ if (localStorage.updateBackup) {
 
 //{ timer handling
 function getTimerMinutesLabel(min) {
-  return min < 60 ? i18n("timerInMin", min + "") : (min == 60 ? i18n("timerInOneHour") : i18n("timerInHours", (min / 60) + ""));
+  return min < 60 ? i18n("timerInMin", min + "") : min == 60 ? i18n("timerInOneHour") : i18n("timerInHours", min / 60 + "");
 }
 
 function getRemainingTimerTime(base) {
@@ -1811,7 +1811,7 @@ chromeContextMenus.onClicked.addListener(function(info) {
     var min = parseInt(cmd.substr(14));
     localSettings.timerMinutes = min;
     if (localSettings.timerPreNotify > min * 60) localSettings.timerPreNotify = min * 60;
-    localSettings.timerEnd = ($.now() / 1000) + (min * 60);
+    localSettings.timerEnd = $.now() / 1000 + min * 60;
     startSleepTimer();
   } else if (cmd.indexOf("fav_") === 0) {
     startPlaylist(cmd.substr(4));
@@ -1847,7 +1847,7 @@ settings.al("scrobble", function(val) { chromeContextMenus.update("toggleScrobbl
 //{ idle/locked handling
 function onIdleStateChangedHandler(state) {
   console.debug("onIdleStateChangedHandler", state, player.playing);
-  if (player.playing && ((state == "locked" && settings.pauseOnLock) || (state == "idle" && settings.pauseOnIdleSec > 0))) {
+  if (player.playing && (state == "locked" && settings.pauseOnLock || state == "idle" && settings.pauseOnIdleSec > 0)) {
     executePlayPause(false);
     chromeLocalStorage.set({ resumeOnActive: true });
   } else if (state == "active") {
@@ -2179,7 +2179,7 @@ function commandOptionListener(updateFn, cmd) {
 
 function getAvailableIconClickConnectAction() {
   var action = settings.iconClickConnectAction;
-  return action != "resumeLastSong" || (settings.saveLastPosition && lastSongInfo) ? action : "";
+  return action != "resumeLastSong" || settings.saveLastPosition && lastSongInfo ? action : "";
 }
 
 function executeConnectAction(action) {
@@ -2311,7 +2311,7 @@ function executeCommand(command, src) {
     default:
       if (command.indexOf("rate-") === 0 && song.info) {
         var rating = parseInt(command.substr(5, 1));
-        if (!settings.preventCommandRatingReset || !isRatingReset(song.rating, rating) || (src == "icon" && settings.showRatingIndicator) || (src == "toast" && settings.toastRating)) rate(rating);
+        if (!settings.preventCommandRatingReset || !isRatingReset(song.rating, rating) || src == "icon" && settings.showRatingIndicator || src == "toast" && settings.toastRating) rate(rating);
       }
   }
 }

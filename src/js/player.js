@@ -229,7 +229,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         renderLastfmInfo(lastfmInfo);
       }
     }
-    if (settings.showLastfmInfo || (!settings.hideRatings && localSettings.lastfmSessionName)) getLastSongInfo();
+    if (settings.showLastfmInfo || !settings.hideRatings && localSettings.lastfmSessionName) getLastSongInfo();
 
     if (lastSong.info.albumLink) {
       $("#resume").addClass("lastSongEnabled").unbind().click(bp.resumeLastSong.bind(window, lastSong));
@@ -260,7 +260,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function updateScrobblePosition(scrobbleTime) {
     var sp = $("#scrobblePosition");
     if (scrobbleTime >= 0 && song.info && song.info.durationSec > 0) {
-      sp.addClass("songscrobble").css({ left: (scrobbleTime / song.info.durationSec * 100) + "%" });
+      sp.addClass("songscrobble").css({ left: scrobbleTime / song.info.durationSec * 100 + "%" });
     } else sp.removeClass("songscrobble");
   }
 
@@ -824,7 +824,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }).on("dragover", dropSelector, function(ev) {
       var types = ev.originalEvent.dataTransfer.types;
       var index = $(this).index();
+      // jshint singleGroups: false
       var dropAllowed = types.indexOf("srcfavorite") >= 0 && types.indexOf("srcfavorite/" + index) < 0 && types.indexOf("srcfavorite/" + (index - 1)) < 0;
+      // jshint singleGroups: true
       $(this).toggleClass("dragging", dropAllowed);
       return !dropAllowed;
     }).on("dragleave", dropSelector, function() {
@@ -902,7 +904,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var a = lastfmRating.find("a").unbind();
     if (loved === null) {
       lastfmRating.addClass("loading");
-    } else if (typeof(loved) == "string") {
+    } else if (typeof loved == "string") {
       lastfmRating.addClass("error");
       a.data("msg", i18n("lastfmError") + loved).click(actions.getLastfmInfo);
       a.data("lastfmInfo", "");

@@ -57,7 +57,7 @@ function Bean(defaults, useLocalStorage) {
   this.ral = function(src) {
     var listeners = srcListeners[src];
     if (listeners) {
-      delete(srcListeners[src]);
+      delete srcListeners[src];
       listeners.forEach(function(listener) {
         that.rl(listener.p, listener.l);
       });
@@ -134,7 +134,7 @@ function Bean(defaults, useLocalStorage) {
   };
 
   function cloneValue(value) {
-    if (value && typeof(value) == "object") {
+    if (value && typeof value == "object") {
       //clone to avoid modification of default value
       return $.isArray(value) ? value.slice() : $.extend(true, {}, value);
     }
@@ -164,7 +164,7 @@ function Bean(defaults, useLocalStorage) {
     var type = value.substr(0, 1);
     value = value.substr(1);
     switch (type) {
-      case "o": return value == "null" ? null : (value[0] == "[" ? JSON.parse(value) : $.extend(clonedDefault, JSON.parse(value)));
+      case "o": return value == "null" ? null : value[0] == "[" ? JSON.parse(value) : $.extend(clonedDefault, JSON.parse(value));
       case "b": return value == "true";
       case "n": return parseFloat(value);
       default: return value;
@@ -174,7 +174,7 @@ function Bean(defaults, useLocalStorage) {
   /** @return true, if both values are the same, for objects always returns false (except for null==null) */
   function defaultEquals(val, old) {
     //setting the same object again should always trigger notify, except for setting null to null (typeof(null) is object)
-    return val === old && (typeof(val) != "object" || val === null);
+    return val === old && (typeof val != "object" || val === null);
   }
 
   /** Setup an object property with the given name */
@@ -191,9 +191,9 @@ function Bean(defaults, useLocalStorage) {
         if (syncLocalStorage) {
           if (val === undefined || equals(val, defaultValue)) localStorage.removeItem(name);
           else {
-            var type = typeof(val);
+            var type = typeof val;
             if (type == "function") throw "cannot store a function in localstorage";
-            localStorage[name] = type.substr(0, 1) + ((type == "object") ? JSON.stringify(val) : val);
+            localStorage[name] = type.substr(0, 1) + (type == "object") ? JSON.stringify(val) : val;
           }
         }
         cache[name] = val;

@@ -1,0 +1,14 @@
+{
+  "browser": true,
+  "jquery": true,
+  "devel": true,
+  "undef": true,
+  "unused": true,
+  "bitwise": true,
+  "futurehostile": true,
+  "latedef": "nofunc",
+  "noarg": true,
+  "nocomma": true,
+  "nonbsp": true,
+  "singleGroups": true
+}

@@ -1,4 +1,4 @@
-/* global require */
+/*jshint node: true, jquery: false, devel: false, browser: false */
 var gulp = require("gulp");
 var jshint = require("gulp-jshint");
 var jscs = require("gulp-jscs");
@@ -41,7 +41,7 @@ function myUglify() {
 
 gulp.task("style", function() {
   return gulp.src(["gulpfile.js", "src/js/*.js", "!src/js/*.min.js"])
-    .pipe(jshint({ browser: true, jquery: true, devel: true, undef: true, unused: true, bitwise: true }))
+    .pipe(jshint())
     .pipe(jscs())
     .on("error", function() {})
     .pipe(jscsstylish.combineWithHintResults())

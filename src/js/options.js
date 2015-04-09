@@ -126,7 +126,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   var countdownInterval;
   function updateTimerStatus(timerEnd) {
-    var countdown = Math.floor((timerEnd || 0) - ($.now() / 1000));
+    var countdown = Math.floor((timerEnd || 0) - $.now() / 1000);
     if (countdown > 0) {
       $("#timerStatus").text(i18n("setting_timerAction_" + localSettings.timerAction) + " in " + bp.toTimeString(countdown));
     } else {
@@ -235,7 +235,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var input = $("<input type='number'>").attr("min", min).attr("max", max);
     input.val(theSettings[prop]).blur(function() {
       var value = parseFloat($(this).val());
-      if (($.isNumeric(min) && value < min) || ($.isNumeric(max) && value > max)) $(this).val(theSettings[prop]);
+      if ($.isNumeric(min) && value < min || $.isNumeric(max) && value > max) $(this).val(theSettings[prop]);
       else theSettings[prop] = value;
     });
     setIdAndAddItWithLabel(input, prop, theSettings == settings);
@@ -454,7 +454,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         localSettings.timerAction = timerAction.val();
         localSettings.timerNotify = timerNotify.prop("checked");
         localSettings.timerPreNotify = timerPreNotify.val();
-        localSettings.timerEnd = ($.now() / 1000) + (min * 60);
+        localSettings.timerEnd = $.now() / 1000 + min * 60;
         bp.startSleepTimer();
       }
     });

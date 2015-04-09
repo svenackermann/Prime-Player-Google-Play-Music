@@ -180,7 +180,7 @@
   function setPositionPercent(elementId, percent) {
     var slider = document.getElementById(elementId);
     var rect = slider.getBoundingClientRect();
-    simulateMouseEvent("mousedown", slider, rect.left + (percent * rect.width), rect.top + 1);
+    simulateMouseEvent("mousedown", slider, rect.left + percent * rect.width, rect.top + 1);
   }
 
   /** Cleanup this script, i.e. remove the message listener from the window. */
