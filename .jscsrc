@@ -29,7 +29,7 @@
     "beforeOpeningCurlyBrace": true
   },
   "requireSpacesInsideObjectBrackets": "all",
-  //"validateIndentation": 2,
+  "validateIndentation": 2,
   "validateJSDoc": {
     "checkParamNames": true,
     "checkRedundantParams": true

@@ -51,21 +51,21 @@ function LastFM(apiKey, apiSecret) {
   };
 
   /* Normal method call. */
-	var call = function(method, params, callbacks, requestMethod) {
-		/* Set default values. */
-		params        = params        || {};
-		callbacks     = callbacks     || {};
-		requestMethod = requestMethod || "GET";
+  var call = function(method, params, callbacks, requestMethod) {
+    /* Set default values. */
+    params        = params        || {};
+    callbacks     = callbacks     || {};
+    requestMethod = requestMethod || "GET";
 
-		/* Add parameters. */
-		params.method  = method;
+    /* Add parameters. */
+    params.method  = method;
     // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
-		params.api_key = apiKey;
+    params.api_key = apiKey;
     // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
 
-		/* Call method. */
-		internalCall(params, callbacks, requestMethod);
-	};
+    /* Call method. */
+    internalCall(params, callbacks, requestMethod);
+  };
 
   /* Signed method call. */
   var signedCall = function(method, params, callbacks, requestMethod) {
@@ -77,7 +77,7 @@ function LastFM(apiKey, apiSecret) {
     /* Add parameters. */
     params.method  = method;
     // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
-		params.api_key = apiKey;
+    params.api_key = apiKey;
     // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
 
     /* Add session key. */
@@ -87,7 +87,7 @@ function LastFM(apiKey, apiSecret) {
 
     /* Get API signature. */
     // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
-		params.api_sig = auth.getApiSignature(params);
+    params.api_sig = auth.getApiSignature(params);
     // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
 
     /* Call method. */

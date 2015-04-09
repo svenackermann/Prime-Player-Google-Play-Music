@@ -600,8 +600,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#_saveLastPosition").click(saveLastPositionChanged);
     var skipRatedLower = $("#_skipRatedLower").change(function() { $("#_skipRatedThumbsDown").prop("checked", settings.skipRatedLower > 0); });
     $("#_skipRatedThumbsDown").unbind().prop("checked", settings.skipRatedLower > 0).click(function() {
-       settings.skipRatedLower = $(this).prop("checked") ? 2 : 0;
-       skipRatedLower.val(settings.skipRatedLower);
+      settings.skipRatedLower = $(this).prop("checked") ? 2 : 0;
+      skipRatedLower.val(settings.skipRatedLower);
     });
     $("#_startupAction option[value='']").text(i18n("command_"));
     $("#_pauseOnIdle").unbind().prop("checked", settings.pauseOnIdleSec > 0).click(pauseOnIdleClicked);
