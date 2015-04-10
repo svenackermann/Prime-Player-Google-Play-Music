@@ -10,14 +10,14 @@
 
 chrome.runtime.getBackgroundPage(function(bp) {
   var thisTabId;
-  var context = "options";
+  var CONTEXT = "options";
   var settingsView = $("#settings");
   var i18n = chrome.i18n.getMessage;
   var settings = bp.settings;
   var localSettings = bp.localSettings;
 
   /** Google analytics */
-  var GA = initGA(settings, context);
+  var GA = initGA(settings, CONTEXT);
 
   /** request and store last.fm session info */
   function getLastfmSession(token) {
@@ -608,22 +608,22 @@ chrome.runtime.getBackgroundPage(function(bp) {
     //}
 
     //watch this if changed via miniplayer
-    settings.al("scrobble", scrobbleChanged, context);
+    settings.al("scrobble", scrobbleChanged, CONTEXT);
     //we must watch this as the session could be expired
-    localSettings.w("lastfmSessionName", lastfmUserChanged, context);
+    localSettings.w("lastfmSessionName", lastfmUserChanged, CONTEXT);
     //show/hide notification based options
-    localSettings.w("notificationsEnabled", notificationsEnabledChanged, context);
+    localSettings.w("notificationsEnabled", notificationsEnabledChanged, CONTEXT);
     //update timer
-    localSettings.w("timerEnd", timerEndChanged, context);
-    localSettings.al("timerAction", function(val) { $("#_timerAction").val(val); }, context);
+    localSettings.w("timerEnd", timerEndChanged, CONTEXT);
+    localSettings.al("timerAction", function(val) { $("#_timerAction").val(val); }, CONTEXT);
     localSettings.al("timerMinutes", function(val) {
       $("#_timerMinutes").val(val);
       updatePreNotifyMax();
-    }, context);
+    }, CONTEXT);
     //Google account dependent options
-    localSettings.w("ratingMode", ratingModeChanged, context);
-    localSettings.w("quicklinks", quicklinksChanged, context);
-    localSettings.w("syncSettings", function(val) { $("body").toggleClass("syncenabled", val); }, context);
+    localSettings.w("ratingMode", ratingModeChanged, CONTEXT);
+    localSettings.w("quicklinks", quicklinksChanged, CONTEXT);
+    localSettings.w("syncSettings", function(val) { $("body").toggleClass("syncenabled", val); }, CONTEXT);
 
     //disable inputs if neccessary
     lyricsChanged();
@@ -682,8 +682,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
   });
 
   $(window).unload(function() {
-    settings.ral(context);
-    localSettings.ral(context);
+    settings.ral(CONTEXT);
+    localSettings.ral(CONTEXT);
     if (bp.optionsTabId == thisTabId) bp.optionsTabId = null;
   });
 });

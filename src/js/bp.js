@@ -38,8 +38,8 @@ function fixForUri(string) {
   var chromeIdle = chrome.idle;
   var chromeOmnibox = chrome.omnibox;
 
-  var gaCategoryLastFm = "LastFM";
-  var gaCategoryOptions = "Options";
+  var GA_CAT_LASTFM = "LastFM";
+  var GA_CAT_OPTIONS = "Options";
 
   /** the miniplayer instance, if opened */
   var miniplayer = null;
@@ -386,12 +386,12 @@ function fixForUri(string) {
     } else {
       chromeTabs.create({ url: url });
     }
-    GA.event(gaCategoryLastFm, "AuthorizeStarted");
+    GA.event(GA_CAT_LASTFM, "AuthorizeStarted");
   }
 
   /** reset last.fm session */
   function lastfmLogout() {
-    GA.event(gaCategoryLastFm, "Logout");
+    GA.event(GA_CAT_LASTFM, "Logout");
     lastfm.session = {};
     localSettings.lastfmSessionKey = null;
     localSettings.lastfmSessionName = null;
@@ -426,7 +426,7 @@ function fixForUri(string) {
         },
         error: function(code, msg) {
           cb(msg, null);
-          GA.event(gaCategoryLastFm, "getInfoError-" + code);
+          GA.event(GA_CAT_LASTFM, "getInfoError-" + code);
         }
       });
     } else cb(null, null);
@@ -442,7 +442,7 @@ function fixForUri(string) {
         success: function() { cb(true); },
         error: function(code, msg) {
           cb(msg);
-          GA.event(gaCategoryLastFm, "loveError-" + code);
+          GA.event(GA_CAT_LASTFM, "loveError-" + code);
         }
       });
     }
@@ -458,7 +458,7 @@ function fixForUri(string) {
         success: function() { cb(false); },
         error: function(code, msg) {
           cb(msg);
-          GA.event(gaCategoryLastFm, "unloveError-" + code);
+          GA.event(GA_CAT_LASTFM, "unloveError-" + code);
         }
       });
     }
@@ -555,12 +555,12 @@ function fixForUri(string) {
       lastfm.track.scrobble(params, {
         success: function() {
           localStorage.removeItem("scrobbleCache");
-          GA.event(gaCategoryLastFm, "ScrobbleCachedOK");
+          GA.event(GA_CAT_LASTFM, "ScrobbleCachedOK");
         },
         error: function(code) {
           console.warn("Error on cached scrobbling: " + code);
           if (!isScrobbleRetriable(code)) localStorage.removeItem("scrobbleCache");
-          GA.event(gaCategoryLastFm, "ScrobbleCachedError-" + code);
+          GA.event(GA_CAT_LASTFM, "ScrobbleCachedError-" + code);
         }
       });
     }
@@ -587,13 +587,13 @@ function fixForUri(string) {
     var cloned = $.extend({}, params);//clone now, lastfm API will enrich params with additional values we don't need
     lastfm.track.scrobble(params, {
       success: function() {
-        GA.event(gaCategoryLastFm, "ScrobbleOK");
+        GA.event(GA_CAT_LASTFM, "ScrobbleOK");
         scrobbleCachedSongs();//try cached songs again now that the service seems to work again
       },
       error: function(code) {
         console.warn("Error on scrobbling '" + params.track + "': " + code);
         if (isScrobbleRetriable(code)) cacheForLaterScrobbling(cloned);
-        GA.event(gaCategoryLastFm, "ScrobbleError-" + code);
+        GA.event(GA_CAT_LASTFM, "ScrobbleError-" + code);
       }
     });
   }
@@ -601,10 +601,10 @@ function fixForUri(string) {
   /** Send updateNowPlaying for the current song. */
   function sendNowPlaying() {
     lastfm.track.updateNowPlaying(getSongLastFmParams(), {
-      success: function() { GA.event(gaCategoryLastFm, "NowPlayingOK"); },
+      success: function() { GA.event(GA_CAT_LASTFM, "NowPlayingOK"); },
       error: function(code) {
         console.warn("Error on now playing '" + song.info.title + "': " + code);
-        GA.event(gaCategoryLastFm, "NowPlayingError-" + code);
+        GA.event(GA_CAT_LASTFM, "NowPlayingError-" + code);
       }
     });
   }
@@ -1980,7 +1980,7 @@ function fixForUri(string) {
   localSettings.al("lyrics lyricsFontSize lyricsWidth", postLyricsState);
   localSettings.w("notificationsEnabled", function(val, old) {
     if (val) initNotifications();
-    else if (old) GA.event(gaCategoryOptions, "notifications-disabled");
+    else if (old) GA.event(GA_CAT_OPTIONS, "notifications-disabled");
   });
 
   player.al("connected", function(val) {
@@ -2479,7 +2479,7 @@ function fixForUri(string) {
     localSettings.lastfmSessionKey = session.key;
     localSettings.lastfmSessionName = session.name;
     lastfm.session = session;
-    GA.event(gaCategoryLastFm, "AuthorizeOK");
+    GA.event(GA_CAT_LASTFM, "AuthorizeOK");
     loadCurrentLastfmInfo();
     scrobbleCachedSongs();
   };

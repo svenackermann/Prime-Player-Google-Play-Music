@@ -12,7 +12,7 @@
 /* exported LastFM */
 
 function LastFM(apiKey, apiSecret) {
-  var apiUrl    = "https://ws.audioscrobbler.com/2.0/";
+  var API_URL    = "https://ws.audioscrobbler.com/2.0/";
 
   this.session = {};
   this.sessionTimeoutCallback = null;
@@ -25,7 +25,7 @@ function LastFM(apiKey, apiSecret) {
     params.format = "json";
     $.ajax({
       type: requestMethod,
-      url: apiUrl,
+      url: API_URL,
       data: params,
       timeout: 10000
     }).done(function(response) {

@@ -22,9 +22,9 @@ $(function() {
   var lyricsAutoReload = false;
   var lyricsAutoReloadTimer;
   var position;
-  var ratingContainerSelector = "#player-right-wrapper .player-rating-container ul.rating-container";
-  var ratingContainer = $(ratingContainerSelector);
-  var clusterSelector = ".cluster,.genre-stations-container";
+  var RATING_CONTAINER_SELECTOR = "#player-right-wrapper .player-rating-container ul.rating-container";
+  var ratingContainer = $(RATING_CONTAINER_SELECTOR);
+  var CLUSTER_SELECTOR = ".cluster,.genre-stations-container";
   var i18n = chrome.i18n.getMessage;
 
   /** send update to background page */
@@ -197,7 +197,7 @@ $(function() {
 
   function subclusterFilter(cont) {
     return function() {
-      var cluster = $(this).closest(clusterSelector);
+      var cluster = $(this).closest(CLUSTER_SELECTOR);
       //include if not contained in a cluster (top level sublist) or if contained in this cluster
       return !cluster.length || cluster[0] == cont[0];
     };
@@ -370,7 +370,7 @@ $(function() {
     watchAttr("class disabled", "#player > div.player-middle > button[data-id='play-pause']", "player-playing", playingGetter, 500);
     watchAttr("value", "#player > div.player-middle > button[data-id='repeat']", "player-repeat");
     watchAttr("value", "#player > div.player-middle > button[data-id='shuffle']", "player-shuffle", shuffleGetter);
-    watchAttr("class", ratingContainerSelector + " li", "song-rating", ratingGetter);
+    watchAttr("class", RATING_CONTAINER_SELECTOR + " li", "song-rating", ratingGetter);
     watchAttr("aria-valuenow", "#vslider", "player-volume");
 
     $("#music-content").on("DOMSubtreeModified", ".song-row td[data-col='rating']", function() {
@@ -462,7 +462,7 @@ $(function() {
   function sendPlaylistRowCommand(command, options) {
     if (location.hash != options.link) return;
     var body = $("#music-content");
-    if (options.cluster) body = $(body.find(clusterSelector)[options.cluster - 1]);
+    if (options.cluster) body = $(body.find(CLUSTER_SELECTOR)[options.cluster - 1]);
     body = body.find(".song-table > tbody").filter(subclusterFilter(body));
     if (!body.length || options.index > body.data("count") - 1) return;
     pausePlaylistParsing = true;
@@ -704,7 +704,7 @@ $(function() {
     response.lists = [];
     response.moreText = $.trim(view.find("div .header .more:visible").first().text());
     response.header = $.trim($("#header-tabs-container .header-tab-title.selected:visible").text()) || $.trim($("#breadcrumbs .tab-text:visible").text()) || $.trim($("#header-tabs-container .genre-dropdown-title .dropdown-title-text:visible").text());
-    view.find(clusterSelector).addBack().each(function() {
+    view.find(CLUSTER_SELECTOR).addBack().each(function() {
       var list = parseSublist($(this));
       if (list) response.lists.push(list);
     });
