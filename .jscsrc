@@ -35,5 +35,6 @@
     "checkRedundantParams": true
   },
   "validateLineBreaks": "LF",
+  "validateParameterSeparator": ", ",
   "validateQuoteMarks": "\""
 }

@@ -5,6 +5,7 @@
   "undef": true,
   "unused": true,
   "bitwise": true,
+  "freeze": true,
   "futurehostile": true,
   "latedef": "nofunc",
   "noarg": true,
