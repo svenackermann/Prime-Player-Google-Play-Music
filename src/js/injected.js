@@ -195,52 +195,52 @@
     if (event.source != window || event.data.type != "FROM_PRIMEPLAYER" || !event.data.command) return;
     console.debug("cs->inj: ", event.data);
     switch (event.data.command) {
-      case "playPause":
-        var resume = event.data.options.resume;
-        clickPlayerButton("play-pause", resume === false ? "playing" : null, resume ? "playing" : null);
-        break;
-      case "nextSong":
-        clickPlayerButton("forward");
-        break;
-      case "prevSong":
-        clickPlayerButton("rewind");
-        break;
-      case "toggleRepeat":
-        clickPlayerButton("repeat");
-        break;
-      case "toggleShuffle":
-        clickPlayerButton("shuffle");
-        break;
-      case "rate":
-        rate(document.getElementById("player-right-wrapper"), event.data.options.rating);
-        break;
-      case "startPlaylist":
-        startPlaylist();
-        break;
-      case "setPosition":
-        setPositionPercent("slider", event.data.options.percent);
-        break;
-      case "setVolume":
-        setPositionPercent("vslider", event.data.options.percent);
-        break;
-      case "clickCard":
-        clickCard(event.data.options.id);
-        break;
-      case "feelingLucky":
-        clickFeelingLucky();
-        break;
-      case "startPlaylistSong":
-        startPlaylistSong(event.data.options);
-        break;
-      case "resumePlaylistSong":
-        resumePlaylistSong(event.data.options);
-        break;
-      case "ratePlaylistSong":
-        ratePlaylistSong(event.data.options);
-        break;
-      case "cleanup":
-        cleanup();
-        break;
+    case "playPause":
+      var resume = event.data.options.resume;
+      clickPlayerButton("play-pause", resume === false ? "playing" : null, resume ? "playing" : null);
+      break;
+    case "nextSong":
+      clickPlayerButton("forward");
+      break;
+    case "prevSong":
+      clickPlayerButton("rewind");
+      break;
+    case "toggleRepeat":
+      clickPlayerButton("repeat");
+      break;
+    case "toggleShuffle":
+      clickPlayerButton("shuffle");
+      break;
+    case "rate":
+      rate(document.getElementById("player-right-wrapper"), event.data.options.rating);
+      break;
+    case "startPlaylist":
+      startPlaylist();
+      break;
+    case "setPosition":
+      setPositionPercent("slider", event.data.options.percent);
+      break;
+    case "setVolume":
+      setPositionPercent("vslider", event.data.options.percent);
+      break;
+    case "clickCard":
+      clickCard(event.data.options.id);
+      break;
+    case "feelingLucky":
+      clickFeelingLucky();
+      break;
+    case "startPlaylistSong":
+      startPlaylistSong(event.data.options);
+      break;
+    case "resumePlaylistSong":
+      resumePlaylistSong(event.data.options);
+      break;
+    case "ratePlaylistSong":
+      ratePlaylistSong(event.data.options);
+      break;
+    case "cleanup":
+      cleanup();
+      break;
     }
   }
 
