@@ -1606,7 +1606,11 @@ function fixForUri(string) {
 
   //{ timer handling
   function getTimerMinutesLabel(min) {
-    return min < 60 ? i18n("timerInMin", min + "") : min == 60 ? i18n("timerInOneHour") : i18n("timerInHours", min / 60 + "");
+    if (min < 60) return i18n("timerInMin", min + "");
+    if (min == 60) return i18n("timerInOneHour");
+    var submin = min % 60;
+    if (!submin) return i18n("timerInHours", min / 60 + "");
+    return Math.floor(min / 60) + ":" + (submin < 10 ? "0" + submin : submin);
   }
 
   function getRemainingTimerTime(base) {
