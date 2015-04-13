@@ -28,21 +28,17 @@ function initGA(settings, context, initDimensions, initMetrics) {
     if (settings.gaEnabled) ga("send", "social", network, action, target);
   }
 
-  function setDimensions(dimensions) {
-    if (settings.gaEnabled && dimensions) {
-      dimensions.forEach(function(dim, i) {
-        ga("set", "dimension" + (i + 2), dim);
+  function setOptions(prefix, startIndex, options) {
+    if (settings.gaEnabled && options) {
+      options.forEach(function(opt, i) {
+        ga("set", prefix + (i + startIndex), opt);
       });
     }
   }
 
-  function setMetrics(metrics) {
-    if (settings.gaEnabled && metrics) {
-      metrics.forEach(function(met, i) {
-        ga("set", "metric" + (i + 1), met);
-      });
-    }
-  }
+  var setDimensions = setOptions.bind(window, "dimension", 2);
+
+  var setMetrics = setOptions.bind(window, "metric", 1);
 
   function gaEnabledChanged(val) {
     if (val) {

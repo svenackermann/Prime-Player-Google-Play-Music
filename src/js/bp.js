@@ -432,37 +432,27 @@ function fixForUri(string) {
     } else cb(null, null);
   }
 
-  /** Love a song in last.fm. The callback either gets true or an error message. */
-  function love(songInfo, cb) {
+  function updateLovedState(doLove, songInfo, cb) {
     if (localSettings.lastfmSessionKey && songInfo) {
-      lastfm.track.love({
+      var fnName = doLove ? "love" : "unlove";
+      lastfm.track[fnName]({
         artist: songInfo.artist,
         track: songInfo.title
       }, {
-        success: function() { cb(true); },
+        success: function() { cb(doLove); },
         error: function(code, msg) {
           cb(msg);
-          GA.event(GA_CAT_LASTFM, "loveError-" + code);
+          GA.event(GA_CAT_LASTFM, fnName + "Error-" + code);
         }
       });
     }
   }
 
+  /** Love a song in last.fm. The callback either gets true or an error message. */
+  var love = updateLovedState.bind(window, true);
+
   /** Unlove a song in last.fm. The callback either gets false or an error message. */
-  function unlove(songInfo, cb) {
-    if (localSettings.lastfmSessionKey && songInfo) {
-      lastfm.track.unlove({
-        artist: songInfo.artist,
-        track: songInfo.title
-      }, {
-        success: function() { cb(false); },
-        error: function(code, msg) {
-          cb(msg);
-          GA.event(GA_CAT_LASTFM, "unloveError-" + code);
-        }
-      });
-    }
-  }
+  var unlove = updateLovedState.bind(window, false);
 
   function updateTrackLoved(fn) {
     song.loved = null;
