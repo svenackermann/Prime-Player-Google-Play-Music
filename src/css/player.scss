@@ -941,6 +941,9 @@ a {
 
 a#showfavorites {
   cursor: pointer;
+  &:hover {
+    opacity: 1;
+  }
 }
 
 #showlyrics {
