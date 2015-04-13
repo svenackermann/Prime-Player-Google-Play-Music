@@ -193,7 +193,7 @@ function Bean(defaults, useLocalStorage) {
           else {
             var type = typeof val;
             if (type == "function") throw "cannot store a function in localstorage";
-            localStorage[name] = type.substr(0, 1) + (type == "object") ? JSON.stringify(val) : val;
+            localStorage[name] = type.substr(0, 1) + (type == "object" ? JSON.stringify(val) : val);
           }
         }
         cache[name] = val;
