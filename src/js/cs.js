@@ -26,6 +26,7 @@ $(function() {
   var ratingContainer = $(RATING_CONTAINER_SELECTOR);
   var CLUSTER_SELECTOR = ".cluster,.genre-stations-container";
   var i18n = chrome.i18n.getMessage;
+  var getExtensionUrl = chrome.runtime.getURL;
 
   /** send update to background page */
   function post(type, value) {
@@ -163,7 +164,7 @@ $(function() {
   function enableLyrics(fontSize, width) {
     if (!$("#ppLyricsButton").length) {
       $("<img id='ppLyricsButton'/>")
-        .attr("src", chrome.extension.getURL("img/cmd/openLyrics.png"))
+        .attr("src", getExtensionUrl("img/cmd/openLyrics.png"))
         .attr("title", i18n("command_openLyrics"))
         .toggleClass("active", $("#playerSongInfo").find("div").length)
         .click(toggleLyrics)
@@ -403,7 +404,7 @@ $(function() {
 
     window.addEventListener("message", onMessage);
     //we must add this script to the DOM for the code to be executed in the correct context
-    $("<script id='primeplayerinjected' type='text/javascript'></script>").attr("src", chrome.extension.getURL("js/injected.js")).appendTo("head");
+    $("<script id='primeplayerinjected'></script>").attr("src", getExtensionUrl("js/injected.js")).appendTo("head");
 
     var sendConnectedInterval;
     function sendConnected() {

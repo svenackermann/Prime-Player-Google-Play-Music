@@ -32,7 +32,7 @@ function fixForUri(string) {
   var chromeBrowserAction = chrome.browserAction;
   var chromeLocalStorage = chrome.storage.local;
   var i18n = chrome.i18n.getMessage;
-  var getExtensionUrl = chrome.extension.getURL;
+  var getExtensionUrl = chrome.runtime.getURL;
   var chromeNotifications = chrome.notifications;
   var chromeContextMenus = chrome.contextMenus;
   var chromeIdle = chrome.idle;
