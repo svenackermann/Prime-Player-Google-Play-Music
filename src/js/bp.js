@@ -603,10 +603,8 @@ function fixForUri(string) {
   lastfm.sessionTimeoutCallback = function() {
     lastfmLogout();
     createNotification(RELOGIN, {
-      type: "basic",
       title: i18n("lastfmSessionTimeout"),
       message: i18n("lastfmRelogin"),
-      iconUrl: getExtensionUrl("img/icon-48x48.png"),
       priority: 1,
       isClickable: true
     }, function(nid) {
@@ -798,7 +796,9 @@ function fixForUri(string) {
   }
 
   function createNotification(id, options, cb) {
-    options.appIconMaskUrl = getExtensionUrl("img/icon-alpha.png");
+    options.type = options.type || "basic";
+    options.iconUrl = options.iconUrl || "img/icon-48x48.png";
+    options.appIconMaskUrl = "img/icon-alpha.png";
     if (localSettings.notificationsEnabled) chromeNotifications.create(id, options, function(nid) {
       notifications[nid] = { click: [], btnClick: [], close: [] };
       cb(nid);
@@ -1117,7 +1117,7 @@ function fixForUri(string) {
       if (isThumbsRatingMode()) return null;
       break;
     }
-    return { title: getCommandText(cmd), iconUrl: getExtensionUrl(getCommandIconUrl(cmd) + ".png") };
+    return { title: getCommandText(cmd), iconUrl: getCommandIconUrl(cmd) + ".png" };
   }
 
   /** Updates the toast's iconUrl with the album cover and rating. */
@@ -1215,7 +1215,7 @@ function fixForUri(string) {
       title: song.info.title,
       message: song.info.artist,
       contextMessage: song.info.album,
-      iconUrl: getExtensionUrl("img/cover.png"),
+      iconUrl: "img/cover.png",
       buttons: btns,
       priority: settings.toastPriority - 2,
       isClickable: !!settings.toastClick
@@ -1649,11 +1649,9 @@ function fixForUri(string) {
       }
       if (localSettings.timerNotify && msg) {
         createNotification(TIMEREND, {
-          type: "basic",
           title: i18n("timerNotificationTitle"),
           message: msg,
           buttons: [{ title: btnTitle }],
-          iconUrl: getExtensionUrl("img/icon-48x48.png"),
           isClickable: false
         }, function(nid) {
           function clearTimerNotify() { clearNotification(nid); }
@@ -1674,11 +1672,9 @@ function fixForUri(string) {
           return i18n(localSettings.timerAction == "pause" ? "timerWarningMsgPause" : "timerWarningMsgCloseGm", "" + getRemainingTimerTime(1));
         }
         var preNotifyOptions = {
-          type: "basic",
           title: i18n("timerWarningTitle"),
           message: getWarningMessage(),
           buttons: [{ title: i18n("cancelTimer") }],
-          iconUrl: getExtensionUrl("img/icon-48x48.png"),
           priority: 1,
           isClickable: false
         };
