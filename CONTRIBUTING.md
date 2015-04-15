@@ -3,14 +3,14 @@
 If you find any bugs or would like to see new features, please file an issue here on GitHub or - even better - send a pull request.
 
 ### Pull requests
-Please do not use the "master" branch for contributing, as I use [git-flow](http://nvie.com/posts/a-successful-git-branching-model/)
-(I know, that's pushing it a bit, but I try to learn sth. on developing this).
+Please do not use the `master` branch for contributing, as I use [git-flow](http://nvie.com/posts/a-successful-git-branching-model/)
+(I know, that's pushing it a bit, but I try to learn sth. on developing this). You can use the `develop` branch or create a new feature/bugfix branch (e.g. `feature/mynewfeature`, `hotfix/myfix`).
 
 ### Setup
 You'll need [Gulp](http://gulpjs.com/) for development. Make sure you have [node.js](http://nodejs.org/) installed, then just run `npm install` from the project root directory to install Gulp and all required plugins.
 Afterwards you can execute `gulp` from the project root directory to let Gulp watch for changes and automatically recompile artifacts (CSS/JS/...) as needed.
 
-Gulp builds and minifies all [SASS](http://sass-lang.com/) files, minifies JavaScript files and copies them (together with the other files in the `src` folder) to a folder `build` that you can load as unpacked extension in your Chrome browser. Do not try to load the `src` folder as unpacked extension, it won't work. Gulp also creates source maps for the minified SASS and JS files, but Chrome has sometimes problems with them. For this reason you can also run `gulp --full` to skip the minification, so debugging might be easier.
+Gulp builds and minifies all [SASS](http://sass-lang.com/) files, minifies JavaScript files and copies them (together with the other files in the `src` folder) to a folder `build` that you can load as unpacked extension in your Chrome browser. Do not try to load the `src` folder as unpacked extension, it won't work. Gulp also creates source maps for the minified SASS and JS files, but Chrome has sometimes problems with them. For this reason you can instead run `gulp --full` to skip the minification, so debugging might be easier.
 
 ### Code style
 I use [JSCS](http://jscs.info/) and [JSHint](http://jshint.com/about/) to check that all JavaScript files comply with some basic rules and formatting. Before commiting (or sending a pull request) please check if your changes are fine by running `gulp style` from the project root directory. You can look at the files `.jscsrc` and `.jshintrc` for the configuration that is used.
