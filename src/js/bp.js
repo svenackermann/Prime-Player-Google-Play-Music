@@ -798,6 +798,7 @@ function fixForUri(string) {
   }
 
   function createNotification(id, options, cb) {
+    options.appIconMaskUrl = getExtensionUrl("img/icon-alpha.png");
     if (localSettings.notificationsEnabled) chromeNotifications.create(id, options, function(nid) {
       notifications[nid] = { click: [], btnClick: [], close: [] };
       cb(nid);
