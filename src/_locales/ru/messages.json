@@ -1,878 +1,878 @@
 {
-	"extDesc": {
-		"message": "Расширь возможности Google Music, добавив интеграцию с Last.FM, всплывающими уведомлениями, удобным миниплеером, поддержкой горячих клавиш и не только."
-	},
-	"options": {
-		"message": "Настройки"
-	},
-	"nothingPlaying": {
-		"message": "Ничего не воспроизводится"
-	},
-	"gotoGmusic": {
-		"message": "Открыть Google Play Music"
-	},
-	"myPlaylists": {
-		"message": "Мои плейлисты"
-	},
-	"setting_scrobble": {
-		"message": "Включить скробблинг"
-	},
-	"setting_toast": {
-		"message": "Включить всплывающие уведомления"
-	},
-	"setting_toastHint": {
-		"message": "Всплывающие уведомления не будут показываться пока активен миниплеер"
-	},
-	"openMiniplayer": {
-		"message": "Открыть миниплеер"
-	},
-	"lastfmUser": {
-		"message": "Имя пользователя Last.FM"
-	},
-	"logout": {
-		"message": "Выход"
-	},
-	"connect": {
-		"message": "Присоединить"
-	},
-	"disconnected": {
-		"message": "Нет соединения"
-	},
-	"prevSong": {
-		"message": "Предыдущий трек"
-	},
-	"nextSong": {
-		"message": "Следующий трек"
-	},
-	"pauseSong": {
-		"message": "Пауза"
-	},
-	"resumeSong": {
-		"message": "Воспроизведение"
-	},
-	"volumeControl": {
-		"message": "Громкость"
-	},
-	"playPause": {
-		"message": "Пауза/Воспроизведение"
-	},
-	"lastfmUnlove": {
-		"message": "Нелюбимый трек"
-	},
-	"lastfmLove": {
-		"message": "Любимый трек"
-	},
-	"lastfmError": {
-		"message": "Ошибка Last.FM, кликните для перезагрузки"
-	},
-	"lastfmUnavailable": {
-		"message": "Last.FM недоступен в данные момент"
-	},
-	"setting_toastUseMpStyle": {
-		"message": "Использовать вид миниплеера для всплывающих уведомлений"
-	},
-	"setting_toastUseMpStyleHint": {
-		"message": "Делает всплывающие уведомления похожими на миниплеер. В противном случае уведомления будут обладать меньшей функциональностью"
-	},
-	"setting_toastDuration": {
-		"message": "Продолжительность уведомления (0=держать открытым)"
-	},
-	"setting_toastDurationHint": {
-		"message": "Для стандартных уведомлений это значит время их исчезновения (с рабочего стола или зоны уведомлений Chrome). Google Chrome может переместить их в Оповещения быстрее. Для уведомлений в стиле миниплеера (режим эксперта) это время закрытия миниплеера."
-	},
-	"setting_toastPriority": {
-		"message": "переместить в Оповещения"
-	},
-	"setting_toastPriority_1": {
-		"message": "немедленно "
-	},
-	"setting_toastPriority_2": {
-		"message": "спустя 7 секунд"
-	},
-	"setting_toastPriority_3": {
-		"message": "спустя 25 секунд"
-	},
-	"setting_toastProgress": {
-		"message": "Показывать прогресс воспроизведения трека во всплывающем окне"
-	},
-	"setting_toastRating": {
-		"message": "Показывать рейтинг трека по всплывающем окне"
-	},
-	"setting_toastIfMpOpen": {
-		"message": "Показывать всплывающее окно уведомления даже когда отрыт миниплеер"
-	},
-	"setting_toastIfMpMinimized": {
-		"message": "Только если окно миниплеера свёрнуто"
-	},
-	"setting_toastNotIfGmActive": {
-		"message": "Не показывать всплывающие уведомления, если вы находитесь на вкладке Google Music"
-	},
-	"setting_toastClick": {
-		"message": "Действие при клике на всплывающее уведомление"
-	},
-	"setting_toastButton1": {
-		"message": "Действие кнопки 1"
-	},
-	"setting_toastButton2": {
-		"message": "Действие кнопки 2"
-	},
-	"setting_scrobblePercent": {
-		"message": "Процент скробблинга"
-	},
-	"setting_scrobbleTime": {
-		"message": "Максимальное время в секундах после которого трек будет заскробблен"
-	},
-	"setting_scrobbleMaxDuration": {
-		"message": "Максимальная продолжительность трека в минутах, в течение которого будет продолжаться скробблинг"
-	},
-	"setting_disableScrobbleOnFf": {
-		"message": "Не засчитывать трек для скробблинга после быстрой перемотки"
-	},
-	"setting_disableScrobbleOnFfHint": {
-		"message": "Не скробблить текущий трек после быстрой перемотки более чем на 5 секунд. Удобно, если вы просто ищете определённую часть трека. В противном случае трек будет заскробблен после прохождения точки скроблинга."
-	},
-	"setting_scrobbleRepeated": {
-		"message": "Скробблить трек снова при повторном вопроизведении"
-	},
-	"setting_linkRatings": {
-		"message": "Объединить рейтинги"
-	},
-	"setting_linkRatingsHint": {
-		"message": "Сделав песню любимой на Last.FM, она автоматически станет таковой на Google Music и наоборот. При этом рейтинги поставленные непосредственно на Last.FM и Google Music не изменяются. Работает только при использовании через миниплеер, сочетание клавиш, всплывающее уведомление."
-	},
-	"setting_linkRatingsMin": {
-		"message": "Минимальное количество звёзд для пометки трека любимым"
-	},
-	"setting_linkRatingsGpm": {
-		"message": "Также автоматически делать любимым, когда рейтинг ставится непосредственно на вкладке Google Music"
-	},
-	"setting_linkRatingsAuto": {
-		"message": "Автоматическое соединение рейтингов"
-	},
-	"setting_linkRatingsAutoHint": {
-		"message": "Когда трек начал воспроизведение, которому вы уже поставили лайк в Google Music, но который ещё не отмечен любимым на Last.FM, станет таковым. Также и наоборот."
-	},
-	"setting_showLovedIndicator": {
-		"message": "Показывать статус Любимый на иконке"
-	},
-	"setting_showScrobbledIndicator": {
-		"message": "Показывать статус скробблинга на иконке"
-	},
-	"setting_showLastfmInfo": {
-		"message": "Показывать информацию Last.FM в миниплеере. Чтобы увидеть измените размер"
-	},
-	"setting_miniplayerType": {
-		"message": "Вид миниплеера"
-	},
-	"setting_miniplayerTypeHint": {
-		"message": "Если вы хотите использовать тип 'панель' перейдите в <a></a> и активируйте 'Панели' для того, чтобы панель всегда оставалась наверху."
-	},
-	"setting_miniplayerType_normal": {
-		"message": "Окно"
-	},
-	"setting_miniplayerType_popup": {
-		"message": "Всплывающее окно"
-	},
-	"setting_miniplayerType_panel": {
-		"message": "Панель"
-	},
-	"setting_miniplayerType_detached_panel": {
-		"message": "Плавающая панель"
-	},
-	"setting_layout": {
-		"message": "Макет миниплеера"
-	},
-	"setting_layoutHint": {
-		"message": "Панели имеют начальную максимальную ширину, поэтому не рекомендуется использовать с макетом 'Горизонтальная плашка'"
-	},
-	"setting_layout_normal": {
-		"message": "Нормальный"
-	},
-	"setting_layout_compact1": {
-		"message": "Компактный (низкий)"
-	},
-	"setting_layout_compact2": {
-		"message": "Компактный (узкий)"
-	},
-	"setting_layout_hbar": {
-		"message": "Горизонтальная плашка"
-	},
-	"setting_iconClickConnectAction": {
-		"message": "Действие, если не открыт Google Music"
-	},
-	"setting_iconClickAction0": {
-		"message": "Действие при однократном клике"
-	},
-	"setting_iconClickAction1": {
-		"message": "Действие при двойной клике"
-	},
-	"setting_iconClickAction2": {
-		"message": "Для при тройном клике"
-	},
-	"setting_iconClickAction3": {
-		"message": "Действие при 4-х кликах"
-	},
-	"setting_iconDoubleClickTime": {
-		"message": "Скорость клика в мсек (0=выключено)"
-	},
-	"setting_iconDoubleClickTimeHint": {
-		"message": "Установите значение больше 0 (рекомендовано: 500) для большего количества действий по клику. Как и в последнем действии всплывающее окно всегда будет открыто."
-	},
-	"setting_iconShowAction": {
-		"message": "Показывать значок статуса в иконке"
-	},
-	"iconClickActionTitle": {
-		"message": "Действие(-я) если вкладка Google Music открыта"
-	},
-	"connected": {
-		"message": "Вкладка подключена к Prime Player. Кликните для отключения."
-	},
-	"legendTimer": {
-		"message": "Настрокйки таймера"
-	},
-	"legendTimerHint": {
-		"message": "Таймер позволяет автоматически остановить воспроизведение или закрыть вкладку Google Music после определенного периода времени. Настройки будут работать пока Prime Player подключён к Google Music."
-	},
-	"legendLastfm": {
-		"message": "Настройки Last.FM"
-	},
-	"legendLastfmHint": {
-		"message": "Здесь вы можете управлять соединением между Google Music и Last.FM. Также управлять настройками скробблинга."
-	},
-	"legendToast": {
-		"message": "Настройки всплывающего окна"
-	},
-	"legendToastHint": {
-		"message": "Всплывающее уведомление это уведомление на экране десктопа, показывающее название трека и позволяющее управлять некоторыми функциями. Уведомления появляются при начале воспроизведения каждого нового трека."
-	},
-	"legendMiniplayer": {
-		"message": "Настройки миниплеера"
-	},
-	"legendMiniplayerHint": {
-		"message": "Миниплеер это мощный, кастомизируемый инструмент. Поэтому, пожалуйста, потратьте немного времени для подбора настроек, которые будут лучше всего вам подходить. Вы можете открыть миниплеер по клику на значок Нота во всплывающем окне после клика на иконку Prime Player."
-	},
-	"legendLookfeel": {
-		"message": "Внешний вид"
-	},
-	"legendLookfeelHint": {
-		"message": "Эти настройки позволяют изменить иконку Prime player и поменять иные визуальные характеристики"
-	},
-	"legendIc": {
-		"message": "Действия при клике на иконку"
-	},
-	"legendIcHint": {
-		"message": "Эти настройки позволяют назначить действие(-я) при клике на иконку Prime Player"
-	},
-	"legendLyrics": {
-		"message": "Настройки текста песен"
-	},
-	"legendLyricsHint": {
-		"message": "Prime Player может показывать текст проигрываемой композиции в окне миниплеера или на вкладке Google Music. Для этого сначала выберете хотя бы один сайт, который будет использован в качестве источника текстов. Активированные сайты можно сортировать перетаскиванием. Первый в списке используется в качестве приоритетного при поиске."
-	},
-	"setting_gaEnabled": {
-		"message": "Включить Google Analytics"
-	},
-	"setting_gaEnabledHint": {
-		"message": "Никакие персональные данные, в том числе проигрываемые песни не собираются. Google Analytics используется только для анализа использования настроек и функций."
-	},
-	"scrobblePosition": {
-		"message": "Здесь произойдёт скробблинг"
-	},
-	"setting_color": {
-		"message": "Цветовая схема"
-	},
-	"setting_color_turq": {
-		"message": "Бирюзовый"
-	},
-	"setting_color_green": {
-		"message": "Зелёный"
-	},
-	"setting_color_red": {
-		"message": "Красный"
-	},
-	"setting_color_blue": {
-		"message": "Синий"
-	},
-	"setting_color_black": {
-		"message": "Чёрный"
-	},
-	"setting_color_orange": {
-		"message": "Оранжейвый"
-	},
-	"setting_mpBgColor": {
-		"message": "Цвет фона"
-	},
-	"setting_mpTextColor": {
-		"message": "Цвет текста"
-	},
-	"lastfmConnectSuccess": {
-		"message": "Подключение успешно"
-	},
-	"lastfmConnectError": {
-		"message": "Ошибка подключения"
-	},
-	"lastfmSessionTimeout": {
-		"message": "Last.FM отключен"
-	},
-	"lastfmRelogin": {
-		"message": "Кликните здесь для переподключения."
-	},
-	"bugfeatureinfo": {
-		"message": "Если вы обнаружили любые ошибки или желаете увидеть новые возможности в будущих релизах, пожалуйста, опишите ошибку на $GITHUB$.",
-		"placeholders": {"GITHUB":{"content":"$1"}}
-	},
-	"setting_openGoogleMusicPinned": {
-		"message": "Открыть Google Music в закреплённой вкладке"
-	},
-	"setting_openGmBackground": {
-		"message": "Открыть вкладку Google Music в фоне"
-	},
-	"setting_startupAction": {
-		"message": "Действие при запуске Google Chrome"
-	},
-	"setting_googleAccountNo": {
-		"message": "Номер аккаунта Google"
-	},
-	"setting_googleAccountNoHint": {
-		"message": "Если вы используете несколько аккаунтов Google, здесь вы можете указать какой необходимо использовать для проигрывания музыки. '0' всегда открывает аккаунт по-умолчанию, что также подходит вам, если вы используете только один профиль."
-	},
-	"setting_syncSettings": {
-		"message": "Настройки синхронизации с Google Chrome"
-	},
-	"setting_syncSettingsHint": {
-		"message": "Для использования вы должны быть залогинены в Google Chrome с помощью своего Google-аккаунта. Также должна быть включена настройка синхронизации расширений. По различным причинам не все настройки могут быть синхронизированы. Отличить сохраняемые настройки можно по знаку '*'. Важно знать, что настройки будут загружены только после запуска Prime PLayer (например при установке, обновлении или запуске барузера) и если вы включили сохранение, но сохранение, с небольшой задержкой, происходит сразу после изменения любого пункта настроек."
-	},
-	"setting_pauseOnLock": {
-		"message": "Пауза, когда компьютер заблокирован (воспроизведение при разблокировке)"
-	},
-	"setting_pauseOnIdle": {
-		"message": "Пауза, когда компьютер в режиме ожидания (воспроизведение после пробуждения)"
-	},
-	"setting_pauseOnIdleSec": {
-		"message": "Секунд бездействия прежде, чем музыка встанет на паузу"
-	},
-	"setting_preventCommandRatingReset": {
-		"message": "Предотвращение сброса рейтинга"
-	},
-	"setting_preventCommandRatingResetHint": {
-		"message": "Обычно, когда вы изменяете рейтинг трека, который его уже имеет показатель рейтинга сбрасывается. Когда вы используете для этого сочетание клавиш или настроенное заранее действие в уведомлениях, вы не можете видеть, что трек уже был оценён ранее. Отключение данной опции сбросит рейтинг в любом случае."
-	},
-	"setting_updateNotifier": {
-		"message": "Уведомление об обновлении (иконка станет оранжевой)"
-	},
-	"setting_iconStyle": {
-		"message": "Вид иконки"
-	},
-	"setting_showPlayingIndicator": {
-		"message": "Показывать статус Воспроизведение/Пауза на иконке"
-	},
-	"setting_showRatingIndicator": {
-		"message": "Показывать рейтинг на иконке"
-	},
-	"setting_showProgress": {
-		"message": "Показывать прогресс на иконке"
-	},
-	"setting_showProgressColor": {
-		"message": "Цвет прогресса трека"
-	},
-	"setting_showProgressColorPaused": {
-		"message": "Цвет прогресса трека, когда он находится на паузе"
-	},
-	"setting_saveLastPosition": {
-		"message": "Сохранять последнюю позицию воспроизводимого трека "
-	},
-	"setting_saveLastPositionHint": {
-		"message": "Сохранение точки воспроизведения трека (локально) при закрытии браузера. Позиция будет показана в миниплеере. Нажатаие на кнопку воспроизведения приведёт к попытке продолжения воспроизведения альбома. К сожалению, это невозможно по отношению к списку воспроизведения или плейлисту."
-	},
-	"setting_hideFavorites": {
-		"message": "Скрыть избранное в миниплеере и контекстном меню"
-	},
-	"setting_skipRatedLower": {
-		"message": "(или менее) оценённые песни будут пропущены"
-	},
-	"setting_skipRatedLower_0": {
-		"message": "выключено"
-	},
-	"setting_skipRatedLower_1": {
-		"message": "1 звезда"
-	},
-	"setting_skipRatedLower_2": {
-		"message": "2 звезды/Палец вниз/Дислайк"
-	},
-	"setting_skipRatedLower_2_stars": {
-		"message": "2 звезды"
-	},
-	"setting_skipRatedLower_3": {
-		"message": "3 звезды"
-	},
-	"setting_skipRatedLower_4": {
-		"message": "4 звезды"
-	},
-	"setting_skipRatedThumbsDown": {
-		"message": "Пропустить непонравившиеся треки (Палец вниз)"
-	},
-	"setting_hideRatings": {
-		"message": "Скрыть иконку рейтинга (Last.FM и звёзды/пальцы)"
-	},
-	"setting_omitUnknownAlbums": {
-		"message": "Исключить 'неизвестные альбомы' в списке альбомов в миниплеере"
-	},
-	"setting_omitUnknownAlbumsHint": {
-		"message": "Google показывает треки артистов без альбомов как 'Неизвестный альбом' в списке альбомов. Если эта опция активна, то 'псевдоальбомы' будут скрыты в списке альбомов в миниплеере."
-	},
-	"setting_mpAutoOpen": {
-		"message": "Автоматически открывать миниплеер, когда начинается воспроизведение"
-	},
-	"setting_mpAutoClose": {
-		"message": "Автоматически закрывать миниплеер, когда Google Music закрыта"
-	},
-	"setting_mpCloseGm": {
-		"message": "Автоматически закрывать Google Music, когда миниплеер закрывается"
-	},
-	"installNotifierTitle": {
-		"message": "Prime Player установлен"
-	},
-	"installNotifierText": {
-		"message": "Расширение имеет множество настроек, что позволит полностью подстроить его под свои нужды. Также обратите внимание на FAQ на странице приложения в интернет-магазине Google и на вики-страничку на Github. Получайте удовольствие от музыки вместе Prime Player!"
-	},
-	"updateNotifierTitle": {
-		"message": "Prime Player обновлён"
-	},
-	"updateNotifierText": {
-		"message": "Расширение обновлено. Перейдите на страницу настроек, чтобы узнать подробности"
-	},
-	"browserActionTitle_install": {
-		"message": "установлено"
-	},
-	"browserActionTitle_update": {
-		"message": "обновлено"
-	},
-	"browserActionTitle_paused": {
-		"message": "Пауза"
-	},
-	"browserActionTitle_playing": {
-		"message": "Воспроизведение"
-	},
-	"browserActionTitle_scrobbled": {
-		"message": "заскробленно"
-	},
-	"browserActionTitle_connected": {
-		"message": "подколючено к Google Music"
-	},
-	"browserActionTitle_connecting": {
-		"message": "Подключение к Google Music"
-	},
-	"showQuicklinks": {
-		"message": "Показать быстрые ссылки"
-	},
-	"emptyList": {
-		"message": "Список пуст"
-	},
-	"loadListError": {
-		"message": "Список не может быть загружен"
-	},
-	"noLyricsFound": {
-		"message": "Текст песни не найден"
-	},
-	"loadLyricsError": {
-		"message": "Текст песни не может быть загружен"
-	},
-	"lyricsSrcProvider": {
-		"message": "Источник: $PRV$",
-		"placeholders": {"PRV":{"content":"$1"}}
-	},
-	"lyricsSearchProvider": {
-		"message": "Поиск $PRV$",
-		"placeholders": {"PRV":{"content":"$1"}}
-	},
-	"quicklinks": {
-		"message": "Быстрые ссылки"
-	},
-	"toOptions": {
-		"message": "Опции"
-	},
-	"toWiki": {
-		"message": "Вики"
-	},
-	"close": {
-		"message": "Закрыть"
-	},
-	"feelingLucky": {
-		"message": "Радио 'Мне повезёт'"
-	},
-	"setting_coverClickLink": {
-		"message": "Открыть по клику на обложку альбома"
-	},
-	"setting_titleClickLink": {
-		"message": "Открыть по клику на название трека"
-	},
-	"quicklink_": {
-		"message": "Ничего"
-	},
-	"quicklink_now": {
-		"message": "Слушаю сейчас"
-	},
-	"quicklink_artists": {
-		"message": "Исполнители"
-	},
-	"quicklink_albums": {
-		"message": "Альбомы"
-	},
-	"quicklink_genres": {
-		"message": "Жанры"
-	},
-	"quicklink_rd": {
-		"message": "Автомикс/Радио"
-	},
-	"quicklink_ap_queue": {
-		"message": "Очередь"
-	},
-	"quicklink_ap_auto_playlist_thumbs_up": {
-		"message": "Мне нравится"
-	},
-	"quicklink_ap_auto_playlist_recent": {
-		"message": "Добавили недавно"
-	},
-	"quicklink_ap_auto_playlist_promo": {
-		"message": "Музыка из Google Play"
-	},
-	"quicklink_ap_shared_with_me": {
-		"message": "Музыка друзей"
-	},
-	"quicklink_ap_google_play_recommends": {
-		"message": "Рекомендации Google Play"
-	},
-	"quicklink_exptop": {
-		"message": "Интересное"
-	},
-	"quicklink_expnew": {
-		"message": "Новые"
-	},
-	"quicklink_exprec": {
-		"message": "Рекомендуем"
-	},
-	"openLink": {
-		"message": "Открыть '$LINK$'",
-		"placeholders": {"LINK":{"content":"$1"}}
-	},
-	"backToLink": {
-		"message": "Назад к '$LINK$'",
-		"placeholders": {"LINK":{"content":"$1"}}
-	},
-	"backToPlayer": {
-		"message": "Назад в миниплеер"
-	},
-	"setting_openLinksInMiniplayer": {
-		"message": "Открыть ссылки в миниплеере"
-	},
-	"setting_openLinksInMiniplayerHint": {
-		"message": "Если активно, то ссылки на альбомы, исполнителей и т.п. будут открыться непосредственно в миниплеере, в противном случае во вкладке Google Music. Для временного использования применяется сочетания Shift+Клик."
-	},
-	"setting_lyricsAutoNext": {
-		"message": "Автоматическая загрузка со следующего сайта если текст не найден"
-	},
-	"setting_lyrics": {
-		"message": "Включить текст песен"
-	},
-	"setting_openLyricsInMiniplayer": {
-		"message": "Открыть текст в миниплеере"
-	},
-	"setting_openLyricsInMiniplayerHint": {
-		"message": "Если активно, то текст откроется в миниплеере, в противном случае на новой вкладке. Для временного использования применяется сочетание клавиш Shift+Клик"
-	},
-	"lyricsAlert": {
-		"message": "Для загрузки текста необходим доступ к $SITE$. Пожалуйста, обратите внимание, что ответственность за качество поиска несёт $SITE$. Prime Player всегда показывает первый результат выдачи поиска текста. Поэтому возможны случаи, когда текст выдачи не будет совпадать с проигрываемым треком. Вы можете проверить результат поиска перейдя по ссылке внизу страницы текста в миниплеере.",
-		"placeholders": {"SITE":{"content":"$1"}}
-	},
-	"setting_hideSearchfield": {
-		"message": "Скрыть поле поиска в миниплеере"
-	},
-	"resetSettings": {
-		"message": "Сбросить настройки на стандартные"
-	},
-	"resetSettingsConfirm": {
-		"message": "Вы действительно хотите сбросить все настройки? Это также отключит связь с Last.FM и удалит все настройки, которые хранит Google Chrome для остальных ваших браузеров."
-	},
-	"setting_connectedIndicator": {
-		"message": "Показывать 'P'-иконку во вкладке Google Music при активном Prime Player"
-	},
-	"setting_lyricsAutoReload": {
-		"message": "Автоматически перезагружать текст песни при смене трека"
-	},
-	"setting_lyricsInGpm": {
-		"message": "Включить возможность просмотра текста трека во вкладке Google Music"
-	},
-	"setting_lyricsFontSize": {
-		"message": "Размер шрифта (в пикселях) для текста треков в миниплеере и во вкладке Google Music"
-	},
-	"setting_lyricsWidth": {
-		"message": "Ширина (в пикселях) панели текста трека во вкладке Google Music"
-	},
-	"setting_skipSongSeconds": {
-		"message": "Переключать трек после x секунд воспроизведения (0=выключено)"
-	},
-	"moreThanOneDay": {
-		"message": "> 1 дня"
-	},
-	"searchPlaceholder": {
-		"message": "Поиск музыки"
-	},
-	"searchResults": {
-		"message": "Результаты поиска"
-	},
-	"command_": {
-		"message": "Нет действий"
-	},
-	"command_loveUnloveSong": {
-		"message": "Сделать трек любимым или нелюбимым"
-	},
-	"command_volumeUp": {
-		"message": "Громкость +"
-	},
-	"command_volumeDown": {
-		"message": "Громкость -"
-	},
-	"command_volumeMute": {
-		"message": "Выключить звук"
-	},
-	"command_toggleRepeat": {
-		"message": "Повторять"
-	},
-	"command_toggleShuffle": {
-		"message": "Случайное воспроизведение"
-	},
-	"command_ff": {
-		"message": "Быстрая перемотка на 15 секунд"
-	},
-	"command_rate1": {
-		"message": "1 звезда/Палец вниз"
-	},
-	"command_rate2": {
-		"message": "2 звезды"
-	},
-	"command_rate3": {
-		"message": "3 звезды"
-	},
-	"command_rate4": {
-		"message": "4 звезды"
-	},
-	"command_rate5": {
-		"message": "5 звёзд/Палец вверх"
-	},
-	"command_showToast": {
-		"message": "Показать всплывающее окно (снова)"
-	},
-	"command_thumbsUp": {
-		"message": "Палец вверх"
-	},
-	"command_thumbsDown": {
-		"message": "Палец вниз"
-	},
-	"command_star1": {
-		"message": "1 звезда"
-	},
-	"command_star5": {
-		"message": "5 звёзд"
-	},
-	"command_openLyrics": {
-		"message": "Открыть текст трека"
-	},
-	"lyricsFor": {
-		"message": "Текст для '$SONG$'",
-		"placeholders": {"SONG":{"content":"$1"}}
-	},
-	"lyricsTitle": {
-		"message": "Текст для $SONG$",
-		"placeholders": {"SONG":{"content":"$1"}}
-	},
-	"lyricsSrc": {
-		"message": "источник текста"
-	},
-	"lyricsSearchResult": {
-		"message": "результаты поиска"
-	},
-	"loadLyrics": {
-		"message": "Текст загружается..."
-	},
-	"lastfmInfo_userplaycount": {
-		"message": "Заскробблено $COUNT$ раз",
-		"placeholders": {"COUNT":{"content":"$1"}}
-	},
-	"lastfmInfo_playcount": {
-		"message": "Всего скробблингов",
-		"placeholders": {"COUNT":{"content":"$1"}}
-	},
-	"lastfmInfo_listeners": {
-		"message": "$COUNT$ слушателей",
-		"placeholders": {"COUNT":{"content":"$1"}}
-	},
-	"configShortcuts": {
-		"message": "Горячие клавиши"
-	},
-	"setting_timerMinutes": {
-		"message": "Обратный отсчёт минут"
-	},
-	"setting_timerNotify": {
-	},
-	"setting_timerPreNotify": {
-		"message": "секунд до предупреждения таймаута (0=не предупреждать)"
-	},
-	"setting_timerAction": {
-		"message": "Действие по истечения таймаута"
-	},
-	"setting_timerAction_closeGm": {
-		"message": "Закрыть Google Music"
-	},
-	"setting_timerAction_pause": {
-		"message": "Пауза"
-	},
-	"startTimer": {
-		"message": "Старт"
-	},
-	"stopTimer": {
-		"message": "Стоп"
-	},
-	"timerNotificationTitle": {
-		"message": "Таймаут"
-	},
-	"timerNotificationMsgPause": {
-		"message": "Музыка будет остановлена, так как наступил таймаут"
-	},
-	"timerNotificationMsgCloseGm": {
-		"message": "Google Music будет остановлен, так как наступил таймаут"
-	},
-	"timerNotificationBtnPause": {
-		"message": "Продолжить"
-	},
-	"timerNotificationBtnCloseGm": {
-		"message": "Открыть снова"
-	},
-	"timerWarningTitle": {
-		"message": "Таймаут скоро наступит"
-	},
-	"timerWarningMsgPause": {
-		"message": "Музыка будет автоматически остановлена через $SEC$ сек",
-		"placeholders": {"SEC":{"content":"$1"}}
-	},
-	"timerWarningMsgCloseGm": {
-		"message": "Google Music будет автоматически закрыт через $SEC$ сек",
-		"placeholders": {"SEC":{"content":"$1"}}
-	},
-	"cancelTimer": {
-		"message": "Отменить таймер"
-	},
-	"startTimerMenu": {
-		"message": "Запустить таймер"
-	},
-	"timerInOneMinute": {
-		"message": "1 минута"
-	},
-	"timerInMin": {
-		"message": "$MIN$ мин",
-		"placeholders": {"MIN":{"content":"$1"}}
-	},
-	"timerInOneHour": {
-		"message": "1 час"
-	},
-	"timerInHours": {
-		"message": "$MIN$ ч",
-		"placeholders": {"HOU":{"content":"$1"}}
-	},
-	"filterHint": {
-		"message": "Здесь вы можете ограничить видимые параметры."
-	},
-	"setting_optionsMode": {
-		"message": "Режим"
-	},
-	"setting_optionsMode_beg": {
-		"message": "Новичок"
-	},
-	"setting_optionsMode_adv": {
-		"message": "Продвинутый"
-	},
-	"setting_optionsMode_exp": {
-		"message": "Эксперт"
-	},
-	"setting_filterTimer": {
-		"message": "Таймер"
-	},
-	"setting_filterLastfm": {
-		"message": "Last.FM"
-	},
-	"setting_filterToast": {
-		"message": "Всплывающие уведомления"
-	},
-	"setting_filterMiniplayer": {
-		"message": "Миниплеер"
-	},
-	"setting_filterLyrics": {
-		"message": "Текст треков"
-	},
-	"setting_filterLookfeel": {
-		"message": "Внешний вид"
-	},
-	"notificationsDisabled": {
-		"message": "Уведомления отключены для Prime Player, поэтому доступны только стили миниплеера"
-	},
-	"resumeLastSong": {
-		"message": "Продолжить последний трек"
-	},
-	"resumeLastSongWithTitle": {
-		"message": "Продолжить последний трек ($SONG$)",
-		"placeholders": {"SONG":{"content":"$1"}}
-	},
-	"openPopup": {
-		"message": "Открыть всплывающее окно"
-	},
-	"action": {
-		"message": "Действие"
-	},
-	"favorites": {
-		"message": "Избранное"
-	},
-	"noFavorites": {
-		"message": "У вас нет Избранного."
-	},
-	"addfavorite": {
-		"message": "Добавить '$NAME$' в Избранное",
-		"placeholders": {"NAME":{"content":"$1"}}
-	},
-	"delfavorite": {
-		"message": "Удалить '$NAME$' из Избранного",
-		"placeholders": {"NAME":{"content":"$1"}}
-	},
-	"editfavorite": {
-		"message": "Редактировать '$NAME$'",
-		"placeholders": {"NAME":{"content":"$1"}}
-	},
-	"ob_defaultsugg": {
-		"message": "Искать в Google Music или начать с 'f ' для поиска в Избранном"
-	},
-	"ob_startsugg": {
-		"message": "Начать $SUG$",
-		"placeholders": {"SUG":{"content":"$1"}}
-	},
-	"ob_favoritessugg": {
-		"message": "Введите поисковый запрос для поиска в Избранном"
-	},
-	"ob_foundfavorites": {
-		"message": "Избранное соответствует $TEXT$:",
-		"placeholders": {"TEXT":{"content":"$1"}}
-	},
-	"ob_nofavorites": {
-		"message": "Для $TEXT$ в Избранном ничего не найдено",
-		"placeholders": {"TEXT":{"content":"$1"}}
-	},
-	"ob_loading": {
-		"message": "Загрузка результатов для $TEXT$...",
-		"placeholders": {"TEXT":{"content":"$1"}}
-	},
-	"ob_results": {
-		"message": "Результаты соответствуют $TEXT$:",
-		"placeholders": {"TEXT":{"content":"$1"}}
-	},
-	"ob_noresults": {
-		"message": "Ничего не найдено для $TEXT$.",
-		"placeholders": {"TEXT":{"content":"$1"}}
-	}
+  "extDesc": {
+    "message": "Расширь возможности Google Music, добавив интеграцию с Last.FM, всплывающими уведомлениями, удобным миниплеером, поддержкой горячих клавиш и не только."
+  },
+  "options": {
+    "message": "Настройки"
+  },
+  "nothingPlaying": {
+    "message": "Ничего не воспроизводится"
+  },
+  "gotoGmusic": {
+    "message": "Открыть Google Play Music"
+  },
+  "myPlaylists": {
+    "message": "Мои плейлисты"
+  },
+  "setting_scrobble": {
+    "message": "Включить скробблинг"
+  },
+  "setting_toast": {
+    "message": "Включить всплывающие уведомления"
+  },
+  "setting_toastHint": {
+    "message": "Всплывающие уведомления не будут показываться пока активен миниплеер"
+  },
+  "openMiniplayer": {
+    "message": "Открыть миниплеер"
+  },
+  "lastfmUser": {
+    "message": "Имя пользователя Last.FM"
+  },
+  "logout": {
+    "message": "Выход"
+  },
+  "connect": {
+    "message": "Присоединить"
+  },
+  "disconnected": {
+    "message": "Нет соединения"
+  },
+  "prevSong": {
+    "message": "Предыдущий трек"
+  },
+  "nextSong": {
+    "message": "Следующий трек"
+  },
+  "pauseSong": {
+    "message": "Пауза"
+  },
+  "resumeSong": {
+    "message": "Воспроизведение"
+  },
+  "volumeControl": {
+    "message": "Громкость"
+  },
+  "playPause": {
+    "message": "Пауза/Воспроизведение"
+  },
+  "lastfmUnlove": {
+    "message": "Нелюбимый трек"
+  },
+  "lastfmLove": {
+    "message": "Любимый трек"
+  },
+  "lastfmError": {
+    "message": "Ошибка Last.FM, кликните для перезагрузки"
+  },
+  "lastfmUnavailable": {
+    "message": "Last.FM недоступен в данные момент"
+  },
+  "setting_toastUseMpStyle": {
+    "message": "Использовать вид миниплеера для всплывающих уведомлений"
+  },
+  "setting_toastUseMpStyleHint": {
+    "message": "Делает всплывающие уведомления похожими на миниплеер. В противном случае уведомления будут обладать меньшей функциональностью"
+  },
+  "setting_toastDuration": {
+    "message": "Продолжительность уведомления (0=держать открытым)"
+  },
+  "setting_toastDurationHint": {
+    "message": "Для стандартных уведомлений это значит время их исчезновения (с рабочего стола или зоны уведомлений Chrome). Google Chrome может переместить их в Оповещения быстрее. Для уведомлений в стиле миниплеера (режим эксперта) это время закрытия миниплеера."
+  },
+  "setting_toastPriority": {
+    "message": "переместить в Оповещения"
+  },
+  "setting_toastPriority_1": {
+    "message": "немедленно "
+  },
+  "setting_toastPriority_2": {
+    "message": "спустя 7 секунд"
+  },
+  "setting_toastPriority_3": {
+    "message": "спустя 25 секунд"
+  },
+  "setting_toastProgress": {
+    "message": "Показывать прогресс воспроизведения трека во всплывающем окне"
+  },
+  "setting_toastRating": {
+    "message": "Показывать рейтинг трека по всплывающем окне"
+  },
+  "setting_toastIfMpOpen": {
+    "message": "Показывать всплывающее окно уведомления даже когда отрыт миниплеер"
+  },
+  "setting_toastIfMpMinimized": {
+    "message": "Только если окно миниплеера свёрнуто"
+  },
+  "setting_toastNotIfGmActive": {
+    "message": "Не показывать всплывающие уведомления, если вы находитесь на вкладке Google Music"
+  },
+  "setting_toastClick": {
+    "message": "Действие при клике на всплывающее уведомление"
+  },
+  "setting_toastButton1": {
+    "message": "Действие кнопки 1"
+  },
+  "setting_toastButton2": {
+    "message": "Действие кнопки 2"
+  },
+  "setting_scrobblePercent": {
+    "message": "Процент скробблинга"
+  },
+  "setting_scrobbleTime": {
+    "message": "Максимальное время в секундах после которого трек будет заскробблен"
+  },
+  "setting_scrobbleMaxDuration": {
+    "message": "Максимальная продолжительность трека в минутах, в течение которого будет продолжаться скробблинг"
+  },
+  "setting_disableScrobbleOnFf": {
+    "message": "Не засчитывать трек для скробблинга после быстрой перемотки"
+  },
+  "setting_disableScrobbleOnFfHint": {
+    "message": "Не скробблить текущий трек после быстрой перемотки более чем на 5 секунд. Удобно, если вы просто ищете определённую часть трека. В противном случае трек будет заскробблен после прохождения точки скроблинга."
+  },
+  "setting_scrobbleRepeated": {
+    "message": "Скробблить трек снова при повторном вопроизведении"
+  },
+  "setting_linkRatings": {
+    "message": "Объединить рейтинги"
+  },
+  "setting_linkRatingsHint": {
+    "message": "Сделав песню любимой на Last.FM, она автоматически станет таковой на Google Music и наоборот. При этом рейтинги поставленные непосредственно на Last.FM и Google Music не изменяются. Работает только при использовании через миниплеер, сочетание клавиш, всплывающее уведомление."
+  },
+  "setting_linkRatingsMin": {
+    "message": "Минимальное количество звёзд для пометки трека любимым"
+  },
+  "setting_linkRatingsGpm": {
+    "message": "Также автоматически делать любимым, когда рейтинг ставится непосредственно на вкладке Google Music"
+  },
+  "setting_linkRatingsAuto": {
+    "message": "Автоматическое соединение рейтингов"
+  },
+  "setting_linkRatingsAutoHint": {
+    "message": "Когда трек начал воспроизведение, которому вы уже поставили лайк в Google Music, но который ещё не отмечен любимым на Last.FM, станет таковым. Также и наоборот."
+  },
+  "setting_showLovedIndicator": {
+    "message": "Показывать статус Любимый на иконке"
+  },
+  "setting_showScrobbledIndicator": {
+    "message": "Показывать статус скробблинга на иконке"
+  },
+  "setting_showLastfmInfo": {
+    "message": "Показывать информацию Last.FM в миниплеере. Чтобы увидеть измените размер"
+  },
+  "setting_miniplayerType": {
+    "message": "Вид миниплеера"
+  },
+  "setting_miniplayerTypeHint": {
+    "message": "Если вы хотите использовать тип 'панель' перейдите в <a></a> и активируйте 'Панели' для того, чтобы панель всегда оставалась наверху."
+  },
+  "setting_miniplayerType_normal": {
+    "message": "Окно"
+  },
+  "setting_miniplayerType_popup": {
+    "message": "Всплывающее окно"
+  },
+  "setting_miniplayerType_panel": {
+    "message": "Панель"
+  },
+  "setting_miniplayerType_detached_panel": {
+    "message": "Плавающая панель"
+  },
+  "setting_layout": {
+    "message": "Макет миниплеера"
+  },
+  "setting_layoutHint": {
+    "message": "Панели имеют начальную максимальную ширину, поэтому не рекомендуется использовать с макетом 'Горизонтальная плашка'"
+  },
+  "setting_layout_normal": {
+    "message": "Нормальный"
+  },
+  "setting_layout_compact1": {
+    "message": "Компактный (низкий)"
+  },
+  "setting_layout_compact2": {
+    "message": "Компактный (узкий)"
+  },
+  "setting_layout_hbar": {
+    "message": "Горизонтальная плашка"
+  },
+  "setting_iconClickConnectAction": {
+    "message": "Действие, если не открыт Google Music"
+  },
+  "setting_iconClickAction0": {
+    "message": "Действие при однократном клике"
+  },
+  "setting_iconClickAction1": {
+    "message": "Действие при двойной клике"
+  },
+  "setting_iconClickAction2": {
+    "message": "Для при тройном клике"
+  },
+  "setting_iconClickAction3": {
+    "message": "Действие при 4-х кликах"
+  },
+  "setting_iconDoubleClickTime": {
+    "message": "Скорость клика в мсек (0=выключено)"
+  },
+  "setting_iconDoubleClickTimeHint": {
+    "message": "Установите значение больше 0 (рекомендовано: 500) для большего количества действий по клику. Как и в последнем действии всплывающее окно всегда будет открыто."
+  },
+  "setting_iconShowAction": {
+    "message": "Показывать значок статуса в иконке"
+  },
+  "iconClickActionTitle": {
+    "message": "Действие(-я) если вкладка Google Music открыта"
+  },
+  "connected": {
+    "message": "Вкладка подключена к Prime Player. Кликните для отключения."
+  },
+  "legendTimer": {
+    "message": "Настрокйки таймера"
+  },
+  "legendTimerHint": {
+    "message": "Таймер позволяет автоматически остановить воспроизведение или закрыть вкладку Google Music после определенного периода времени. Настройки будут работать пока Prime Player подключён к Google Music."
+  },
+  "legendLastfm": {
+    "message": "Настройки Last.FM"
+  },
+  "legendLastfmHint": {
+    "message": "Здесь вы можете управлять соединением между Google Music и Last.FM. Также управлять настройками скробблинга."
+  },
+  "legendToast": {
+    "message": "Настройки всплывающего окна"
+  },
+  "legendToastHint": {
+    "message": "Всплывающее уведомление это уведомление на экране десктопа, показывающее название трека и позволяющее управлять некоторыми функциями. Уведомления появляются при начале воспроизведения каждого нового трека."
+  },
+  "legendMiniplayer": {
+    "message": "Настройки миниплеера"
+  },
+  "legendMiniplayerHint": {
+    "message": "Миниплеер это мощный, кастомизируемый инструмент. Поэтому, пожалуйста, потратьте немного времени для подбора настроек, которые будут лучше всего вам подходить. Вы можете открыть миниплеер по клику на значок Нота во всплывающем окне после клика на иконку Prime Player."
+  },
+  "legendLookfeel": {
+    "message": "Внешний вид"
+  },
+  "legendLookfeelHint": {
+    "message": "Эти настройки позволяют изменить иконку Prime player и поменять иные визуальные характеристики"
+  },
+  "legendIc": {
+    "message": "Действия при клике на иконку"
+  },
+  "legendIcHint": {
+    "message": "Эти настройки позволяют назначить действие(-я) при клике на иконку Prime Player"
+  },
+  "legendLyrics": {
+    "message": "Настройки текста песен"
+  },
+  "legendLyricsHint": {
+    "message": "Prime Player может показывать текст проигрываемой композиции в окне миниплеера или на вкладке Google Music. Для этого сначала выберете хотя бы один сайт, который будет использован в качестве источника текстов. Активированные сайты можно сортировать перетаскиванием. Первый в списке используется в качестве приоритетного при поиске."
+  },
+  "setting_gaEnabled": {
+    "message": "Включить Google Analytics"
+  },
+  "setting_gaEnabledHint": {
+    "message": "Никакие персональные данные, в том числе проигрываемые песни не собираются. Google Analytics используется только для анализа использования настроек и функций."
+  },
+  "scrobblePosition": {
+    "message": "Здесь произойдёт скробблинг"
+  },
+  "setting_color": {
+    "message": "Цветовая схема"
+  },
+  "setting_color_turq": {
+    "message": "Бирюзовый"
+  },
+  "setting_color_green": {
+    "message": "Зелёный"
+  },
+  "setting_color_red": {
+    "message": "Красный"
+  },
+  "setting_color_blue": {
+    "message": "Синий"
+  },
+  "setting_color_black": {
+    "message": "Чёрный"
+  },
+  "setting_color_orange": {
+    "message": "Оранжейвый"
+  },
+  "setting_mpBgColor": {
+    "message": "Цвет фона"
+  },
+  "setting_mpTextColor": {
+    "message": "Цвет текста"
+  },
+  "lastfmConnectSuccess": {
+    "message": "Подключение успешно"
+  },
+  "lastfmConnectError": {
+    "message": "Ошибка подключения"
+  },
+  "lastfmSessionTimeout": {
+    "message": "Last.FM отключен"
+  },
+  "lastfmRelogin": {
+    "message": "Кликните здесь для переподключения."
+  },
+  "bugfeatureinfo": {
+    "message": "Если вы обнаружили любые ошибки или желаете увидеть новые возможности в будущих релизах, пожалуйста, опишите ошибку на $GITHUB$.",
+    "placeholders": {"GITHUB":{"content":"$1"}}
+  },
+  "setting_openGoogleMusicPinned": {
+    "message": "Открыть Google Music в закреплённой вкладке"
+  },
+  "setting_openGmBackground": {
+    "message": "Открыть вкладку Google Music в фоне"
+  },
+  "setting_startupAction": {
+    "message": "Действие при запуске Google Chrome"
+  },
+  "setting_googleAccountNo": {
+    "message": "Номер аккаунта Google"
+  },
+  "setting_googleAccountNoHint": {
+    "message": "Если вы используете несколько аккаунтов Google, здесь вы можете указать какой необходимо использовать для проигрывания музыки. '0' всегда открывает аккаунт по-умолчанию, что также подходит вам, если вы используете только один профиль."
+  },
+  "setting_syncSettings": {
+    "message": "Настройки синхронизации с Google Chrome"
+  },
+  "setting_syncSettingsHint": {
+    "message": "Для использования вы должны быть залогинены в Google Chrome с помощью своего Google-аккаунта. Также должна быть включена настройка синхронизации расширений. По различным причинам не все настройки могут быть синхронизированы. Отличить сохраняемые настройки можно по знаку '*'. Важно знать, что настройки будут загружены только после запуска Prime PLayer (например при установке, обновлении или запуске барузера) и если вы включили сохранение, но сохранение, с небольшой задержкой, происходит сразу после изменения любого пункта настроек."
+  },
+  "setting_pauseOnLock": {
+    "message": "Пауза, когда компьютер заблокирован (воспроизведение при разблокировке)"
+  },
+  "setting_pauseOnIdle": {
+    "message": "Пауза, когда компьютер в режиме ожидания (воспроизведение после пробуждения)"
+  },
+  "setting_pauseOnIdleSec": {
+    "message": "Секунд бездействия прежде, чем музыка встанет на паузу"
+  },
+  "setting_preventCommandRatingReset": {
+    "message": "Предотвращение сброса рейтинга"
+  },
+  "setting_preventCommandRatingResetHint": {
+    "message": "Обычно, когда вы изменяете рейтинг трека, который его уже имеет показатель рейтинга сбрасывается. Когда вы используете для этого сочетание клавиш или настроенное заранее действие в уведомлениях, вы не можете видеть, что трек уже был оценён ранее. Отключение данной опции сбросит рейтинг в любом случае."
+  },
+  "setting_updateNotifier": {
+    "message": "Уведомление об обновлении (иконка станет оранжевой)"
+  },
+  "setting_iconStyle": {
+    "message": "Вид иконки"
+  },
+  "setting_showPlayingIndicator": {
+    "message": "Показывать статус Воспроизведение/Пауза на иконке"
+  },
+  "setting_showRatingIndicator": {
+    "message": "Показывать рейтинг на иконке"
+  },
+  "setting_showProgress": {
+    "message": "Показывать прогресс на иконке"
+  },
+  "setting_showProgressColor": {
+    "message": "Цвет прогресса трека"
+  },
+  "setting_showProgressColorPaused": {
+    "message": "Цвет прогресса трека, когда он находится на паузе"
+  },
+  "setting_saveLastPosition": {
+    "message": "Сохранять последнюю позицию воспроизводимого трека "
+  },
+  "setting_saveLastPositionHint": {
+    "message": "Сохранение точки воспроизведения трека (локально) при закрытии браузера. Позиция будет показана в миниплеере. Нажатаие на кнопку воспроизведения приведёт к попытке продолжения воспроизведения альбома. К сожалению, это невозможно по отношению к списку воспроизведения или плейлисту."
+  },
+  "setting_hideFavorites": {
+    "message": "Скрыть избранное в миниплеере и контекстном меню"
+  },
+  "setting_skipRatedLower": {
+    "message": "(или менее) оценённые песни будут пропущены"
+  },
+  "setting_skipRatedLower_0": {
+    "message": "выключено"
+  },
+  "setting_skipRatedLower_1": {
+    "message": "1 звезда"
+  },
+  "setting_skipRatedLower_2": {
+    "message": "2 звезды/Палец вниз/Дислайк"
+  },
+  "setting_skipRatedLower_2_stars": {
+    "message": "2 звезды"
+  },
+  "setting_skipRatedLower_3": {
+    "message": "3 звезды"
+  },
+  "setting_skipRatedLower_4": {
+    "message": "4 звезды"
+  },
+  "setting_skipRatedThumbsDown": {
+    "message": "Пропустить непонравившиеся треки (Палец вниз)"
+  },
+  "setting_hideRatings": {
+    "message": "Скрыть иконку рейтинга (Last.FM и звёзды/пальцы)"
+  },
+  "setting_omitUnknownAlbums": {
+    "message": "Исключить 'неизвестные альбомы' в списке альбомов в миниплеере"
+  },
+  "setting_omitUnknownAlbumsHint": {
+    "message": "Google показывает треки артистов без альбомов как 'Неизвестный альбом' в списке альбомов. Если эта опция активна, то 'псевдоальбомы' будут скрыты в списке альбомов в миниплеере."
+  },
+  "setting_mpAutoOpen": {
+    "message": "Автоматически открывать миниплеер, когда начинается воспроизведение"
+  },
+  "setting_mpAutoClose": {
+    "message": "Автоматически закрывать миниплеер, когда Google Music закрыта"
+  },
+  "setting_mpCloseGm": {
+    "message": "Автоматически закрывать Google Music, когда миниплеер закрывается"
+  },
+  "installNotifierTitle": {
+    "message": "Prime Player установлен"
+  },
+  "installNotifierText": {
+    "message": "Расширение имеет множество настроек, что позволит полностью подстроить его под свои нужды. Также обратите внимание на FAQ на странице приложения в интернет-магазине Google и на вики-страничку на Github. Получайте удовольствие от музыки вместе Prime Player!"
+  },
+  "updateNotifierTitle": {
+    "message": "Prime Player обновлён"
+  },
+  "updateNotifierText": {
+    "message": "Расширение обновлено. Перейдите на страницу настроек, чтобы узнать подробности"
+  },
+  "browserActionTitle_install": {
+    "message": "установлено"
+  },
+  "browserActionTitle_update": {
+    "message": "обновлено"
+  },
+  "browserActionTitle_paused": {
+    "message": "Пауза"
+  },
+  "browserActionTitle_playing": {
+    "message": "Воспроизведение"
+  },
+  "browserActionTitle_scrobbled": {
+    "message": "заскробленно"
+  },
+  "browserActionTitle_connected": {
+    "message": "подколючено к Google Music"
+  },
+  "browserActionTitle_connecting": {
+    "message": "Подключение к Google Music"
+  },
+  "showQuicklinks": {
+    "message": "Показать быстрые ссылки"
+  },
+  "emptyList": {
+    "message": "Список пуст"
+  },
+  "loadListError": {
+    "message": "Список не может быть загружен"
+  },
+  "noLyricsFound": {
+    "message": "Текст песни не найден"
+  },
+  "loadLyricsError": {
+    "message": "Текст песни не может быть загружен"
+  },
+  "lyricsSrcProvider": {
+    "message": "Источник: $PRV$",
+    "placeholders": {"PRV":{"content":"$1"}}
+  },
+  "lyricsSearchProvider": {
+    "message": "Поиск $PRV$",
+    "placeholders": {"PRV":{"content":"$1"}}
+  },
+  "quicklinks": {
+    "message": "Быстрые ссылки"
+  },
+  "toOptions": {
+    "message": "Опции"
+  },
+  "toWiki": {
+    "message": "Вики"
+  },
+  "close": {
+    "message": "Закрыть"
+  },
+  "feelingLucky": {
+    "message": "Радио 'Мне повезёт'"
+  },
+  "setting_coverClickLink": {
+    "message": "Открыть по клику на обложку альбома"
+  },
+  "setting_titleClickLink": {
+    "message": "Открыть по клику на название трека"
+  },
+  "quicklink_": {
+    "message": "Ничего"
+  },
+  "quicklink_now": {
+    "message": "Слушаю сейчас"
+  },
+  "quicklink_artists": {
+    "message": "Исполнители"
+  },
+  "quicklink_albums": {
+    "message": "Альбомы"
+  },
+  "quicklink_genres": {
+    "message": "Жанры"
+  },
+  "quicklink_rd": {
+    "message": "Автомикс/Радио"
+  },
+  "quicklink_ap_queue": {
+    "message": "Очередь"
+  },
+  "quicklink_ap_auto_playlist_thumbs_up": {
+    "message": "Мне нравится"
+  },
+  "quicklink_ap_auto_playlist_recent": {
+    "message": "Добавили недавно"
+  },
+  "quicklink_ap_auto_playlist_promo": {
+    "message": "Музыка из Google Play"
+  },
+  "quicklink_ap_shared_with_me": {
+    "message": "Музыка друзей"
+  },
+  "quicklink_ap_google_play_recommends": {
+    "message": "Рекомендации Google Play"
+  },
+  "quicklink_exptop": {
+    "message": "Интересное"
+  },
+  "quicklink_expnew": {
+    "message": "Новые"
+  },
+  "quicklink_exprec": {
+    "message": "Рекомендуем"
+  },
+  "openLink": {
+    "message": "Открыть '$LINK$'",
+    "placeholders": {"LINK":{"content":"$1"}}
+  },
+  "backToLink": {
+    "message": "Назад к '$LINK$'",
+    "placeholders": {"LINK":{"content":"$1"}}
+  },
+  "backToPlayer": {
+    "message": "Назад в миниплеер"
+  },
+  "setting_openLinksInMiniplayer": {
+    "message": "Открыть ссылки в миниплеере"
+  },
+  "setting_openLinksInMiniplayerHint": {
+    "message": "Если активно, то ссылки на альбомы, исполнителей и т.п. будут открыться непосредственно в миниплеере, в противном случае во вкладке Google Music. Для временного использования применяется сочетания Shift+Клик."
+  },
+  "setting_lyricsAutoNext": {
+    "message": "Автоматическая загрузка со следующего сайта если текст не найден"
+  },
+  "setting_lyrics": {
+    "message": "Включить текст песен"
+  },
+  "setting_openLyricsInMiniplayer": {
+    "message": "Открыть текст в миниплеере"
+  },
+  "setting_openLyricsInMiniplayerHint": {
+    "message": "Если активно, то текст откроется в миниплеере, в противном случае на новой вкладке. Для временного использования применяется сочетание клавиш Shift+Клик"
+  },
+  "lyricsAlert": {
+    "message": "Для загрузки текста необходим доступ к $SITE$. Пожалуйста, обратите внимание, что ответственность за качество поиска несёт $SITE$. Prime Player всегда показывает первый результат выдачи поиска текста. Поэтому возможны случаи, когда текст выдачи не будет совпадать с проигрываемым треком. Вы можете проверить результат поиска перейдя по ссылке внизу страницы текста в миниплеере.",
+    "placeholders": {"SITE":{"content":"$1"}}
+  },
+  "setting_hideSearchfield": {
+    "message": "Скрыть поле поиска в миниплеере"
+  },
+  "resetSettings": {
+    "message": "Сбросить настройки на стандартные"
+  },
+  "resetSettingsConfirm": {
+    "message": "Вы действительно хотите сбросить все настройки? Это также отключит связь с Last.FM и удалит все настройки, которые хранит Google Chrome для остальных ваших браузеров."
+  },
+  "setting_connectedIndicator": {
+    "message": "Показывать 'P'-иконку во вкладке Google Music при активном Prime Player"
+  },
+  "setting_lyricsAutoReload": {
+    "message": "Автоматически перезагружать текст песни при смене трека"
+  },
+  "setting_lyricsInGpm": {
+    "message": "Включить возможность просмотра текста трека во вкладке Google Music"
+  },
+  "setting_lyricsFontSize": {
+    "message": "Размер шрифта (в пикселях) для текста треков в миниплеере и во вкладке Google Music"
+  },
+  "setting_lyricsWidth": {
+    "message": "Ширина (в пикселях) панели текста трека во вкладке Google Music"
+  },
+  "setting_skipSongSeconds": {
+    "message": "Переключать трек после x секунд воспроизведения (0=выключено)"
+  },
+  "moreThanOneDay": {
+    "message": "> 1 дня"
+  },
+  "searchPlaceholder": {
+    "message": "Поиск музыки"
+  },
+  "searchResults": {
+    "message": "Результаты поиска"
+  },
+  "command_": {
+    "message": "Нет действий"
+  },
+  "command_loveUnloveSong": {
+    "message": "Сделать трек любимым или нелюбимым"
+  },
+  "command_volumeUp": {
+    "message": "Громкость +"
+  },
+  "command_volumeDown": {
+    "message": "Громкость -"
+  },
+  "command_volumeMute": {
+    "message": "Выключить звук"
+  },
+  "command_toggleRepeat": {
+    "message": "Повторять"
+  },
+  "command_toggleShuffle": {
+    "message": "Случайное воспроизведение"
+  },
+  "command_ff": {
+    "message": "Быстрая перемотка на 15 секунд"
+  },
+  "command_rate1": {
+    "message": "1 звезда/Палец вниз"
+  },
+  "command_rate2": {
+    "message": "2 звезды"
+  },
+  "command_rate3": {
+    "message": "3 звезды"
+  },
+  "command_rate4": {
+    "message": "4 звезды"
+  },
+  "command_rate5": {
+    "message": "5 звёзд/Палец вверх"
+  },
+  "command_showToast": {
+    "message": "Показать всплывающее окно (снова)"
+  },
+  "command_thumbsUp": {
+    "message": "Палец вверх"
+  },
+  "command_thumbsDown": {
+    "message": "Палец вниз"
+  },
+  "command_star1": {
+    "message": "1 звезда"
+  },
+  "command_star5": {
+    "message": "5 звёзд"
+  },
+  "command_openLyrics": {
+    "message": "Открыть текст трека"
+  },
+  "lyricsFor": {
+    "message": "Текст для '$SONG$'",
+    "placeholders": {"SONG":{"content":"$1"}}
+  },
+  "lyricsTitle": {
+    "message": "Текст для $SONG$",
+    "placeholders": {"SONG":{"content":"$1"}}
+  },
+  "lyricsSrc": {
+    "message": "источник текста"
+  },
+  "lyricsSearchResult": {
+    "message": "результаты поиска"
+  },
+  "loadLyrics": {
+    "message": "Текст загружается..."
+  },
+  "lastfmInfo_userplaycount": {
+    "message": "Заскробблено $COUNT$ раз",
+    "placeholders": {"COUNT":{"content":"$1"}}
+  },
+  "lastfmInfo_playcount": {
+    "message": "Всего скробблингов",
+    "placeholders": {"COUNT":{"content":"$1"}}
+  },
+  "lastfmInfo_listeners": {
+    "message": "$COUNT$ слушателей",
+    "placeholders": {"COUNT":{"content":"$1"}}
+  },
+  "configShortcuts": {
+    "message": "Горячие клавиши"
+  },
+  "setting_timerMinutes": {
+    "message": "Обратный отсчёт минут"
+  },
+  "setting_timerNotify": {
+  },
+  "setting_timerPreNotify": {
+    "message": "секунд до предупреждения таймаута (0=не предупреждать)"
+  },
+  "setting_timerAction": {
+    "message": "Действие по истечения таймаута"
+  },
+  "setting_timerAction_closeGm": {
+    "message": "Закрыть Google Music"
+  },
+  "setting_timerAction_pause": {
+    "message": "Пауза"
+  },
+  "startTimer": {
+    "message": "Старт"
+  },
+  "stopTimer": {
+    "message": "Стоп"
+  },
+  "timerNotificationTitle": {
+    "message": "Таймаут"
+  },
+  "timerNotificationMsgPause": {
+    "message": "Музыка будет остановлена, так как наступил таймаут"
+  },
+  "timerNotificationMsgCloseGm": {
+    "message": "Google Music будет остановлен, так как наступил таймаут"
+  },
+  "timerNotificationBtnPause": {
+    "message": "Продолжить"
+  },
+  "timerNotificationBtnCloseGm": {
+    "message": "Открыть снова"
+  },
+  "timerWarningTitle": {
+    "message": "Таймаут скоро наступит"
+  },
+  "timerWarningMsgPause": {
+    "message": "Музыка будет автоматически остановлена через $SEC$ сек",
+    "placeholders": {"SEC":{"content":"$1"}}
+  },
+  "timerWarningMsgCloseGm": {
+    "message": "Google Music будет автоматически закрыт через $SEC$ сек",
+    "placeholders": {"SEC":{"content":"$1"}}
+  },
+  "cancelTimer": {
+    "message": "Отменить таймер"
+  },
+  "startTimerMenu": {
+    "message": "Запустить таймер"
+  },
+  "timerInOneMinute": {
+    "message": "1 минута"
+  },
+  "timerInMin": {
+    "message": "$MIN$ мин",
+    "placeholders": {"MIN":{"content":"$1"}}
+  },
+  "timerInOneHour": {
+    "message": "1 час"
+  },
+  "timerInHours": {
+    "message": "$MIN$ ч",
+    "placeholders": {"HOU":{"content":"$1"}}
+  },
+  "filterHint": {
+    "message": "Здесь вы можете ограничить видимые параметры."
+  },
+  "setting_optionsMode": {
+    "message": "Режим"
+  },
+  "setting_optionsMode_beg": {
+    "message": "Новичок"
+  },
+  "setting_optionsMode_adv": {
+    "message": "Продвинутый"
+  },
+  "setting_optionsMode_exp": {
+    "message": "Эксперт"
+  },
+  "setting_filterTimer": {
+    "message": "Таймер"
+  },
+  "setting_filterLastfm": {
+    "message": "Last.FM"
+  },
+  "setting_filterToast": {
+    "message": "Всплывающие уведомления"
+  },
+  "setting_filterMiniplayer": {
+    "message": "Миниплеер"
+  },
+  "setting_filterLyrics": {
+    "message": "Текст треков"
+  },
+  "setting_filterLookfeel": {
+    "message": "Внешний вид"
+  },
+  "notificationsDisabled": {
+    "message": "Уведомления отключены для Prime Player, поэтому доступны только стили миниплеера"
+  },
+  "resumeLastSong": {
+    "message": "Продолжить последний трек"
+  },
+  "resumeLastSongWithTitle": {
+    "message": "Продолжить последний трек ($SONG$)",
+    "placeholders": {"SONG":{"content":"$1"}}
+  },
+  "openPopup": {
+    "message": "Открыть всплывающее окно"
+  },
+  "action": {
+    "message": "Действие"
+  },
+  "favorites": {
+    "message": "Избранное"
+  },
+  "noFavorites": {
+    "message": "У вас нет Избранного."
+  },
+  "addfavorite": {
+    "message": "Добавить '$NAME$' в Избранное",
+    "placeholders": {"NAME":{"content":"$1"}}
+  },
+  "delfavorite": {
+    "message": "Удалить '$NAME$' из Избранного",
+    "placeholders": {"NAME":{"content":"$1"}}
+  },
+  "editfavorite": {
+    "message": "Редактировать '$NAME$'",
+    "placeholders": {"NAME":{"content":"$1"}}
+  },
+  "ob_defaultsugg": {
+    "message": "Искать в Google Music или начать с 'f ' для поиска в Избранном"
+  },
+  "ob_startsugg": {
+    "message": "Начать $SUG$",
+    "placeholders": {"SUG":{"content":"$1"}}
+  },
+  "ob_favoritessugg": {
+    "message": "Введите поисковый запрос для поиска в Избранном"
+  },
+  "ob_foundfavorites": {
+    "message": "Избранное соответствует $TEXT$:",
+    "placeholders": {"TEXT":{"content":"$1"}}
+  },
+  "ob_nofavorites": {
+    "message": "Для $TEXT$ в Избранном ничего не найдено",
+    "placeholders": {"TEXT":{"content":"$1"}}
+  },
+  "ob_loading": {
+    "message": "Загрузка результатов для $TEXT$...",
+    "placeholders": {"TEXT":{"content":"$1"}}
+  },
+  "ob_results": {
+    "message": "Результаты соответствуют $TEXT$:",
+    "placeholders": {"TEXT":{"content":"$1"}}
+  },
+  "ob_noresults": {
+    "message": "Ничего не найдено для $TEXT$.",
+    "placeholders": {"TEXT":{"content":"$1"}}
+  }
 }
