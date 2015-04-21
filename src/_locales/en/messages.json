@@ -340,7 +340,7 @@
     "description": "hint for the miniplayer settings on options page"
   },
   "legendLookfeel": {
-    "message": "Look \u0026 feel",
+    "message": "Look & feel",
     "description": "title for the look and feel settings on options page"
   },
   "legendLookfeelHint": {
@@ -1079,7 +1079,7 @@
     "description": "label for options lyrics filter"
   },
   "setting_filterLookfeel": {
-    "message": "Look \u0026 feel",
+    "message": "Look & feel",
     "description": "label for options look and feel filter"
   },
   "notificationsDisabled": {
