@@ -713,6 +713,7 @@
     "message": "Обратный отсчёт минут"
   },
   "setting_timerNotify": {
+    "message": "Уведомлять о таймауте"
   },
   "setting_timerPreNotify": {
     "message": "секунд до предупреждения таймаута (0=не предупреждать)"
