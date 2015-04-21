@@ -776,7 +776,7 @@
     "message": "1 час"
   },
   "timerInHours": {
-    "message": "$MIN$ ч",
+    "message": "$HOU$ ч",
     "placeholders": {"HOU":{"content":"$1"}}
   },
   "filterHint": {
