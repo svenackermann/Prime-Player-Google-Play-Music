@@ -876,9 +876,11 @@ a {
   width: 80px;
   height: 16px;
   background: repeat-x url(../img/star-background.png);
+  background-size: 16px;
   display: block;
   .user-rating {
     background: repeat-x url(../img/star-active.png);
+    background-size: 16px;
     height: inherit;
     display: block;
   }
@@ -896,6 +898,7 @@ a {
       height: inherit;
       &:hover:not(.disabled) {
         background: repeat-x url(../img/star-hover.png);
+        background-size: 16px;
       }
       @for $i from 1 through 5 {
         &.rating-#{$i} {

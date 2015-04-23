@@ -1134,15 +1134,15 @@ function fixForUri(string) {
       if (cover.src.indexOf("blob") === 0) URL.revokeObjectURL(cover.src);
       if (settings.toastRating) {
         if (isThumbsRatingMode()) {
-          if (song.rating == 1 || song.rating == 2) ctx.drawImage(rating, 16, 0, 16, 16, 0, 84, 16, 16);
-          else if (song.rating >= 4) ctx.drawImage(rating, 0, 0, 16, 16, 0, 84, 16, 16);
+          if (song.rating == 1 || song.rating == 2) ctx.drawImage(rating, 32, 0, 32, 32, 0, 84, 16, 16);
+          else if (song.rating >= 4) ctx.drawImage(rating, 0, 0, 32, 32, 0, 84, 16, 16);
         } else if (isStarRatingMode()) {
           for (var i = 0; i < song.rating; i++) {
-            ctx.drawImage(rating, 32, 0, 16, 16, i * 16, 84, 16, 16);
+            ctx.drawImage(rating, 64, 0, 32, 32, i * 16, 84, 16, 16);
           }
         }
         if (song.loved === true) {
-          ctx.drawImage(rating, 48, 0, 16, 16, 84, 84, 16, 16);
+          ctx.drawImage(rating, 96, 0, 32, 32, 84, 84, 16, 16);
         }
       }
       toastOptions.iconUrl = ctx.canvas.toDataURL();

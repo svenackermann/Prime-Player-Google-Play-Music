@@ -126,6 +126,12 @@ body {
       margin-bottom: 0;
     }
   }
+  > div.sociallinks {
+    clear: none;
+    img {
+      height: 20px;
+    }
+  }
   > div#bugfeatureinfo {
     clear: both;
     > a {
@@ -153,6 +159,7 @@ input[type='color'] {
 img.hint {
   margin-left: 0.5ex;
   vertical-align: text-bottom;
+  height: 18px;
 }
 
 #changelog {
@@ -210,6 +217,7 @@ img.hint {
     display: none;
     margin-left: 0.5ex;
     vertical-align: top;
+    height: 16px;
   }
 }
 
