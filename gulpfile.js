@@ -10,6 +10,7 @@ var sourcemaps = require("gulp-sourcemaps");
 var changed = require("gulp-changed");
 var del = require("del");
 var replace = require("gulp-replace");
+var rename = require("gulp-rename");
 var zip = require("gulp-zip");
 var merge = require("merge-stream");
 var htmlminify = require("gulp-minify-html");
@@ -26,7 +27,8 @@ var PATHS = {
   JS_SINGLE: ["src/js/cs.js", "src/js/cs-*.js", "src/js/ga.js", "src/js/injected.js", "src/js/options.js", "src/js/player.js", "src/js/updateNotifier.js"],
   SCSS: ["src/css/*.scss", "!src/css/layouts.scss"],
   SCSS_ALL: "src/css/*.*",
-  OTHER: ["src/img/**/*.*", "src/**/*.json", "src/**/*.html", "src/js/jquery-2.1.3.min.js"],
+  OTHER: ["src/img/**/*.*", "src/**/*.json", "src/**/*.html"],
+  JQUERY: "node_modules/jquery/dist/cdn/jquery-*.min.js",
   DEST: "build/",
   DEST_JS: "build/js/",
   DEST_CSS: "build/css/",
@@ -80,13 +82,20 @@ gulp.task("compile-css", function() {
     .pipe(gulp.dest(PATHS.DEST_CSS));
 });
 
+gulp.task("copy-jquery", function() {
+  return gulp.src(PATHS.JQUERY)
+    .pipe(rename("jquery.min.js"))
+    .pipe(changed(PATHS.DEST_JS))
+    .pipe(gulp.dest(PATHS.DEST_JS));
+});
+
 gulp.task("copy-other", function() {
   return gulp.src(PATHS.OTHER, { base: PATHS.SRC })
     .pipe(changed(PATHS.DEST))
     .pipe(gulp.dest(PATHS.DEST));
 });
 
-gulp.task("build", ["compile-js-bp", "compile-js-single", "compile-css", "copy-other"], function(cb) { cb(); });
+gulp.task("build", ["compile-js-bp", "compile-js-single", "compile-css", "copy-other", "copy-jquery"], function(cb) { cb(); });
 
 gulp.task("watch", function() {
   gulp.watch(PATHS.JS_BP, ["compile-js-bp"]);
