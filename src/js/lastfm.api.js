@@ -12,7 +12,7 @@
 /* exported LastFM */
 
 function LastFM(apiKey, apiSecret) {
-  var apiUrl    = "https://ws.audioscrobbler.com/2.0/";
+  var API_URL    = "https://ws.audioscrobbler.com/2.0/";
 
   this.session = {};
   this.sessionTimeoutCallback = null;
@@ -25,7 +25,7 @@ function LastFM(apiKey, apiSecret) {
     params.format = "json";
     $.ajax({
       type: requestMethod,
-      url: apiUrl,
+      url: API_URL,
       data: params,
       timeout: 10000
     }).done(function(response) {
@@ -51,20 +51,22 @@ function LastFM(apiKey, apiSecret) {
   };
 
   /* Normal method call. */
-	var call = function(method, params, callbacks, requestMethod) {
-		/* Set default values. */
-		params        = params        || {};
-		callbacks     = callbacks     || {};
-		requestMethod = requestMethod || "GET";
+  var call = function(method, params, callbacks, requestMethod) {
+    /* Set default values. */
+    params        = params        || {};
+    callbacks     = callbacks     || {};
+    requestMethod = requestMethod || "GET";
 
-		/* Add parameters. */
-		params.method  = method;
-		params.api_key = apiKey;
+    /* Add parameters. */
+    params.method  = method;
+    // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
+    params.api_key = apiKey;
+    // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
 
-		/* Call method. */
-		internalCall(params, callbacks, requestMethod);
-	};
-  
+    /* Call method. */
+    internalCall(params, callbacks, requestMethod);
+  };
+
   /* Signed method call. */
   var signedCall = function(method, params, callbacks, requestMethod) {
     /* Set default values. */
@@ -74,15 +76,19 @@ function LastFM(apiKey, apiSecret) {
 
     /* Add parameters. */
     params.method  = method;
+    // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
     params.api_key = apiKey;
+    // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
 
     /* Add session key. */
-    if(that.session.key) {
+    if (that.session.key) {
       params.sk = that.session.key;
     }
 
     /* Get API signature. */
+    // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
     params.api_sig = auth.getApiSignature(params);
+    // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
 
     /* Call method. */
     internalCall(params, callbacks, requestMethod);
@@ -90,47 +96,47 @@ function LastFM(apiKey, apiSecret) {
 
   /* Auth methods. */
   this.auth = {
-    getSession : function(params, callbacks) {
+    getSession: function(params, callbacks) {
       signedCall("auth.getSession", params, callbacks);
     }
   };
 
   /* Track methods. */
   this.track = {
-    getInfo : function(params, callbacks) {
+    getInfo: function(params, callbacks) {
       call("track.getInfo", params, callbacks);
     },
 
-    love : function(params, callbacks) {
+    love: function(params, callbacks) {
       signedCall("track.love", params, callbacks, "POST");
     },
 
-    scrobble : function(params, callbacks) {
+    scrobble: function(params, callbacks) {
       signedCall("track.scrobble", params, callbacks, "POST");
     },
 
-    unlove : function(params, callbacks) {
+    unlove: function(params, callbacks) {
       signedCall("track.unlove", params, callbacks, "POST");
     },
 
-    updateNowPlaying : function(params, callbacks) {
+    updateNowPlaying: function(params, callbacks) {
       signedCall("track.updateNowPlaying", params, callbacks, "POST");
     }
   };
 
   /* Private auth methods. */
   var auth = {
-    getApiSignature : function(params) {
+    getApiSignature: function(params) {
       var keys   = [];
       var string = "";
 
-      for(var param in params) {
+      for (var param in params) {
         keys.push(param);
       }
 
       keys.sort();
 
-      for(var index in keys) {
+      for (var index in keys) {
         var key = keys[index];
 
         string += key + params[key];
@@ -138,10 +144,12 @@ function LastFM(apiKey, apiSecret) {
 
       string += apiSecret;
 
+      // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
       return hex_md5(string);
+      // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
     }
   };
-  
+
   this.getLoginUrl = function(callbackUrl) {
     return "http://www.last.fm/api/auth?api_key=" + apiKey + "&cb=" + callbackUrl;
   };

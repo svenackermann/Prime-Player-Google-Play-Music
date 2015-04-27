@@ -340,7 +340,7 @@
     "description": "hint for the miniplayer settings on options page"
   },
   "legendLookfeel": {
-    "message": "Look \u0026 feel",
+    "message": "Look & feel",
     "description": "title for the look and feel settings on options page"
   },
   "legendLookfeelHint": {
@@ -360,7 +360,7 @@
     "description": "title for the lyrics settings on options page"
   },
   "legendLyricsHint": {
-    "message": "You can allow Prime Player to load lyrics from songlyrics.com to show them in the miniplayer or the Google Music tab.",
+    "message": "You can allow Prime Player to load lyrics from external websites to show them in the miniplayer or the Google Music tab. For this, you first must enable at least one site below. The enabled sites can be sorted with drag & drop, the first site is always searched first for lyrics.",
     "description": "hint for the lyrics settings on options page"
   },
   "setting_gaEnabled": {
@@ -456,6 +456,22 @@
     "message": "Sync settings with Chrome sync",
     "description": "label for option to sync settings"
   },
+  "setting_syncSettingsHint": {
+    "message": "To use this, you must be logged in to Chrome with your Google account and have synchronisation of extensions enabled. For different reasons not all settings can be synchronized, only settings marked with a * will be. Also note that the settings will be loaded from your account only during startup of Prime Player (e.g. on install, update or Chrome start) and when you enable the option, but are saved (with a short delay) to your account whenever you change them.",
+    "description": "hint for option to sync settings"
+  },
+  "setting_pauseOnLock": {
+    "message": "Pause music when computer is locked (resume on unlock)",
+    "description": "label for option to pause on lock"
+  },
+  "setting_pauseOnIdle": {
+    "message": "Pause music when computer is idle (resume on any action)",
+    "description": "label for option to pause on idle"
+  },
+  "setting_pauseOnIdleSec": {
+    "message": "Seconds to be idle before music is paused",
+    "description": "label for option to set the seconds for pause on idle"
+  },
   "setting_preventCommandRatingReset": {
     "message": "Prevent rating resets without feedback",
     "description": "label for option to prevent rating resets"
@@ -499,6 +515,10 @@
   "setting_saveLastPositionHint": {
     "message": "Saves the last played song with its position (locally), so you know where you left off before closing Google Music. The last song will be displayed in the miniplayer like a normal song with some limitations. The play button will try to load the song's album and resume the song at its last position. Unfortunately, it's not possible to restore your last queue or playlist on restart.",
     "description": "hint for option to save last song position"
+  },
+  "setting_hideFavorites": {
+    "message": "Hide favorites in miniplayer and context menu",
+    "description": "label for option to hide favorites"
   },
   "setting_skipRatedLower": {
     "message": "(or lower) rated songs will be skipped",
@@ -556,15 +576,27 @@
     "message": "Automatically close Google Music, when miniplayer is closed",
     "description": "label for option to close Google Music on miniplayer close"
   },
+  "installNotifierTitle": {
+    "message": "Prime Player installed",
+    "description": "title for install notification"
+  },
+  "installNotifierText": {
+    "message": "The extension has a bunch of options that you can adjust to fit your needs. Also note the FAQ on the extension's homepage at the Chrome Store and the Wiki on Github. And now have fun with Prime Player!",
+    "description": "message for install notification"
+  },
   "updateNotifierTitle": {
-    "message": "Prime Player Updated",
+    "message": "Prime Player updated",
     "description": "title for update notification"
   },
   "updateNotifierText": {
     "message": "The extension just updated. Go to the options page to see what's new.",
     "description": "message for update notification"
   },
-  "browserActionTitle_updated": {
+  "browserActionTitle_install": {
+    "message": "just installed",
+    "description": "browser icon tooltip when extension was installed"
+  },
+  "browserActionTitle_update": {
     "message": "just updated",
     "description": "browser icon tooltip when extension was updated"
   },
@@ -608,17 +640,19 @@
     "message": "The lyrics could not be loaded.",
     "description": "message when no lyrics could be loaded (in miniplayer and Google Music)"
   },
+  "lyricsSrcProvider": {
+    "message": "Source: $PRV$",
+    "description": "Text for source link to lyrics provider",
+    "placeholders": { "PRV": { "content": "$1", "example": "songlyrics.com" } }
+  },
+  "lyricsSearchProvider": {
+    "message": "Search $PRV$",
+    "description": "Text for link to search with another lyrics provider",
+    "placeholders": { "PRV": { "content": "$1", "example": "songlyrics.com" } }
+  },
   "quicklinks": {
-    "message": "quick-links",
+    "message": "Quick links",
     "description": "title for quicklinks view in miniplayer"
-  },
-  "welcomeTitle": {
-    "message": "Prime Player installed",
-    "description": "title for notification that is shown directly after install"
-  },
-  "welcomeMessage": {
-    "message": "The extension has a bunch of options that you can adjust to fit your needs. Also note the FAQ on the extension's homepage at the Chrome Store. And now have fun with Prime Player!",
-    "description": "welcome message that is shown in notification directly after install"
   },
   "toOptions": {
     "message": "To the options",
@@ -726,6 +760,10 @@
     "message": "If enabled, links to albums, artist etc. will be opened directly in the miniplayer, otherwise in the Google Music tab. Using Shift+Click you can switch this behavior temporarily.",
     "description": "hint for option to open links in miniplayer"
   },
+  "setting_lyricsAutoNext": {
+    "message": "Auto-load from next site(s) if not found",
+    "description": "label for option to auto-load lyrics from next site"
+  },
   "setting_lyrics": {
     "message": "Activate lyrics",
     "description": "label for option to activate lyrics"
@@ -739,8 +777,9 @@
     "description": "hint for option to open lyrics in miniplayer"
   },
   "lyricsAlert": {
-    "message": "This feature requires access to songlyrics.com to load the lyrics.\nPlease note that not Prime Player but songlyrics.com is responsible for the quality of the search results. Prime Player always shows the first search result from songlyrics.com. So it is possible that the shown lyrics don't match the song. You can check the search results with the links at the bottom of the lyrics page in the miniplayer.",
-    "description": "warning message on first lyrics feature activation"
+    "message": "This requires access to $SITE$ to load the lyrics.\nPlease note that not Prime Player but $SITE$ is responsible for the quality of the search results. Prime Player always shows the first search result from $SITE$. So it is possible that the shown lyrics don't match the song. You can check the search results with the links at the bottom of the lyrics page in the miniplayer.",
+    "description": "warning message on first lyrics feature activation",
+    "placeholders": { "SITE": { "content": "$1", "example": "songlyrics.com" } }
   },
   "setting_hideSearchfield": {
     "message": "Hide search box in miniplayer",
@@ -749,6 +788,10 @@
   "resetSettings": {
     "message": "Reset settings to default",
     "description": "text for reset settings button"
+  },
+  "resetSettingsConfirm": {
+    "message": "Do really want to reset all your settings? This will also remove your favorites and last.fm connection and remove all your Prime Player related data from Chrome sync.",
+    "description": "text for reset settings confirm dialogue"
   },
   "setting_connectedIndicator": {
     "message": "Show 'P'-icon on connected Google Music tab",
@@ -769,6 +812,10 @@
   "setting_lyricsWidth": {
     "message": "Width (in pixels) of lyrics panel in Google Music",
     "description": "label for option to change the width for the lyrics panel"
+  },
+  "setting_skipSongSeconds": {
+    "message": "Change song after x seconds played (0=disabled)",
+    "description": "label for option to skip to next song after x seconds"
   },
   "moreThanOneDay": {
     "message": "> 1 day",
@@ -899,27 +946,27 @@
     "message": "Keyboard shortcuts",
     "description": "text for link to open the keyboard shortcuts settings"
   },
-  "timerMinutes": {
+  "setting_timerMinutes": {
     "message": "Countdown minutes",
     "description": "label for timer minutes setting"
   },
-  "timerNotify": {
+  "setting_timerNotify": {
     "message": "Notify on timeout",
     "description": "label for timer notification setting"
   },
-  "timerPreNotify": {
+  "setting_timerPreNotify": {
     "message": "seconds to warn before before timeout (0=do not warn)",
     "description": "label for timer warning setting"
   },
-  "timerAction": {
+  "setting_timerAction": {
     "message": "Action on timeout",
     "description": "label for timer action setting"
   },
-  "timerAction_closeGm": {
+  "setting_timerAction_closeGm": {
     "message": "Close Google Music",
     "description": "label for timer action option to close Google Music"
   },
-  "timerAction_pause": {
+  "setting_timerAction_pause": {
     "message": "Pause music",
     "description": "label for timer action option to pause music"
   },
@@ -969,6 +1016,28 @@
     "message": "Cancel timer",
     "description": "label for notification button to cancel timer"
   },
+  "startTimerMenu": {
+    "message": "Start timer",
+    "description": "text for context menu to start timer"
+  },
+  "timerInOneMinute": {
+    "message": "1 minute",
+    "description": "text for context menu entry for remaining time 1 minute"
+  },
+  "timerInMin": {
+    "message": "$MIN$ minutes",
+    "description": "text for context menu entry to start timer in some minutes or for remaining time",
+    "placeholders": { "MIN": { "content": "$1", "example": "30" } }
+  },
+  "timerInOneHour": {
+    "message": "1 hour",
+    "description": "text for context menu entry to start timer in one hour or for remaining time"
+  },
+  "timerInHours": {
+    "message": "$HOU$ hours",
+    "description": "text for context menu entry to start timer in some hours or for remaining time",
+    "placeholders": { "HOU": { "content": "$1", "example": "2" } }
+  },
   "filterHint": {
     "message": "Here you can limit the visible options.",
     "description": "hint for options filter"
@@ -1010,7 +1079,7 @@
     "description": "label for options lyrics filter"
   },
   "setting_filterLookfeel": {
-    "message": "Look \u0026 feel",
+    "message": "Look & feel",
     "description": "label for options look and feel filter"
   },
   "notificationsDisabled": {
@@ -1029,5 +1098,70 @@
   "openPopup": {
     "message": "Open popup",
     "description": "label for icon click option to open the popup"
+  },
+  "action": {
+    "message": "Action",
+    "description": "text for action sub context menu"
+  },
+  "favorites": {
+    "message": "Favorites",
+    "description": "text for favorites sub context menu and header/link in miniplayer"
+  },
+  "noFavorites": {
+    "message": "You have no favorites.\\A\\AMark any playlist (album, artist, ...) as favorite with the star icon in the list navigation view.",
+    "description": "text for favorites view in miniplayer if no favorites exist"
+  },
+  "addfavorite": {
+    "message": "Add '$NAME$' to favorites",
+    "description": "hint for icon to add sth. as favorite",
+    "placeholders": { "NAME": { "content": "$1", "example": "Foals" } }
+  },
+  "delfavorite": {
+    "message": "Remove '$NAME$' from favorites",
+    "description": "hint for icon to remove sth. from favorite",
+    "placeholders": { "NAME": { "content": "$1", "example": "Foals" } }
+  },
+  "editfavorite": {
+    "message": "Edit '$NAME$'",
+    "description": "hint for icon to edit a favorite",
+    "placeholders": { "NAME": { "content": "$1", "example": "Foals" } }
+  },
+  "ob_defaultsugg": {
+    "message": "Search in Google Music or start with 'f ' to search in favorites",
+    "description": "default suggestion for omnibox when typed less then 2 characters"
+  },
+  "ob_startsugg": {
+    "message": "Start $SUG$",
+    "description": "omnibox content text to start a suggestion",
+    "placeholders": { "SUG": { "content": "$1", "example": "MyFavorite" } }
+  },
+  "ob_favoritessugg": {
+    "message": "Type to search in favorites",
+    "description": "default suggestion for omnibox when searching for favorites, but nothing is typed yet"
+  },
+  "ob_foundfavorites": {
+    "message": "Favorites matching $TEXT$:",
+    "description": "omnibox default suggestion text for found favorites",
+    "placeholders": { "TEXT": { "content": "$1", "example": "mysearch" } }
+  },
+  "ob_nofavorites": {
+    "message": "No favorites found for $TEXT$.",
+    "description": "omnibox default suggestion text if no favorites found",
+    "placeholders": { "TEXT": { "content": "$1", "example": "mysearch" } }
+  },
+  "ob_loading": {
+    "message": "Loading results for $TEXT$...",
+    "description": "omnibox default suggestion text while searching for results",
+    "placeholders": { "TEXT": { "content": "$1", "example": "mysearch" } }
+  },
+  "ob_results": {
+    "message": "Results matching $TEXT$:",
+    "description": "omnibox default suggestion text for found results",
+    "placeholders": { "TEXT": { "content": "$1", "example": "mysearch" } }
+  },
+  "ob_noresults": {
+    "message": "No results found for $TEXT$.",
+    "description": "omnibox default suggestion text if no results found",
+    "placeholders": { "TEXT": { "content": "$1", "example": "mysearch" } }
   }
 }

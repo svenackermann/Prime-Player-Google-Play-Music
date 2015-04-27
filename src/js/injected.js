@@ -20,15 +20,10 @@
     event.initMouseEvent(eventname, true, true, window, 1, 0, 0, clientX || 0, clientY || 0, false, false, false, false, 0, element);
     element.dispatchEvent(event);
   }
-  
+
   /** Simulate a click event on an element. */
   var simulateClick = simulateMouseEvent.bind(window, "click");
-  
-  /** Start the currently displayed playlist. */
-  function startPlaylist() {
-    simulateClick(document.getElementsByClassName("overlay-icon")[0]);
-  }
-  
+
   /**
    * Execute a function for an element which matches a dataset attribute.
    * @param list the array to lookup the element
@@ -46,33 +41,66 @@
       }
     });
   }
-  
+
+  /** Start the currently displayed playlist. */
+  function startPlaylist() {
+    if (location.hash.indexOf("artist/") == 2) {
+      if (withMatchingDataset(document.getElementsByClassName("button"), "id", "radio", simulateClick)) return;
+    }
+    if (location.hash.indexOf("expgenres/") == 2) {
+      if (withMatchingDataset(document.getElementsByClassName("button"), "id", "start-genre-radio", simulateClick)) return;
+    }
+    var overlay = document.getElementsByClassName("overlay-icon")[0];
+    if (overlay) simulateClick(overlay);
+    else startPlaylistSong({ index: 0 });
+  }
+
   /** Simulate a click on a .card with given id. */
   function clickCard(id) {
     withMatchingDataset(document.getElementsByClassName("card"), "id", id, function(card) {
       simulateClick(card.getElementsByClassName("title")[0]);
     });
   }
-  
+
   /** Click the feeling lucky button. */
   function clickFeelingLucky() {
-    withMatchingDataset(document.getElementsByTagName("button"), "id", "im-feeling-lucky", simulateClick);
+    withMatchingDataset(document.getElementsByClassName("button"), "id", "im-feeling-lucky", simulateClick);
   }
-  
-  /** Click the player button with given id. */
-  function clickPlayerButton(id) {
+
+  /** Click the player button with given id. If given, only click if the button has class includeClass and doesn't have class excludeClass. */
+  function clickPlayerButton(id, includeClass, excludeClass) {
     var player = document.getElementById("player");
-    if (player) withMatchingDataset(player.getElementsByClassName("player-middle")[0].childNodes, "id", id, simulateClick);
+    if (player) withMatchingDataset(player.getElementsByClassName("player-middle")[0].childNodes, "id", id, function(el) {
+      var classes = el.className || "";
+      if (includeClass && classes.indexOf(includeClass) < 0) return;
+      if (excludeClass && classes.indexOf(excludeClass) >= 0) return;
+      simulateClick(el);
+    });
   }
-  
+
   /** Execute callback with the list of TD elements for the playlist row with given index and cluster or with an empty array if not found. */
   function withPlaylistCols(index, cluster, cb) {
     var content = document.getElementById("music-content");
     if (content) {
-      if (cluster) content = content.getElementsByClassName("cluster")[cluster] || content;
-      content = content.getElementsByClassName("song-table")[0];
-      if (content) {
-        var rows = content.getElementsByClassName("song-row");
+      if (cluster) content = content.getElementsByClassName("cluster")[cluster - 1];
+      var songTables = content.getElementsByClassName("song-table");
+
+      var songTable;
+      if (cluster) songTable = songTables[0];
+      else {
+        //make sure that we do not take a song-table from a cluster
+        [].some.call(songTables, function(el) {
+          while (el && el.id != content.id) {
+            if (el.classList.contains("cluster")) return false;
+            el = el.parentElement;
+          }
+          songTable = el;
+          return true;
+        });
+      }
+
+      if (songTable) {
+        var rows = songTable.getElementsByClassName("song-row");
         if (rows[0]) {
           index = index - rows[0].dataset.index;
           if (rows[index]) {
@@ -84,12 +112,12 @@
     }
     cb([]);
   }
-  
+
   /** Post back to cs that a playlist song action is done. */
   function sendPlaylistSongResult(msg, index) {
     window.postMessage({ type: "FROM_PRIMEPLAYER", msg: "plSong" + msg, index: index }, location.href);
   }
-  
+
   /**
    * Start a playlist song.
    * @param cols the columns (TD elements) of the row as returned by withPlaylistCols
@@ -109,7 +137,7 @@
     }
     return false;
   }
-  
+
   /** Start a song of a playlist specified by index and cluster. */
   function startPlaylistSong(options) {
     withPlaylistCols(options.index, options.cluster, function(cols) {
@@ -118,7 +146,7 @@
       }
     });
   }
-  
+
   /** Resume a song of a playlist specified by index at the given position. */
   function resumePlaylistSong(options) {
     withPlaylistCols(options.index, 0, function(cols) {
@@ -127,7 +155,7 @@
       });
     });
   }
-  
+
   /** Rate a song of a playlist specified by index and cluster. */
   function ratePlaylistSong(options) {
     withPlaylistCols(options.index, options.cluster, function(cols) {
@@ -141,80 +169,81 @@
       if (!done) sendPlaylistSongResult("Error", options.index);
     });
   }
-  
+
   /** Rate sth. within the given container. */
   function rate(parent, rating) {
     var container = parent.getElementsByClassName("rating-container")[0];
     if (container) withMatchingDataset(container.getElementsByTagName("li"), "rating", rating, simulateClick);
   }
-  
+
   /** Set the position of a given slider (volume or song progress). */
   function setPositionPercent(elementId, percent) {
     var slider = document.getElementById(elementId);
     var rect = slider.getBoundingClientRect();
-    simulateMouseEvent("mousedown", slider, rect.left + (percent * rect.width), rect.top + 1);
+    simulateMouseEvent("mousedown", slider, rect.left + percent * rect.width, rect.top + 1);
   }
-  
+
   /** Cleanup this script, i.e. remove the message listener from the window. */
   function cleanup() {
     console.info("Cleanup injected script for Prime Player...");
     window.removeEventListener("message", onMessage);
   }
-  
+
   /** Message listener for commands from cs. */
   function onMessage(event) {
     // We only accept messages from ourselves
     if (event.source != window || event.data.type != "FROM_PRIMEPLAYER" || !event.data.command) return;
     console.debug("cs->inj: ", event.data);
     switch (event.data.command) {
-      case "playPause":
-        clickPlayerButton("play-pause");
-        break;
-      case "nextSong":
-        clickPlayerButton("forward");
-        break;
-      case "prevSong":
-        clickPlayerButton("rewind");
-        break;
-      case "toggleRepeat":
-        clickPlayerButton("repeat");
-        break;
-      case "toggleShuffle":
-        clickPlayerButton("shuffle");
-        break;
-      case "rate":
-        rate(document.getElementById("player-right-wrapper"), event.data.options.rating);
-        break;
-      case "startPlaylist":
-        startPlaylist();
-        break;
-      case "setPosition":
-        setPositionPercent("slider", event.data.options.percent);
-        break;
-      case "setVolume":
-        setPositionPercent("vslider", event.data.options.percent);
-        break;
-      case "clickCard":
-        clickCard(event.data.options.id);
-        break;
-      case "feelingLucky":
-        clickFeelingLucky();
-        break;
-      case "startPlaylistSong":
-        startPlaylistSong(event.data.options);
-        break;
-      case "resumePlaylistSong":
-        resumePlaylistSong(event.data.options);
-        break;
-      case "ratePlaylistSong":
-        ratePlaylistSong(event.data.options);
-        break;
-      case "cleanup":
-        cleanup();
-        break;
+    case "playPause":
+      var resume = event.data.options.resume;
+      clickPlayerButton("play-pause", resume === false ? "playing" : null, resume ? "playing" : null);
+      break;
+    case "nextSong":
+      clickPlayerButton("forward");
+      break;
+    case "prevSong":
+      clickPlayerButton("rewind");
+      break;
+    case "toggleRepeat":
+      clickPlayerButton("repeat");
+      break;
+    case "toggleShuffle":
+      clickPlayerButton("shuffle");
+      break;
+    case "rate":
+      rate(document.getElementById("player-right-wrapper"), event.data.options.rating);
+      break;
+    case "startPlaylist":
+      startPlaylist();
+      break;
+    case "setPosition":
+      setPositionPercent("slider", event.data.options.percent);
+      break;
+    case "setVolume":
+      setPositionPercent("vslider", event.data.options.percent);
+      break;
+    case "clickCard":
+      clickCard(event.data.options.id);
+      break;
+    case "feelingLucky":
+      clickFeelingLucky();
+      break;
+    case "startPlaylistSong":
+      startPlaylistSong(event.data.options);
+      break;
+    case "resumePlaylistSong":
+      resumePlaylistSong(event.data.options);
+      break;
+    case "ratePlaylistSong":
+      ratePlaylistSong(event.data.options);
+      break;
+    case "cleanup":
+      cleanup();
+      break;
     }
   }
-  
+
   window.addEventListener("message", onMessage);
   console.info("Prime Player extension connected.");
 })();

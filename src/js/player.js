@@ -6,30 +6,27 @@
  * @license BSD license
  */
 
-/* global chrome */
+/* global chrome, initGA */
 
 chrome.runtime.getBackgroundPage(function(bp) {
-
   /** "popup", "miniplayer" or "toast" */
   var typeClass = bp.extractUrlParam("type", location.search) || "popup";
-
   /** the size of the player to restore after closing playlist/lyrics/... */
   var savedSizing;
-
   /** history to allow for back navigation */
   var navHistory = [];
-
   /** information about the currently displayed navigation list */
   var currentNavList = {};
-
   /** cached HTML snippet for rating in playlists, depending on the rating mode */
   var ratingHtml;
-
   /** function to get the last.fm info for the saved last song, if any */
   var getLastSongInfo;
-
   /** the cached last.fm info for the saved last song, if any or false if not loaded yet */
   var lastSongInfo = false;
+  /** store the static links referenced in markup that should not be candidates for favorites **/
+  var staticLinks = {};
+  /** cache favorites for quick test if they exist **/
+  var favoritesCache = {};
 
   /** shortcuts, for minimisation */
   var i18n = chrome.i18n.getMessage;
@@ -37,7 +34,18 @@ chrome.runtime.getBackgroundPage(function(bp) {
   var settings = bp.settings;
   var player = bp.player;
   var song = bp.song;
-  
+
+  /** Google analytics */
+  var GA = initGA(settings, typeClass);
+
+  localSettings.favorites.forEach(function(fav) {
+    favoritesCache[fav.link] = true;
+  });
+
+  function isFavoriteCandidate(link) {
+    return !staticLinks[link] && !!link.indexOf("sm/") && !!link.indexOf("sr");
+  }
+
   if (typeClass == "popup") {
     bp.popupOpened();// tell bp that we're open (needed for icon click action handling)
     $("html").addClass("layout-normal");//popup has fixed layout
@@ -65,7 +73,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function getVisiblePlaylists() {
     return $("#navlistContainer").find(".playlist:visible");
   }
-  
+
   function shuffleWatcher(val) {
     $("#shuffle").attr("class", val);
     //reload queue on shuffle if visible
@@ -91,29 +99,30 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#showlyrics")
       .attr("title", i18n("lyricsFor", info.title))
       .addClass("nav")
-      .data("options", {artist: info.artist, title: info.title});
+      .data("options", { artist: info.artist, title: info.title });
   }
-  
+
   function clusterFilter(cluster) {
     return function() {
       return $(this).data("cluster") === cluster;
     };
   }
-  
+
   function addPlaylistSongTimebars(playlists) {
     var timebar = $("<div class='timebar'><div></div></div>");
     var duration = song.info ? song.info.durationSec : 0;
     renderPlaylistPosition(timebar, duration ? song.positionSec / duration * 100 : 0);
     timebar.appendTo(playlists.find(".current"));
   }
-  
+
   function songInfoWatcher(val) {
     if ($("body").hasClass("hasLastSong")) {
       $("body").removeClass("hasLastSong");
+      $("#googleRating a").removeClass("disabled");
       renderRating(song.rating);
       getLastSongInfo = null;
       lastSongInfo = false;
-      $("#resume").removeClass("lastSongEnabled").unbind().click(googleMusicExecutor("playPause"));
+      $("#resume").removeClass("lastSongEnabled").unbind().click(googleMusicExecutor("playPause", { resume: true }));
     }
     $("body").toggleClass("hasSong", !!val);
     if (val) {
@@ -123,13 +132,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
       if (settings.lyricsAutoReload && $("#lyrics").is(":visible")) {
         var title = val.title;
         if (val.artist) title = val.artist + " - " + title;
-        switchView(i18n("lyricsTitle", title), "lyrics", null, {artist: val.artist, title: val.title});
+        switchView(i18n("lyricsTitle", title), "lyrics", null, { artist: val.artist, title: val.title });
       }
     } else {
       $("#cover").attr("src", "img/cover.png");
       $("#showlyrics").removeAttr("title").removeClass("nav").removeData("options");
     }
-    
+
     function markCurrent(songRow) {
       var curSong = songRow.data("song");
       if (bp.songsEqual(curSong, val)) {
@@ -139,12 +148,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
       }
       return false;
     }
-    
+
     function tryListMatch(listData) {
       var expectedDiv = playlists.filter(clusterFilter(listData.cluster)).children("div[data-index='" + listData.index + "']");
       return expectedDiv[0] && markCurrent(expectedDiv);
     }
-    
+
     var playlists = getVisiblePlaylists();
     if (playlists.length) {
       var currentData;
@@ -190,7 +199,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#timeBar").css({ width: percent + "%" });
     renderPlaylistPosition($(".playlist:visible>.current>.timebar"), percent);
   }
-  
+
   function positionSecWatcher(positionSec) {
     renderPosition(positionSec, song.info && song.info.durationSec || 0, song.position);
   }
@@ -198,13 +207,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function renderRating(rating) {
     $("#googleRating").removeClass().addClass("rating-" + rating);
   }
-  
+
   function renderLastSong(lastSong) {
     $("body").addClass("hasLastSong");
+    $("#googleRating a").addClass("disabled");
     renderSongInfo(lastSong.info);
     renderPosition(lastSong.positionSec, lastSong.info.durationSec, lastSong.position);
     renderRating(lastSong.rating);
-    
+
     function updateSongInfo(updateFn) {
       renderLastSongInfo(null);
       updateFn(lastSong.info, renderLastSongInfo);
@@ -213,19 +223,19 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var unloveLast = updateSongInfo.bind(window, bp.unlove);
     var loveLast = updateSongInfo.bind(window, bp.love);
     function renderLastSongInfo(loved, lastfmInfo) {
-      renderSongLoved(loved, {getLastfmInfo: getLastSongInfo, unlove: unloveLast, love: loveLast});
+      renderSongLoved(loved, { getLastfmInfo: getLastSongInfo, unlove: unloveLast, love: loveLast });
       if (lastfmInfo !== undefined) {//not for love/unlove
         lastSongInfo = lastfmInfo;
         renderLastfmInfo(lastfmInfo);
       }
     }
-    if (settings.showLastfmInfo || (!settings.hideRatings && localSettings.lastfmSessionName)) getLastSongInfo();
-    
+    if (settings.showLastfmInfo || !settings.hideRatings && localSettings.lastfmSessionName) getLastSongInfo();
+
     if (lastSong.info.albumLink) {
       $("#resume").addClass("lastSongEnabled").unbind().click(bp.resumeLastSong.bind(window, lastSong));
     }
   }
-  
+
   function ratingModeWatcher(val) {
     var body = $("body");
     body.removeClass("star-rating thumbs-rating");
@@ -242,7 +252,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function getClusterIndex(el) {
     return parseInt(el.closest(".playlist").data("cluster")) || 0;
   }
-  
+
   function ratingWatcher(val) {
     if (!$("body").hasClass("hasLastSong")) renderRating(val);
   }
@@ -250,7 +260,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function updateScrobblePosition(scrobbleTime) {
     var sp = $("#scrobblePosition");
     if (scrobbleTime >= 0 && song.info && song.info.durationSec > 0) {
-      sp.addClass("songscrobble").css({left: (scrobbleTime / song.info.durationSec * 100) + "%"});
+      sp.addClass("songscrobble").css({ left: scrobbleTime / song.info.durationSec * 100 + "%" });
     } else sp.removeClass("songscrobble");
   }
 
@@ -261,7 +271,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function scrobbleWatcher(val) {
     $("body").toggleClass("scrobbleEnabled", val);
   }
-  
+
   function showLastfmInfoWatcher(val) {
     $("#lastfmInfo").toggle(val);
     if (val && lastSongInfo === false && getLastSongInfo) getLastSongInfo();
@@ -278,7 +288,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function mpTextColorWatcher(val) {
     $("#player").css("color", val);
   }
-  
+
   function hideSearchfieldWatcher(val) {
     $("#nav").toggleClass("searchField", !val);
   }
@@ -288,14 +298,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
     target.toggleClass("nav", !!link);
     if (link) {
       var text = bp.getTextForQuicklink(link);
-      target.data({link: link, text: text}).attr("title", i18n("openLink", text));
+      target.data({ link: link, text: text }).attr("title", i18n("openLink", text));
     } else {
       target.removeData("link text").removeAttr("title");
     }
   }
 
   var updateCoverClickLink = updateClickLink.bind(window, "#coverContainer");
-  
+
   var updateTitleClickLink = updateClickLink.bind(window, "#track, #nosong a:first-child");
 
   /** listen for resize events and poll for position changes to update the settings */
@@ -305,7 +315,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
       clearTimeout(timerId);
       timerId = setTimeout(function() {
         if (document.webkitHidden) return;//do not save size of minimized window
-        var sizingSetting;
         var sizing;
         if ($("#player").is(":visible")) {
           sizing = localSettings.miniplayerSizing;
@@ -313,12 +322,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
           sizing[settings.layout].height = window.outerHeight;
           localSettings.miniplayerSizing = sizing;//trigger listener notification
         } else if ($("#nav").is(":visible")) {
-          var type = $("#quicklinks").is(":visible") ? "quicklinks" : $("#navlist").attr("class");
-          sizingSetting = type + "Sizing";
-        } else if ($("#lyrics").is(":visible")) {
-          sizingSetting = "lyricsSizing";
-        }
-        if (sizingSetting) {
+          var type;
+          if ($("#quicklinks").is(":visible")) type = "quicklinks";
+          else if ($("#favoritesContainer").is(":visible")) type = "favorites";
+          else if ($("#lyrics").is(":visible")) type = "lyrics";
+          else type = $("#navlist").attr("class");
+          var sizingSetting = type + "Sizing";
           sizing = localSettings[sizingSetting];
           if (sizing) {
             sizing.width = window.outerWidth;
@@ -360,32 +369,41 @@ chrome.runtime.getBackgroundPage(function(bp) {
       if (!settings.hideRatings && getLastSongInfo) getLastSongInfo();
     }
   }
-  
+
   function lyricsWatcher(val) {
     $("body").toggleClass("lyrics", val);
   }
-  
+
   function lyricsFontSizeWatcher(val) {
     $("#lyrics").css("font-size", val + "px");
   }
 
-  function allincWatcher(val) {
-    $("#quicklinks").toggleClass("allinc", val);
-  }
-  
   function volumeWatcher(val) {
     if (val === null) {
       $("#volumeBarContainer").hide();
     } else {
-      $("#volumeBar").css({width: val + "%"});
+      $("#volumeBar").css({ width: val + "%" });
       $("#volume").toggleClass("muted", val == "0");
     }
+  }
+
+  function renderLastSongIfAllowed() {
+    if (settings.saveLastPosition && lastSongInfo === false && (!player.connected || !song.info)) bp.getLastSong(renderLastSong);
   }
 
   function connectedWatcher(val) {
     $("body").toggleClass("connected", val);
     if (!val) restorePlayer();
-    if (settings.saveLastPosition && lastSongInfo === false && (!val || !song.info)) bp.getLastSong(renderLastSong);
+    renderLastSongIfAllowed();
+  }
+
+  function saveLastPositionUpdated(val) {
+    if (val) renderLastSongIfAllowed();
+    else if (!song.info) songInfoWatcher(null);
+  }
+
+  function hideFavoritesWatcher(val) {
+    $("body").toggleClass("hidefav", val);
   }
 
   function resize(sizing) {
@@ -394,17 +412,31 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
 
+  function updateFavoriteIconState(icon, link, title) {
+    var isfav = !!favoritesCache[link];
+    return icon.data("fav", { link: link, title: title }).attr("title", i18n(isfav ? "delfavorite" : "addfavorite", title)).toggleClass("isfav", isfav);
+  }
+
+  function getFavoriteIcon(link, title) {
+    if (isFavoriteCandidate(link)) {
+      return updateFavoriteIconState($("<a class='fav'>"), link, title);
+    } else return $("<a class='fav' style='visibility:hidden'>");
+  }
+
   var renderNavList = {
     playlistsList: function(navlist, list) {
       list.forEach(function(pl) {
-        var row = $("<div></div>");
-        $("<img></img>").attr("src", pl.cover || "img/cover.png").appendTo(row);
-        $("<a tabindex='0' class='album nav'></a>").data("link", pl.titleLink).text(pl.title).attr("title", pl.title).appendTo(row);
+        var row = $("<div>");
+        $("<img>").attr("src", pl.cover || "img/cover.png").appendTo(row);
+        row.append(getFavoriteIcon(pl.titleLink, pl.title));
+        var info = $("<div>");
+        $("<a tabindex='0' class='album nav'>").data("link", pl.titleLink).text(pl.title).attr("title", pl.title).appendTo(info);
         if (pl.subTitleLink) {
-          $("<a tabindex='0' class='nav'></a>").data("link", pl.subTitleLink).text(pl.subTitle).attr("title", pl.subTitle).appendTo(row);
+          $("<a tabindex='0' class='nav'>").data("link", pl.subTitleLink).text(pl.subTitle).attr("title", pl.subTitle).appendTo(info);
         } else if (pl.subTitle) {
-          $("<span></span>").text(pl.subTitle).attr("title", pl.subTitle).appendTo(row);
+          $("<span>").text(pl.subTitle).attr("title", pl.subTitle).appendTo(info);
         }
+        row.append(info);
         navlist.append(row);
       });
     },
@@ -421,40 +453,40 @@ chrome.runtime.getBackgroundPage(function(bp) {
       var current;
       list.forEach(function(song) {
         if (navlist.children().length > song.index) return;
-        var row = $("<div data-index='" + song.index + (song.current ? "' class='current'>" : "'></div>"));
-        $("<img></img>").attr("src", song.cover || "img/cover.png").appendTo(row);
-        $("<div class='rating r" + song.rating + "'>" + ratingHtml + "</div>").appendTo(row);
+        var row = $("<div data-index='" + song.index + (song.current ? "' class='current'>" : "'>"));
+        $("<img>").attr("src", song.cover || "img/cover.png").appendTo(row);
+        $("<div class='rating r" + song.rating + "'>").html(ratingHtml).appendTo(row);
         if (song.rating >= 0) noRating = false;
-        var info = $("<div class='info'></div>");
+        var info = $("<div class='info'>");
         var title;
         if (localSettings.lyrics) {
-          title = $("<a tabindex='0' class='nav' data-link='lyrics'></a>").data("options", {artist: song.artist, title: song.title}).attr("title", i18n("lyricsFor", song.title));
+          title = $("<a tabindex='0' class='nav' data-link='lyrics'>").data("options", { artist: song.artist, title: song.title }).attr("title", i18n("lyricsFor", song.title));
         } else {
-          title = $("<span></span>").attr("title", song.title);
+          title = $("<span>").attr("title", song.title);
         }
         title.text(song.title).appendTo(info);
-        $("<span class='duration'></span>").text(song.duration).appendTo(info);
+        $("<span class='duration'>").text(song.duration).appendTo(info);
         duration += bp.parseSeconds(song.duration);
         if (song.artistLink) {
-          $("<a tabindex='0' class='nav'></a>").data("link", song.artistLink).text(song.artist).attr("title", song.artist).appendTo(info);
+          $("<a tabindex='0' class='nav'>").data("link", song.artistLink).text(song.artist).attr("title", song.artist).appendTo(info);
         } else {
-          $("<span></span>").text(song.artist).attr("title", song.artist).appendTo(info);
+          $("<span>").text(song.artist).attr("title", song.artist).appendTo(info);
         }
-        
+
         var currentAlbum = song.albumLink == currentNavList.link;
         var albumCol;
         if (song.albumLink && !currentAlbum) {
-          albumCol = $("<a tabindex='0' class='album nav'></a>").data("link", song.albumLink);
+          albumCol = $("<a tabindex='0' class='album nav'>").data("link", song.albumLink);
         } else if (song.album) {
-          albumCol = $("<span class='album'></span>");
+          albumCol = $("<span class='album'>");
         }
         if (albumCol) {
           albumCol.text(song.album).attr("title", song.album).appendTo(info);
           if (!currentAlbum) noAlbum = false;
         }
-        
+
         row.append(info);
-        
+
         row.data("song", song);
         navlist.append(row);
         if (song.current) current = row[0];
@@ -471,9 +503,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     },
     albumContainers: function(navlist, list) {
       list.forEach(function(ac) {
-        var row = $("<div></div>");
-        $("<img></img>").attr("src", ac.cover || "img/cover.png").appendTo(row);
-        $("<a tabindex='0' class='nav'></a>").data("link", ac.link).text(ac.title).attr("title", ac.title).appendTo(row);
+        var row = $("<div>");
+        $("<img>").attr("src", ac.cover || "img/cover.png").appendTo(row);
+        row.append(getFavoriteIcon(ac.link, ac.title));
+        $("<a tabindex='0' class='nav'>").data("link", ac.link).text(ac.title).attr("title", ac.title).appendTo(row);
         navlist.append(row);
       });
     }
@@ -490,22 +523,22 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function renderSubNavigationList(list, navlist) {
-    var header = $("<h2></h2>").text(list.header);
+    var header = $("<h2>").text(list.header);
     navlist.append(header);
-    var container = $("<div></div>").addClass(list.type).appendTo(navlist);
+    var container = $("<div>").addClass(list.type).appendTo(navlist);
     renderNavList[list.type](container, list.list, false, list.cluster, header);
-    if (list.moreLink) $("<a tabindex='0' class='nav'></a>").data("link", list.moreLink).appendTo(header);
+    if (list.moreLink) $("<a tabindex='0' class='nav'>").data("link", list.moreLink).appendTo(header);
   }
-  
+
   function renderNavigationList(val) {
-    if (!val || val.link != currentNavList.link || val.search != currentNavList.search) return;
+    if (!val || val.link != currentNavList.link) return;
     player.navigationList = null;//free memory
     currentNavList.controlLink = val.controlLink;
     var navlist = $("#navlist");
     if (val.error) {
-      navlist.removeClass().html("<div class='error'></div>");
+      navlist.removeClass().html("<div class='error'>");
     } else if (val.empty) {
-      navlist.removeClass().html("<div class='empty'></div>");
+      navlist.removeClass().html("<div class='empty'>");
     } else {
       if (!val.update) {
         navlist.empty().removeClass().addClass(val.type);
@@ -516,31 +549,51 @@ chrome.runtime.getBackgroundPage(function(bp) {
         navlist.removeData("cluster");
         header.text(val.header);
         val.lists.forEach(function(list) { renderSubNavigationList(list, navlist); });
-        navlist.find("h2 a.nav").data("text", val.header).data("search", val.search).text(val.moreText);
+        navlist.find("h2 a.nav").data("text", val.header).text(val.moreText);
       } else {
         renderNavList[val.type](navlist, val.list, val.update, 0, header);
       }
     }
   }
 
-  function renderLyrics(lyrics, result) {
+  function renderLyrics(lyrics, options, providers, src, result) {
     lyrics.removeClass("loading");
     var content = lyrics.children(".content");
     var credits = lyrics.children(".credits");
     if (result.error) {
-      content.html("<div class='error'></div>");
+      content.html("<div class='error'>");
     } else if (result.noresults) {
-      content.html("<div class='empty'></div>");
+      content.html("<div class='empty'>");
     } else {
       $("#navHead").children("span").text(result.title.text().trim());
       content.html(result.lyrics.html());
-      if (result.credits) credits.html(result.credits.html() + "<br/>");
+      if (result.credits) credits.html(result.credits.html() + "<hr>");
     }
-    if (result.src) credits.append($("<a target='_blank'></a>").attr("href", result.src).text(i18n("lyricsSrc"))).append($("<br/>"));
-    if (result.searchSrc) credits.append($("<a target='_blank'></a>").attr("href", result.searchSrc).text(i18n("lyricsSearchResult")));
+    credits.append(i18n("lyricsSrcProvider", bp.lyricsProviders[src].getUrl()));
+    if (result.src) $("<a target='_blank'>").attr("href", result.src).text(i18n("lyricsSrc")).appendTo(credits);
+    if (result.searchSrc) $("<a target='_blank'>").attr("href", result.searchSrc).text(i18n("lyricsSearchResult")).appendTo(credits);
+    credits.append("<br>");
+
+    providers.forEach(function(provider) {
+      var otherProviders = providers.slice();
+      otherProviders.splice(otherProviders.indexOf(provider), 1);
+      $("<a class='nav'>")
+        .data("options", $.extend({}, options, { providers: otherProviders }))
+        .data("link", "lyrics/" + provider)
+        .text(i18n("lyricsSearchProvider", bp.lyricsProviders[provider].getUrl()))
+        .appendTo(credits);
+    });
   }
-  
+
+  function resetFavoritesView() {
+    $("#favorites").find("input").remove().end().find(".nav").removeAttr("style");
+  }
+
   function switchView(title, link, search, options) {
+    function isSearch(link) {
+      return !link.indexOf("sr/");
+    }
+
     if ($("#player").is(":visible") && (typeClass == "miniplayer" || typeClass == "toast")) {
       savedSizing = {
         height: window.outerHeight,
@@ -549,8 +602,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         screenY: window.screenY
       };
     }
-    $("#player").hide();
-    if (currentNavList.link && currentNavList.link != link) {
+    if (currentNavList.link && currentNavList.link != link && !(isSearch(currentNavList.link) && isSearch(link))) {
       navHistory.push(currentNavList);
     }
     currentNavList = { link: link, title: title, search: search, options: options };
@@ -558,23 +610,34 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#navlist").empty().removeClass();
     var lyrics = $("#lyrics");
     lyrics.removeClass().hide().children().empty();
-    if (!search) $("#navHead > input").val("");
-    $("#navlistContainer").hide();
-    $("#quicklinks").hide();
+    if (!isSearch(link)) $("#navHead > input").val("");
+    $("#player,#navlistContainer,#quicklinks,#favoritesContainer,#navHead .fav").hide();
+    var gaTitle = link;
     if (link == "quicklinks") {
       resize(localSettings.quicklinksSizing);
       $("#quicklinks").show();
-    } else if (link == "lyrics") {
+    } else if (link == "favorites") {
+      resize(localSettings.favoritesSizing);
+      resetFavoritesView();
+      $("#favoritesContainer").show();
+    } else if (!link.indexOf("lyrics")) {
       lyrics.addClass("loading");
       resize(localSettings.lyricsSizing);
       lyrics.show();
-      bp.fetchLyrics(options, renderLyrics.bind(window, lyrics));
+      var providerIndex = link.indexOf("/") + 1;
+      if (providerIndex) bp.fetchLyricsFrom(options, link.substr(providerIndex), renderLyrics.bind(window, lyrics, options, options.providers));
+      else bp.fetchLyrics(options, renderLyrics.bind(window, lyrics, options));
     } else {
+      gaTitle = "navlist";
       $("#navlist").addClass("loading");
       $("#navlistContainer").show();
-      bp.loadNavigationList(link, search);
+      if (isFavoriteCandidate(link)) {
+        updateFavoriteIconState($("#navHead .fav"), link, title).show();
+      }
+      bp.loadNavigationList(link);
     }
     $("#nav").show();
+    GA.pageview(gaTitle);
   }
 
   function restorePlayer() {
@@ -589,16 +652,18 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
     navHistory = [];
     currentNavList = {};
-    $("#player").show();
+    var player = $("#player");
+    if (!player.is(":visible")) GA.pageview(typeClass);
+    player.show();
   }
 
   function updateNavHead(title) {
     var backHint = navHistory.length > 0 ? i18n("backToLink", navHistory[navHistory.length - 1].title) : i18n("backToPlayer");
     $("#navHead").children(".back").attr("title", backHint).end().children("span").text(title);
   }
-  
+
   function setupNavigationEvents() {
-    $("#navHead").find(".back").click(function() {
+    $("#navHead .back").click(function() {
       if (navHistory.length) {
         var current = navHistory.pop();
         currentNavList = {};
@@ -606,14 +671,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
         switchView(current.title, current.link, current.search, current.options);
       } else restorePlayer();
     });
-    $("#navHead").find(".close").attr("title", i18n("close")).click(restorePlayer);
-    
+    $("#navHead .close").attr("title", i18n("close")).click(restorePlayer);
+
     var searchInputTimer;
     $("#navHead > input").keyup(function() {
       clearTimeout(searchInputTimer);
       searchInputTimer = setTimeout(function() {
         var text = $.trim($("#navHead > input").val());
-        if (text.length > 1) switchView(i18n("searchResults"), "search", text);
+        if (text.length > 1) switchView(i18n("searchResults"), bp.getSearchLink(text), text);
       }, 500);
     });
 
@@ -621,39 +686,41 @@ chrome.runtime.getBackgroundPage(function(bp) {
       if (e.ctrlKey) {
         e.stopImmediatePropagation();
         var lastfmInfo = song.lastfmInfo || lastSongInfo;
-        if (lastfmInfo && lastfmInfo[urlField]) chrome.tabs.create({url: lastfmInfo[urlField]});
+        if (lastfmInfo && lastfmInfo[urlField]) chrome.tabs.create({ url: lastfmInfo[urlField] });
       }
     }
-    
+
     $("#track").click(ctrlHandler.bind(window, "url"));
     $("#artist").click(ctrlHandler.bind(window, "artistUrl"));
     $("#album").click(ctrlHandler.bind(window, "albumUrl"));
-    
+
     $("body").on("click", ".nav", function(e) {
-      var link = $(this).data("link");
+      var nav = $(this);
+      var link = nav.data("link");
       if (link) {
-        var options = $(this).data("options");
+        var options = nav.data("options");
         var title;
-        if (link == "lyrics") {
+        var lyrics = !link.indexOf("lyrics");
+        if (lyrics) {
           if (settings.openLyricsInMiniplayer == e.shiftKey) {
             bp.openLyrics(options);
             return;
           }
           if (!options) {
             if (!song.info) return;
-            options = {artist: song.info.artist, title: song.info.title};
+            options = { artist: song.info.artist, title: song.info.title };
           }
           title = options.title;
           if (options.artist) title = options.artist + " - " + title;
           title = i18n("lyricsTitle", title);
-        } else title = $(this).data("text") || $(this).text();
-        
-        if (settings.openLinksInMiniplayer == e.shiftKey && link != "quicklinks" && link != "lyrics") bp.selectLink(link);
-        else switchView(title, link, $(this).data("search"), options);
+        } else title = nav.data("text") || nav.text();
+
+        if (settings.openLinksInMiniplayer == e.shiftKey && link != "quicklinks" && !lyrics) bp.selectLink(link);
+        else switchView(title, link, null, options);
         return false;
       }
     });
-    
+
     $(window).keyup(function(e) {
       var kc = e.keyCode;
       if (kc == 27) {//ESC
@@ -675,7 +742,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
 
     $("#navlistContainer").on("click", ".playlistsList img", function() {
-      bp.startPlaylist($(this).next("a").data("link"));
+      bp.startPlaylist($(this).parent().find(".album").data("link"));
       restorePlayer();
     }).on("click", ".playlist img", function() {
       var songRow = $(this).closest("div[data-index]");
@@ -697,18 +764,99 @@ chrome.runtime.getBackgroundPage(function(bp) {
         bp.executeInGoogleMusic("ratePlaylistSong", { link: currentNavList.controlLink, index: index, cluster: getClusterIndex(songRow), rating: rating });
       }
     });
+
+    var favorites = localSettings.favorites;
+
+    $("#nav").on("click", ".fav", function() {
+      var favElement = $(this);
+      var fav = favElement.data("fav");
+      var link = fav.link;
+
+      if (favoritesCache[link]) {
+        var index = -1;
+        favorites.some(function(val, i) {
+          if (val.link == link) {
+            index = i;
+            return true;
+          }
+        });
+        if (index >= 0) favorites.splice(index, 1);
+        delete favoritesCache[link];
+      } else {
+        favorites.unshift(fav);
+        favoritesCache[link] = true;
+      }
+      updateFavoriteIconState(favElement, link, fav.title);
+      localSettings.favorites = favorites;//trigger listener notification
+    });
+
+    var dropSelector = ".sortable div";
+    $("#favoritesContainer").on("click", "img", function() {
+      bp.startPlaylist($(this).siblings(".nav").data("link"));
+      restorePlayer();
+    }).on("click", ".edit", function() {
+      var navLink = $(this).siblings(".nav");
+      resetFavoritesView();
+      navLink.hide();
+      var input = $("<input type='text'>").val(navLink.text());
+      navLink.after(input);
+      input.focus();
+    }).on("keyup focusout", "input", function(ev) {
+      var kc = ev.keyCode;
+      if (kc == 27) {//ESC
+        this.done = true;
+        resetFavoritesView();
+      } else if (!this.done && (kc == 13 || ev.type == "focusout")) {//Return or blur
+        var title = $.trim($(this).val());
+        if (title) {
+          this.done = true;
+          var favorite = favorites[$(this).parent().index()];
+          if (favorite.title != title) {
+            favorite.title = title;
+            localSettings.favorites = favorites;//trigger listeners
+          } else resetFavoritesView();
+        } else if (ev.type == "focusout") {
+          this.done = true;
+          resetFavoritesView();
+        }
+      }
+      return false;
+    }).on("dragover", dropSelector, function(ev) {
+      var types = ev.originalEvent.dataTransfer.types;
+      var index = $(this).index();
+      // jshint singleGroups: false
+      var dropAllowed = types.indexOf("srcfavorite") >= 0 && types.indexOf("srcfavorite/" + index) < 0 && types.indexOf("srcfavorite/" + (index - 1)) < 0;
+      // jshint singleGroups: true
+      $(this).toggleClass("dragging", dropAllowed);
+      return !dropAllowed;
+    }).on("dragleave", dropSelector, function() {
+      $(this).removeClass("dragging");
+    }).on("drop", dropSelector, function(ev) {
+      $(this).removeClass("dragging");
+      var srcIndex = ev.originalEvent.dataTransfer.getData("srcfavorite");
+      var destIndex = $(this).index();
+      var src = favorites.splice(srcIndex, 1)[0];
+      if (srcIndex < destIndex) destIndex--;
+      favorites.splice(destIndex, 0, src);
+      localSettings.favorites = favorites;//trigger listeners
+      return false;
+    }).on("dragstart", dropSelector + "[draggable='true']", function(ev) {
+      var dt = ev.originalEvent.dataTransfer;
+      var index = $(this).index();
+      dt.setData("srcfavorite", index);
+      dt.setData("srcfavorite/" + index, "");
+    });
   }
 
-  function googleMusicExecutor(command) {
+  function googleMusicExecutor(command, options) {
     return function() {
-      if ($(this).css("opacity") == 1) bp.executeInGoogleMusic(command);
+      if ($(this).css("opacity") == 1) bp.executeInGoogleMusic(command, options);
     };
   }
 
   function renderPlayControls() {
-    $(".playPause").click(googleMusicExecutor("playPause")).each(function() {
-      $(this).attr("title", i18n(this.id + "Song"));
-    });
+    $("#pause").click(googleMusicExecutor("playPause", { resume: false })).attr("title", i18n("pauseSong"));
+    $("#resume").click(googleMusicExecutor("playPause", { resume: true })).attr("title", i18n("resumeSong"));
     $("#prev").click(googleMusicExecutor("prevSong")).attr("title", i18n("prevSong"));
     $("#next").click(googleMusicExecutor("nextSong")).attr("title", i18n("nextSong"));
     $("#repeat").click(googleMusicExecutor("toggleRepeat")).attr("title", i18n("command_toggleRepeat"));
@@ -731,7 +879,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     if (lastfmInfo) title += "\n" + lastfmInfo;
     a.attr("title", title);
   }
-  
+
   function renderLastfmInfo(lastfmInfo) {
     var infoText = "";
     if (lastfmInfo) {
@@ -745,18 +893,18 @@ chrome.runtime.getBackgroundPage(function(bp) {
     } else {
       $("#lastfmInfo").removeClass("hasInfo").find("span").text("?");
     }
-    
+
     var a = $("#lastfmRating").find("a");
     a.data("lastfmInfo", infoText);
     renderLastfmTitle(a);
   }
-  
+
   function renderSongLoved(loved, actions) {
     var lastfmRating = $("#lastfmRating").removeClass("loved notloved error loading");
     var a = lastfmRating.find("a").unbind();
     if (loved === null) {
       lastfmRating.addClass("loading");
-    } else if (typeof(loved) == "string") {
+    } else if (typeof loved == "string") {
       lastfmRating.addClass("error");
       a.data("msg", i18n("lastfmError") + loved).click(actions.getLastfmInfo);
       a.data("lastfmInfo", "");
@@ -769,9 +917,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
     renderLastfmTitle(a);
   }
-  
+
   function songLovedWatcher(loved) {
-    renderSongLoved(loved, {getLastfmInfo: bp.loadCurrentLastfmInfo, unlove: bp.unloveTrack, love: bp.loveTrack});
+    renderSongLoved(loved, { getLastfmInfo: bp.loadCurrentLastfmInfo, unlove: bp.unloveTrack, love: bp.loveTrack });
   }
 
   function toggleVolumeControl() {
@@ -781,13 +929,37 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function renderQuicklinks(val) {
-    $("#quicklinks a.nav").each(function() {
-      $(this).text(bp.getTextForQuicklink($(this).data("link")));
+    var qlDiv = $("#quicklinks");
+    qlDiv.empty();
+    var div1 = $("<div>");
+    var div2 = $("<div>");
+    qlDiv.append(div1, div2);
+    var quicklinks = bp.getQuicklinks();
+    quicklinks.forEach(function(ql, i) {
+      $("<a tabindex='0' class='nav'>").attr("data-link", ql).text(bp.getTextForQuicklink(ql)).appendTo(i < quicklinks.length / 2 ? div1 : div2);
     });
+
     updateCoverClickLink(settings.coverClickLink);
     updateTitleClickLink(settings.titleClickLink);
     var searchPlaceholder = val && val.searchPlaceholder ? val.searchPlaceholder : i18n("searchPlaceholder");
     $("#navHead > input").attr("placeholder", searchPlaceholder);
+    collectStaticLinks();
+  }
+
+  function renderFavorites(favorites) {
+    var favDiv = $("#favorites").empty();
+    if (favorites.length) {
+      favorites.forEach(function(fav) {
+        var div = $("<div draggable='true'>");
+        $("<img>").attr("src", "img/cover.png").appendTo(div);
+        $("<a tabindex='0' class='fav'>").data("fav", fav).attr("title", i18n("delfavorite", fav.title)).appendTo(div);
+        $("<a tabindex='0' class='edit'>").attr("title", i18n("editfavorite", fav.title)).appendTo(div);
+        $("<a tabindex='0' class='nav'>").text(fav.title).data("link", fav.link).appendTo(div);
+        favDiv.append(div);
+      });
+      favDiv.append("<div class='lastdrop'>");
+    } else favDiv.append("<div class='empty'>");
+    favDiv.toggleClass("sortable", favorites.length > 1);
   }
 
   function setSongPosition(event) {
@@ -796,6 +968,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function setVolume(event) {
     bp.setVolume(event.offsetX / $(this).width());
+  }
+
+  function collectStaticLinks() {
+    staticLinks = {};
+    $("a[data-link]").each(function() {
+      staticLinks[$(this).data("link")] = true;
+    });
   }
 
   $(function() {
@@ -836,15 +1015,19 @@ chrome.runtime.getBackgroundPage(function(bp) {
         return false;
       });
 
+    $("#showfavorites")
+      .data("text", i18n("favorites"))
+      .attr("title", i18n("favorites"));
+
     setupNavigationEvents();
 
     localSettings.w("lastfmSessionName", lastfmUserWatcher, typeClass);
     localSettings.w("lyrics", lyricsWatcher, typeClass);
     localSettings.w("lyricsFontSize", lyricsFontSizeWatcher, typeClass);
-    localSettings.w("allinc", allincWatcher, typeClass);
-    localSettings.w("ratingMode", ratingModeWatcher, typeClass);
     localSettings.w("quicklinks", renderQuicklinks, typeClass);
-    
+    localSettings.w("ratingMode", ratingModeWatcher, typeClass);
+    localSettings.w("favorites", renderFavorites, typeClass);
+
     settings.w("scrobble", scrobbleWatcher, typeClass);
     settings.w("showLastfmInfo", showLastfmInfoWatcher, typeClass);
     settings.w("color", colorWatcher, typeClass);
@@ -853,6 +1036,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     settings.al("coverClickLink", updateCoverClickLink, typeClass);
     settings.al("titleClickLink", updateTitleClickLink, typeClass);
     settings.w("hideSearchfield", hideSearchfieldWatcher, typeClass);
+    settings.al("saveLastPosition", saveLastPositionUpdated, typeClass);
+    settings.w("hideFavorites", hideFavoritesWatcher, typeClass);
 
     player.w("repeat", repeatWatcher, typeClass);
     player.w("shuffle", shuffleWatcher, typeClass);
@@ -881,5 +1066,4 @@ chrome.runtime.getBackgroundPage(function(bp) {
       song.ral(typeClass);
     });
   });
-
 });

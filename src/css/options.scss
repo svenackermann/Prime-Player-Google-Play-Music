@@ -9,6 +9,21 @@ body {
   font-family: arial;
 }
 
+.sortable > *[draggable='true'] {
+  cursor: move;
+  background: url(../img/sort.png) right no-repeat;
+  background-size: 16px;
+}
+
+.dragging {
+  box-shadow: 0 -2px 0 #1D6D6D;
+}
+
+.syncenabled .synced label:after {
+  content: "*";
+  padding-left: 1ex;
+}
+
 #settings {
   float: left;
   &.f-beg .adv, &.f-beg .exp, &.f-adv .exp {
@@ -30,18 +45,6 @@ body {
   }
   &.filterTimer .timer, &.filterLastfm .lastfm, &.filterToast .toast, &.filterMiniplayer .miniplayer, &.filterLyrics .lyrics, &.filterLookfeel .lookfeel {
     display: none;
-  }
-  
-  .allinc {
-    display: none;
-  }
-  &.allinc {
-    .noallinc {
-      display: none;
-    }
-    .allinc {
-      display: block;
-    }
   }
   
   &.thumbs .stars, &.star .thumbs, .thumbsOnly, .starsOnly {
@@ -82,6 +85,9 @@ body {
   img.hint {
     cursor: pointer;
   }
+  .synced label:after {
+    float: right;
+  }
 }
 
 .hint-text {
@@ -120,6 +126,12 @@ body {
       margin-bottom: 0;
     }
   }
+  > div.sociallinks {
+    clear: none;
+    img {
+      height: 20px;
+    }
+  }
   > div#bugfeatureinfo {
     clear: both;
     > a {
@@ -147,6 +159,7 @@ input[type='color'] {
 img.hint {
   margin-left: 0.5ex;
   vertical-align: text-bottom;
+  height: 18px;
 }
 
 #changelog {
@@ -204,6 +217,7 @@ img.hint {
     display: none;
     margin-left: 0.5ex;
     vertical-align: top;
+    height: 16px;
   }
 }
 
@@ -219,15 +233,26 @@ div {
     display: block !important;
     color: #FF8F00;
     font-weight: bold;
-    a#shortcutsLink {
+    a {
       color: #FF8F00;
     }
   }
 }
 
+#timerMinutes {
+  float: left;
+}
+
 #timerStatus {
-  margin-left: 15ex;
+  float: right;
   font-weight: bold;
+  ~ div {
+    clear: left;
+  }
+}
+
+#iconStyle img {
+  width: 19px;
 }
 
 #filter {

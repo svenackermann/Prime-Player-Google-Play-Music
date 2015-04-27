@@ -1,40 +1,52 @@
+/*jshint node: true, jquery: false, devel: false, browser: false */
 var gulp = require("gulp");
 var jshint = require("gulp-jshint");
+var jscs = require("gulp-jscs");
+var jscsstylish = require("gulp-jscs-stylish");
 var concat = require("gulp-concat");
 var uglify = require("gulp-uglify");
 var sass = require("gulp-sass");
 var sourcemaps = require("gulp-sourcemaps");
 var changed = require("gulp-changed");
 var del = require("del");
+var replace = require("gulp-replace");
 var rename = require("gulp-rename");
 var zip = require("gulp-zip");
 var merge = require("merge-stream");
 var htmlminify = require("gulp-minify-html");
 var jsonedit = require("gulp-json-transform");
 var n2a = require("gulp-native2ascii");
-var runSequence = require('run-sequence');
+var runSequence = require("run-sequence");
 var gulpif = require("gulp-if");
 var argv = require("yargs").argv;
 var develop = true;
 var full = argv.full;
 
-var paths = {
-  js_bp: ["src/js/md5.min.js", "src/js/lastfm.api.js", "src/js/beans.js", "src/js/lyrics.js", "src/js/bp.js"],
-  js_single: ["src/js/cs.js", "src/js/cs-songlyrics.js", "src/js/injected.js", "src/js/options.js", "src/js/player.js", "src/js/updateNotifier.js"],
-  scss: ["src/css/*.scss", "!src/css/layouts.scss"],
-  scss_all: "src/css/*.*",
-  other: ["src/img/**/*.*", "src/**/*.json", "src/**/*.html", "src/js/jquery-2.0.2.min.js"],
-  dest: "build/",
-  dest_js: "build/js/",
-  dest_css: "build/css/",
-  src: "src"
+var PATHS = {
+  JS_BP: ["src/js/md5.min.js", "src/js/lastfm.api.js", "src/js/beans.js", "src/js/lyrics.js", "src/js/bp.js"],
+  JS_SINGLE: ["src/js/cs.js", "src/js/cs-*.js", "src/js/ga.js", "src/js/injected.js", "src/js/options.js", "src/js/player.js", "src/js/updateNotifier.js"],
+  SCSS: ["src/css/*.scss", "!src/css/layouts.scss"],
+  SCSS_ALL: "src/css/*.*",
+  OTHER: ["src/img/**/*.*", "src/**/*.json", "src/**/*.html"],
+  JQUERY: "node_modules/jquery/dist/cdn/jquery-*.min.js",
+  DEST: "build/",
+  DEST_JS: "build/js/",
+  DEST_CSS: "build/css/",
+  SRC: "src"
 };
 
-function myUglify() { return gulpif(!full, uglify({ preserveComments: "some", compress: { drop_console: !develop } })); }
+function myUglify() {
+  // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
+  return gulpif(!full, uglify({ preserveComments: "some", compress: { drop_console: !develop } }));
+  // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
+}
 
-gulp.task("jshint", function() {
-  return gulp.src(["src/js/*.js", "!src/js/*.min.js"])
-    .pipe(jshint({ undef: true, browser: true, jquery: true, unused: true, devel: true, bitwise: true, quotmark: "double" }))
+gulp.task("style", function() {
+  return gulp.src(["gulpfile.js", "src/js/*.js", "!src/js/*.min.js"])
+    .pipe(jshint())
+    .pipe(jscs())
+    .on("error", function() {})
+    .pipe(jscsstylish.combineWithHintResults())
     .pipe(jshint.reporter("jshint-stylish"))
     .pipe(jshint.reporter("fail"));
 });
@@ -44,49 +56,57 @@ gulp.task("clean", function(cb) {
 });
 
 gulp.task("compile-js-bp", function() {
-  return gulp.src(paths.js_bp)
+  return gulp.src(PATHS.JS_BP)
     .pipe(gulpif(develop && !full, sourcemaps.init()))
     .pipe(concat("bp.js"))
     .pipe(myUglify())
     .pipe(gulpif(develop && !full, sourcemaps.write("./")))
-    .pipe(gulp.dest(paths.dest_js));
+    .pipe(gulp.dest(PATHS.DEST_JS));
 });
 
 gulp.task("compile-js-single", function() {
-  return gulp.src(paths.js_single)
-    .pipe(changed(paths.dest))
+  return gulp.src(PATHS.JS_SINGLE)
+    .pipe(changed(PATHS.DEST))
+    .pipe(gulpif(function(file) { return !develop && /.*[\/|\\]ga\.js$/.test(file.path); }, replace("UA-41499181-3", "UA-41499181-1")))
     .pipe(gulpif(develop && !full, sourcemaps.init()))
     .pipe(myUglify())
     .pipe(gulpif(develop && !full, sourcemaps.write("./")))
-    .pipe(gulp.dest(paths.dest_js));
+    .pipe(gulp.dest(PATHS.DEST_JS));
 });
 
-gulp.task("compile-css", function () {
-  return gulp.src(paths.scss)
+gulp.task("compile-css", function() {
+  return gulp.src(PATHS.SCSS)
     .pipe(gulpif(develop, sourcemaps.init()))
-    .pipe(sass({outputStyle: "compressed"}))
+    .pipe(sass({ outputStyle: "compressed" }))
     .pipe(gulpif(develop, sourcemaps.write("./")))
-    .pipe(gulp.dest(paths.dest_css));
+    .pipe(gulp.dest(PATHS.DEST_CSS));
 });
 
-gulp.task("copy-other", function () {
-  return gulp.src(paths.other, { base: paths.src })
-    .pipe(changed(paths.dest))
-    .pipe(gulp.dest(paths.dest));
+gulp.task("copy-jquery", function() {
+  return gulp.src(PATHS.JQUERY)
+    .pipe(rename("jquery.min.js"))
+    .pipe(changed(PATHS.DEST_JS))
+    .pipe(gulp.dest(PATHS.DEST_JS));
 });
 
-gulp.task("build", ["compile-js-bp", "compile-js-single", "compile-css", "copy-other"], function(cb) { cb(); });
+gulp.task("copy-other", function() {
+  return gulp.src(PATHS.OTHER, { base: PATHS.SRC })
+    .pipe(changed(PATHS.DEST))
+    .pipe(gulp.dest(PATHS.DEST));
+});
+
+gulp.task("build", ["compile-js-bp", "compile-js-single", "compile-css", "copy-other", "copy-jquery"], function(cb) { cb(); });
 
 gulp.task("watch", function() {
-  gulp.watch(paths.js_bp, ["compile-js-bp"]);
-  gulp.watch(paths.js_single, ["compile-js-single"]);
-  gulp.watch(paths.scss_all, ["compile-css"]);
-  gulp.watch(paths.other, ["copy-other"]);
+  gulp.watch(PATHS.JS_BP, ["compile-js-bp"]);
+  gulp.watch(PATHS.JS_SINGLE, ["compile-js-single"]);
+  gulp.watch(PATHS.SCSS_ALL, ["compile-css"]);
+  gulp.watch(PATHS.OTHER, ["copy-other"]);
 });
 
 gulp.task("zip", function() {
   //remove descriptions and examples
-  var json_locale = gulp.src("build/_locales/**/messages.json", { base: "build" })
+  var JSON_LOCALE = gulp.src("build/_locales/**/messages.json", { base: "build" })
     .pipe(jsonedit(function(json) {
       function replacer(key, value) {
         if (typeof value === "string" && (key == "description" || key == "example")) return undefined;
@@ -96,33 +116,36 @@ gulp.task("zip", function() {
     }))
     .pipe(n2a({ reverse: false }));
 
-  var json_manifest = gulp.src("build/manifest.json")
+  var JSON_MANIFEST = gulp.src("build/manifest.json")
     .pipe(jsonedit(function(json) {
       if (!develop) {
         //remove *.map from web_accessible_resources
+        // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
         var war = json.web_accessible_resources;
+        // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
         for (var i = 0; i < war.length;) {
           if (war[i].search(/\.map\b/) > 0) war.splice(i, 1);
           else i++;
         }
+        delete json.key;
       }
       return json;
     }))
     .pipe(n2a({ reverse: false }));
 
   var html = gulp.src("build/**/*.html", { base: "build" })
-    .pipe(htmlminify({ empty: true }));
+    .pipe(gulpif(!full, htmlminify({ empty: true })));
 
   var rest = gulp.src(["build/**", "!**/*.json", "!**/*.html"]);
 
-  return merge(json_locale, json_manifest, html, rest)
+  return merge(JSON_LOCALE, JSON_MANIFEST, html, rest)
     .pipe(zip("PrimePlayer.zip"))
     .pipe(gulp.dest("./"));
 });
 
 gulp.task("release", ["clean"], function(cb) {
   develop = false;
-  runSequence("jshint", "build", "zip", cb);
+  runSequence("style", "build", "zip", cb);
 });
 
 gulp.task("default", ["build", "watch"]);
