@@ -10,7 +10,6 @@ var sourcemaps = require("gulp-sourcemaps");
 var changed = require("gulp-changed");
 var del = require("del");
 var replace = require("gulp-replace");
-var rename = require("gulp-rename");
 var zip = require("gulp-zip");
 var merge = require("merge-stream");
 var htmlminify = require("gulp-minify-html");
@@ -28,7 +27,8 @@ var PATHS = {
   SCSS: ["src/css/*.scss", "!src/css/layouts.scss"],
   SCSS_ALL: "src/css/*.*",
   OTHER: ["src/img/**/*.*", "src/**/*.json", "src/**/*.html"],
-  JQUERY: "node_modules/jquery/dist/cdn/jquery-*.min.js",
+  JQUERY: "node_modules/jquery/dist/jquery.min.js",
+  JQUERY_MAP: "node_modules/jquery/dist/jquery.min.map",
   DEST: "build/",
   DEST_JS: "build/js/",
   DEST_CSS: "build/css/",
@@ -83,9 +83,11 @@ gulp.task("compile-css", function() {
 });
 
 gulp.task("copy-jquery", function() {
-  return gulp.src(PATHS.JQUERY)
-    .pipe(rename("jquery.min.js"))
+  var src = PATHS.JQUERY;
+  if (develop) src = [src, PATHS.JQUERY_MAP];
+  return gulp.src(src)
     .pipe(changed(PATHS.DEST_JS))
+    .pipe(gulpif(!develop, replace(/^\/\/# sourceMappingURL=.*$/m, "")))
     .pipe(gulp.dest(PATHS.DEST_JS));
 });
 
