@@ -457,7 +457,7 @@
     "message": "заскробленно"
   },
   "browserActionTitle_connected": {
-    "message": "подколючено к Google Music"
+    "message": "подключено к Google Music"
   },
   "browserActionTitle_connecting": {
     "message": "Подключение к Google Music"
@@ -699,7 +699,7 @@
     "placeholders": {"COUNT":{"content":"$1"}}
   },
   "lastfmInfo_playcount": {
-    "message": "Всего скробблингов",
+    "message": "Всего $COUNT$ скробблингов",
     "placeholders": {"COUNT":{"content":"$1"}}
   },
   "lastfmInfo_listeners": {

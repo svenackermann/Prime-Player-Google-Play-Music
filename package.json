@@ -1,8 +1,8 @@
 {
   "name": "primeplayer",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "dependencies": {
-    "jquery": "2.1.3"
+    "jquery": "2.1.4"
   },
   "devDependencies": {
     "del": "^1.1.1",
@@ -10,22 +10,21 @@
     "gulp-changed": "^1.2.1",
     "gulp-concat": "^2.5.2",
     "gulp-if": "^1.2.5",
-    "gulp-jscs": "^1.5.1",
+    "gulp-jscs": "^1.6.0",
     "gulp-jscs-stylish": "^1.1.0",
-    "gulp-jshint": "^1.9.4",
+    "gulp-jshint": "^1.10.0",
     "gulp-json-transform": "^0.2.0",
-    "gulp-minify-html": "^1.0.1",
-    "gulp-native2ascii": "0.0.3",
-    "gulp-rename": "^1.2.2",
+    "gulp-minify-html": "^1.0.2",
+    "gulp-native2ascii": "^0.0.3",
     "gulp-replace": "^0.5.3",
     "gulp-sass": "^1.3.3",
-    "gulp-sourcemaps": "^1.5.1",
-    "gulp-uglify": "^1.1.0",
-    "gulp-zip": "^3.0.0",
+    "gulp-sourcemaps": "^1.5.2",
+    "gulp-uglify": "^1.2.0",
+    "gulp-zip": "^3.0.2",
     "jshint-stylish": "^1.0.1",
     "merge-stream": "^0.1.7",
-    "run-sequence": "^1.0.2",
-    "yargs": "^3.6.0"
+    "run-sequence": "^1.1.0",
+    "yargs": "^3.8.0"
   },
   "scripts": {
     "preinstall": "npm i -g gulp"
