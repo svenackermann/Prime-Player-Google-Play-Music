@@ -699,7 +699,7 @@
     "placeholders": {"COUNT":{"content":"$1"}}
   },
   "lastfmInfo_playcount": {
-    "message": "Всего скробблингов",
+    "message": "Всего $COUNT$ скробблингов",
     "placeholders": {"COUNT":{"content":"$1"}}
   },
   "lastfmInfo_listeners": {
