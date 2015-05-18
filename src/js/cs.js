@@ -276,7 +276,7 @@ $(function() {
     function shuffleGetter(el) {
       return $(el).is(":disabled") ? null : el.getAttribute("value");
     }
-    
+
     /** @return rating for the current song (0-5) or -1 if the song is not rateable */
     /*TODO function getRating(ratingContainer) {
       if (!ratingContainer.is(":visible")) return -1;
