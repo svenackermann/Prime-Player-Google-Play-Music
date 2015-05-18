@@ -64,13 +64,14 @@
 
   /** Click the feeling lucky button. */
   function clickFeelingLucky() {
-    withMatchingDataset(document.getElementsByClassName("button"), "id", "im-feeling-lucky", simulateClick);
+    document.getElementById("action_bar_container");
+    withMatchingDataset(document.getElementById("action_bar_container").children, "id", "im-feeling-lucky", simulateClick);
   }
 
   /** Click the player button with given id. If given, only click if the button has class includeClass and doesn't have class excludeClass. */
   function clickPlayerButton(id, includeClass, excludeClass) {
     var player = document.getElementById("player");
-    if (player) withMatchingDataset(player.getElementsByClassName("player-middle")[0].childNodes, "id", id, function(el) {
+    if (player) withMatchingDataset(player.getElementsByClassName("material-player-middle")[0].childNodes, "id", id, function(el) {
       var classes = el.className || "";
       if (includeClass && classes.indexOf(includeClass) < 0) return;
       if (excludeClass && classes.indexOf(excludeClass) >= 0) return;
@@ -151,7 +152,7 @@
   function resumePlaylistSong(options) {
     withPlaylistCols(options.index, 0, function(cols) {
       startPlaylistRow(cols, function() {
-        if (options.position > 0) setTimeout(setPositionPercent.bind(window, "slider", options.position), 1000);
+        if (options.position > 0) setTimeout(setPositionPercent.bind(window, "material-player-progress", options.position), 1000);
       });
     });
   }
@@ -179,8 +180,9 @@
   /** Set the position of a given slider (volume or song progress). */
   function setPositionPercent(elementId, percent) {
     var slider = document.getElementById(elementId);
-    var rect = slider.getBoundingClientRect();
-    simulateMouseEvent("mousedown", slider, rect.left + percent * rect.width, rect.top + 1);
+    var progress = slider.shadowRoot.getElementsByTagName("paper-progress")[0];
+    var rect = progress.getBoundingClientRect();
+    simulateMouseEvent("mousedown", progress, rect.left + percent * rect.width, rect.top + 1);
   }
 
   /** Cleanup this script, i.e. remove the message listener from the window. */
@@ -218,10 +220,10 @@
       startPlaylist();
       break;
     case "setPosition":
-      setPositionPercent("slider", event.data.options.percent);
+      setPositionPercent("material-player-progress", event.data.options.percent);
       break;
     case "setVolume":
-      setPositionPercent("vslider", event.data.options.percent);
+      setPositionPercent("material-vslider", event.data.options.percent);
       break;
     case "clickCard":
       clickCard(event.data.options.id);
