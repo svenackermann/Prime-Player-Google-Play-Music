@@ -22,8 +22,6 @@ $(function() {
   var lyricsAutoReload = false;
   var lyricsAutoReloadTimer;
   var position;
-  var RATING_CONTAINER_SELECTOR = "#player-right-wrapper .player-rating-container ul.rating-container";
-  var ratingContainer = $(RATING_CONTAINER_SELECTOR);
   var CLUSTER_SELECTOR = ".cluster,.genre-stations-container";
   var i18n = chrome.i18n.getMessage;
   var getExtensionUrl = chrome.runtime.getURL;
@@ -57,13 +55,13 @@ $(function() {
     return cover;
   }
 
-  /** @return parsed rating from the element's 'data-rating' attribute, 0 if this attribute is missing or onNullRating/-1 if the element is missing */
-  function parseRating(container, onNullRating) {
+  /** @return parsed rating from the element's 'data-rating' attribute, 0 if this attribute is missing or -1 if the element is missing */
+  function parseRating(container) {
     if (container) {
       var rating = parseInt(container.dataset.rating);
       return isNaN(rating) ? 0 : rating;
     }
-    return $.isNumeric(onNullRating) ? onNullRating : -1;
+    return -1;
   }
 
   /** Show the P-icon as indicator for successful connection. */
@@ -183,7 +181,7 @@ $(function() {
     window.removeEventListener("message", onMessage);
     $("#primeplayerinjected").remove();
     $("#music-content").off("DOMSubtreeModified mouseup");
-    ratingContainer.off("click");
+    //TODO ratingContainer.off("click");
     $(window).off("hashchange");
     observers.forEach(function(o) { o.disconnect(); });
     hideConnectedIndicator();
@@ -227,7 +225,7 @@ $(function() {
         var albumId = album.data("id");
         var info = {
           artist: $.trim(artist.text()),
-          title: $.trim($("#playerSongTitle").text()),
+          title: $.trim($("#player-song-title").text()),
           album: $.trim(album.text()),
           albumArtist: albumId && parseHash(albumId.split("/")[1]),
           duration: $.trim($("#time_container_duration").text())
@@ -276,16 +274,29 @@ $(function() {
 
     /** @return shuffle state (NO_SHUFFLE/ALL_SHUFFLE) or null if shuffle is not available */
     function shuffleGetter(el) {
-      return $(el).is(":disabled") ? null : el.value;
+      return $(el).is(":disabled") ? null : el.getAttribute("value");
+    }
+    
+    /** @return rating for the current song (0-5) or -1 if the song is not rateable */
+    /*TODO function getRating(ratingContainer) {
+      if (!ratingContainer.is(":visible")) return -1;
+      var rating = 0;
+      ratingContainer.children(":visible").each(function() {
+        var icon = this.icon;
+        if (icon && !icon.indexOf("-outline") > 0) rating = parseRating(this);
+      });
+      return rating;
     }
 
-    /** @return rating for the current song (0-5) or -1 if the song is not rateable */
-    function ratingGetter() {
-      //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
-      if (listRatings) $("#music-content .song-row td[data-col='rating']").trigger("DOMSubtreeModified");
-      if (ratingContainer.is(":visible")) return parseRating(ratingContainer.children("li.selected")[0], 0);
-      return -1;
-    }
+    function sendRating(el) {
+      var rating = getRating(el.find(".player-rating-container .rating-container"));
+      if (currentRating !== rating) {
+        currentRating = rating;
+        //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
+        if (listRatings) $("#music-content .song-row td[data-col='rating']").trigger("DOMSubtreeModified");
+        post("song-rating", rating);
+      }
+    }*/
 
     /** Execute 'executeOnContentLoad' (if set) when #music-content is changed. */
     function musicContentLoaded() {
@@ -366,13 +377,13 @@ $(function() {
     }
 
     watchContent(sendSong, "#playerSongInfo", 500);
+    //TODO watchContent(sendRating, "#playerSongInfo", 250);
     watchContent(sendPosition, "#time_container_current");
     watchContent(musicContentLoaded, "#music-content", 1000);
-    watchAttr("class disabled", "#player > div.player-middle > button[data-id='play-pause']", "player-playing", playingGetter, 500);
-    watchAttr("value", "#player > div.player-middle > button[data-id='repeat']", "player-repeat");
-    watchAttr("value", "#player > div.player-middle > button[data-id='shuffle']", "player-shuffle", shuffleGetter);
-    watchAttr("class", RATING_CONTAINER_SELECTOR + " li", "song-rating", ratingGetter);
-    watchAttr("aria-valuenow", "#vslider", "player-volume");
+    watchAttr("class disabled", "#player > div.material-player-middle > [data-id='play-pause']", "player-playing", playingGetter, 500);
+    watchAttr("value", "#player > div.material-player-middle > [data-id='repeat']", "player-repeat");
+    watchAttr("value", "#player > div.material-player-middle > [data-id='shuffle']", "player-shuffle", shuffleGetter);
+    watchAttr("aria-valuenow", "#material-vslider", "player-volume");
 
     $("#music-content").on("DOMSubtreeModified", ".song-row td[data-col='rating']", function() {
       if (listRatings) {
@@ -393,14 +404,14 @@ $(function() {
       pausePlaylistParsing = false;
       clearTimeout(asyncListTimer);
     });
-    ratingContainer.on("click", "li.selected[data-rating]", function(e) {
+    /* TODO ratingContainer.on("click", "li.selected[data-rating]", function(e) {
       //when click is simulated by injected script, clientX will be 0
       if (e.clientX) post("rated", { song: parseSongInfo(), rating: parseRating(this) });
     });
     //listen for "mouseup", because "click" won't bubble up to "#music-content" and we can't attach this directly to ".rating-container" because it's dynamically created
     $("#music-content").on("mouseup", ".song-row td[data-col='rating'] ul.rating-container li:not(.selected)[data-rating]", function() {
       post("rated", { song: parseSongRow($(this).closest(".song-row"), true), rating: parseRating(this) });
-    });
+    });*/
 
     window.addEventListener("message", onMessage);
     //we must add this script to the DOM for the code to be executed in the correct context
@@ -414,15 +425,15 @@ $(function() {
         var nav = $("#nav_collections");
         ql.now = $.trim(nav.children("a[data-type='now']").text());
         ql.rd = $.trim(nav.children("a[data-type='rd']").text());
-        $("#header-tabs-container .tab-container a[data-type]").each(function() {
+        $("#header-tabs-container .tab-container > *[data-type]").each(function() {
           ql[$(this).data("type")] = $.trim($(this).text());
         });
         $("#auto-playlists").children("a").each(function() {
           ql[getLink($(this))] = $.trim($(this).find(".tooltip").text());
         });
-        ql.searchPlaceholder = $.trim($("#oneGoogleWrapper input[name='q']").attr("placeholder"));
+        ql.searchPlaceholder = $.trim($("#material-one-middle input.material-search").attr("placeholder"));
         post("connected", {
-          ratingMode: ratingContainer.hasClass("stars") ? "star" : "thumbs",
+          ratingMode: "thumbs",
           quicklinks: ql
         });
       }

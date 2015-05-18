@@ -53,6 +53,7 @@
     "js/cs-songlyrics.js.map",
     "js/cs-lyricswikia.js.map",
     "js/cs-musixmatch.js.map",
+    "js/jquery.min.map",
     "css/gpm.css.map"
   ],
   "commands": {
