@@ -77,7 +77,7 @@ gulp.task("compile-js-single", function() {
 gulp.task("compile-css", function() {
   return gulp.src(PATHS.SCSS)
     .pipe(gulpif(develop, sourcemaps.init()))
-    .pipe(sass({ outputStyle: "compressed" }))
+    .pipe(sass({ outputStyle: "compressed" }).on("error", sass.logError))
     .pipe(gulpif(develop, sourcemaps.write("./")))
     .pipe(gulp.dest(PATHS.DEST_CSS));
 });
