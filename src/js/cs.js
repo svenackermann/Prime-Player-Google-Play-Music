@@ -68,19 +68,19 @@ $(function() {
 
   /** Show the P-icon as indicator for successful connection. */
   function showConnectedIndicator() {
-    //inject icon with title to mark the tab as connected
-    $(".music-banner-icon")
-      .addClass("ppconnected")
+    hideConnectedIndicator();
+    $("<div class='ppconnected'>")
       .attr("title", i18n("connected"))
-      .unbind().click(function() {
+      .click(function() {
         port.disconnect();
         cleanup();
-      });
+      })
+      .insertBefore("#material-breadcrumbs");
   }
 
   /** Hide the P-icon as indicator for successful connection. */
   function hideConnectedIndicator() {
-    $(".music-banner-icon").removeAttr("title").removeClass("ppconnected").off("click");
+    $(".ppconnected").remove();
   }
 
   /** Render lyrics sent from the bp if the lyrics container is visible. */
