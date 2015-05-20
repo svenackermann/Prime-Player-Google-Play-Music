@@ -1802,17 +1802,17 @@ function fixForUri(string) {
   chromeContextMenus.onClicked.addListener(function(info) {
     var cmd = info.menuItemId;
 
-    if (cmd.indexOf("timerAction_") === 0) {
+    if (!cmd.indexOf("timerAction_")) {
       localSettings.timerAction = cmd.substr(12);
-    } else if (cmd.indexOf("timerActionIn_") === 0) {
+    } else if (!cmd.indexOf("timerActionIn_")) {
       var min = parseInt(cmd.substr(14));
       localSettings.timerMinutes = min;
       if (localSettings.timerPreNotify > min * 60) localSettings.timerPreNotify = min * 60;
       localSettings.timerEnd = $.now() / 1000 + min * 60;
       startSleepTimer();
-    } else if (cmd.indexOf("fav_") === 0) {
+    } else if (!cmd.indexOf("fav_")) {
       startPlaylist(cmd.substr(4));
-    } else if (cmd.indexOf("ql_") === 0) {
+    } else if (!cmd.indexOf("ql_")) {
       selectLink(cmd.substr(3));
     } else switch (cmd) {
       case "stopTimer":

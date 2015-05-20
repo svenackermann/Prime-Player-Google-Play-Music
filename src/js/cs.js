@@ -16,6 +16,7 @@ $(function() {
   var executeOnContentLoad;
   var contentLoadDestination;
   var listRatings;
+  var queueRatings;
   var asyncListTimer;
   var pausePlaylistParsing = false;
   var resumePlaylistParsingFn;
@@ -183,7 +184,7 @@ $(function() {
     sendCommand("cleanup");
     window.removeEventListener("message", onMessage);
     $("#primeplayerinjected").remove();
-    $("#music-content").off("DOMSubtreeModified mouseup");
+    $("#music-content,#queue-container").off("DOMSubtreeModified mouseup");
     $("#playerSongInfo").off("click");
     $(window).off("hashchange");
     observers.forEach(function(o) { o.disconnect(); });
@@ -382,21 +383,27 @@ $(function() {
     watchAttr("value", "#player > div.material-player-middle > [data-id='shuffle']", "player-shuffle", shuffleGetter);
     watchAttr("aria-valuenow", "#material-vslider", "player-volume");
 
-    $("#music-content").on("DOMSubtreeModified", ".song-row td[data-col='rating']", function() {
-      if (listRatings) {
+    $("#music-content,#queue-container").on("DOMSubtreeModified", ".song-row td[data-col='rating']", function() {
+      var td = $(this);
+      var queue = !!td.closest("#queue-container").length;
+      if (!queue && listRatings || queue && queueRatings) {
         var rating = parseRating(this);
-        var td = $(this);
         var index = td.closest(".song-row").data("index");
-        var cluster = getClusterIndex(td);
-        var clusterRatings = listRatings[cluster];
-        if (clusterRatings && clusterRatings[index] != rating) {
-          clusterRatings[index] = rating;
-          post("player-listrating", { index: index, cluster: cluster, rating: rating, controlLink: location.hash });
+        var selectedRatings;
+        var cluster = 0;
+        if (queue) selectedRatings = queueRatings;
+        else {
+          cluster = getClusterIndex(td);
+          selectedRatings = listRatings[cluster];
+        }
+        if (selectedRatings && selectedRatings[index] != rating) {
+          selectedRatings[index] = rating;
+          post("player-listrating", { index: index, cluster: cluster, rating: rating, controlLink: queue ? "#/ap/queue" : location.hash });
         }
       }
     });
     $(window).on("hashchange", function() {
-      listRatings = null;
+      listRatings = queueRatings = null;
       resumePlaylistParsingFn = null;
       pausePlaylistParsing = false;
       clearTimeout(asyncListTimer);
@@ -407,7 +414,7 @@ $(function() {
       if (e.clientX) ratedInGpm = parseRating(e);
     });
     //listen for "mouseup", because "click" won't bubble up to "#music-content" and we can't attach this directly to ".rating-container" because it's dynamically created
-    $("#music-content").on("mouseup", ".song-row td[data-col='rating'] ul.rating-container li:not(.selected)[data-rating]", function() {
+    $("#music-content,#queue-container").on("mouseup", ".song-row td[data-col='rating'] ul.rating-container li:not(.selected)[data-rating]", function() {
       post("rated", { song: parseSongRow($(this).closest(".song-row"), true), rating: parseRating(this) });
     });
 
@@ -450,14 +457,14 @@ $(function() {
       if (currentRating !== event.data.rating) {
         currentRating = event.data.rating;
         //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
-        if (listRatings) $("#music-content .song-row td[data-col='rating']").trigger("DOMSubtreeModified");
+        if (listRatings || queueRatings) $("#music-content,#queue-container").find(".song-row td[data-col='rating']").trigger("DOMSubtreeModified");
         post("song-rating", currentRating);
         if (ratedInGpm > 0 && ratedInGpm === currentRating) post("rated", { song: parseSongInfo(), rating: currentRating });
         ratedInGpm = 0;
       }
       break;
     case "plSongRated":
-      $("#music-content .song-row[data-index='" + event.data.index + "']").find("td[data-col='rating']").trigger("DOMSubtreeModified");
+      $("#music-content,#queue-container").find(".song-row[data-index='" + event.data.index + "']").find("td[data-col='rating']").trigger("DOMSubtreeModified");
       /* falls through */
     case "plSongStarted":
     case "plSongError":
@@ -480,8 +487,14 @@ $(function() {
 
   /** Send a command for a playlist row to the injected script. Ensures that the row is visible. */
   function sendPlaylistRowCommand(command, options) {
-    if (location.hash != options.link) return;
-    var body = $("#music-content");
+    var queue = options.link == "#/ap/queue";
+    if (!queue && location.hash != options.link) return;
+    var bodySelector = "#music-content";
+    if (queue) {
+      bodySelector = "#queue-container";
+      if (!$("#queue-container").is(":visible")) sendCommand("openQueue");
+    }
+    var body = $(bodySelector);
     if (options.cluster) body = $(body.find(CLUSTER_SELECTOR)[options.cluster - 1]);
     body = body.find(".song-table > tbody").filter(subclusterFilter(body));
     if (!body.length || options.index > body.data("count") - 1) return;
@@ -513,7 +526,7 @@ $(function() {
   function clickListCard(hash) {
     var id = hash.substr(hash.indexOf("/") + 1);
     var type = hash.substr(0, hash.indexOf("/"));
-    if ($(".card[data-id='" + id + "'][data-type='" + type + "']").length) {
+    if ($(".material-card[data-id='" + id + "'][data-type='" + type + "']").length) {
       contentLoadDestination = "ap/queue";
       sendCommand("clickCard", { id: id });
       return true;
@@ -555,6 +568,7 @@ $(function() {
   /** @return parsed song info for a playlist row */
   function parseSongRow(song, basic) {
     var title = song.find("td[data-col='title'] .content");
+    if (!title[0]) title = song.find("td[data-col='song-details'] .song-title");
     var artist = song.find("td[data-col='artist']");
     var album = song.find("td[data-col='album']");
     var item = {
@@ -566,7 +580,7 @@ $(function() {
     if (/^\d\d?(\:\d\d)*$/.test(duration)) item.duration = duration;//no real duration on recommendation page
     if (!basic) {
       item.index = song.data("index");
-      item.cover = parseCover(title.find("img"));
+      item.cover = parseCover(song.find("td[data-col='title'],td[data-col='song-details']").find(".content img"));
       var artistId = artist.data("matched-id") || "";
       if (item.artist || artistId) item.artistLink = "artist/" + forHash(artistId) + "/" + forHash(item.artist);
       var albumId = album.data("matched-id") || "";
@@ -579,7 +593,7 @@ $(function() {
   var parseNavigationList = {
     playlistsList: function(parent, end, cb, omitUnknownAlbums) {
       var playlists = [];
-      parent.children(".card").slice(0, end).each(function() {
+      parent.children(".material-card").slice(0, end).each(function() {
         var card = $(this);
         var id = card.data("id");
         if (omitUnknownAlbums && id.substr(1).indexOf("/") < 0) return;
@@ -597,14 +611,19 @@ $(function() {
       cb(playlists);
     },
     playlist: function(parent, end, cb) {
-      listRatings = listRatings || [];
-      var ci = getClusterIndex(parent);
-      var clusterRatings = [];
+      var queue = !!parent.closest("#queue-container").length;
+      var selectedRatings = [];
+      var ci;
+      if (!queue) {
+        listRatings = listRatings || [];
+        ci = getClusterIndex(parent);
+      }
       var count = parent.find("[data-count]").data("count");
       var update = false;
       var lastIndex = -1;
       function loadNextSongs() {
-        listRatings[ci] = clusterRatings;
+        if (queue) queueRatings = selectedRatings;
+        else listRatings[ci] = selectedRatings;
         var rows = parent.find(".song-row");
         if (!update && count && rows.first().data("index") !== 0) {//not yet there
           parent.scrollTop(0);
@@ -623,7 +642,7 @@ $(function() {
           if (song.find(".song-indicator").length) item.current = true;
           item.rating = parseRating(song.find("td[data-col='rating']")[0]);
           lastIndex = item.index;
-          clusterRatings.push(item.rating);
+          selectedRatings.push(item.rating);
           playlist.push(item);
         });
         if (!cb) {
@@ -638,7 +657,9 @@ $(function() {
             resumePlaylistParsingFn = loadNextSongs;
           } else {
             if (lastLoaded) {
-              listRatings[ci] = null;//avoid conflicts with DOMSubtreeModified handler that listens for list rating changes
+              //avoid conflicts with DOMSubtreeModified handler that listens for list rating changes
+              if (queue) queueRatings = null;
+              else listRatings[ci] = null;
               lastLoaded.scrollIntoView(true);
             }
             asyncListTimer = setTimeout(loadNextSongs, 150);
@@ -651,7 +672,7 @@ $(function() {
     },
     albumContainers: function(parent, end, cb) {
       var items = [];
-      parent.children(".card").slice(0, end).each(function() {
+      parent.children(".material-card").slice(0, end).each(function() {
         var card = $(this);
         var item = {};
         var img = card.find(".image-inner-wrapper img:first");
@@ -712,10 +733,10 @@ $(function() {
     var listParent = cont.find(".song-table").filter(filter);
     if (listParent.length) type = "playlist";
     else {
-      //look at first ".card" and check its type, our type must be one step higher in the hierarchy
-      var firstCard = cont.find(".card").filter(filter).first();
+      //look at first ".material-card" and check its type, our type must be one step higher in the hierarchy
+      var firstCard = cont.find(".material-card").filter(filter).first();
       var cardType = firstCard.data("type");
-      if (!cardType) return null;//maybe no ".card" found
+      if (!cardType) return null;//maybe no ".material-card" found
       type = getListType(cardType) == "playlist" ? "playlistsList" : "albumContainers";
       listParent = firstCard.parent();
     }
@@ -768,7 +789,7 @@ $(function() {
             contentId = "#queue-container";
             response.controlLink = "#/ap/queue";
           }
-          parseNavigationList[type]($(contentId).find(":has(>.card),.song-table"), undefined, function(list, update) {
+          parseNavigationList[type]($(contentId).find(":has(>.material-card),.song-table"), undefined, function(list, update) {
             response.list = list;
             response.update = update;
             response.empty = !list.length;

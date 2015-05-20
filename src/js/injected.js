@@ -24,67 +24,43 @@
   /** Simulate a click event on an element. */
   var simulateClick = simulateMouseEvent.bind(window, "click");
 
-  /**
-   * Execute a function for an element which matches a dataset attribute.
-   * @param list the array to lookup the element
-   * @param prop the name of the dataset attribute
-   * @param value the value that the dataset attribute should match
-   * @param cb callback function to execute for the first matching element (this element is passed as parameter)
-   * @return true, if and only if a matching element was found
-   */
-  function withMatchingDataset(list, prop, value, cb) {
-    if (!list) return false;
-    return [].some.call(list, function(el) {
-      if (el.dataset[prop] == value) {
-        cb(el);
-        return true;
-      }
-    });
-  }
-
   /** Start the currently displayed playlist. */
   function startPlaylist() {
-    if (location.hash.indexOf("artist/") == 2) {
-      if (withMatchingDataset(document.getElementsByClassName("button"), "id", "radio", simulateClick)) return;
-    }
-    if (location.hash.indexOf("expgenres/") == 2) {
-      if (withMatchingDataset(document.getElementsByClassName("button"), "id", "start-genre-radio", simulateClick)) return;
-    }
-    var overlay = document.getElementsByClassName("overlay-icon")[0];
-    if (overlay) simulateClick(overlay);
+    var playButton;
+    if (location.hash.indexOf("artist/") == 2) playButton = document.querySelector("#music-content .actions [data-id='radio']");
+    else if (location.hash.indexOf("expgenres/") == 2) playButton = document.querySelector("#action_bar_container [data-id='start-genre-radio']");
+    playButton = playButton || document.querySelector("#music-content .material-container-details [data-id='play']");
+    if (playButton) simulateClick(playButton);
     else startPlaylistSong({ index: 0 });
   }
 
-  /** Simulate a click on a .card with given id. */
+  /** Simulate a click on a .material-card with given id. */
   function clickCard(id) {
-    withMatchingDataset(document.getElementsByClassName("card"), "id", id, function(card) {
-      simulateClick(card.getElementsByClassName("title")[0]);
-    });
+    simulateClick(document.querySelector(".material-card[data-id='" + id + "'] .title"));
   }
 
   /** Click the feeling lucky button. */
   function clickFeelingLucky() {
-    document.getElementById("action_bar_container");
-    withMatchingDataset(document.getElementById("action_bar_container").children, "id", "im-feeling-lucky", simulateClick);
+    simulateClick(document.querySelector("#action_bar_container [data-id='im-feeling-lucky']"));
   }
 
   /** Click the player button with given id. If given, only click if the button has class includeClass and doesn't have class excludeClass. */
   function clickPlayerButton(id, includeClass, excludeClass) {
-    var player = document.getElementById("player");
-    if (player) withMatchingDataset(player.getElementsByClassName("material-player-middle")[0].childNodes, "id", id, function(el) {
-      var classes = el.className || "";
+    var button = document.querySelector("#player .material-player-middle [data-id='" + id + "']");
+    if (button) {
+      var classes = button.className || "";
       if (includeClass && classes.indexOf(includeClass) < 0) return;
       if (excludeClass && classes.indexOf(excludeClass) >= 0) return;
-      simulateClick(el);
-    });
+      simulateClick(button);
+    }
   }
 
-  /** Execute callback with the list of TD elements for the playlist row with given index and cluster or with an empty array if not found. */
-  function withPlaylistCols(index, cluster, cb) {
-    var content = document.getElementById("music-content");
+  /** @return the matching TD element for the playlist row with given index and cluster or null if not found. */
+  function getPlaylistCol(index, cluster, queue, colName) {
+    var content = document.querySelector(queue ? "#queue-container" : "#music-content");
     if (content) {
-      if (cluster) content = content.getElementsByClassName("cluster")[cluster - 1];
-      var songTables = content.getElementsByClassName("song-table");
+      if (cluster) content = content.querySelectorAll(".cluster")[cluster - 1];
+      var songTables = content.querySelectorAll(".song-table");
 
       var songTable;
       if (cluster) songTable = songTables[0];
@@ -101,17 +77,18 @@
       }
 
       if (songTable) {
-        var rows = songTable.getElementsByClassName("song-row");
+        var rows = songTable.querySelectorAll(".song-row");
         if (rows[0]) {
           index = index - rows[0].dataset.index;
           if (rows[index]) {
-            cb(rows[index].getElementsByTagName("td"));
-            return;
+            var colSelector = "td";
+            if (colName) colSelector += "[data-col='" + colName + "']";
+            return rows[index].querySelector(colSelector);
           }
         }
       }
     }
-    cb([]);
+    return null;
   }
 
   /** Post back to cs that a playlist song action is done. */
@@ -121,17 +98,17 @@
 
   /**
    * Start a playlist song.
-   * @param cols the columns (TD elements) of the row as returned by withPlaylistCols
+   * @param col the column (TD element) of the row as returned by withPlaylistCol
    * @param success function to call after the song was started
    * @return true if the song could be started
    */
-  function startPlaylistRow(cols, success) {
-    if (!cols[0]) return false;
-    var span = cols[0].getElementsByClassName("content")[0];
+  function startPlaylistRow(col, success) {
+    if (!col) return false;
+    var span = col.querySelector(".content");
     if (span) {
       simulateMouseEvent("mouseover", span);
       setTimeout(function() {
-        simulateClick(span.getElementsByClassName("hover-button")[0]);
+        simulateClick(span.querySelector(".hover-button"));
         success();
       }, 250);
       return true;
@@ -141,56 +118,47 @@
 
   /** Start a song of a playlist specified by index and cluster. */
   function startPlaylistSong(options) {
-    withPlaylistCols(options.index, options.cluster, function(cols) {
-      if (!startPlaylistRow(cols, sendPlaylistSongResult.bind(window, "Started", options.index))) {
-        sendPlaylistSongResult("Error", options.index);
-      }
-    });
+    var col = getPlaylistCol(options.index, options.cluster, options.link == "#/ap/queue");
+    if (!startPlaylistRow(col, sendPlaylistSongResult.bind(window, "Started", options.index))) sendPlaylistSongResult("Error", options.index);
   }
 
   /** Resume a song of a playlist specified by index at the given position. */
   function resumePlaylistSong(options) {
-    withPlaylistCols(options.index, 0, function(cols) {
-      startPlaylistRow(cols, function() {
-        if (options.position > 0) setTimeout(setPositionPercent.bind(window, "material-player-progress", options.position), 1000);
-      });
+    var col = getPlaylistCol(options.index, 0, false);
+    startPlaylistRow(col, function() {
+      if (options.position > 0) setTimeout(setPositionPercent.bind(window, "#material-player-progress", options.position), 1000);
     });
   }
 
   /** Rate a song of a playlist specified by index and cluster. */
   function ratePlaylistSong(options) {
-    withPlaylistCols(options.index, options.cluster, function(cols) {
-      var done = withMatchingDataset([].reverse.call(cols), "col", "rating", function(col) {
-        simulateMouseEvent("mouseover", col);
-        setTimeout(function() {
-          var container = col.getElementsByClassName("rating-container")[0];
-          if (!container || !withMatchingDataset(container.getElementsByTagName("li"), "rating", options.rating, function(el) {
-            simulateClick(el);
-            setTimeout(sendPlaylistSongResult.bind(window, "Rated", options.index), 200);
-          })) sendPlaylistSongResult("Error", options.index);
-        }, 200);
-      });
-      if (!done) sendPlaylistSongResult("Error", options.index);
-    });
+    var col = getPlaylistCol(options.index, options.cluster, options.link == "#/ap/queue", "rating");
+    if (col) {
+      simulateMouseEvent("mouseover", col);
+      setTimeout(function() {
+        var li = col.querySelector(".rating-container li[data-rating='" + options.rating + "']");
+        if (li) {
+          simulateClick(li);
+          setTimeout(sendPlaylistSongResult.bind(window, "Rated", options.index), 200);
+        } else sendPlaylistSongResult("Error", options.index);
+      }, 200);
+    } else sendPlaylistSongResult("Error", options.index);
   }
 
   function rateSong(rating) {
-    var playerSongInfo = document.getElementById("playerSongInfo");
-    var container = playerSongInfo.getElementsByClassName("rating-container")[0];
-    withMatchingDataset(container.children, "rating", rating, simulateClick);
+    simulateClick(document.querySelector("#playerSongInfo .rating-container [data-rating='" + rating + "']"));
   }
 
   /** Set the position of a given slider (volume or song progress). */
-  function setPositionPercent(elementId, percent) {
-    var slider = document.getElementById(elementId);
-    var progress = slider.shadowRoot.getElementsByTagName("paper-progress")[0];
+  function setPositionPercent(selector, percent) {
+    var slider = document.querySelector(selector);
+    var progress = slider.shadowRoot.querySelector("paper-progress");
     var rect = progress.getBoundingClientRect();
     simulateMouseEvent("mousedown", progress, rect.left + percent * rect.width, rect.top + 1);
   }
 
   function getRating() {
-    var playerSongInfo = document.getElementById("playerSongInfo");
-    var ratingContainer = playerSongInfo.getElementsByClassName("rating-container")[0];
+    var ratingContainer = document.querySelector("#playerSongInfo .rating-container");
     var rating = -1;
     if (ratingContainer) {
       rating = 0;
@@ -237,7 +205,7 @@
       clickPlayerButton("shuffle");
       break;
     case "openQueue":
-      simulateClick(document.getElementById("queue"));
+      simulateClick(document.querySelector("#queue"));
       break;
     case "rate":
       rateSong(event.data.options.rating);
@@ -246,10 +214,10 @@
       startPlaylist();
       break;
     case "setPosition":
-      setPositionPercent("material-player-progress", event.data.options.percent);
+      setPositionPercent("#material-player-progress", event.data.options.percent);
       break;
     case "setVolume":
-      setPositionPercent("material-vslider", event.data.options.percent);
+      setPositionPercent("#material-vslider", event.data.options.percent);
       break;
     case "clickCard":
       clickCard(event.data.options.id);
