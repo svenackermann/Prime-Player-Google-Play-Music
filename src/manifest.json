@@ -100,15 +100,6 @@
     "rate-1": {
       "description": "__MSG_command_rate1__"
     },
-    "rate-2": {
-      "description": "__MSG_command_rate2__"
-    },
-    "rate-3": {
-      "description": "__MSG_command_rate3__"
-    },
-    "rate-4": {
-      "description": "__MSG_command_rate4__"
-    },
     "rate-5": {
       "description": "__MSG_command_rate5__"
     },

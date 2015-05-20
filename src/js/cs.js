@@ -22,6 +22,8 @@ $(function() {
   var lyricsAutoReload = false;
   var lyricsAutoReloadTimer;
   var position;
+  var currentRating = -1;
+  var ratedInGpm = 0;
   var CLUSTER_SELECTOR = ".cluster,.genre-stations-container";
   var i18n = chrome.i18n.getMessage;
   var getExtensionUrl = chrome.runtime.getURL;
@@ -181,7 +183,7 @@ $(function() {
     window.removeEventListener("message", onMessage);
     $("#primeplayerinjected").remove();
     $("#music-content").off("DOMSubtreeModified mouseup");
-    //TODO ratingContainer.off("click");
+    $("#playerSongInfo").off("click");
     $(window).off("hashchange");
     observers.forEach(function(o) { o.disconnect(); });
     hideConnectedIndicator();
@@ -202,6 +204,35 @@ $(function() {
     };
   }
 
+  /** @return info object for the current song or null if none is playing */
+  function parseSongInfo(extended) {
+    if ($("#playerSongInfo").find("div").length) {
+      var artist = $("#player-artist");
+      var album = $("#playerSongInfo").find(".player-album");
+      var albumId = album.data("id");
+      var info = {
+        artist: $.trim(artist.text()),
+        title: $.trim($("#player-song-title").text()),
+        album: $.trim(album.text()),
+        albumArtist: albumId && parseHash(albumId.split("/")[1]),
+        duration: $.trim($("#time_container_duration").text())
+      };
+      if (extended) {
+        info.artistLink = getLink(artist) || "artist//" + forHash(info.artist);
+        info.albumLink = getLink(album);
+        info.cover = parseCover($("#playingAlbumArt"));
+        var playlistSong = $(".song-row.currently-playing");
+        if (playlistSong[0]) {
+          info.playlist = location.hash.substr(2);
+          info.index = playlistSong.data("index");
+          info.cluster = getClusterIndex(playlistSong);
+        }
+      }
+      return info;
+    }
+    return null;
+  }
+
   /** add listeners/observers and extend DOM */
   function init() {
     function onCleanupCsDone(event) {
@@ -215,35 +246,6 @@ $(function() {
       window.addEventListener("message", onCleanupCsDone);
       window.postMessage({ type: "FROM_PRIMEPLAYER", msg: "cleanupCs" }, location.href);
       return;//wait for callback
-    }
-
-    /** @return info object for the current song or null if none is playing */
-    function parseSongInfo(extended) {
-      if ($("#playerSongInfo").find("div").length) {
-        var artist = $("#player-artist");
-        var album = $("#playerSongInfo").find(".player-album");
-        var albumId = album.data("id");
-        var info = {
-          artist: $.trim(artist.text()),
-          title: $.trim($("#player-song-title").text()),
-          album: $.trim(album.text()),
-          albumArtist: albumId && parseHash(albumId.split("/")[1]),
-          duration: $.trim($("#time_container_duration").text())
-        };
-        if (extended) {
-          info.artistLink = getLink(artist) || "artist//" + forHash(info.artist);
-          info.albumLink = getLink(album);
-          info.cover = parseCover($("#playingAlbumArt"));
-          var playlistSong = $(".song-row.currently-playing");
-          if (playlistSong[0]) {
-            info.playlist = location.hash.substr(2);
-            info.index = playlistSong.data("index");
-            info.cluster = getClusterIndex(playlistSong);
-          }
-        }
-        return info;
-      }
-      return null;
     }
 
     /** Send current song info to bp. */
@@ -277,26 +279,9 @@ $(function() {
       return $(el).is(":disabled") ? null : el.getAttribute("value");
     }
 
-    /** @return rating for the current song (0-5) or -1 if the song is not rateable */
-    /*TODO function getRating(ratingContainer) {
-      if (!ratingContainer.is(":visible")) return -1;
-      var rating = 0;
-      ratingContainer.children(":visible").each(function() {
-        var icon = this.icon;
-        if (icon && !icon.indexOf("-outline") > 0) rating = parseRating(this);
-      });
-      return rating;
+    function sendRating() {
+      sendCommand("getRating");
     }
-
-    function sendRating(el) {
-      var rating = getRating(el.find(".player-rating-container .rating-container"));
-      if (currentRating !== rating) {
-        currentRating = rating;
-        //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
-        if (listRatings) $("#music-content .song-row td[data-col='rating']").trigger("DOMSubtreeModified");
-        post("song-rating", rating);
-      }
-    }*/
 
     /** Execute 'executeOnContentLoad' (if set) when #music-content is changed. */
     function musicContentLoaded() {
@@ -377,7 +362,7 @@ $(function() {
     }
 
     watchContent(sendSong, "#playerSongInfo", 500);
-    //TODO watchContent(sendRating, "#playerSongInfo", 250);
+    watchContent(sendRating, "#playerSongInfo", 250);
     watchContent(sendPosition, "#time_container_current");
     watchContent(musicContentLoaded, "#music-content", 1000);
     watchAttr("class disabled", "#player > div.material-player-middle > [data-id='play-pause']", "player-playing", playingGetter, 500);
@@ -404,14 +389,15 @@ $(function() {
       pausePlaylistParsing = false;
       clearTimeout(asyncListTimer);
     });
-    /* TODO ratingContainer.on("click", "li.selected[data-rating]", function(e) {
+
+    $("#playerSongInfo").on("click", ".rating-container > *[data-rating]", function(e) {
       //when click is simulated by injected script, clientX will be 0
-      if (e.clientX) post("rated", { song: parseSongInfo(), rating: parseRating(this) });
+      if (e.clientX) ratedInGpm = parseRating(e);
     });
     //listen for "mouseup", because "click" won't bubble up to "#music-content" and we can't attach this directly to ".rating-container" because it's dynamically created
     $("#music-content").on("mouseup", ".song-row td[data-col='rating'] ul.rating-container li:not(.selected)[data-rating]", function() {
       post("rated", { song: parseSongRow($(this).closest(".song-row"), true), rating: parseRating(this) });
-    });*/
+    });
 
     window.addEventListener("message", onMessage);
     //we must add this script to the DOM for the code to be executed in the correct context
@@ -448,6 +434,16 @@ $(function() {
     if (event.source != window || event.data.type != "FROM_PRIMEPLAYER" || !event.data.msg) return;
     console.debug("inj->cs: ", event.data);
     switch (event.data.msg) {
+    case "rating":
+      if (currentRating !== event.data.rating) {
+        currentRating = event.data.rating;
+        //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
+        if (listRatings) $("#music-content .song-row td[data-col='rating']").trigger("DOMSubtreeModified");
+        post("song-rating", currentRating);
+        if (ratedInGpm > 0 && ratedInGpm === currentRating) post("rated", { song: parseSongInfo(), rating: currentRating });
+        ratedInGpm = 0;
+      }
+      break;
     case "plSongRated":
       $("#music-content .song-row[data-index='" + event.data.index + "']").find("td[data-col='rating']").trigger("DOMSubtreeModified");
       /* falls through */

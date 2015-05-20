@@ -862,7 +862,7 @@
     "description": "text for fast forward in toast action and keyboard shortcut"
   },
   "command_rate1": {
-    "message": "Rate 1 star/thumbs down",
+    "message": "Rate thumbs down",
     "description": "text for rate 1 in toast action (if not connected to Google Music) and keyboard shortcut"
   },
   "command_rate2": {
@@ -878,7 +878,7 @@
     "description": "text for rate 4 in toast action and keyboard shortcut"
   },
   "command_rate5": {
-    "message": "Rate 5 stars/thumbs up",
+    "message": "Rate thumbs up",
     "description": "text for rate 5 in toast action (if not connected to Google Music) and keyboard shortcut"
   },
   "command_showToast": {

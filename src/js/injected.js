@@ -163,18 +163,21 @@
       var done = withMatchingDataset([].reverse.call(cols), "col", "rating", function(col) {
         simulateMouseEvent("mouseover", col);
         setTimeout(function() {
-          rate(col, options.rating);
-          setTimeout(sendPlaylistSongResult.bind(window, "Rated", options.index), 250);
-        }, 250);
+          var container = col.getElementsByClassName("rating-container")[0];
+          if (!container || !withMatchingDataset(container.getElementsByTagName("li"), "rating", options.rating, function(el) {
+            simulateClick(el);
+            setTimeout(sendPlaylistSongResult.bind(window, "Rated", options.index), 200);
+          })) sendPlaylistSongResult("Error", options.index);
+        }, 200);
       });
       if (!done) sendPlaylistSongResult("Error", options.index);
     });
   }
 
-  /** Rate sth. within the given container. */
-  function rate(parent, rating) {
-    var container = parent.getElementsByClassName("rating-container")[0];
-    if (container) withMatchingDataset(container.getElementsByTagName("li"), "rating", rating, simulateClick);
+  function rateSong(rating) {
+    var playerSongInfo = document.getElementById("playerSongInfo");
+    var container = playerSongInfo.getElementsByClassName("rating-container")[0];
+    withMatchingDataset(container.children, "rating", rating, simulateClick);
   }
 
   /** Set the position of a given slider (volume or song progress). */
@@ -183,6 +186,26 @@
     var progress = slider.shadowRoot.getElementsByTagName("paper-progress")[0];
     var rect = progress.getBoundingClientRect();
     simulateMouseEvent("mousedown", progress, rect.left + percent * rect.width, rect.top + 1);
+  }
+
+  function getRating() {
+    var playerSongInfo = document.getElementById("playerSongInfo");
+    var ratingContainer = playerSongInfo.getElementsByClassName("rating-container")[0];
+    var rating = -1;
+    if (ratingContainer) {
+      rating = 0;
+      [].some.call(ratingContainer.children, function(el) {
+        var icon = el.icon;
+        if (icon && icon.indexOf("-outline") < 0) {
+          var parsedRating = parseInt(el.dataset.rating);
+          if (!isNaN(rating)) {
+            rating = parsedRating;
+            return true;
+          }
+        }
+      });
+    }
+    window.postMessage({ type: "FROM_PRIMEPLAYER", msg: "rating", rating: rating }, location.href);
   }
 
   /** Cleanup this script, i.e. remove the message listener from the window. */
@@ -214,7 +237,7 @@
       clickPlayerButton("shuffle");
       break;
     case "rate":
-      rate(document.getElementById("player-right-wrapper"), event.data.options.rating);
+      rateSong(event.data.options.rating);
       break;
     case "startPlaylist":
       startPlaylist();
@@ -242,6 +265,9 @@
       break;
     case "cleanup":
       cleanup();
+      break;
+    case "getRating":
+      getRating();
       break;
     }
   }

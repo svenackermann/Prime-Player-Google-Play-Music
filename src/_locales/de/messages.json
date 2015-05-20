@@ -648,7 +648,7 @@
     "message": "15 Sekunden vorspulen"
   },
   "command_rate1": {
-    "message": "Bewerte 1 Stern/Daumen runter"
+    "message": "Bewerte Daumen runter"
   },
   "command_rate2": {
     "message": "Bewerte 2 Sterne"
@@ -660,7 +660,7 @@
     "message": "Bewerte 4 Sterne"
   },
   "command_rate5": {
-    "message": "Bewerte 5 Sterne/Daumen hoch"
+    "message": "Bewerte Daumen hoch"
   },
   "command_showToast": {
     "message": "Zeige Toast-Benachrichtigung (erneut)"
