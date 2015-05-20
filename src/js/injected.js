@@ -152,7 +152,7 @@
   /** Set the position of a given slider (volume or song progress). */
   function setPositionPercent(selector, percent) {
     var slider = document.querySelector(selector);
-    var progress = slider.shadowRoot.querySelector("paper-progress");
+    var progress = slider.shadowRoot.querySelector("#sliderBar");
     var rect = progress.getBoundingClientRect();
     simulateMouseEvent("mousedown", progress, rect.left + percent * rect.width, rect.top + 1);
   }

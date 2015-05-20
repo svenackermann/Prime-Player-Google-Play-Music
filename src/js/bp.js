@@ -2099,7 +2099,9 @@ function fixForUri(string) {
     calcScrobbleTime();
     if (!old != !info) {//jshint ignore:line
       // (only update if exactly one of them is null)
-      updateContextMenuConnectedItem(["prevSong", "nextSong", "ff", "openLyrics", "rate-1", "rate-2", "rate-3", "rate-4", "rate-5"]);
+      var commands = ["prevSong", "nextSong", "ff", "openLyrics", "rate-1", "rate-5"];
+      if (isStarRatingMode()) commands.push("rate-2", "rate-3", "rate-4");
+      updateContextMenuConnectedItem(commands);
     }
   });
   //} position/info handler
