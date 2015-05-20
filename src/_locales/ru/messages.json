@@ -645,7 +645,7 @@
     "message": "Быстрая перемотка на 15 секунд"
   },
   "command_rate1": {
-    "message": "1 звезда/Палец вниз"
+    "message": "Палец вниз"
   },
   "command_rate2": {
     "message": "2 звезды"
@@ -657,7 +657,7 @@
     "message": "4 звезды"
   },
   "command_rate5": {
-    "message": "5 звёзд/Палец вверх"
+    "message": "Палец вверх"
   },
   "command_showToast": {
     "message": "Показать всплывающее окно (снова)"
