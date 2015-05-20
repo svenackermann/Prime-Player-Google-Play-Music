@@ -2319,9 +2319,13 @@ function fixForUri(string) {
     chromeOmnibox.setDefaultSuggestion({ description: i18n(msgKey, search && "<match>" + search + "</match>") });
   }
 
-  chromeOmnibox.onInputChanged.addListener(function(text, suggest) {
+  function omniboxClear() {
     omniboxSuggest = omniboxSearch = null;
     clearTimeout(omniboxTimer);
+  }
+
+  chromeOmnibox.onInputChanged.addListener(function(text, suggest) {
+    omniboxClear();
     if (!text.indexOf("f ")) {
       var search = text.substr(2).trim();
       if (search) {
@@ -2345,13 +2349,14 @@ function fixForUri(string) {
   });
 
   chromeOmnibox.onInputEntered.addListener(function(text) {
-    omniboxSuggest = null;
-    clearTimeout(omniboxTimer);
+    var searchText = omniboxSearch;
+    omniboxClear();
     var index = text.lastIndexOf(linkPrefix);
     if (index >= 0) startPlaylist(text.substr(index + linkPrefix.length), true);
-    else if (omniboxSearch) selectLink(getSearchLink(omniboxSearch), true);
-    omniboxSearch = null;
+    else if (searchText) selectLink(getSearchLink(searchText), true);
   });
+
+  chromeOmnibox.onInputCancelled.addListener(omniboxClear);
 
   player.al("navigationList", function(navlist) {
     if (!navlist || !omniboxSuggest || navlist.link != getSearchLink(omniboxSearch)) return;
