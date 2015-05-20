@@ -1723,7 +1723,7 @@ function fixForUri(string) {
     }
   }
 
-  function refreshContextMenu() {
+  function doRefreshContextMenu() {
     chromeContextMenus.removeAll(function() {
       function createContextMenuEntry(id, title, cb, parentId, type, checked, enabled) {
         chromeContextMenus.create({ contexts: ["browser_action"], type: type || "normal", id: id, title: title, checked: checked, parentId: parentId, enabled: enabled }, cb);
@@ -1790,6 +1790,13 @@ function fixForUri(string) {
         }
       }
     });
+  }
+
+  var refreshContextMenuTimer;
+  /** refresh context menu with timeout to avoid conflicts with duplicate refreshs */
+  function refreshContextMenu() {
+    clearTimeout(refreshContextMenuTimer);
+    refreshContextMenuTimer = setTimeout(doRefreshContextMenu, 150);
   }
 
   chromeContextMenus.onClicked.addListener(function(info) {
