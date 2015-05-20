@@ -7,10 +7,10 @@
   font-family: arial;
   font-size: 11px;
   width: 250px;
-  position: absolute;
-  right: 0;
-  bottom: 3px;
-  top: 50px;
+  position: fixed;
+  right: 20px;
+  bottom: 100px;
+  top: 70px;
   background-color: #fafafa;
   border: 1px solid #d1d1d1;
   padding: 3px;
@@ -96,6 +96,7 @@
 
 #ppLyricsButton {
   vertical-align: middle;
+  height: 20px;
   margin-right: 5px;
   opacity: 0.2;
   cursor: default;

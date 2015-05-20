@@ -138,7 +138,7 @@ $(function() {
   /** Undo the music content resize. */
   function resetContentResize() {
     $(window).off("resize", contentResize);
-    $("#music-content").removeAttr("style");
+    $("#music-content").css("width", "");
   }
 
   /** Show/hide the lyrics container. */
@@ -166,11 +166,12 @@ $(function() {
       $("<img id='ppLyricsButton'/>")
         .attr("src", getExtensionUrl("img/cmd/openLyrics.png"))
         .attr("title", i18n("command_openLyrics"))
-        .toggleClass("active", $("#playerSongInfo").find("div").length)
+        .toggleClass("active", !!$("#player-song-title").length)
         .click(toggleLyrics)
-        .appendTo("#player-right-wrapper");
+        .appendTo("#material-player-right-wrapper");
       $("<div id='ppLyricsContainer'><div id='ppLyricsTitle'><a class='reloadLyrics'></a><div></div></div><div id='ppLyricsScroller'><div id='ppLyricsContent'></div><div id='ppLyricsCredits'></div></div></div>")
         .on("click", ".reloadLyrics", loadLyrics.bind(window, null))
+        .css({ bottom: ($("#player").height() + 5) + "px", top: ($("#material-app-bar").height() + 5) + "px" })
         .insertAfter("#music-content");
     }
     $("#ppLyricsContainer").css({ "font-size": fontSize + "px", width: width });
@@ -255,7 +256,7 @@ $(function() {
         clearTimeout(lyricsAutoReloadTimer);
         lyricsAutoReloadTimer = setTimeout(loadLyrics, 1000);
       }
-      $("#ppLyricsButton").toggleClass("active", info !== null);
+      $("#ppLyricsButton").toggleClass("active", !!info);
       post("song-info", info);
     }
 
