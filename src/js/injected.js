@@ -236,6 +236,9 @@
     case "toggleShuffle":
       clickPlayerButton("shuffle");
       break;
+    case "openQueue":
+      simulateClick(document.getElementById("queue"));
+      break;
     case "rate":
       rateSong(event.data.options.rating);
       break;

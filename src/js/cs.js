@@ -171,7 +171,7 @@ $(function() {
         .appendTo("#material-player-right-wrapper");
       $("<div id='ppLyricsContainer'><div id='ppLyricsTitle'><a class='reloadLyrics'></a><div></div></div><div id='ppLyricsScroller'><div id='ppLyricsContent'></div><div id='ppLyricsCredits'></div></div></div>")
         .on("click", ".reloadLyrics", loadLyrics.bind(window, null))
-        .css({ bottom: ($("#player").height() + 5) + "px", top: ($("#material-app-bar").height() + 5) + "px" })
+        .css({ bottom: $("#player").height() + 5 + "px", top: $("#material-app-bar").height() + 5 + "px" })
         .insertAfter("#music-content");
     }
     $("#ppLyricsContainer").css({ "font-size": fontSize + "px", width: width });
@@ -284,6 +284,16 @@ $(function() {
       sendCommand("getRating");
     }
 
+    /** Execute 'executeOnContentLoad' (if set) when #queue-container is changed. */
+    function queueLoaded() {
+      if (contentLoadDestination == "ap/queue" && $.isFunction(executeOnContentLoad)) {
+        var fn = executeOnContentLoad;
+        executeOnContentLoad = null;
+        contentLoadDestination = null;
+        fn();
+      }
+    }
+
     /** Execute 'executeOnContentLoad' (if set) when #music-content is changed. */
     function musicContentLoaded() {
       if ($.isFunction(executeOnContentLoad)) {
@@ -366,6 +376,7 @@ $(function() {
     watchContent(sendRating, "#playerSongInfo", 250);
     watchContent(sendPosition, "#time_container_current");
     watchContent(musicContentLoaded, "#music-content", 1000);
+    watchContent(queueLoaded, "#queue-container", 1000);
     watchAttr("class disabled", "#player > div.material-player-middle > [data-id='play-pause']", "player-playing", playingGetter, 500);
     watchAttr("value", "#player > div.material-player-middle > [data-id='repeat']", "player-repeat");
     watchAttr("value", "#player > div.material-player-middle > [data-id='shuffle']", "player-shuffle", shuffleGetter);
@@ -491,6 +502,10 @@ $(function() {
     callForRow();
   }
 
+  function isAutoQueueList(link) {
+    return link == "ap/queue" || !link.indexOf("im/") || !link.indexOf("st/") || !link.indexOf("sm/") || !link.indexOf("situations/");
+  }
+
   /**
    * Click a card to start a playlist. Should always lead to the queue.
    * @return true, if the card was found
@@ -508,8 +523,16 @@ $(function() {
 
   /** Set the hash to the given value to navigate to another page and call the function when finished. */
   function selectAndExecute(hash, cb) {
-    if (location.hash == "#/" + hash) {//we're already here
+    if (location.hash == "#/" + hash) {
       if (cb) cb();
+    } else if (hash == "ap/queue") {
+      if ($("#queue-container").is(":visible")) {
+        if (cb) cb();
+      } else {
+        executeOnContentLoad = cb;
+        contentLoadDestination = "ap/queue";
+        sendCommand("openQueue");
+      }
     } else {
       executeOnContentLoad = cb;
       if (!hash.indexOf("st/") || !hash.indexOf("sm/") || !hash.indexOf("situations/")) {//setting hash does not work for these types
@@ -523,7 +546,7 @@ $(function() {
           });
         }
       } else {
-        contentLoadDestination = !hash.indexOf("im/") ? "#/ap/queue" : hash;//type im is automatically started
+        contentLoadDestination = !hash.indexOf("im/") ? "ap/queue" : hash;//type im is automatically started
         location.hash = "/" + hash;
       }
     }
@@ -734,12 +757,18 @@ $(function() {
       } else if (link == "exptop" || link == "exprec" || link == "rd" || !link.indexOf("expgenres/") || !link.indexOf("artist/") || !link.indexOf("sr/")) {
         sendMixed(response);
       } else {
+        var autoQueueList = isAutoQueueList(link);
         var type = getListType(link);
         //check if we are on a page with correct type
         //e.g. in recommendations list the album link might not work in which case we get redirected to albums page
-        if (type == getListType(location.hash.substr(2))) {
+        if (autoQueueList || type == getListType(location.hash.substr(2))) {
           response.type = type;
-          parseNavigationList[type]($("#music-content").find(":has(>.card),.song-table"), undefined, function(list, update) {
+          var contentId = "#music-content";
+          if (autoQueueList) {
+            contentId = "#queue-container";
+            response.controlLink = "#/ap/queue";
+          }
+          parseNavigationList[type]($(contentId).find(":has(>.card),.song-table"), undefined, function(list, update) {
             response.list = list;
             response.update = update;
             response.empty = !list.length;
@@ -807,7 +836,7 @@ $(function() {
     case "startPlaylist":
       selectAndExecute(msg.link, function(error) {
         //types im, st, sm and situations start automatically
-        if (!error && !!msg.link.indexOf("im/") && !!msg.link.indexOf("st/") && !!msg.link.indexOf("sm/") && !!msg.link.indexOf("situations/")) sendCommand("startPlaylist");
+        if (!error && !isAutoQueueList(msg.link)) sendCommand("startPlaylist");
       });
       break;
     case "resumeLastSong":
