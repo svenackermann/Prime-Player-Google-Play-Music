@@ -35,11 +35,17 @@
   /** Start the currently displayed playlist. */
   function startPlaylist() {
     var playButton;
-    if (location.hash.indexOf("artist/") == 2) playButton = document.querySelector("#music-content .actions [data-id='radio']");
-    else if (location.hash.indexOf("expgenres/") == 2) playButton = document.querySelector("#action_bar_container [data-id='start-genre-radio']");
+    var hash = location.hash.substr(2);
+    if (!hash.indexOf("artist/")) playButton = document.querySelector("#music-content .actions [data-id='radio']");
+    else if (!hash.indexOf("expgenres/")) playButton = document.querySelector("#action_bar_container [data-id='start-genre-radio']");
+
     playButton = playButton || document.querySelector("#music-content .material-container-details [data-id='play']");
     if (playButton) simulateClick(playButton);
-    else startPlaylistSong({ index: 0 });
+    else if (!hash.indexOf("tg/")) {
+      var buttonContainer = document.querySelector("#music-content .material-card[data-type='tgs'] .play-button-container");
+      simulateMouseEvent("mouseover", buttonContainer);
+      setTimeout(function() { simulateClick(buttonContainer.querySelector(".play-button")); }, 200);
+    } else startPlaylistSong({ index: 0 });
   }
 
   /** Simulate a click on a .material-card with given id. */
@@ -118,7 +124,7 @@
       setTimeout(function() {
         simulateClick(span.querySelector(".hover-button"));
         success();
-      }, 250);
+      }, 200);
       return true;
     }
     return false;
