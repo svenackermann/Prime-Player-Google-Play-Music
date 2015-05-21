@@ -632,9 +632,38 @@ function fixForUri(string) {
     executeInGoogleMusic("setVolume", { percent: percent });
   }
 
+  /** assure that the Google Music tab is active and its window is not minimzed before executing the function, restore state (with timeout) afterwards */
+  function executeWithActiveGmTab(fn, restoreFn) {
+    chromeTabs.get(googlemusictabId, function(tab) {
+      chromeWindows.get(tab.windowId, function(win) {
+        function executeInActiveTab(restoreCallback) {
+          function executeFn(restore) {
+            fn();
+            if (restoreFn) restoreFn(restore);
+            else setTimeout(restore, 250);
+          }
+
+          if (tab.active) executeFn(restoreCallback);
+          else chromeTabs.query({ active: true, windowId: tab.windowId }, function(tabs) {
+            chromeTabs.update(googlemusictabId, { active: true }, function() {
+              executeFn(tabs[0] ? function() { chromeTabs.update(tabs[0].id, { active: true }, restoreCallback); } : restoreCallback);
+            });
+          });
+        }
+
+        if (win.state == "minimized") {
+          chromeWindows.update(win.id, { state: "maximized" }, function() {
+            executeInActiveTab(function() { chromeWindows.update(win.id, { state: "minimized" }); });
+          });
+        } else executeInActiveTab($.noop);
+      });
+    });
+  }
+
   /** Change the song position in Google Music. */
   function setSongPosition(percent) {
-    executeInGoogleMusic("setPosition", { percent: percent });
+    //setting the position only works when the Google Music tab is active and its window is not minimized
+    executeWithActiveGmTab(executeInGoogleMusic.bind(window, "setPosition", { percent: percent }));
   }
 
   /** Rate the current song in Google Music, if possible. For arg 5, this triggers the link-ratings logic, if not a rating reset. */
@@ -707,13 +736,25 @@ function fixForUri(string) {
   function resumeLastSongIfConnected() {
     if (!lastSongToResume) return;
     if (player.connected) {
-      postToGooglemusic({
+      //save last song info here, it is needed in restoreAfterSongStart below, but lastSongToResume is set to null then already
+      var lastSongInfo = lastSongToResume.info;
+      executeWithActiveGmTab(postToGooglemusic.bind(window, {
         type: "resumeLastSong",
-        albumLink: lastSongToResume.info.albumLink,
-        artist: lastSongToResume.info.artist,
-        title: lastSongToResume.info.title,
-        duration: lastSongToResume.info.duration,
-        position: lastSongToResume.positionSec / lastSongToResume.info.durationSec
+        albumLink: lastSongInfo.albumLink,
+        artist: lastSongInfo.artist,
+        title: lastSongInfo.title,
+        duration: lastSongInfo.duration,
+        position: lastSongToResume.positionSec / lastSongInfo.durationSec
+      }), function(restore) {
+        function restoreAfterSongStart(info) {
+          if (info) {
+            song.rl("info", restoreAfterSongStart);
+            //if the started song is not our last song, most likely the song could not be loaded and/or the user selected sth. else
+            //do not restore the tab/window state then, because there was some user interaction in between
+            if (songsEqual(info, lastSongInfo)) setTimeout(restore, 1500);
+          }
+        }
+        song.w("info", restoreAfterSongStart);//restore tab/window state when the song is started
       });
     } else openGoogleMusicTab(null, false, true);//when connected, we get triggered again
   }
