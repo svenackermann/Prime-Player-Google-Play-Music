@@ -286,8 +286,7 @@ function fixForUri(string) {
       "ap/queue",
       "ap/auto-playlist-thumbs-up",
       "ap/auto-playlist-recent",
-      "ap/auto-playlist-promo",
-      "ap/shared-with-me"
+      "ap/auto-playlist-promo"
     ];
     if (localSettings.quicklinks && localSettings.quicklinks.exptop) quicklinks.push("exptop", "expnew", "exprec");
     else quicklinks.push("ap/google-play-recommends");
