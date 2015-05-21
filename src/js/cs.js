@@ -44,6 +44,12 @@ $(function() {
     return hash && decodeURIComponent(hash.replace(/(\+)+/g, "%20"));
   }
 
+  /** @return true, if the current location's hash matches the given one */
+  function matchesHash(hash) {
+    var subHash = location.hash.substr(2);
+    return subHash == hash || decodeURIComponent(subHash) == hash;
+  }
+
   /** @return link (for hash) constructed from attributes data-type and data-id */
   function getLink(el) {
     if (el.data("id")) return el.data("type") + "/" + el.data("id");
@@ -298,7 +304,7 @@ $(function() {
     /** Execute 'executeOnContentLoad' (if set) when #music-content is changed. */
     function musicContentLoaded() {
       if ($.isFunction(executeOnContentLoad)) {
-        if (contentLoadDestination && location.hash != "#/" + contentLoadDestination) return;//wait til we are on the correct page
+        if (contentLoadDestination && !matchesHash(contentLoadDestination)) return;//wait til we are on the correct page
         var fn = executeOnContentLoad;
         executeOnContentLoad = null;
         contentLoadDestination = null;
@@ -536,7 +542,7 @@ $(function() {
 
   /** Set the hash to the given value to navigate to another page and call the function when finished. */
   function selectAndExecute(hash, cb) {
-    if (location.hash == "#/" + hash) {
+    if (matchesHash(hash)) {
       if (cb) cb();
     } else if (hash == "ap/queue") {
       if ($("#queue-container").is(":visible")) {
@@ -675,8 +681,7 @@ $(function() {
       parent.children(".material-card").slice(0, end).each(function() {
         var card = $(this);
         var item = {};
-        var img = card.find(".image-inner-wrapper img:first");
-        if (img.attr("src").indexOf("/default_artist.png") < 0) item.cover = parseCover(img);
+        item.cover = parseCover(card.find(".image-inner-wrapper img"));
         item.title = $.trim(card.find(".details .title").text());
         item.link = getLink(card);
         items.push(item);

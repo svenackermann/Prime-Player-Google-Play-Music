@@ -168,7 +168,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       if (val) {
         //mark new currents
         var matched = false;
-        if (val.playlist == currentNavList.link) {
+        if (val.playlist == currentNavList.controlLink) {
           matched = tryListMatch(val);
         }
         if (!matched && currentData) {
@@ -506,7 +506,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         var row = $("<div>");
         $("<img>").attr("src", ac.cover || "img/cover.png").appendTo(row);
         row.append(getFavoriteIcon(ac.link, ac.title));
-        $("<a tabindex='0' class='nav'>").data("link", ac.link).text(ac.title).attr("title", ac.title).appendTo(row);
+        $("<a tabindex='0' class='title nav'>").data("link", ac.link).text(ac.title).attr("title", ac.title).appendTo(row);
         navlist.append(row);
       });
     }
@@ -741,8 +741,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
       }
     });
 
-    $("#navlistContainer").on("click", ".playlistsList img", function() {
-      bp.startPlaylist($(this).parent().find(".album").data("link"));
+    $("#navlistContainer").on("click", ".playlistsList img,.albumContainers img", function() {
+      bp.startPlaylist($(this).parent().find(".album,.title").data("link"));
       restorePlayer();
     }).on("click", ".playlist img", function() {
       var songRow = $(this).closest("div[data-index]");

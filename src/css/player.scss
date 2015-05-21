@@ -493,6 +493,12 @@ a {
         float: left;
         margin-right: 4px;
         height: 16px;
+        width: 16px;
+        border: 1px solid #AAA;
+        cursor: pointer;
+        &:hover {
+          opacity: 0.5;
+        }
       }
       > .fav {
         margin-top: 2px;
@@ -507,24 +513,9 @@ a {
     }
   }
   .albumContainers > div {
-    > img {
-      width: 32px;
-    }
     > .nav {
       display: block;
       overflow: hidden;
-    }
-  }
-  .playlistsList, .playlist {
-    > div {
-      > img {
-        width: 16px;
-        border: 1px solid #AAA;
-        cursor: pointer;
-        &:hover {
-          opacity: 0.5;
-        }
-      }
     }
   }
   .playlistsList > div {
