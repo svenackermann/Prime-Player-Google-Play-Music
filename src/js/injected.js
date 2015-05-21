@@ -16,8 +16,16 @@
    */
   function simulateMouseEvent(eventname, element, clientX, clientY) {
     if (!element) return;
-    var event = document.createEvent("MouseEvents");
-    event.initMouseEvent(eventname, true, true, window, 1, 0, 0, clientX || 0, clientY || 0, false, false, false, false, 0, element);
+    var event = new MouseEvent(eventname, {
+      bubbles: true,
+      cancelable: true,
+      view: window,
+      detail: 1,
+      clientX: clientX || 0,
+      clientY: clientY || 0,
+      buttons: 1,
+      relatedTarget: element
+    });
     element.dispatchEvent(event);
   }
 
