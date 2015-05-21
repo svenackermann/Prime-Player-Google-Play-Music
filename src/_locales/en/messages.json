@@ -718,10 +718,6 @@
     "message": "Free and purchased",
     "description": "text for click action option 'free and purchased' (will be replaced with text from Google Music if connected)"
   },
-  "quicklink_ap_shared_with_me": {
-    "message": "Shared with me",
-    "description": "text for click action option 'shared with me' (will be replaced with text from Google Music if connected)"
-  },
   "quicklink_ap_google_play_recommends": {
     "message": "Google Play recommends",
     "description": "text for click action option 'Google Play recommends' (will be replaced with text from Google Music if connected)"

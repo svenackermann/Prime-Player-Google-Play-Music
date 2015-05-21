@@ -1,11 +1,11 @@
 {
   "name": "primeplayer",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "dependencies": {
     "jquery": "2.1.4"
   },
   "devDependencies": {
-    "del": "^1.1.1",
+    "del": "^1.2.0",
     "gulp": "^3.8.11",
     "gulp-changed": "^1.2.1",
     "gulp-concat": "^2.5.2",
@@ -24,7 +24,7 @@
     "jshint-stylish": "^1.0.2",
     "merge-stream": "^0.1.7",
     "run-sequence": "^1.1.0",
-    "yargs": "^3.9.0"
+    "yargs": "^3.9.1"
   },
   "scripts": {
     "preinstall": "npm i -g gulp"

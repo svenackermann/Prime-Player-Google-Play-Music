@@ -3,9 +3,9 @@
   "name": "Prime Player for Google Play Music\u2122",
   "short_name": "__MSG_extTitle__",
   "description": "__MSG_extDesc__",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "author": "Sven Ackermann",
-  "minimum_chrome_version": "35",
+  "minimum_chrome_version": "43",
   "default_locale": "en",
   "icons": {
     "128": "img/icon-128x128.png",

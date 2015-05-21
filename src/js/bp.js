@@ -286,8 +286,7 @@ function fixForUri(string) {
       "ap/queue",
       "ap/auto-playlist-thumbs-up",
       "ap/auto-playlist-recent",
-      "ap/auto-playlist-promo",
-      "ap/shared-with-me"
+      "ap/auto-playlist-promo"
     ];
     if (localSettings.quicklinks && localSettings.quicklinks.exptop) quicklinks.push("exptop", "expnew", "exprec");
     else quicklinks.push("ap/google-play-recommends");
@@ -632,9 +631,38 @@ function fixForUri(string) {
     executeInGoogleMusic("setVolume", { percent: percent });
   }
 
+  /** assure that the Google Music tab is active and its window is not minimzed before executing the function, restore state (with timeout) afterwards */
+  function executeWithActiveGmTab(fn, restoreFn) {
+    chromeTabs.get(googlemusictabId, function(tab) {
+      chromeWindows.get(tab.windowId, function(win) {
+        function executeInActiveTab(restoreCallback) {
+          function executeFn(restore) {
+            fn();
+            if (restoreFn) restoreFn(restore);
+            else setTimeout(restore, 250);
+          }
+
+          if (tab.active) executeFn(restoreCallback);
+          else chromeTabs.query({ active: true, windowId: tab.windowId }, function(tabs) {
+            chromeTabs.update(googlemusictabId, { active: true }, function() {
+              executeFn(tabs[0] ? function() { chromeTabs.update(tabs[0].id, { active: true }, restoreCallback); } : restoreCallback);
+            });
+          });
+        }
+
+        if (win.state == "minimized") {
+          chromeWindows.update(win.id, { state: "maximized" }, function() {
+            executeInActiveTab(function() { chromeWindows.update(win.id, { state: "minimized" }); });
+          });
+        } else executeInActiveTab($.noop);
+      });
+    });
+  }
+
   /** Change the song position in Google Music. */
   function setSongPosition(percent) {
-    executeInGoogleMusic("setPosition", { percent: percent });
+    //setting the position only works when the Google Music tab is active and its window is not minimized
+    executeWithActiveGmTab(executeInGoogleMusic.bind(window, "setPosition", { percent: percent }));
   }
 
   /** Rate the current song in Google Music, if possible. For arg 5, this triggers the link-ratings logic, if not a rating reset. */
@@ -707,13 +735,25 @@ function fixForUri(string) {
   function resumeLastSongIfConnected() {
     if (!lastSongToResume) return;
     if (player.connected) {
-      postToGooglemusic({
+      //save last song info here, it is needed in restoreAfterSongStart below, but lastSongToResume is set to null then already
+      var lastSongInfo = lastSongToResume.info;
+      executeWithActiveGmTab(postToGooglemusic.bind(window, {
         type: "resumeLastSong",
-        albumLink: lastSongToResume.info.albumLink,
-        artist: lastSongToResume.info.artist,
-        title: lastSongToResume.info.title,
-        duration: lastSongToResume.info.duration,
-        position: lastSongToResume.positionSec / lastSongToResume.info.durationSec
+        albumLink: lastSongInfo.albumLink,
+        artist: lastSongInfo.artist,
+        title: lastSongInfo.title,
+        duration: lastSongInfo.duration,
+        position: lastSongToResume.positionSec / lastSongInfo.durationSec
+      }), function(restore) {
+        function restoreAfterSongStart(info) {
+          if (info) {
+            song.rl("info", restoreAfterSongStart);
+            //if the started song is not our last song, most likely the song could not be loaded and/or the user selected sth. else
+            //do not restore the tab/window state then, because there was some user interaction in between
+            if (songsEqual(info, lastSongInfo)) setTimeout(restore, 1500);
+          }
+        }
+        song.w("info", restoreAfterSongStart);//restore tab/window state when the song is started
       });
     } else openGoogleMusicTab(null, false, true);//when connected, we get triggered again
   }
@@ -1723,7 +1763,7 @@ function fixForUri(string) {
     }
   }
 
-  function refreshContextMenu() {
+  function doRefreshContextMenu() {
     chromeContextMenus.removeAll(function() {
       function createContextMenuEntry(id, title, cb, parentId, type, checked, enabled) {
         chromeContextMenus.create({ contexts: ["browser_action"], type: type || "normal", id: id, title: title, checked: checked, parentId: parentId, enabled: enabled }, cb);
@@ -1792,20 +1832,27 @@ function fixForUri(string) {
     });
   }
 
+  var refreshContextMenuTimer;
+  /** refresh context menu with timeout to avoid conflicts with duplicate refreshs */
+  function refreshContextMenu() {
+    clearTimeout(refreshContextMenuTimer);
+    refreshContextMenuTimer = setTimeout(doRefreshContextMenu, 150);
+  }
+
   chromeContextMenus.onClicked.addListener(function(info) {
     var cmd = info.menuItemId;
 
-    if (cmd.indexOf("timerAction_") === 0) {
+    if (!cmd.indexOf("timerAction_")) {
       localSettings.timerAction = cmd.substr(12);
-    } else if (cmd.indexOf("timerActionIn_") === 0) {
+    } else if (!cmd.indexOf("timerActionIn_")) {
       var min = parseInt(cmd.substr(14));
       localSettings.timerMinutes = min;
       if (localSettings.timerPreNotify > min * 60) localSettings.timerPreNotify = min * 60;
       localSettings.timerEnd = $.now() / 1000 + min * 60;
       startSleepTimer();
-    } else if (cmd.indexOf("fav_") === 0) {
+    } else if (!cmd.indexOf("fav_")) {
       startPlaylist(cmd.substr(4));
-    } else if (cmd.indexOf("ql_") === 0) {
+    } else if (!cmd.indexOf("ql_")) {
       selectLink(cmd.substr(3));
     } else switch (cmd) {
       case "stopTimer":
@@ -2092,7 +2139,9 @@ function fixForUri(string) {
     calcScrobbleTime();
     if (!old != !info) {//jshint ignore:line
       // (only update if exactly one of them is null)
-      updateContextMenuConnectedItem(["prevSong", "nextSong", "ff", "openLyrics", "rate-1", "rate-2", "rate-3", "rate-4", "rate-5"]);
+      var commands = ["prevSong", "nextSong", "ff", "openLyrics", "rate-1", "rate-5"];
+      if (isStarRatingMode()) commands.push("rate-2", "rate-3", "rate-4");
+      updateContextMenuConnectedItem(commands);
     }
   });
   //} position/info handler
@@ -2319,9 +2368,13 @@ function fixForUri(string) {
     chromeOmnibox.setDefaultSuggestion({ description: i18n(msgKey, search && "<match>" + search + "</match>") });
   }
 
-  chromeOmnibox.onInputChanged.addListener(function(text, suggest) {
+  function omniboxClear() {
     omniboxSuggest = omniboxSearch = null;
     clearTimeout(omniboxTimer);
+  }
+
+  chromeOmnibox.onInputChanged.addListener(function(text, suggest) {
+    omniboxClear();
     if (!text.indexOf("f ")) {
       var search = text.substr(2).trim();
       if (search) {
@@ -2345,13 +2398,14 @@ function fixForUri(string) {
   });
 
   chromeOmnibox.onInputEntered.addListener(function(text) {
-    omniboxSuggest = null;
-    clearTimeout(omniboxTimer);
+    var searchText = omniboxSearch;
+    omniboxClear();
     var index = text.lastIndexOf(linkPrefix);
     if (index >= 0) startPlaylist(text.substr(index + linkPrefix.length), true);
-    else if (omniboxSearch) selectLink(getSearchLink(omniboxSearch), true);
-    omniboxSearch = null;
+    else if (searchText) selectLink(getSearchLink(searchText), true);
   });
+
+  chromeOmnibox.onInputCancelled.addListener(omniboxClear);
 
   player.al("navigationList", function(navlist) {
     if (!navlist || !omniboxSuggest || navlist.link != getSearchLink(omniboxSearch)) return;
