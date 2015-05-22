@@ -329,11 +329,7 @@ function fixForUri(string) {
 
   /** Open the options tab or focus it, if already opened. */
   function openOptions() {
-    if (optionsTabId) {
-      chromeTabs.update(optionsTabId, { active: true });
-    } else {
-      chromeTabs.create({ url: getExtensionUrl("options.html") });
-    }
+    chromeRuntime.openOptionsPage();
   }
   chromeNotifications.onShowSettings.addListener(openOptions);
 
