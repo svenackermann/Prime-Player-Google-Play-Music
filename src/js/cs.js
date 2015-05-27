@@ -595,26 +595,66 @@ $(function() {
     return item;
   }
 
+  function parseCards(parser, parent, end, cb) {
+    var pageCount = parseInt(parent.data("row-count"));
+    var cardsPerPage = parseInt(parent.data("cards-per-page")) || parent.find(".cluster-page:first .material-card").length;
+    var update = false;
+    var lastIndex = -1;
+    var lastPageNum = -1;
+    function loadNextCards() {
+      var firstPage = parent.find(".cluster-page:first");
+      if (!update && pageCount && firstPage.data("page-num") !== 0) {//not yet there
+        firstPage[0].scrollIntoView(true);
+        asyncListTimer = setTimeout(loadNextCards, 50);
+        return;
+      }
+      var items = [];
+      var lastLoaded = null;
+      parent.find(".material-card").slice(0, end).each(function() {
+        var card = $(this);
+        lastLoaded = this;
+        var page = card.closest(".cluster-page");
+        var pageNum = parseInt(page.data("page-num"));
+        var index = cardsPerPage * pageNum + page.find(".material-card").index(card);
+        if (index <= lastIndex) return;
+        lastPageNum = pageNum;
+        var item = parser(card);
+        if (item) {
+          item.index = index;
+          items.push(item);
+          lastIndex = index;
+        }
+      });
+      if (!cb) return items;
+
+      if (!update || items.length) {
+        cb(items, update);
+        update = true;
+      }
+      if (lastLoaded && pageCount && lastPageNum + 1 < pageCount && (end === undefined || lastIndex + 1 < end)) {
+        lastLoaded.scrollIntoView(true);
+        asyncListTimer = setTimeout(loadNextCards, 150);
+      }
+    }
+    return loadNextCards();
+  }
+
   /** parse handlers for the different list types (playlistsList, playlist or albumContainers) */
   var parseNavigationList = {
     playlistsList: function(parent, end, cb, omitUnknownAlbums) {
-      var playlists = [];
-      parent.children(".material-card").slice(0, end).each(function() {
-        var card = $(this);
+      return parseCards(function(card) {
         var id = card.data("id");
-        if (omitUnknownAlbums && id.substr(1).indexOf("/") < 0) return;
+        if (omitUnknownAlbums && id.substr(1).indexOf("/") < 0) return null;
         var item = {};
         item.titleLink = getLink(card);
-        if (item.titleLink === null) return;
+        if (!item.titleLink) return null;
         item.cover = parseCover(card.find(".image-wrapper img"));
         item.title = $.trim(card.find(".title").text());
         var subTitle = card.find(".sub-title");
         item.subTitle = $.trim(subTitle.text());
         item.subTitleLink = getLink(subTitle);
-        playlists.push(item);
-      });
-      if (!cb) return playlists;
-      cb(playlists);
+        return item;
+      }, parent, end, cb);
     },
     playlist: function(parent, end, cb) {
       var queue = !!parent.closest("#queue-container").length;
@@ -651,9 +691,8 @@ $(function() {
           selectedRatings.push(item.rating);
           playlist.push(item);
         });
-        if (!cb) {
-          return playlist;
-        }
+        if (!cb) return playlist;
+
         if (!update || playlist.length) {
           cb(playlist, update);
           update = true;
@@ -677,17 +716,14 @@ $(function() {
       loadNextSongs();
     },
     albumContainers: function(parent, end, cb) {
-      var items = [];
-      parent.children(".material-card").slice(0, end).each(function() {
-        var card = $(this);
-        var item = {};
-        item.cover = parseCover(card.find(".image-inner-wrapper img"));
-        item.title = $.trim(card.find(".details .title").text());
-        item.link = getLink(card);
-        items.push(item);
-      });
-      if (!cb) return items;
-      cb(items);
+      return parseCards(function(card) {
+        var link = getLink(card);
+        return link ? {
+          cover: parseCover(card.find(".image-inner-wrapper img")),
+          title: $.trim(card.find(".details .title").text()),
+          link: link
+        } : null;
+      }, parent, end, cb);
     }
   };
 
@@ -743,7 +779,7 @@ $(function() {
       var cardType = firstCard.data("type");
       if (!cardType) return null;//maybe no ".material-card" found
       type = getListType(cardType) == "playlist" ? "playlistsList" : "albumContainers";
-      listParent = firstCard.parent();
+      listParent = firstCard.closest(".material-cluster");
     }
     var list = parseNavigationList[type](listParent, 10);
     if (!list.length) return null;
@@ -794,7 +830,7 @@ $(function() {
             contentId = "#queue-container";
             response.controlLink = "#/ap/queue";
           }
-          parseNavigationList[type]($(contentId).find(":has(>.material-card),.song-table"), undefined, function(list, update) {
+          parseNavigationList[type]($(contentId).find(".material-cluster,.song-table"), undefined, function(list, update) {
             response.list = list;
             response.update = update;
             response.empty = !list.length;

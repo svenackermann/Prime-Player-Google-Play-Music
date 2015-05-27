@@ -426,6 +426,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   var renderNavList = {
     playlistsList: function(navlist, list) {
       list.forEach(function(pl) {
+        if (navlist.children().length > pl.index) return;
         var row = $("<div>");
         $("<img>").attr("src", pl.cover || "img/cover.png").appendTo(row);
         row.append(getFavoriteIcon(pl.titleLink, pl.title));
@@ -503,6 +504,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     },
     albumContainers: function(navlist, list) {
       list.forEach(function(ac) {
+        if (navlist.children().length > ac.index) return;
         var row = $("<div>");
         $("<img>").attr("src", ac.cover || "img/cover.png").appendTo(row);
         row.append(getFavoriteIcon(ac.link, ac.title));
