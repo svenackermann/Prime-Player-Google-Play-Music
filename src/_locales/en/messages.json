@@ -336,7 +336,7 @@
     "description": "title for the miniplayer settings on options page"
   },
   "legendMiniplayerHint": {
-    "message": "The miniplayer is a powerful, highly customizable tool, so take your time to try the different options out. You can open the miniplayer e.g. by clicking on the note icon in the popup that shows up when you click the Prime Player icon in the Chrome toolbar.",
+    "message": "The miniplayer is a powerful, highly customizable tool, so take your time to try the different options out. You can open the miniplayer e.g. by clicking on the headphones icon in the popup that shows up when you click the Prime Player icon in the Chrome toolbar.",
     "description": "hint for the miniplayer settings on options page"
   },
   "legendLookfeel": {
