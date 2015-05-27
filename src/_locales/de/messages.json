@@ -141,7 +141,7 @@
     "message": "Bewertungen verknüpfen"
   },
   "setting_linkRatingsHint": {
-    "message": "Titel in last.fm lieben, wenn du Daumen hoch/fünf Sterne in Google Music gibst und umgekehrt. Bestehende Wertungen werden nicht überschrieben. Funktioniert nicht, wenn direkt auf der Google Music oder last.fm Seite bewertet wird (nur über Miniplayer, Tastaturkürzel, Toast Aktionen, ...)."
+    "message": "Titel in last.fm lieben, wenn du Daumen hoch in Google Music gibst und umgekehrt. Bestehende Wertungen werden nicht überschrieben. Funktioniert nicht, wenn direkt auf der Google Music oder last.fm Seite bewertet wird (nur über Miniplayer, Tastaturkürzel, Toast Aktionen, ...)."
   },
   "setting_linkRatingsMin": {
     "message": "Mindest-Stern-Anzahl zum automatisch lieben"
@@ -153,7 +153,7 @@
     "message": "Bewertungen automatisch verknüpfen"
   },
   "setting_linkRatingsAutoHint": {
-    "message": "Wenn ein Titel startet, den du bereits mit Daumen hoch/fünf Sternen bewertet hast, der aber nicht in last.fm geliebt ist, wird er ohne Nutzer-Interaktion geliebt. Wenn er bereits geliebt ist, aber keine Bewertung in Google Music hat, erhält er Daumen hoch/fünf Sterne."
+    "message": "Wenn ein Titel startet, den du bereits mit Daumen hoch bewertet hast, der aber nicht in last.fm geliebt ist, wird er ohne Nutzer-Interaktion geliebt. Wenn er bereits geliebt ist, aber keine Bewertung in Google Music hat, erhält er Daumen hoch."
   },
   "setting_showLovedIndicator": {
     "message": "Zeige 'geliebt'-Status im Symbol"
@@ -415,7 +415,7 @@
     "message": "Titel mit Daumen runter überspringen"
   },
   "setting_hideRatings": {
-    "message": "Bewertungs-Symbole verstecken (last.fm und Daumen/Sterne)"
+    "message": "Bewertungs-Symbole verstecken (last.fm und Daumen)"
   },
   "setting_omitUnknownAlbums": {
     "message": "Verberge 'Unbekannte Alben' in der Alben-Liste des Miniplayers"
