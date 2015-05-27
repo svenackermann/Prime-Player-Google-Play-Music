@@ -15,7 +15,7 @@
     "gulp-jshint": "^1.11.0",
     "gulp-json-transform": "^0.2.0",
     "gulp-minify-html": "^1.0.2",
-    "gulp-native2ascii": "v0.0.3",
+    "gulp-native2ascii": "^0.0.3",
     "gulp-replace": "^0.5.3",
     "gulp-sass": "^2.0.1",
     "gulp-sourcemaps": "^1.5.2",
