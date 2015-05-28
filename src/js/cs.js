@@ -450,7 +450,6 @@ $(function() {
       }
     }
     sendConnectedInterval = setInterval(sendConnected, 500);
-    sendConnected();
   }
 
   /** callback for messages from the injected script */
@@ -512,7 +511,7 @@ $(function() {
       if (rows.first().data("index") > options.index) scrollToRow = rows[0];
       else if (rows.last().data("index") < options.index) scrollToRow = rows.last()[0];
       if (scrollToRow) {
-        scrollToRow.scrollIntoView(true);
+        scrollToRow.scrollIntoView();
         setTimeout(callForRow, 50);
       } else {
         sendCommand(command, options);
@@ -603,8 +602,8 @@ $(function() {
     var lastPageNum = -1;
     function loadNextCards() {
       var firstPage = parent.find(".cluster-page:first");
-      if (!update && pageCount && firstPage.data("page-num") !== 0) {//not yet there
-        firstPage[0].scrollIntoView(true);
+      if (!update && pageCount && firstPage[0] && firstPage.data("page-num") !== 0) {//not yet there
+        firstPage[0].scrollIntoView();
         asyncListTimer = setTimeout(loadNextCards, 50);
         return;
       }
@@ -612,8 +611,8 @@ $(function() {
       var lastLoaded = null;
       parent.find(".material-card").slice(0, end).each(function() {
         var card = $(this);
-        lastLoaded = this;
         var page = card.closest(".cluster-page");
+        lastLoaded = page[0];
         var pageNum = parseInt(page.data("page-num"));
         var index = cardsPerPage * pageNum + page.find(".material-card").index(card);
         if (index <= lastIndex) return;
@@ -632,7 +631,7 @@ $(function() {
         update = true;
       }
       if (lastLoaded && pageCount && lastPageNum + 1 < pageCount && (end === undefined || lastIndex + 1 < end)) {
-        lastLoaded.scrollIntoView(true);
+        lastLoaded.scrollIntoView(false);
         asyncListTimer = setTimeout(loadNextCards, 150);
       }
     }
@@ -671,8 +670,8 @@ $(function() {
         if (queue) queueRatings = selectedRatings;
         else listRatings[ci] = selectedRatings;
         var rows = parent.find(".song-row");
-        if (!update && count && rows.first().data("index") !== 0) {//not yet there
-          parent.scrollTop(0);
+        if (!update && count && rows[0] && rows.first().data("index") !== 0) {//not yet there
+          rows[0].scrollIntoView();
           asyncListTimer = setTimeout(loadNextSongs, 150);
           return;
         }
@@ -705,7 +704,7 @@ $(function() {
               //avoid conflicts with DOMSubtreeModified handler that listens for list rating changes
               if (queue) queueRatings = null;
               else listRatings[ci] = null;
-              lastLoaded.scrollIntoView(true);
+              lastLoaded.scrollIntoView(false);
             }
             asyncListTimer = setTimeout(loadNextSongs, 150);
           }
@@ -869,7 +868,7 @@ $(function() {
         });
         var last = found || rows.last();
         if (!found && last.data("index") < last.parent().data("count") - 1) {
-          last[0].scrollIntoView(true);
+          last[0].scrollIntoView(false);
           asyncListTimer = setTimeout(sendResume, 150);
         }
       }
