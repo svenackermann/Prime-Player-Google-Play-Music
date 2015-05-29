@@ -701,17 +701,17 @@ function fixForUri(string) {
   }
 
   var startPlaylistLink;
-  function startPlaylistIfConnected(openGmInCurrentTab) {
+  function startPlaylistIfConnected(openGmInCurrentTab, forceActive) {
     if (!startPlaylistLink) return;
     if (player.connected) {
       postToGooglemusic({ type: "startPlaylist", link: startPlaylistLink });
       startPlaylistLink = null;
-    } else openGoogleMusicTab(startPlaylistLink, false, true, openGmInCurrentTab);//when connected, we get triggered again
+    } else openGoogleMusicTab(startPlaylistLink, forceActive, true, openGmInCurrentTab);//when connected, we get triggered again
   }
   /** Start a playlist in Google Music. */
-  function startPlaylist(link, openGmInCurrentTab) {
+  function startPlaylist(link, openGmInCurrentTab, forceActive) {
     startPlaylistLink = link;
-    startPlaylistIfConnected(openGmInCurrentTab);
+    startPlaylistIfConnected(openGmInCurrentTab, forceActive);
   }
 
   var feelingLucky = false;
@@ -2393,12 +2393,13 @@ function fixForUri(string) {
     } else setDefaultSuggestion("ob_defaultsugg");
   });
 
-  chromeOmnibox.onInputEntered.addListener(function(text) {
+  chromeOmnibox.onInputEntered.addListener(function(text, disposition) {
     var searchText = omniboxSearch;
     omniboxClear();
     var index = text.lastIndexOf(linkPrefix);
-    if (index >= 0) startPlaylist(text.substr(index + linkPrefix.length), true);
-    else if (searchText) selectLink(getSearchLink(searchText), true);
+    var openGmInCurrentTab = disposition == "currentTab";
+    if (index >= 0) startPlaylist(text.substr(index + linkPrefix.length), openGmInCurrentTab, disposition == "newForegroundTab");
+    else if (searchText) selectLink(getSearchLink(searchText), openGmInCurrentTab);
   });
 
   chromeOmnibox.onInputCancelled.addListener(omniboxClear);
