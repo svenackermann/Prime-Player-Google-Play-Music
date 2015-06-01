@@ -1339,9 +1339,9 @@ function fixForUri(string) {
   function connectGoogleMusicTabs() {
     chromeTabs.query({ url:"*://play.google.com/music/listen*" }, function(tabs) {
       tabs.forEach(function(tab) {
-        chromeTabs.insertCSS(tab.id, { file: "css/gpm.css" });
-        chromeTabs.executeScript(tab.id, { file: "js/jquery.min.js" });
-        chromeTabs.executeScript(tab.id, { file: "js/cs.js" });
+        chromeTabs.insertCSS(tab.id, { file: "css/gpm.css", runAt: "document_end" });
+        chromeTabs.executeScript(tab.id, { file: "js/jquery.min.js", runAt: "document_end" });
+        chromeTabs.executeScript(tab.id, { file: "js/cs.js", runAt: "document_end" });
       });
     });
   }
