@@ -30,7 +30,9 @@
   }
 
   /** Simulate a click event on an element. */
-  var simulateClick = simulateMouseEvent.bind(window, "click");
+  function simulateClick(element) {
+    if (element) element.click();
+  }
 
   /** Start the currently displayed playlist. */
   function startPlaylist() {
