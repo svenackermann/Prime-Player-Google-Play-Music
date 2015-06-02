@@ -1087,6 +1087,7 @@ function fixForUri(string) {
     }
   }
 
+  var restoreActiveTab = {};
   /** handler for messages from connected port - set song or player state */
   function onMessageListener(message) {
     var val = message.value;
@@ -1128,6 +1129,16 @@ function fixForUri(string) {
       if (settings.linkRatings && settings.linkRatingsGpm && val.rating >= settings.linkRatingsMin) {
         if (songsEqual(song.info, val.song)) loveTrack();
         else love(val.song, $.noop);
+      }
+    } else if (type == "needActiveTab") {
+      executeWithActiveGmTab($.noop, function(restore) {
+        restoreActiveTab.restore = restore;
+        restoreActiveTab.id = val;
+      });
+    } else if (type == "restoreActiveTab") {
+      if (restoreActiveTab.id == val) {
+        restoreActiveTab.id = null;
+        restoreActiveTab.restore();
       }
     }
   }

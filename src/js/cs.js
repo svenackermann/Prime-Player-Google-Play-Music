@@ -19,6 +19,7 @@ $(function() {
   var listRatings;
   var queueRatings;
   var asyncListTimer;
+  var playlistRowCommandTimer;
   var pausePlaylistParsing = false;
   var resumePlaylistParsingFn;
   var lyricsAutoReload = false;
@@ -26,6 +27,8 @@ $(function() {
   var position;
   var currentRating = -1;
   var ratedInGpm = 0;
+  var needActiveTabId;
+  var needActiveTabCb;
   var CLUSTER_SELECTOR = ".cluster,.genre-stations-container";
   var i18n = chrome.i18n.getMessage;
   var getExtensionUrl = chrome.runtime.getURL;
@@ -430,8 +433,10 @@ $(function() {
     $(window).on("hashchange", function() {
       listRatings = queueRatings = null;
       resumePlaylistParsingFn = null;
+      restoreActiveTab(needActiveTabCb);
       pausePlaylistParsing = false;
       clearTimeout(asyncListTimer);
+      clearTimeout(playlistRowCommandTimer);
     });
 
     $("#playerSongInfo").on("click", ".rating-container > *[data-rating]", function(e) {
@@ -499,6 +504,27 @@ $(function() {
     window.postMessage({ type: "FROM_PRIMEPLAYER", command: command, options: options }, location.href);
   }
 
+  function needActiveTab(cb) {
+    if (document.hidden && !needActiveTabId) {
+      post("needActiveTab", needActiveTabId = $.now());
+      needActiveTabCb = cb;
+    }
+  }
+
+  function restoreActiveTab(cb) {
+    if (needActiveTabId && cb == needActiveTabCb) {
+      post("restoreActiveTab", needActiveTabId);
+      needActiveTabId = null;
+      needActiveTabCb = null;
+    }
+  }
+
+  function scrollAndContinue(scrollTo, cb, alignToTop) {
+    scrollTo.scrollIntoView(alignToTop);
+    needActiveTab(cb);
+    return setTimeout(cb, 100);
+  }
+
   /** Send a command for a playlist row to the injected script. Ensures that the row is visible. */
   function sendPlaylistRowCommand(command, options) {
     var queue = options.link == "#/ap/queue";
@@ -516,14 +542,18 @@ $(function() {
     /* jshint -W082 */
     function callForRow() {//make sure row with requested index is available
       var rows = body.find(".song-row");
-      var scrollToRow;
-      if (rows.first().data("index") > options.index) scrollToRow = rows[0];
-      else if (rows.last().data("index") < options.index) scrollToRow = rows.last()[0];
-      if (scrollToRow) {
-        scrollToRow.scrollIntoView();
-        setTimeout(callForRow, 50);
-      } else {
+      var scrollToRow, alignToTop;
+      if (rows.first().data("index") > options.index) {
+        scrollToRow = rows[0];
+        alignToTop = true;
+      } else if (rows.last().data("index") < options.index) {
+        scrollToRow = rows.last()[0];
+        alignToTop = false;
+      }
+      if (scrollToRow) playlistRowCommandTimer = scrollAndContinue(scrollToRow, callForRow, alignToTop);
+      else {
         sendCommand(command, options);
+        restoreActiveTab(callForRow);
       }
     }
     callForRow();
@@ -611,9 +641,8 @@ $(function() {
     var lastPageNum = -1;
     function loadNextCards() {
       var firstPage = parent.find(".cluster-page:first");
-      if (!update && pageCount && firstPage[0] && firstPage.data("page-num") !== 0) {//not yet there
-        firstPage[0].scrollIntoView();
-        asyncListTimer = setTimeout(loadNextCards, 50);
+      if (!update && pageCount && cb && firstPage[0] && firstPage.data("page-num") !== 0) {//not yet there
+        asyncListTimer = scrollAndContinue(firstPage[0], loadNextCards, true);
         return;
       }
       var items = [];
@@ -639,10 +668,8 @@ $(function() {
         cb(items, update);
         update = true;
       }
-      if (lastLoaded && pageCount && lastPageNum + 1 < pageCount && (end === undefined || lastIndex + 1 < end)) {
-        lastLoaded.scrollIntoView(false);
-        asyncListTimer = setTimeout(loadNextCards, 150);
-      }
+      if (lastLoaded && pageCount && lastPageNum + 1 < pageCount && (end === undefined || lastIndex + 1 < end)) asyncListTimer = scrollAndContinue(lastLoaded, loadNextCards, false);
+      else restoreActiveTab(loadNextCards);
     }
     return loadNextCards();
   }
@@ -679,9 +706,8 @@ $(function() {
         if (queue) queueRatings = selectedRatings;
         else listRatings[ci] = selectedRatings;
         var rows = parent.find(".song-row");
-        if (!update && count && rows[0] && rows.first().data("index") !== 0) {//not yet there
-          rows[0].scrollIntoView();
-          asyncListTimer = setTimeout(loadNextSongs, 150);
+        if (!update && count && cb && rows[0] && rows.first().data("index") !== 0) {//not yet there
+          asyncListTimer = scrollAndContinue(rows[0], loadNextSongs, true);
           return;
         }
         //scroll to last needed song row to trigger lazy loading
@@ -714,10 +740,11 @@ $(function() {
               if (queue) queueRatings = null;
               else listRatings[ci] = null;
               lastLoaded.scrollIntoView(false);
+              needActiveTab(loadNextSongs);
             }
             asyncListTimer = setTimeout(loadNextSongs, 150);
           }
-        }
+        } else restoreActiveTab(loadNextSongs);
       }
       if (!cb) return loadNextSongs();
       pausePlaylistParsing = false;
@@ -860,8 +887,7 @@ $(function() {
       if (rows.length) {
         if (!topFound) {
           if (rows[0] && rows.first().data("index") !== 0) {
-            rows[0].scrollIntoView();
-            asyncListTimer = setTimeout(sendResume, 150);
+            asyncListTimer = scrollAndContinue(rows[0], sendResume, true);
             return;
           }
           topFound = true;
@@ -871,16 +897,14 @@ $(function() {
           var song = parseSongRow($(this));
           if (song.title == msg.title && song.duration == msg.duration && (!song.artist || !msg.artist || song.artist == msg.artist)) {
             found = true;
-            sendPlaylistRowCommand("resumePlaylistSong", { index: song.index, position: msg.position, link: location.hash });
+            sendCommand("resumePlaylistSong", { index: song.index, position: msg.position });
             return false;
           }
         });
         var last = found || rows.last();
         console.debug("resumeSong - last", last);
-        if (!found && last.data("index") < last.parent().data("count") - 1) {
-          last[0].scrollIntoView(false);
-          asyncListTimer = setTimeout(sendResume, 150);
-        }
+        if (!found && last[0] && last.data("index") < last.parent().data("count") - 1) asyncListTimer = scrollAndContinue(last[0], sendResume, false);
+        else restoreActiveTab(sendResume);
       } else console.debug("resumeSong - no rows");
     }
     sendResume();
