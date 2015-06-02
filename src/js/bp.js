@@ -9,6 +9,7 @@
 
 /* global chrome, Bean, LastFM, initLyricsProviders, initGA */
 /* exported fixForUri */
+/* jshint jquery: true */
 
 //{ global public declarations
  /** ID of the options tab, if opened */

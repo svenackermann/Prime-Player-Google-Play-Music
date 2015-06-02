@@ -1,4 +1,4 @@
-/*jshint node: true, jquery: false, devel: false, browser: false */
+/*jshint node: true, devel: false, browser: false */
 var gulp = require("gulp");
 var jshint = require("gulp-jshint");
 var jscs = require("gulp-jscs");

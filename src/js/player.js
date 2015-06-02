@@ -7,6 +7,7 @@
  */
 
 /* global chrome, initGA */
+/* jshint jquery: true */
 
 chrome.runtime.getBackgroundPage(function(bp) {
   /** "popup", "miniplayer" or "toast" */

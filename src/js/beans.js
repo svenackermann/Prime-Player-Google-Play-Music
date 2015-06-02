@@ -10,6 +10,7 @@
  */
 
 /* global chrome */
+/* jshint jquery: true */
 
 function Bean(defaults, useLocalStorage) {
   var cache = {};

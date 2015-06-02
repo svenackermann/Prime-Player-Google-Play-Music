@@ -8,6 +8,7 @@
 
 /* global chrome, fixForUri */
 /* exported initLyricsProviders */
+/* jshint jquery: true */
 
 function initLyricsProviders(GA) {
   var chromePermissions = chrome.permissions;

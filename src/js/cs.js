@@ -9,6 +9,7 @@
  */
 
 /* global chrome */
+/* jshint jquery: true */
 
 $(function() {
   var port;

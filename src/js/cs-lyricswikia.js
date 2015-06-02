@@ -7,16 +7,13 @@
  * @license BSD license
  */
 (function() {
-  var pre = document.getElementsByTagName("pre")[0];
+  var pre = document.querySelector("pre");
   if (!pre || !pre.textContent || pre.textContent.trim() == "Not found") return false;
 
-  var ul = document.getElementsByTagName("ul")[0];
-  if (ul) {
-    var link = ul.getElementsByTagName("a")[0];
-    if (link) {
-      document.location.href = link.href;
-      return true;
-    }
+  var link = document.querySelector("ul a");
+  if (link) {
+    document.location.href = link.href;
+    return true;
   }
   return false;
 })();
