@@ -183,6 +183,8 @@ function fixForUri(string) {
     pauseOnIdleSec: -60,//negative value means disabled
     connectedIndicator: true,
     preventCommandRatingReset: true,
+    autoActivateGm: true,
+    autoRestoreGm: true,
     updateNotifier: true,
     gaEnabled: true,
     //}
@@ -630,13 +632,15 @@ function fixForUri(string) {
 
   /** assure that the Google Music tab is active and its window is not minimzed before executing the function, restore state (with timeout) afterwards */
   function executeWithActiveGmTab(fn, restoreFn) {
-    chromeTabs.get(googlemusictabId, function(tab) {
+    if (settings.autoActivateGm) chromeTabs.get(googlemusictabId, function(tab) {
       chromeWindows.get(tab.windowId, function(win) {
         function executeInActiveTab(restoreCallback) {
           function executeFn(restore) {
             fn();
-            if (restoreFn) restoreFn(restore);
-            else setTimeout(restore, 250);
+            if (settings.autoRestoreGm) {
+              if (restoreFn) restoreFn(restore);
+              else setTimeout(restore, 250);
+            }
           }
 
           if (tab.active) executeFn(restoreCallback);
@@ -653,7 +657,7 @@ function fixForUri(string) {
           });
         } else executeInActiveTab($.noop);
       });
-    });
+    }); else fn();
   }
 
   /** Change the song position in Google Music. */

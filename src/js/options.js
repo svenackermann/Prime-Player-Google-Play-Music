@@ -119,6 +119,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     pauseOnIdleChanged();
   }
 
+  function autoActivateGmChanged() {
+    setSubsEnabled("autoActivateGm", settings.autoActivateGm);
+  }
+
   function notificationsEnabledChanged(val) {
     settingsView.toggleClass("notifDisabled", !val);
     if (!val && settings.toast && !settings.toastUseMpStyle) $("#_toastUseMpStyle").click();//use click here to change the checkbox value
@@ -606,6 +610,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
     $("#_startupAction option[value='']").text(i18n("command_"));
     $("#_pauseOnIdle").unbind().prop("checked", settings.pauseOnIdleSec > 0).click(pauseOnIdleClicked);
+    $("#_autoActivateGm").click(autoActivateGmChanged);
     //}
 
     //watch this if changed via miniplayer
@@ -632,6 +637,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     showProgressChanged();
     saveLastPositionChanged();
     pauseOnIdleChanged();
+    autoActivateGmChanged();
 
     $("#resetSettings").click(function() {
       if (confirm(i18n("resetSettingsConfirm"))) {

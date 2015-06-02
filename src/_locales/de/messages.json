@@ -360,6 +360,15 @@
   "setting_preventCommandRatingResetHint": {
     "message": "Normalerweise wird die Bewertung für einen Titel entfernt, wenn du ihn mit der aktuellen Bewertung erneut bewertest. Wenn du Tastaturkürzel oder die Aktionen in der Toast-Benachrichtigung zum Bewerten verwendest, ist das üblicherweise nicht erwünscht, weil man die aktuelle Bewertung nicht sieht. Deaktiviere diese Option, um in dem Fall trotzdem die Bewertung zu entfernen."
   },
+  "setting_autoActivateGm": {
+    "message": "Mache den Google Music Tab immer sichtbar wenn nötig"
+  },
+  "setting_autoActivateGmHint": {
+    "message": "Einige Aktionen (z.B. Vor-/Zurückspulen, Lesen längerer Wiedergabelisten) funktionieren nur korrekt, wenn der Google Music Tab sichtbar ist. Mit dieser Option wird der Tab in solchen Fällen automatisch sichtbar gemacht."
+  },
+  "setting_autoRestoreGm": {
+    "message": "Stelle den vorher sichtbaren Tab danach wieder her"
+  },
   "setting_updateNotifier": {
     "message": "Bei Aktualisierungen benachrichtigen (Symbol wird orange)"
   },

@@ -480,6 +480,18 @@
     "message": "Normally, when you rate a song with the rating it already has, its rating is reset to unrated. When you use keyboard shortcuts or the notification actions for rating, you typically don't want this, because you can't see the current rating. Deactivate this option to reset the rating in that case anyway.",
     "description": "hint for option to prevent rating resets"
   },
+  "setting_autoActivateGm": {
+    "message": "Make Google Music tab visible when needed",
+    "description": "label for option to automatically activate the Google Music tab when needed"
+  },
+  "setting_autoActivateGmHint": {
+    "message": "Some operations (e.g. song position change, fast forward, parsing of longer playlists) need the Google Music tab to be visible to work correctly. With this option enabled, the tab will automatically be made visible in such cases.",
+    "description": "hint for option to automatically activate the Google Music tab when needed"
+  },
+  "setting_autoRestoreGm": {
+    "message": "Restore the previously visible tab/window afterwards",
+    "description": "label for option to restore the tab/window after the Google Music tab has been automatically activated"
+  },
   "setting_updateNotifier": {
     "message": "Notify on updates (icon becomes orange)",
     "description": "label for option to be notified on extension updates"
