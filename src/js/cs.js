@@ -859,8 +859,8 @@ $(function() {
       var rows = $("#music-content .song-row");
       if (rows.length) {
         if (!topFound) {
-          if (rows.first().data("index") !== 0) {
-            $("#music-content").scrollTop(0);
+          if (rows[0] && rows.first().data("index") !== 0) {
+            rows[0].scrollIntoView();
             asyncListTimer = setTimeout(sendResume, 150);
             return;
           }
