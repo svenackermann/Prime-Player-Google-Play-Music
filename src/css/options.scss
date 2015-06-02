@@ -166,8 +166,12 @@ img.hint {
   clear: both;
   h2 {
     display: inline-block;
-    margin-right: 2ex;
+    margin-right: 1ex;
     margin-bottom: 0;
+  }
+  > a {
+    margin-right: 1ex;
+    font-weight: bold;
   }
   label {
     margin-right: 1ex;
