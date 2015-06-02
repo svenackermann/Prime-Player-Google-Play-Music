@@ -288,8 +288,26 @@ $(function() {
       return $(el).is(":disabled") ? null : el.getAttribute("value");
     }
 
-    function sendRating() {
-      sendCommand("getRating");
+    function sendRating(playerSongInfo) {
+      var ratingContainer = playerSongInfo.find(".rating-container");
+      var rating = ratingContainer[0] ? 0 : -1;
+      ratingContainer.children("[data-rating]").each(function() {
+        var shadowRoot = this.shadowRoot && this.shadowRoot.olderShadowRoot;
+        var label = $(shadowRoot).find("core-icon").attr("aria-label");
+        if (label && label.indexOf("-outline") < 0) {
+          rating = parseRating(this);
+          return false;
+        }
+      });
+
+      if (currentRating !== rating) {
+        currentRating = rating;
+        //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
+        if (listRatings || queueRatings) $("#music-content,#queue-container").find(".song-row td[data-col='rating']").trigger("DOMSubtreeModified");
+        post("song-rating", currentRating);
+        if (ratedInGpm > 0 && ratedInGpm === currentRating) post("rated", { song: parseSongInfo(), rating: currentRating });
+        ratedInGpm = 0;
+      }
     }
 
     /** Execute 'executeOnContentLoad' (if set) when #queue-container is changed. */
@@ -418,7 +436,7 @@ $(function() {
 
     $("#playerSongInfo").on("click", ".rating-container > *[data-rating]", function(e) {
       //when click is simulated by injected script, clientX will be 0
-      if (e.clientX) ratedInGpm = parseRating(e);
+      if (e.clientX) ratedInGpm = parseRating(this);
     });
     //listen for "mouseup", because "click" won't bubble up to "#music-content" and we can't attach this directly to ".rating-container" because it's dynamically created
     $("#music-content,#queue-container").on("mouseup", ".song-row td[data-col='rating'] ul.rating-container li:not(.selected)[data-rating]", function() {
@@ -459,16 +477,6 @@ $(function() {
     if (event.source != window || event.data.type != "FROM_PRIMEPLAYER" || !event.data.msg) return;
     console.debug("inj->cs: ", event.data);
     switch (event.data.msg) {
-    case "rating":
-      if (currentRating !== event.data.rating) {
-        currentRating = event.data.rating;
-        //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
-        if (listRatings || queueRatings) $("#music-content,#queue-container").find(".song-row td[data-col='rating']").trigger("DOMSubtreeModified");
-        post("song-rating", currentRating);
-        if (ratedInGpm > 0 && ratedInGpm === currentRating) post("rated", { song: parseSongInfo(), rating: currentRating });
-        ratedInGpm = 0;
-      }
-      break;
     case "plSongRated":
       $("#music-content,#queue-container").find(".song-row[data-index='" + event.data.index + "']").find("td[data-col='rating']").trigger("DOMSubtreeModified");
       /* falls through */
@@ -868,11 +876,12 @@ $(function() {
           }
         });
         var last = found || rows.last();
+        console.debug("resumeSong - last", last);
         if (!found && last.data("index") < last.parent().data("count") - 1) {
           last[0].scrollIntoView(false);
           asyncListTimer = setTimeout(sendResume, 150);
         }
-      }
+      } else console.debug("resumeSong - no rows");
     }
     sendResume();
   }

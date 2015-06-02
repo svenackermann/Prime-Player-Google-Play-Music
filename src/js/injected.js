@@ -171,25 +171,6 @@
     simulateMouseEvent("mousedown", progress, rect.left + percent * rect.width, rect.top + 1);
   }
 
-  function getRating() {
-    var ratingContainer = document.querySelector("#playerSongInfo .rating-container");
-    var rating = -1;
-    if (ratingContainer) {
-      rating = 0;
-      [].some.call(ratingContainer.children, function(el) {
-        var icon = el.icon;
-        if (icon && icon.indexOf("-outline") < 0) {
-          var parsedRating = parseInt(el.dataset.rating);
-          if (!isNaN(rating)) {
-            rating = parsedRating;
-            return true;
-          }
-        }
-      });
-    }
-    window.postMessage({ type: "FROM_PRIMEPLAYER", msg: "rating", rating: rating }, location.href);
-  }
-
   /** Cleanup this script, i.e. remove the message listener from the window. */
   function cleanup() {
     console.info("Cleanup injected script for Prime Player...");
@@ -250,9 +231,6 @@
       break;
     case "cleanup":
       cleanup();
-      break;
-    case "getRating":
-      getRating();
       break;
     }
   }
