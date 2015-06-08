@@ -33,7 +33,7 @@ function initLyricsProviders(GA) {
   function LyricsProvider(name, homepage, searchLyrics, buildSearchUrl) {
     var permissions = { origins: [homepage + "/*"] };
 
-    var injectScript = { file: "js/cs-" + name + ".js", runAt: "document_end" };
+    var injectScript = { file: "js/cs-" + name + ".js" };
 
     /** cache if we have permission */
     var hasPermission = null;

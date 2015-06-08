@@ -37,8 +37,7 @@
     {
       "js": ["js/jquery.min.js", "js/cs.js"],
       "css": ["css/gpm.css"],
-      "matches": ["*://play.google.com/music/listen*"],
-      "run_at": "document_end"
+      "matches": ["*://play.google.com/music/listen*"]
     }
   ],
   "content_security_policy": "script-src 'self' https://www.google-analytics.com; object-src 'self'",
