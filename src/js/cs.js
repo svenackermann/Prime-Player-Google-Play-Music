@@ -26,7 +26,7 @@ $(function() {
   var lyricsAutoReloadTimer;
   var position;
   var currentRating = -1;
-  var ratedInGpm = 0;
+  var ratedInGpm = -1;
   var needActiveTabId;
   var needActiveTabCb;
   var CLUSTER_SELECTOR = ".cluster,.genre-stations-container";
@@ -291,13 +291,17 @@ $(function() {
       return $(el).is(":disabled") ? null : el.getAttribute("value");
     }
 
+    function isRatingActive(iconButton) {
+      var shadowRoot = iconButton.shadowRoot && iconButton.shadowRoot.olderShadowRoot;
+      var label = $(shadowRoot).find("core-icon").attr("aria-label");
+      return !!(label && label.indexOf("-outline") < 0);
+    }
+
     function sendRating(playerSongInfo) {
       var ratingContainer = playerSongInfo.find(".rating-container");
       var rating = ratingContainer[0] ? 0 : -1;
       ratingContainer.children("[data-rating]").each(function() {
-        var shadowRoot = this.shadowRoot && this.shadowRoot.olderShadowRoot;
-        var label = $(shadowRoot).find("core-icon").attr("aria-label");
-        if (label && label.indexOf("-outline") < 0) {
+        if (isRatingActive(this)) {
           rating = parseRating(this);
           return false;
         }
@@ -308,8 +312,8 @@ $(function() {
         //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
         if (listRatings || queueRatings) $("#music-content,#queue-container").find(".song-row td[data-col='rating']").trigger("DOMSubtreeModified");
         post("song-rating", currentRating);
-        if (ratedInGpm > 0 && ratedInGpm === currentRating) post("rated", { song: parseSongInfo(), rating: currentRating });
-        ratedInGpm = 0;
+        if (ratedInGpm >= 0 && ratedInGpm === currentRating) post("rated", { song: parseSongInfo(), rating: currentRating });
+        ratedInGpm = -1;
       }
     }
 
@@ -441,11 +445,12 @@ $(function() {
 
     $("#playerSongInfo").on("click", ".rating-container > *[data-rating]", function(e) {
       //when click is simulated by injected script, clientX will be 0
-      if (e.clientX) ratedInGpm = parseRating(this);
+      if (e.clientX) ratedInGpm = isRatingActive(this) ? parseRating(this) : 0;
     });
     //listen for "mouseup", because "click" won't bubble up to "#music-content" and we can't attach this directly to ".rating-container" because it's dynamically created
-    $("#music-content,#queue-container").on("mouseup", ".song-row td[data-col='rating'] ul.rating-container li:not(.selected)[data-rating]", function() {
-      post("rated", { song: parseSongRow($(this).closest(".song-row"), true), rating: parseRating(this) });
+    $("#music-content,#queue-container").on("mouseup", ".song-row td[data-col='rating'] ul.rating-container li[data-rating]", function() {
+      var button = $(this);
+      post("rated", { song: parseSongRow(button.closest(".song-row"), true), rating: button.hasClass("selected") ? 0 : parseRating(this) });
     });
 
     window.addEventListener("message", onMessage);

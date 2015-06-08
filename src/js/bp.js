@@ -116,9 +116,10 @@ function fixForUri(string) {
     disableScrobbleOnFf: false,
     scrobbleRepeated: true,
     linkRatings: false,
+    linkRatingsMin: 5,
     linkRatingsGpm: false,
     linkRatingsAuto: false,
-    linkRatingsMin: 5,
+    linkRatingsReset: false,
     showLastfmInfo: false,
     //}
     //{ toast
@@ -468,7 +469,13 @@ function fixForUri(string) {
   }
 
   /** Unlove the current song. */
-  var unloveTrack = updateTrackLoved.bind(window, unlove);
+  function unloveTrack(event) {
+    if (song.loved === true) {
+      updateTrackLoved(unlove);
+      //auto-unrate if called by click event
+      if (event && settings.linkRatings && settings.linkRatingsReset && song.rating >= settings.linkRatingsMin) executeInGoogleMusic("rate", { rating: song.rating });
+    }
+  }
 
   /** Load info/loved status for current song from last.fm. */
   function loadCurrentLastfmInfo() {
@@ -669,8 +676,10 @@ function fixForUri(string) {
   /** Rate the current song in Google Music, if possible. For arg 5, this triggers the link-ratings logic, if not a rating reset. */
   function rate(rating) {
     if (song.rating < 0) return;//negative ratings cannot be changed
-    //auto-love if no reset and not loved yet
-    if (settings.linkRatings && rating >= settings.linkRatingsMin && !isRatingReset(song.rating, rating)) loveTrack();
+    if (settings.linkRatings) {
+      if (rating >= settings.linkRatingsMin && !isRatingReset(song.rating, rating)) loveTrack();
+      else if (settings.linkRatingsReset) unloveTrack();//unlove on reset or lower rating
+    }
     executeInGoogleMusic("rate", { rating: rating });
   }
 
@@ -1130,9 +1139,16 @@ function fixForUri(string) {
         postLyrics(src, result, providersWithUrl);
       });
     } else if (type == "rated") {
-      if (settings.linkRatings && settings.linkRatingsGpm && val.rating >= settings.linkRatingsMin) {
-        if (songsEqual(song.info, val.song)) loveTrack();
-        else love(val.song, $.noop);
+      if (settings.linkRatings && settings.linkRatingsGpm) {
+        var currentSong = songsEqual(song.info, val.song);
+        if (val.rating >= settings.linkRatingsMin) {
+          if (currentSong) loveTrack();
+          else love(val.song, $.noop);
+        } else if (val.rating >= 0 && settings.linkRatingsReset) {
+          //unlove on reset or lower rating
+          if (currentSong) unloveTrack();
+          else unlove(val.song, $.noop);
+        }
       }
     } else if (type == "needActiveTab") {
       executeWithActiveGmTab($.noop, function(restore) {

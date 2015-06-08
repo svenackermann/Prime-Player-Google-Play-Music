@@ -207,6 +207,14 @@
     "message": "When a song starts that you already rated thumbs up but is not loved in last.fm, it will be loved without user interaction. If it is loved already and has no rating in Google Music, it will be given thumbs up.",
     "description": "hint for option to auto-link ratings"
   },
+  "setting_linkRatingsReset": {
+    "message": "Also reset ratings",
+    "description": "label for option to reset ratings"
+  },
+  "setting_linkRatingsResetHint": {
+    "message": "Unlove a song when its rating is removed or it is rated thumbs down respectivly remove the thumbs up rating when the song is unloved. This does not apply to auto-linked ratings (see option above).",
+    "description": "hint for option to reset ratings"
+  },
   "setting_showLovedIndicator": {
     "message": "Show loved status in icon",
     "description": "label for option to enable loved status in icon"

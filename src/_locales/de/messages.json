@@ -155,6 +155,12 @@
   "setting_linkRatingsAutoHint": {
     "message": "Wenn ein Titel startet, den du bereits mit Daumen hoch bewertet hast, der aber nicht in last.fm geliebt ist, wird er ohne Nutzer-Interaktion geliebt. Wenn er bereits geliebt ist, aber keine Bewertung in Google Music hat, erhält er Daumen hoch."
   },
+  "setting_linkRatingsReset": {
+    "message": "Setze Bewertungen auch zurück"
+  },
+  "setting_linkRatingsResetHint": {
+    "message": "Titel nicht mehr lieben, wenn die Daumen-Bewertung entfernt oder Daumen runter bewertet wird bzw. entferne die Daumen-Hoch-Bewertung, wenn der Titel nicht mehr geliebt wird. Das wird nicht bei automatisch verknüpften Bewertungen angewendet (s. vorige Einstellung)."
+  },
   "setting_showLovedIndicator": {
     "message": "Zeige 'geliebt'-Status im Symbol"
   },

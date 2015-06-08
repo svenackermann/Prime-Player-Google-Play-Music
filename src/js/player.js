@@ -763,7 +763,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
         var index = songRow.data("index");
         var aSong = songRow.data("song");
         if (aSong.rating < 0) return;//negative ratings cannot be changed
-        if (rating == 5 && settings.linkRatings && !bp.isRatingReset(aSong.rating, rating)) bp.love({ title: aSong.title, artist: aSong.artist }, $.noop);
+        if (settings.linkRatings) {
+          if (rating >= settings.linkRatingsMin && !bp.isRatingReset(aSong.rating, rating)) bp.love(aSong, $.noop);
+          else if (settings.linkRatingsReset) bp.unlove(aSong, $.noop);//unlove on reset or lower rating
+        }
         bp.executeInGoogleMusic("ratePlaylistSong", { link: currentNavList.controlLink, index: index, cluster: getClusterIndex(songRow), rating: rating });
       }
     });
