@@ -33,7 +33,7 @@ function fixForUri(string) {
   var chromeBrowserAction = chrome.browserAction;
   var chromeLocalStorage = chrome.storage.local;
   var i18n = chrome.i18n.getMessage;
-  var getExtensionUrl = chrome.runtime.getURL;
+  var getExtensionUrl = chromeRuntime.getURL;
   var chromeNotifications = chrome.notifications;
   var chromeContextMenus = chrome.contextMenus;
   var chromeIdle = chrome.idle;
@@ -238,7 +238,7 @@ function fixForUri(string) {
   //{ utility functions
   /** check chrome.runtime.lastError to avoid error message in the console */
   function ignoreLastError() {
-    if (chrome.runtime.lastError) $.noop();
+    if (chromeRuntime.lastError) $.noop();
   }
 
   /** @return time in seconds that a time string represents (e.g. 4:23 -> 263) */
@@ -2490,7 +2490,7 @@ function fixForUri(string) {
   //{ utility functions
   /** @return time string for amount of seconds (e.g. 263 -> 4:23) */
   exports.toTimeString = function(sec) {
-    if (sec > 60 * 60 * 24) return chrome.i18n.getMessage("moreThanOneDay");
+    if (sec > 60 * 60 * 24) return i18n("moreThanOneDay");
     if (sec < 10) return "0:0" + sec;
     if (sec < 60) return "0:" + sec;
     var time = "";
