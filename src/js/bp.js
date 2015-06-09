@@ -2391,14 +2391,25 @@ function fixForUri(string) {
   }
 
   var linkPrefix = " - link:";
-  var omniboxSuggest, omniboxSearch, omniboxTimer;
-  function setDefaultSuggestion(msgKey, search) {
-    chromeOmnibox.setDefaultSuggestion({ description: i18n(msgKey, search && "<match>" + search + "</match>") });
+  var omniboxSuggest, omniboxSearch, omniboxTimer, indicateLoadingInterval;
+  function setDefaultSuggestion(msgKey, search, indicateLoading) {
+    clearInterval(indicateLoadingInterval);
+    var description = i18n(msgKey, search && "<match>" + search + "</match>");
+    chromeOmnibox.setDefaultSuggestion({ description: description });
+    if (indicateLoading) {
+      var loadingSuffix = "";
+      indicateLoadingInterval = setInterval(function() {
+        if (loadingSuffix.length > 2) loadingSuffix = "";
+        else loadingSuffix += ".";
+        chromeOmnibox.setDefaultSuggestion({ description: description + loadingSuffix });
+      }, 1000);
+    }
   }
 
   function omniboxClear() {
     omniboxSuggest = omniboxSearch = null;
     clearTimeout(omniboxTimer);
+    clearInterval(indicateLoadingInterval);
   }
 
   chromeOmnibox.onInputChanged.addListener(function(text, suggest) {
@@ -2416,7 +2427,7 @@ function fixForUri(string) {
         suggest(suggestions);
       } else setDefaultSuggestion("ob_favoritessugg");
     } else if (text.trim().length > 1) {
-      setDefaultSuggestion("ob_loading", xmlEscape(text));
+      setDefaultSuggestion("ob_loading", xmlEscape(text), true);
       omniboxSearch = text.trim();
       omniboxTimer = setTimeout(function() {
         omniboxSuggest = suggest;

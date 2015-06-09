@@ -880,7 +880,7 @@
     "placeholders": { "TEXT": { "content": "$1" } }
   },
   "ob_loading": {
-    "message": "Lade Ergebnisse für $TEXT$...",
+    "message": "Lade Ergebnisse für $TEXT$",
     "placeholders": { "TEXT": { "content": "$1" } }
   },
   "ob_results": {

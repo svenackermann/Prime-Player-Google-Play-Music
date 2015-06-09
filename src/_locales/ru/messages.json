@@ -862,7 +862,7 @@
     "placeholders": {"TEXT":{"content":"$1"}}
   },
   "ob_loading": {
-    "message": "Загрузка результатов для $TEXT$...",
+    "message": "Загрузка результатов для $TEXT$",
     "placeholders": {"TEXT":{"content":"$1"}}
   },
   "ob_results": {

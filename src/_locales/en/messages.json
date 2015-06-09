@@ -1166,7 +1166,7 @@
     "placeholders": { "TEXT": { "content": "$1", "example": "mysearch" } }
   },
   "ob_loading": {
-    "message": "Loading results for $TEXT$...",
+    "message": "Loading results for $TEXT$",
     "description": "omnibox default suggestion text while searching for results",
     "placeholders": { "TEXT": { "content": "$1", "example": "mysearch" } }
   },
