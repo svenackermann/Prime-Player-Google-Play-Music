@@ -580,7 +580,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
     $("#_miniplayerType")
       .change(setLayoutHintVisibility)
-      .siblings(".hint-text").find("a").text("chrome://flags").attr("tabindex", "0").click(function() { chrome.tabs.create({ url: "chrome://flags" }); });
+      .siblings(".hint-text").find("a").text("chrome://flags").attr("tabindex", "0").click(function() { chrome.tabs.create({ url: "chrome://flags/#enable-panels" }); });
     $("#_layout").change(setLayoutHintVisibility);
     setLayoutHintVisibility();
     //}
