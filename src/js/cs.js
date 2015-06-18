@@ -24,12 +24,14 @@ $(function() {
   var resumePlaylistParsingFn;
   var lyricsAutoReload = false;
   var lyricsAutoReloadTimer;
+  var starRatingMode = false;
   var position;
   var currentRating = -1;
   var ratedInGpm = -1;
   var needActiveTabId;
   var needActiveTabCb;
   var CLUSTER_SELECTOR = ".cluster,.genre-stations-container";
+  var HASH_QUEUE = "ap/queue";
   var i18n = chrome.i18n.getMessage;
   var getExtensionUrl = chrome.runtime.getURL;
 
@@ -189,6 +191,17 @@ $(function() {
     if ($("#ppLyricsContainer").is(":visible")) contentResize();
   }
 
+  function toggleStarRatingMode(state) {
+    starRatingMode = state;
+    currentRating = -1;
+    if (state) {
+      $("#queue-container").on("DOMSubtreeModified", ".song-row.currently-playing [data-col='rating']", sendRating);
+    } else {
+      $("#queue-container").off("DOMSubtreeModified", sendRating);
+    }
+    sendRating();
+  }
+
   /** remove all listeners/observers and revert DOM modifications */
   function cleanup() {
     sendCommand("cleanup");
@@ -201,6 +214,7 @@ $(function() {
     hideConnectedIndicator();
     disableLyrics();
     port = null;
+    toggleStarRatingMode(false);
   }
 
   function getClusterIndex(el) {
@@ -243,6 +257,45 @@ $(function() {
       return info;
     }
     return null;
+  }
+
+  function isRatingActive(iconButton) {
+    var shadowRoot = iconButton.shadowRoot && iconButton.shadowRoot.olderShadowRoot;
+    var label = $(shadowRoot).find("core-icon").attr("aria-label");
+    return !!(label && label.indexOf("-outline") < 0);
+  }
+
+  function sendRating() {
+    var ratingContainer = $("#playerSongInfo .rating-container");
+    var rating = -1;
+    if (ratingContainer[0]) {
+      if (starRatingMode) {
+        //this must be loaded from the queue, because we only have the thumbs rating in playerSongInfo
+        var currentSongRow = $("#queue-container .song-row.currently-playing");
+        if (!currentSongRow[0]) {
+          //open the queue (needed before it is opened the very first time) and get triggered again by event listener
+          selectAndExecute(HASH_QUEUE, $.noop);
+          return;
+        }
+        rating = parseRating(currentSongRow.children("[data-col='rating']")[0]);
+      } else {
+        ratingContainer.children("[data-rating]").each(function() {
+          if (isRatingActive(this)) {
+            rating = parseRating(this);
+            return false;
+          }
+        });
+      }
+    }
+
+    if (currentRating !== rating) {
+      currentRating = rating;
+      //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
+      if (listRatings || queueRatings) $("#music-content,#queue-container").find(".song-row td[data-col='rating']").trigger("DOMSubtreeModified");
+      post("song-rating", currentRating);
+      if (ratedInGpm >= 0 && ratedInGpm === currentRating) post("rated", { song: parseSongInfo(), rating: currentRating });
+      ratedInGpm = -1;
+    }
   }
 
   /** add listeners/observers and extend DOM */
@@ -291,35 +344,9 @@ $(function() {
       return $(el).is(":disabled") ? null : el.getAttribute("value");
     }
 
-    function isRatingActive(iconButton) {
-      var shadowRoot = iconButton.shadowRoot && iconButton.shadowRoot.olderShadowRoot;
-      var label = $(shadowRoot).find("core-icon").attr("aria-label");
-      return !!(label && label.indexOf("-outline") < 0);
-    }
-
-    function sendRating(playerSongInfo) {
-      var ratingContainer = playerSongInfo.find(".rating-container");
-      var rating = ratingContainer[0] ? 0 : -1;
-      ratingContainer.children("[data-rating]").each(function() {
-        if (isRatingActive(this)) {
-          rating = parseRating(this);
-          return false;
-        }
-      });
-
-      if (currentRating !== rating) {
-        currentRating = rating;
-        //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
-        if (listRatings || queueRatings) $("#music-content,#queue-container").find(".song-row td[data-col='rating']").trigger("DOMSubtreeModified");
-        post("song-rating", currentRating);
-        if (ratedInGpm >= 0 && ratedInGpm === currentRating) post("rated", { song: parseSongInfo(), rating: currentRating });
-        ratedInGpm = -1;
-      }
-    }
-
     /** Execute 'executeOnContentLoad' (if set) when #queue-container is changed. */
     function queueLoaded() {
-      if (contentLoadDestination == "ap/queue" && $.isFunction(executeOnContentLoad)) {
+      if (contentLoadDestination == HASH_QUEUE && $.isFunction(executeOnContentLoad)) {
         var fn = executeOnContentLoad;
         executeOnContentLoad = null;
         contentLoadDestination = null;
@@ -565,7 +592,7 @@ $(function() {
   }
 
   function isAutoQueueList(link) {
-    return link == "ap/queue" || !link.indexOf("im/") || !link.indexOf("st/") || !link.indexOf("sm/") || !link.indexOf("situations/");
+    return link == HASH_QUEUE || !link.indexOf("im/") || !link.indexOf("st/") || !link.indexOf("sm/") || !link.indexOf("situations/");
   }
 
   /**
@@ -576,7 +603,7 @@ $(function() {
     var id = hash.substr(hash.indexOf("/") + 1);
     var type = hash.substr(0, hash.indexOf("/"));
     if ($(".material-card[data-id='" + id + "'][data-type='" + type + "']").length) {
-      contentLoadDestination = "ap/queue";
+      contentLoadDestination = HASH_QUEUE;
       sendCommand("clickCard", { id: id });
       return true;
     }
@@ -587,12 +614,12 @@ $(function() {
   function selectAndExecute(hash, cb) {
     if (matchesHash(hash)) {
       if (cb) cb();
-    } else if (hash == "ap/queue") {
+    } else if (hash == HASH_QUEUE) {
       if ($("#queue-container").is(":visible")) {
         if (cb) cb();
       } else {
         executeOnContentLoad = cb;
-        contentLoadDestination = "ap/queue";
+        contentLoadDestination = HASH_QUEUE;
         sendCommand("openQueue");
       }
     } else {
@@ -608,7 +635,7 @@ $(function() {
           });
         }
       } else {
-        contentLoadDestination = !hash.indexOf("im/") ? "ap/queue" : hash;//type im is automatically started
+        contentLoadDestination = !hash.indexOf("im/") ? HASH_QUEUE : hash;//type im is automatically started
         location.hash = "/" + hash;
       }
     }
@@ -956,6 +983,9 @@ $(function() {
       if (msg.enabled) enableLyrics(msg.fontSize, msg.width);
       else disableLyrics();
       lyricsAutoReload = msg.autoReload;
+      break;
+    case "starRatingMode":
+      toggleStarRatingMode(msg.value);
       break;
     case "alreadyConnected":
       port.disconnect();

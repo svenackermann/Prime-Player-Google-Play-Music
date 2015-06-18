@@ -175,6 +175,7 @@ function fixForUri(string) {
     iconDoubleClickTime: 0,
     iconShowAction: true,
     saveLastPosition: false,
+    starRatingMode: false,
     hideFavorites: false,
     skipRatedLower: 0,
     openGoogleMusicPinned: false,
@@ -342,11 +343,11 @@ function fixForUri(string) {
   }
 
   function isStarRatingMode() {
-    return localSettings.ratingMode == "star";
+    return settings.starRatingMode || localSettings.ratingMode == "star";
   }
 
   function isThumbsRatingMode() {
-    return localSettings.ratingMode == "thumbs";
+    return !settings.starRatingMode && localSettings.ratingMode == "thumbs";
   }
   //} utility functions
 
@@ -692,6 +693,10 @@ function fixForUri(string) {
       width: localSettings.lyricsWidth,
       autoReload: settings.lyricsAutoReload
     });
+  }
+
+  function postStarRatingMode() {
+    postToGooglemusic({ type: "starRatingMode", value: settings.starRatingMode });
   }
 
   var loadNavlistLink;
@@ -1977,6 +1982,7 @@ function fixForUri(string) {
     player.arl("connected", closeMpOnDisconnect, val);
   });
   settings.al("lyricsInGpm lyricsAutoReload", postLyricsState);
+  settings.al("starRatingMode", postStarRatingMode);
   settings.w("showPlayingIndicator showProgress", function() {
     player.arl("playing", updateBrowserActionInfo, settings.showPlayingIndicator || settings.showProgress);
     updateBrowserActionInfo();
@@ -2056,6 +2062,7 @@ function fixForUri(string) {
       resumeLastSongIfConnected();
       if (settings.connectedIndicator) postToGooglemusic({ type: "connectedIndicator", show: true });
       if (localSettings.lyrics && settings.lyricsInGpm) postLyricsState();
+      if (settings.starRatingMode) postStarRatingMode();
       localSettings.timerEnd = 0;
     } else {
       clearSleepTimer();
@@ -2543,6 +2550,10 @@ function fixForUri(string) {
     default:
       return getCommandText(cmd);
     }
+  };
+  
+  exports.getRatingMode = function() {
+    return isThumbsRatingMode() ? "thumbs" : isStarRatingMode() ? "star" : null;
   };
   //} utility functions
 

@@ -536,6 +536,14 @@
     "message": "Saves the last played song with its position (locally), so you know where you left off before closing Google Music. The last song will be displayed in the miniplayer like a normal song with some limitations. The play button will try to load the song's album and resume the song at its last position. Unfortunately, it's not possible to restore your last queue or playlist on restart.",
     "description": "hint for option to save last song position"
   },
+  "setting_starRatingMode": {
+    "message": "Use star ratings (experimental)",
+    "description": "label for option to use star rating mode"
+  },
+  "setting_starRatingModeHint": {
+    "message": "The star ratings lab has been removed by Google. However, your old ratings are still available and can still be changed. This option tries to bring that feature back, but might be broken as soon as Google completely removes the star ratings or (hopefully) reintroduces them.",
+    "description": "hint for option to use star rating mode"
+  },
   "setting_hideFavorites": {
     "message": "Hide favorites in miniplayer and context menu",
     "description": "label for option to hide favorites"

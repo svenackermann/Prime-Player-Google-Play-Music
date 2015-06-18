@@ -237,15 +237,16 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
 
-  function ratingModeWatcher(val) {
+  function ratingModeWatcher() {
+    var ratingMode = bp.getRatingMode();
     var body = $("body");
     body.removeClass("star-rating thumbs-rating");
-    if (val) body.addClass(val + "-rating");
+    if (ratingMode) body.addClass(ratingMode + "-rating");
     ratingHtml = "";
-    if (val == "star") {
+    if (ratingMode == "star") {
       ratingHtml = "<div></div>";
       for (var i = 1; i <= 5; i++) ratingHtml += "<a tabindex='0' data-rating='" + i + "'></a>";
-    } else if (val == "thumbs") {
+    } else if (ratingMode == "thumbs") {
       ratingHtml = "<a tabindex='0' data-rating='5'></a><a tabindex='0' data-rating='1'></a>";
     }
   }
@@ -1044,6 +1045,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     settings.w("hideSearchfield", hideSearchfieldWatcher, typeClass);
     settings.al("saveLastPosition", saveLastPositionUpdated, typeClass);
     settings.w("hideFavorites", hideFavoritesWatcher, typeClass);
+    settings.al("starRatingMode", ratingModeWatcher, typeClass);
 
     player.w("repeat", repeatWatcher, typeClass);
     player.w("shuffle", shuffleWatcher, typeClass);

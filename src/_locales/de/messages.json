@@ -402,6 +402,12 @@
   "setting_saveLastPositionHint": {
     "message": "Speichert den letzten Titel (lokal) mit der aktuellen Position, um immer zu wissen, was man vor dem Beenden von Google Music gehört hat. Der letzte Titel wird im Miniplayer wie ein normaler Titel mit einigen Einschränkungen angezeigt. Der Play-Button versucht, das Album des Titels zu laden und den Titel an der letzten Position fortzusetzen. Leider ist es nicht möglich, die letzte Wiedergabeliste beim Neustart wiederherzustellen."
   },
+  "setting_starRatingMode": {
+    "message": "Benutze Sterne-Bewertungen (experimentell)"
+  },
+  "setting_starRatingModeHint": {
+    "message": "Das Lab '5-Sterne-Bewertungen' wurde von Google entfernt. Die Bewertungen sind aber noch erhalten und können auch weiterhin geändert werden. Diese Einstellung versucht, das Feature zurück zu bringen, aber es wird vermutlich unbenutzbar sein, sobald Google die Sterne-Bewertungen komplett entfernt oder (hoffentlich) wieder einführt."
+  },
   "setting_hideFavorites": {
     "message": "Verberge Favoriten im Miniplayer und Kontext-Menü"
   },

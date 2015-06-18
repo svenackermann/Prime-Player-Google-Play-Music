@@ -150,10 +150,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#stopTimer").prop("disabled", !timerEnd);
   }
 
-  function ratingModeChanged(val) {
+  function ratingModeChanged() {
+    var ratingMode = bp.getRatingMode();
     settingsView.removeClass("star thumbs");
-    if (val) settingsView.addClass(val);
-    $("#_skipRatedLower option[value='2']").text(i18n("setting_skipRatedLower_2" + (val == "star" ? "_stars" : "")));
+    if (ratingMode) settingsView.addClass(ratingMode);
+    $("#_skipRatedLower option[value='2']").text(i18n("setting_skipRatedLower_2" + (ratingMode == "star" ? "_stars" : "")));
     $("option[value='rate-1'], option[value='rate-5']").each(function() {
       $(this).text(bp.getCommandOptionText($(this).attr("value")));
     });
@@ -603,6 +604,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#_iconDoubleClickTime").change(iconClickChanged);
 
     $("#_saveLastPosition").click(saveLastPositionChanged);
+    $("#_starRatingMode").click(ratingModeChanged);
     var skipRatedLower = $("#_skipRatedLower").change(function() { $("#_skipRatedThumbsDown").prop("checked", settings.skipRatedLower > 0); });
     $("#_skipRatedThumbsDown").unbind().prop("checked", settings.skipRatedLower > 0).click(function() {
       settings.skipRatedLower = $(this).prop("checked") ? 2 : 0;
