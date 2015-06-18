@@ -870,7 +870,7 @@ $(function() {
             contentId = "#queue-container";
             response.controlLink = "#/ap/queue";
           }
-          parseNavigationList[type]($(contentId).find(".material-cluster,.song-table"), undefined, function(list, update) {
+          parseNavigationList[type]($(contentId).find(".material-cluster,.song-table").first(), undefined, function(list, update) {
             response.list = list;
             response.update = update;
             response.empty = !list.length;
