@@ -2551,7 +2551,7 @@ function fixForUri(string) {
       return getCommandText(cmd);
     }
   };
-  
+
   exports.getRatingMode = function() {
     return isThumbsRatingMode() ? "thumbs" : isStarRatingMode() ? "star" : null;
   };

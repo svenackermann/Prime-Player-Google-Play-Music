@@ -188,7 +188,7 @@
     "description": "label for option to link ratings"
   },
   "setting_linkRatingsHint": {
-    "message": "Love a song in last.fm if you give thumbs up in Google Music and vice versa. This will never override existing ratings and it does not work when rated directly on the Google Music or last.fm site (only via miniplayer, keyboard shortcut, toast action, ...).",
+    "message": "Love a song in last.fm if you give thumbs up/five stars in Google Music and vice versa. This will never override existing ratings and it does not work when rated directly on the Google Music or last.fm site (only via miniplayer, keyboard shortcut, toast action, ...).",
     "description": "hint for option to link ratings"
   },
   "setting_linkRatingsMin": {
@@ -204,7 +204,7 @@
     "description": "label for option to auto-link ratings"
   },
   "setting_linkRatingsAutoHint": {
-    "message": "When a song starts that you already rated thumbs up but is not loved in last.fm, it will be loved without user interaction. If it is loved already and has no rating in Google Music, it will be given thumbs up.",
+    "message": "When a song starts that you already rated thumbs up/five stars but is not loved in last.fm, it will be loved without user interaction. If it is loved already and has no rating in Google Music, it will be given thumbs up/five stars.",
     "description": "hint for option to auto-link ratings"
   },
   "setting_linkRatingsReset": {
@@ -581,7 +581,7 @@
     "description": "label for option to skip songs that are rated thumbs down"
   },
   "setting_hideRatings": {
-    "message": "Hide rating icons (last.fm and thumbs)",
+    "message": "Hide rating icons (last.fm and thumbs/stars)",
     "description": "label for option to hide ratings"
   },
   "setting_omitUnknownAlbums": {
@@ -886,7 +886,7 @@
     "description": "text for fast forward in toast action and keyboard shortcut"
   },
   "command_rate1": {
-    "message": "Rate thumbs down",
+    "message": "Rate 1 star/thumbs down",
     "description": "text for rate 1 in toast action (if not connected to Google Music) and keyboard shortcut"
   },
   "command_rate2": {
@@ -902,7 +902,7 @@
     "description": "text for rate 4 in toast action and keyboard shortcut"
   },
   "command_rate5": {
-    "message": "Rate thumbs up",
+    "message": "Rate 5 stars/thumbs up",
     "description": "text for rate 5 in toast action (if not connected to Google Music) and keyboard shortcut"
   },
   "command_showToast": {
