@@ -406,7 +406,7 @@
     "message": "Benutze Sterne-Bewertungen (experimentell)"
   },
   "setting_starRatingModeHint": {
-    "message": "Das Lab '5-Sterne-Bewertungen' wurde von Google entfernt. Die Bewertungen sind aber noch erhalten und können auch weiterhin geändert werden. Diese Einstellung versucht, das Feature zurück zu bringen, aber es wird vermutlich unbenutzbar sein, sobald Google die Sterne-Bewertungen komplett entfernt oder (hoffentlich) wieder einführt."
+    "message": "Das Lab '5-Sterne-Bewertungen' wurde von Google entfernt. Die Bewertungen sind aber noch erhalten und können auch weiterhin geändert werden. Diese Einstellung versucht, das Feature zurück zu bringen, aber es wird vermutlich unbenutzbar sein, sobald Google die Sterne-Bewertungen komplett entfernt oder (hoffentlich) wieder einführt. Die Sterne sind nur innerhalb von Prime Player sichtbar, die Google-Seite selbst zeigt weiter die Daumen."
   },
   "setting_hideFavorites": {
     "message": "Verberge Favoriten im Miniplayer und Kontext-Menü"

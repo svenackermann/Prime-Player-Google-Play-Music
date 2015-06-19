@@ -541,7 +541,7 @@
     "description": "label for option to use star rating mode"
   },
   "setting_starRatingModeHint": {
-    "message": "The star ratings lab has been removed by Google. However, your old ratings are still available and can still be changed. This option tries to bring that feature back, but might be broken as soon as Google completely removes the star ratings or (hopefully) reintroduces them.",
+    "message": "The star ratings lab has been removed by Google. However, your old ratings are still available and can still be changed. This option tries to bring that feature back, but might be broken as soon as Google completely removes the star ratings or (hopefully) reintroduces them. The stars are only visible within Prime Player, the Google page itself still shows the thumbs.",
     "description": "hint for option to use star rating mode"
   },
   "setting_hideFavorites": {
