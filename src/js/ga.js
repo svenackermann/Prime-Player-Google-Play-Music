@@ -48,7 +48,7 @@ function initGA(settings, context, initDimensions, initMetrics) {
       // jscs:enable
       ga("create", "UA-41499181-3", "auto");
       ga("set", {
-        checkProtocolTask: function() {},
+        checkProtocolTask: null,
         dimension1: chrome.runtime.getManifest().version,
         page: "/primeplayer/" + context
       });

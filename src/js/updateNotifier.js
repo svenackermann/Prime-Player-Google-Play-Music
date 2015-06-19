@@ -7,6 +7,7 @@
  */
 
 /* global chrome */
+/* jshint jquery: true */
 
 chrome.runtime.getBackgroundPage(function(bp) {
   $(function() {

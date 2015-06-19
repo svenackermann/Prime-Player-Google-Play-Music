@@ -7,6 +7,7 @@
  */
 
 /* global chrome, initGA */
+/* jshint jquery: true */
 
 chrome.runtime.getBackgroundPage(function(bp) {
   var thisTabId;
@@ -118,6 +119,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     pauseOnIdleChanged();
   }
 
+  function autoActivateGmChanged() {
+    setSubsEnabled("autoActivateGm", settings.autoActivateGm);
+  }
+
   function notificationsEnabledChanged(val) {
     settingsView.toggleClass("notifDisabled", !val);
     if (!val && settings.toast && !settings.toastUseMpStyle) $("#_toastUseMpStyle").click();//use click here to change the checkbox value
@@ -145,10 +150,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#stopTimer").prop("disabled", !timerEnd);
   }
 
-  function ratingModeChanged(val) {
+  function ratingModeChanged() {
+    var ratingMode = bp.getRatingMode();
     settingsView.removeClass("star thumbs");
-    if (val) settingsView.addClass(val);
-    $("#_skipRatedLower option[value='2']").text(i18n("setting_skipRatedLower_2" + (val == "star" ? "_stars" : "")));
+    if (ratingMode) settingsView.addClass(ratingMode);
+    $("#_skipRatedLower option[value='2']").text(i18n("setting_skipRatedLower_2" + (ratingMode == "star" ? "_stars" : "")));
     $("option[value='rate-1'], option[value='rate-5']").each(function() {
       $(this).text(bp.getCommandOptionText($(this).attr("value")));
     });
@@ -575,7 +581,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
     $("#_miniplayerType")
       .change(setLayoutHintVisibility)
-      .siblings(".hint-text").find("a").text("chrome://flags").attr("tabindex", "0").click(function() { chrome.tabs.create({ url: "chrome://flags" }); });
+      .siblings(".hint-text").find("a").text("chrome://flags").attr("tabindex", "0").click(function() { chrome.tabs.create({ url: "chrome://flags/#enable-panels" }); });
     $("#_layout").change(setLayoutHintVisibility);
     setLayoutHintVisibility();
     //}
@@ -598,6 +604,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#_iconDoubleClickTime").change(iconClickChanged);
 
     $("#_saveLastPosition").click(saveLastPositionChanged);
+    $("#_starRatingMode").click(ratingModeChanged);
     var skipRatedLower = $("#_skipRatedLower").change(function() { $("#_skipRatedThumbsDown").prop("checked", settings.skipRatedLower > 0); });
     $("#_skipRatedThumbsDown").unbind().prop("checked", settings.skipRatedLower > 0).click(function() {
       settings.skipRatedLower = $(this).prop("checked") ? 2 : 0;
@@ -605,6 +612,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
     $("#_startupAction option[value='']").text(i18n("command_"));
     $("#_pauseOnIdle").unbind().prop("checked", settings.pauseOnIdleSec > 0).click(pauseOnIdleClicked);
+    $("#_autoActivateGm").click(autoActivateGmChanged);
     //}
 
     //watch this if changed via miniplayer
@@ -631,6 +639,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     showProgressChanged();
     saveLastPositionChanged();
     pauseOnIdleChanged();
+    autoActivateGmChanged();
 
     $("#resetSettings").click(function() {
       if (confirm(i18n("resetSettingsConfirm"))) {
@@ -651,7 +660,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var token;
     if (localSettings.lastfmSessionName === null && (token = bp.extractUrlParam("token", location.search))) {
       getLastfmSession(token);
-      history.replaceState("", "", chrome.runtime.getURL("options.html"));//remove token from URL
+      history.replaceState("", "", location.protocol + "//" + location.host + location.pathname);//remove token from URL
     }
 
     //mark new features

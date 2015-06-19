@@ -9,6 +9,7 @@
 
 /* global chrome, Bean, LastFM, initLyricsProviders, initGA */
 /* exported fixForUri */
+/* jshint jquery: true */
 
 //{ global public declarations
  /** ID of the options tab, if opened */
@@ -32,7 +33,7 @@ function fixForUri(string) {
   var chromeBrowserAction = chrome.browserAction;
   var chromeLocalStorage = chrome.storage.local;
   var i18n = chrome.i18n.getMessage;
-  var getExtensionUrl = chrome.runtime.getURL;
+  var getExtensionUrl = chromeRuntime.getURL;
   var chromeNotifications = chrome.notifications;
   var chromeContextMenus = chrome.contextMenus;
   var chromeIdle = chrome.idle;
@@ -115,9 +116,10 @@ function fixForUri(string) {
     disableScrobbleOnFf: false,
     scrobbleRepeated: true,
     linkRatings: false,
+    linkRatingsMin: 5,
     linkRatingsGpm: false,
     linkRatingsAuto: false,
-    linkRatingsMin: 5,
+    linkRatingsReset: false,
     showLastfmInfo: false,
     //}
     //{ toast
@@ -173,6 +175,7 @@ function fixForUri(string) {
     iconDoubleClickTime: 0,
     iconShowAction: true,
     saveLastPosition: false,
+    starRatingMode: false,
     hideFavorites: false,
     skipRatedLower: 0,
     openGoogleMusicPinned: false,
@@ -182,6 +185,8 @@ function fixForUri(string) {
     pauseOnIdleSec: -60,//negative value means disabled
     connectedIndicator: true,
     preventCommandRatingReset: true,
+    autoActivateGm: true,
+    autoRestoreGm: true,
     updateNotifier: true,
     gaEnabled: true,
     //}
@@ -234,7 +239,7 @@ function fixForUri(string) {
   //{ utility functions
   /** check chrome.runtime.lastError to avoid error message in the console */
   function ignoreLastError() {
-    if (chrome.runtime.lastError) $.noop();
+    if (chromeRuntime.lastError) $.noop();
   }
 
   /** @return time in seconds that a time string represents (e.g. 4:23 -> 263) */
@@ -329,11 +334,7 @@ function fixForUri(string) {
 
   /** Open the options tab or focus it, if already opened. */
   function openOptions() {
-    if (optionsTabId) {
-      chromeTabs.update(optionsTabId, { active: true });
-    } else {
-      chromeTabs.create({ url: getExtensionUrl("options.html") });
-    }
+    chromeRuntime.openOptionsPage();
   }
   chromeNotifications.onShowSettings.addListener(openOptions);
 
@@ -342,11 +343,11 @@ function fixForUri(string) {
   }
 
   function isStarRatingMode() {
-    return localSettings.ratingMode == "star";
+    return settings.starRatingMode || localSettings.ratingMode == "star";
   }
 
   function isThumbsRatingMode() {
-    return localSettings.ratingMode == "thumbs";
+    return !settings.starRatingMode && localSettings.ratingMode == "thumbs";
   }
   //} utility functions
 
@@ -469,7 +470,13 @@ function fixForUri(string) {
   }
 
   /** Unlove the current song. */
-  var unloveTrack = updateTrackLoved.bind(window, unlove);
+  function unloveTrack(event) {
+    if (song.loved === true) {
+      updateTrackLoved(unlove);
+      //auto-unrate if called by click event
+      if (event && settings.linkRatings && settings.linkRatingsReset && song.rating >= settings.linkRatingsMin) executeInGoogleMusic("rate", { rating: song.rating });
+    }
+  }
 
   /** Load info/loved status for current song from last.fm. */
   function loadCurrentLastfmInfo() {
@@ -633,13 +640,15 @@ function fixForUri(string) {
 
   /** assure that the Google Music tab is active and its window is not minimzed before executing the function, restore state (with timeout) afterwards */
   function executeWithActiveGmTab(fn, restoreFn) {
-    chromeTabs.get(googlemusictabId, function(tab) {
+    if (settings.autoActivateGm) chromeTabs.get(googlemusictabId, function(tab) {
       chromeWindows.get(tab.windowId, function(win) {
         function executeInActiveTab(restoreCallback) {
           function executeFn(restore) {
             fn();
-            if (restoreFn) restoreFn(restore);
-            else setTimeout(restore, 250);
+            if (settings.autoRestoreGm) {
+              if (restoreFn) restoreFn(restore);
+              else setTimeout(restore, 250);
+            }
           }
 
           if (tab.active) executeFn(restoreCallback);
@@ -656,7 +665,7 @@ function fixForUri(string) {
           });
         } else executeInActiveTab($.noop);
       });
-    });
+    }); else fn();
   }
 
   /** Change the song position in Google Music. */
@@ -668,8 +677,10 @@ function fixForUri(string) {
   /** Rate the current song in Google Music, if possible. For arg 5, this triggers the link-ratings logic, if not a rating reset. */
   function rate(rating) {
     if (song.rating < 0) return;//negative ratings cannot be changed
-    //auto-love if no reset and not loved yet
-    if (settings.linkRatings && rating >= settings.linkRatingsMin && !isRatingReset(song.rating, rating)) loveTrack();
+    if (settings.linkRatings) {
+      if (rating >= settings.linkRatingsMin && !isRatingReset(song.rating, rating)) loveTrack();
+      else if (settings.linkRatingsReset) unloveTrack();//unlove on reset or lower rating
+    }
     executeInGoogleMusic("rate", { rating: rating });
   }
 
@@ -682,6 +693,10 @@ function fixForUri(string) {
       width: localSettings.lyricsWidth,
       autoReload: settings.lyricsAutoReload
     });
+  }
+
+  function postStarRatingMode() {
+    postToGooglemusic({ type: "starRatingMode", value: settings.starRatingMode });
   }
 
   var loadNavlistLink;
@@ -705,17 +720,17 @@ function fixForUri(string) {
   }
 
   var startPlaylistLink;
-  function startPlaylistIfConnected(openGmInCurrentTab) {
+  function startPlaylistIfConnected(openGmInCurrentTab, forceActive) {
     if (!startPlaylistLink) return;
     if (player.connected) {
       postToGooglemusic({ type: "startPlaylist", link: startPlaylistLink });
       startPlaylistLink = null;
-    } else openGoogleMusicTab(startPlaylistLink, false, true, openGmInCurrentTab);//when connected, we get triggered again
+    } else openGoogleMusicTab(startPlaylistLink, forceActive, true, openGmInCurrentTab);//when connected, we get triggered again
   }
   /** Start a playlist in Google Music. */
-  function startPlaylist(link, openGmInCurrentTab) {
+  function startPlaylist(link, openGmInCurrentTab, forceActive) {
     startPlaylistLink = link;
-    startPlaylistIfConnected(openGmInCurrentTab);
+    startPlaylistIfConnected(openGmInCurrentTab, forceActive);
   }
 
   var feelingLucky = false;
@@ -1090,6 +1105,7 @@ function fixForUri(string) {
     }
   }
 
+  var restoreActiveTab = {};
   /** handler for messages from connected port - set song or player state */
   function onMessageListener(message) {
     var val = message.value;
@@ -1128,9 +1144,26 @@ function fixForUri(string) {
         postLyrics(src, result, providersWithUrl);
       });
     } else if (type == "rated") {
-      if (settings.linkRatings && settings.linkRatingsGpm && val.rating >= settings.linkRatingsMin) {
-        if (songsEqual(song.info, val.song)) loveTrack();
-        else love(val.song, $.noop);
+      if (settings.linkRatings && settings.linkRatingsGpm) {
+        var currentSong = songsEqual(song.info, val.song);
+        if (val.rating >= settings.linkRatingsMin) {
+          if (currentSong) loveTrack();
+          else love(val.song, $.noop);
+        } else if (val.rating >= 0 && settings.linkRatingsReset) {
+          //unlove on reset or lower rating
+          if (currentSong) unloveTrack();
+          else unlove(val.song, $.noop);
+        }
+      }
+    } else if (type == "needActiveTab") {
+      executeWithActiveGmTab($.noop, function(restore) {
+        restoreActiveTab.restore = restore;
+        restoreActiveTab.id = val;
+      });
+    } else if (type == "restoreActiveTab") {
+      if (restoreActiveTab.id == val) {
+        restoreActiveTab.id = null;
+        restoreActiveTab.restore();
       }
     }
   }
@@ -1949,6 +1982,7 @@ function fixForUri(string) {
     player.arl("connected", closeMpOnDisconnect, val);
   });
   settings.al("lyricsInGpm lyricsAutoReload", postLyricsState);
+  settings.al("starRatingMode", postStarRatingMode);
   settings.w("showPlayingIndicator showProgress", function() {
     player.arl("playing", updateBrowserActionInfo, settings.showPlayingIndicator || settings.showProgress);
     updateBrowserActionInfo();
@@ -2028,6 +2062,7 @@ function fixForUri(string) {
       resumeLastSongIfConnected();
       if (settings.connectedIndicator) postToGooglemusic({ type: "connectedIndicator", show: true });
       if (localSettings.lyrics && settings.lyricsInGpm) postLyricsState();
+      if (settings.starRatingMode) postStarRatingMode();
       localSettings.timerEnd = 0;
     } else {
       clearSleepTimer();
@@ -2363,14 +2398,25 @@ function fixForUri(string) {
   }
 
   var linkPrefix = " - link:";
-  var omniboxSuggest, omniboxSearch, omniboxTimer;
-  function setDefaultSuggestion(msgKey, search) {
-    chromeOmnibox.setDefaultSuggestion({ description: i18n(msgKey, search && "<match>" + search + "</match>") });
+  var omniboxSuggest, omniboxSearch, omniboxTimer, indicateLoadingInterval;
+  function setDefaultSuggestion(msgKey, search, indicateLoading) {
+    clearInterval(indicateLoadingInterval);
+    var description = i18n(msgKey, search && "<match>" + search + "</match>");
+    chromeOmnibox.setDefaultSuggestion({ description: description });
+    if (indicateLoading) {
+      var loadingSuffix = "";
+      indicateLoadingInterval = setInterval(function() {
+        if (loadingSuffix.length > 2) loadingSuffix = "";
+        else loadingSuffix += ".";
+        chromeOmnibox.setDefaultSuggestion({ description: description + loadingSuffix });
+      }, 1000);
+    }
   }
 
   function omniboxClear() {
     omniboxSuggest = omniboxSearch = null;
     clearTimeout(omniboxTimer);
+    clearInterval(indicateLoadingInterval);
   }
 
   chromeOmnibox.onInputChanged.addListener(function(text, suggest) {
@@ -2388,7 +2434,7 @@ function fixForUri(string) {
         suggest(suggestions);
       } else setDefaultSuggestion("ob_favoritessugg");
     } else if (text.trim().length > 1) {
-      setDefaultSuggestion("ob_loading", xmlEscape(text));
+      setDefaultSuggestion("ob_loading", xmlEscape(text), true);
       omniboxSearch = text.trim();
       omniboxTimer = setTimeout(function() {
         omniboxSuggest = suggest;
@@ -2397,12 +2443,13 @@ function fixForUri(string) {
     } else setDefaultSuggestion("ob_defaultsugg");
   });
 
-  chromeOmnibox.onInputEntered.addListener(function(text) {
+  chromeOmnibox.onInputEntered.addListener(function(text, disposition) {
     var searchText = omniboxSearch;
     omniboxClear();
     var index = text.lastIndexOf(linkPrefix);
-    if (index >= 0) startPlaylist(text.substr(index + linkPrefix.length), true);
-    else if (searchText) selectLink(getSearchLink(searchText), true);
+    var openGmInCurrentTab = disposition == "currentTab";
+    if (index >= 0) startPlaylist(text.substr(index + linkPrefix.length), openGmInCurrentTab, disposition == "newForegroundTab");
+    else if (searchText) selectLink(getSearchLink(searchText), openGmInCurrentTab);
   });
 
   chromeOmnibox.onInputCancelled.addListener(omniboxClear);
@@ -2461,7 +2508,7 @@ function fixForUri(string) {
   //{ utility functions
   /** @return time string for amount of seconds (e.g. 263 -> 4:23) */
   exports.toTimeString = function(sec) {
-    if (sec > 60 * 60 * 24) return chrome.i18n.getMessage("moreThanOneDay");
+    if (sec > 60 * 60 * 24) return i18n("moreThanOneDay");
     if (sec < 10) return "0:0" + sec;
     if (sec < 60) return "0:" + sec;
     var time = "";
@@ -2503,6 +2550,10 @@ function fixForUri(string) {
     default:
       return getCommandText(cmd);
     }
+  };
+
+  exports.getRatingMode = function() {
+    return isThumbsRatingMode() ? "thumbs" : isStarRatingMode() ? "star" : null;
   };
   //} utility functions
 

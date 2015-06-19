@@ -8,9 +8,9 @@
  */
 (function() {
   var link;
-  [].some.call(document.getElementsByClassName("media-card-body"), function(body) {
-    var lyricsExist = !body.getElementsByClassName("add-lyrics-button").length;
-    if (lyricsExist) link = body.getElementsByClassName("title")[0];
+  [].some.call(document.querySelectorAll(".media-card-body"), function(body) {
+    var lyricsExist = !body.querySelector(".add-lyrics-button");
+    if (lyricsExist) link = body.querySelector(".title");
     return lyricsExist;
   });
 

@@ -30,7 +30,9 @@
   }
 
   /** Simulate a click event on an element. */
-  var simulateClick = simulateMouseEvent.bind(window, "click");
+  function simulateClick(element) {
+    if (element) element.click();
+  }
 
   /** Start the currently displayed playlist. */
   function startPlaylist() {
@@ -144,23 +146,40 @@
     });
   }
 
+  function rateContainer(ratingContainer, rating) {
+    ratingContainer = ratingContainer.querySelector(".rating-container");
+    if (!ratingContainer) return false;
+    var button = ratingContainer.querySelector("[data-rating='" + rating + "']");
+    var reset;
+    if (!button) {
+      //for star-only ratings (2-4), temporarily set data-rating of thumbs up to the selected rating
+      if (rating < 2 || rating > 4) return false;
+      button = ratingContainer.querySelector("[data-rating='5']");
+      if (!button) return false;
+      reset = true;
+      button.dataset.rating = rating;
+    }
+    simulateClick(button);
+    if (reset) {
+      button.dataset.rating = 5;
+    }
+    return true;
+  }
+
   /** Rate a song of a playlist specified by index and cluster. */
   function ratePlaylistSong(options) {
     var col = getPlaylistCol(options.index, options.cluster, options.link == "#/ap/queue", "rating");
     if (col) {
       simulateMouseEvent("mouseover", col);
       setTimeout(function() {
-        var li = col.querySelector(".rating-container li[data-rating='" + options.rating + "']");
-        if (li) {
-          simulateClick(li);
-          setTimeout(sendPlaylistSongResult.bind(window, "Rated", options.index), 200);
-        } else sendPlaylistSongResult("Error", options.index);
+        if (rateContainer(col, options.rating)) setTimeout(sendPlaylistSongResult.bind(window, "Rated", options.index), 200);
+        else sendPlaylistSongResult("Error", options.index);
       }, 200);
     } else sendPlaylistSongResult("Error", options.index);
   }
 
   function rateSong(rating) {
-    simulateClick(document.querySelector("#playerSongInfo .rating-container [data-rating='" + rating + "']"));
+    rateContainer(document.querySelector("#playerSongInfo"), rating);
   }
 
   /** Set the position of a given slider (volume or song progress). */
@@ -169,25 +188,6 @@
     var progress = slider.shadowRoot.querySelector("#sliderBar");
     var rect = progress.getBoundingClientRect();
     simulateMouseEvent("mousedown", progress, rect.left + percent * rect.width, rect.top + 1);
-  }
-
-  function getRating() {
-    var ratingContainer = document.querySelector("#playerSongInfo .rating-container");
-    var rating = -1;
-    if (ratingContainer) {
-      rating = 0;
-      [].some.call(ratingContainer.children, function(el) {
-        var icon = el.icon;
-        if (icon && icon.indexOf("-outline") < 0) {
-          var parsedRating = parseInt(el.dataset.rating);
-          if (!isNaN(rating)) {
-            rating = parsedRating;
-            return true;
-          }
-        }
-      });
-    }
-    window.postMessage({ type: "FROM_PRIMEPLAYER", msg: "rating", rating: rating }, location.href);
   }
 
   /** Cleanup this script, i.e. remove the message listener from the window. */
@@ -250,9 +250,6 @@
       break;
     case "cleanup":
       cleanup();
-      break;
-    case "getRating":
-      getRating();
       break;
     }
   }

@@ -155,6 +155,12 @@
   "setting_linkRatingsAutoHint": {
     "message": "Wenn ein Titel startet, den du bereits mit Daumen hoch/fünf Sternen bewertet hast, der aber nicht in last.fm geliebt ist, wird er ohne Nutzer-Interaktion geliebt. Wenn er bereits geliebt ist, aber keine Bewertung in Google Music hat, erhält er Daumen hoch/fünf Sterne."
   },
+  "setting_linkRatingsReset": {
+    "message": "Setze Bewertungen auch zurück"
+  },
+  "setting_linkRatingsResetHint": {
+    "message": "Titel nicht mehr lieben, wenn die Daumen-Bewertung entfernt oder Daumen runter bewertet wird bzw. entferne die Daumen-Hoch-Bewertung, wenn der Titel nicht mehr geliebt wird. Das wird nicht bei automatisch verknüpften Bewertungen angewendet (s. vorige Einstellung)."
+  },
   "setting_showLovedIndicator": {
     "message": "Zeige 'geliebt'-Status im Symbol"
   },
@@ -252,7 +258,7 @@
     "message": "Miniplayer Einstellungen"
   },
   "legendMiniplayerHint": {
-    "message": "Der Miniplayer ist ein mächtiges, anpassbares Tool, also nimm dir die Zeit, die verschiedenen Einstellungen auszuprobieren. Du kannst den Miniplayer z.B. mit dem Noten-Symbol im Popup, das beim Klick auf das Prime-Player-Symbol in Chromes Toolbar erscheint, öffnen."
+    "message": "Der Miniplayer ist ein mächtiges, anpassbares Tool, also nimm dir die Zeit, die verschiedenen Einstellungen auszuprobieren. Du kannst den Miniplayer z.B. mit dem Kopfhörer-Symbol im Popup, das beim Klick auf das Prime-Player-Symbol in Chromes Toolbar erscheint, öffnen."
   },
   "legendLookfeel": {
     "message": "Aussehen & Verhalten"
@@ -360,6 +366,15 @@
   "setting_preventCommandRatingResetHint": {
     "message": "Normalerweise wird die Bewertung für einen Titel entfernt, wenn du ihn mit der aktuellen Bewertung erneut bewertest. Wenn du Tastaturkürzel oder die Aktionen in der Toast-Benachrichtigung zum Bewerten verwendest, ist das üblicherweise nicht erwünscht, weil man die aktuelle Bewertung nicht sieht. Deaktiviere diese Option, um in dem Fall trotzdem die Bewertung zu entfernen."
   },
+  "setting_autoActivateGm": {
+    "message": "Mache den Google Music Tab immer sichtbar wenn nötig"
+  },
+  "setting_autoActivateGmHint": {
+    "message": "Einige Aktionen (z.B. Vor-/Zurückspulen, Lesen längerer Wiedergabelisten) funktionieren nur korrekt, wenn der Google Music Tab sichtbar ist. Mit dieser Option wird der Tab in solchen Fällen automatisch sichtbar gemacht."
+  },
+  "setting_autoRestoreGm": {
+    "message": "Stelle den vorher sichtbaren Tab danach wieder her"
+  },
   "setting_updateNotifier": {
     "message": "Bei Aktualisierungen benachrichtigen (Symbol wird orange)"
   },
@@ -386,6 +401,12 @@
   },
   "setting_saveLastPositionHint": {
     "message": "Speichert den letzten Titel (lokal) mit der aktuellen Position, um immer zu wissen, was man vor dem Beenden von Google Music gehört hat. Der letzte Titel wird im Miniplayer wie ein normaler Titel mit einigen Einschränkungen angezeigt. Der Play-Button versucht, das Album des Titels zu laden und den Titel an der letzten Position fortzusetzen. Leider ist es nicht möglich, die letzte Wiedergabeliste beim Neustart wiederherzustellen."
+  },
+  "setting_starRatingMode": {
+    "message": "Benutze Sterne-Bewertungen (experimentell)"
+  },
+  "setting_starRatingModeHint": {
+    "message": "Das Lab '5-Sterne-Bewertungen' wurde von Google entfernt. Die Bewertungen sind aber noch erhalten und können auch weiterhin geändert werden. Diese Einstellung versucht, das Feature zurück zu bringen, aber es wird vermutlich unbenutzbar sein, sobald Google die Sterne-Bewertungen komplett entfernt oder (hoffentlich) wieder einführt. Die Sterne sind nur innerhalb von Prime Player sichtbar, die Google-Seite selbst zeigt weiter die Daumen."
   },
   "setting_hideFavorites": {
     "message": "Verberge Favoriten im Miniplayer und Kontext-Menü"
@@ -645,7 +666,7 @@
     "message": "15 Sekunden vorspulen"
   },
   "command_rate1": {
-    "message": "Bewerte Daumen runter"
+    "message": "Bewerte 1 Stern/Daumen runter"
   },
   "command_rate2": {
     "message": "Bewerte 2 Sterne"
@@ -657,7 +678,7 @@
     "message": "Bewerte 4 Sterne"
   },
   "command_rate5": {
-    "message": "Bewerte Daumen hoch"
+    "message": "Bewerte 5 Sterne/Daumen hoch"
   },
   "command_showToast": {
     "message": "Zeige Toast-Benachrichtigung (erneut)"
@@ -865,7 +886,7 @@
     "placeholders": { "TEXT": { "content": "$1" } }
   },
   "ob_loading": {
-    "message": "Lade Ergebnisse für $TEXT$...",
+    "message": "Lade Ergebnisse für $TEXT$",
     "placeholders": { "TEXT": { "content": "$1" } }
   },
   "ob_results": {

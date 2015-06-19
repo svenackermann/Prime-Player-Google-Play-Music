@@ -7,6 +7,7 @@
  */
 
 /* global chrome, initGA */
+/* jshint jquery: true */
 
 chrome.runtime.getBackgroundPage(function(bp) {
   /** "popup", "miniplayer" or "toast" */
@@ -236,15 +237,16 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
 
-  function ratingModeWatcher(val) {
+  function ratingModeWatcher() {
+    var ratingMode = bp.getRatingMode();
     var body = $("body");
     body.removeClass("star-rating thumbs-rating");
-    if (val) body.addClass(val + "-rating");
+    if (ratingMode) body.addClass(ratingMode + "-rating");
     ratingHtml = "";
-    if (val == "star") {
+    if (ratingMode == "star") {
       ratingHtml = "<div></div>";
       for (var i = 1; i <= 5; i++) ratingHtml += "<a tabindex='0' data-rating='" + i + "'></a>";
-    } else if (val == "thumbs") {
+    } else if (ratingMode == "thumbs") {
       ratingHtml = "<a tabindex='0' data-rating='5'></a><a tabindex='0' data-rating='1'></a>";
     }
   }
@@ -426,6 +428,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   var renderNavList = {
     playlistsList: function(navlist, list) {
       list.forEach(function(pl) {
+        if (navlist.children().length > pl.index) return;
         var row = $("<div>");
         $("<img>").attr("src", pl.cover || "img/cover.png").appendTo(row);
         row.append(getFavoriteIcon(pl.titleLink, pl.title));
@@ -503,6 +506,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     },
     albumContainers: function(navlist, list) {
       list.forEach(function(ac) {
+        if (navlist.children().length > ac.index) return;
         var row = $("<div>");
         $("<img>").attr("src", ac.cover || "img/cover.png").appendTo(row);
         row.append(getFavoriteIcon(ac.link, ac.title));
@@ -760,7 +764,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
         var index = songRow.data("index");
         var aSong = songRow.data("song");
         if (aSong.rating < 0) return;//negative ratings cannot be changed
-        if (rating == 5 && settings.linkRatings && !bp.isRatingReset(aSong.rating, rating)) bp.love({ title: aSong.title, artist: aSong.artist }, $.noop);
+        if (settings.linkRatings) {
+          if (rating >= settings.linkRatingsMin && !bp.isRatingReset(aSong.rating, rating)) bp.love(aSong, $.noop);
+          else if (settings.linkRatingsReset) bp.unlove(aSong, $.noop);//unlove on reset or lower rating
+        }
         bp.executeInGoogleMusic("ratePlaylistSong", { link: currentNavList.controlLink, index: index, cluster: getClusterIndex(songRow), rating: rating });
       }
     });
@@ -1038,6 +1045,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     settings.w("hideSearchfield", hideSearchfieldWatcher, typeClass);
     settings.al("saveLastPosition", saveLastPositionUpdated, typeClass);
     settings.w("hideFavorites", hideFavoritesWatcher, typeClass);
+    settings.al("starRatingMode", ratingModeWatcher, typeClass);
 
     player.w("repeat", repeatWatcher, typeClass);
     player.w("shuffle", shuffleWatcher, typeClass);

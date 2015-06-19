@@ -12,7 +12,8 @@ Features include:
 * last.fm integration (now playing, scrobbling, like/unlike)
 * a powerful miniplayer with different layouts and color schemes
 * toast notifications
-* support for thumbs and 5-star ratings
+* lyrics (from [musixmatch](www.musixmatch.com), [LyricWikia](http://lyrics.wikia.com) or [songlyrics](www.songlyrics.com))
+* keyboard shortcuts
 * and more
 
 You can install it from [here](https://chrome.google.com/webstore/detail/prime-player-for-google-p/npngaakpdgeaajbnidkkginekmnaejbi).

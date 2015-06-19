@@ -10,6 +10,7 @@
  */
 
 /* global chrome */
+/* jshint jquery: true */
 
 function Bean(defaults, useLocalStorage) {
   var cache = {};
@@ -36,14 +37,19 @@ function Bean(defaults, useLocalStorage) {
         if (!srcListeners[src]) srcListeners[src] = [];
         srcListeners[src].push({ l: listener, p: prop });
       }
-      if (!callbacks[prop].has(listener)) callbacks[prop].add(listener);
+      if (callbacks[prop].every(function(cb) { return cb != listener; })) callbacks[prop].push(listener);
     });
   };
 
   /** Removes a listener function for the given (space separated) properties. */
   this.rl = function(props, listener) {
     props.split(" ").forEach(function(prop) {
-      callbacks[prop].remove(listener);
+      callbacks[prop].some(function(cb, i, cbs) {
+        if (listener == cb) {
+          cbs.splice(i, 1);
+          return true;
+        }
+      });
     });
   };
 
@@ -177,10 +183,20 @@ function Bean(defaults, useLocalStorage) {
     return val === old && (typeof val != "object" || val === null);
   }
 
+  function notify(name, val, old) {
+    callbacks[name].forEach(function(listener) {
+      try {
+        listener(val, old, name);
+      } catch (e) {
+        console.error("error in listener for " + name, e);
+      }
+    });
+  }
+
   /** Setup an object property with the given name */
   function setting(name, defaultValue) {
     cache[name] = parse(name, defaultValue);
-    callbacks[name] = $.Callbacks();
+    callbacks[name] = [];
 
     Object.defineProperty(that, name, {
       get: function() { return cache[name]; },
@@ -198,7 +214,7 @@ function Bean(defaults, useLocalStorage) {
         }
         cache[name] = val;
         if (useSyncStorage) saveSyncStorage();
-        callbacks[name].fire(val, old, name);
+        notify(name, val, old);
       },
       enumerable: true
     });

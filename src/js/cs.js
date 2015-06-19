@@ -9,6 +9,7 @@
  */
 
 /* global chrome */
+/* jshint jquery: true */
 
 $(function() {
   var port;
@@ -18,14 +19,19 @@ $(function() {
   var listRatings;
   var queueRatings;
   var asyncListTimer;
+  var playlistRowCommandTimer;
   var pausePlaylistParsing = false;
   var resumePlaylistParsingFn;
   var lyricsAutoReload = false;
   var lyricsAutoReloadTimer;
+  var starRatingMode = false;
   var position;
   var currentRating = -1;
-  var ratedInGpm = 0;
+  var ratedInGpm = -1;
+  var needActiveTabId;
+  var needActiveTabCb;
   var CLUSTER_SELECTOR = ".cluster,.genre-stations-container";
+  var HASH_QUEUE = "ap/queue";
   var i18n = chrome.i18n.getMessage;
   var getExtensionUrl = chrome.runtime.getURL;
 
@@ -185,6 +191,17 @@ $(function() {
     if ($("#ppLyricsContainer").is(":visible")) contentResize();
   }
 
+  function toggleStarRatingMode(state) {
+    starRatingMode = state;
+    currentRating = -1;
+    if (state) {
+      $("#queue-container").on("DOMSubtreeModified", ".song-row.currently-playing [data-col='rating']", sendRating);
+    } else {
+      $("#queue-container").off("DOMSubtreeModified", sendRating);
+    }
+    sendRating();
+  }
+
   /** remove all listeners/observers and revert DOM modifications */
   function cleanup() {
     sendCommand("cleanup");
@@ -197,6 +214,7 @@ $(function() {
     hideConnectedIndicator();
     disableLyrics();
     port = null;
+    toggleStarRatingMode(false);
   }
 
   function getClusterIndex(el) {
@@ -239,6 +257,45 @@ $(function() {
       return info;
     }
     return null;
+  }
+
+  function isRatingActive(iconButton) {
+    var shadowRoot = iconButton.shadowRoot && iconButton.shadowRoot.olderShadowRoot;
+    var label = $(shadowRoot).find("core-icon").attr("aria-label");
+    return !!(label && label.indexOf("-outline") < 0);
+  }
+
+  function sendRating() {
+    var ratingContainer = $("#playerSongInfo .rating-container");
+    var rating = -1;
+    if (ratingContainer[0]) {
+      if (starRatingMode) {
+        //this must be loaded from the queue, because we only have the thumbs rating in playerSongInfo
+        var currentSongRow = $("#queue-container .song-row.currently-playing");
+        if (!currentSongRow[0]) {
+          //open the queue (needed before it is opened the very first time) and get triggered again by event listener
+          selectAndExecute(HASH_QUEUE, $.noop);
+          return;
+        }
+        rating = parseRating(currentSongRow.children("[data-col='rating']")[0]);
+      } else {
+        ratingContainer.children("[data-rating]").each(function() {
+          if (isRatingActive(this)) {
+            rating = parseRating(this);
+            return false;
+          }
+        });
+      }
+    }
+
+    if (currentRating !== rating) {
+      currentRating = rating;
+      //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
+      if (listRatings || queueRatings) $("#music-content,#queue-container").find(".song-row td[data-col='rating']").trigger("DOMSubtreeModified");
+      post("song-rating", currentRating);
+      if (ratedInGpm >= 0 && ratedInGpm === currentRating) post("rated", { song: parseSongInfo(), rating: currentRating });
+      ratedInGpm = -1;
+    }
   }
 
   /** add listeners/observers and extend DOM */
@@ -287,13 +344,9 @@ $(function() {
       return $(el).is(":disabled") ? null : el.getAttribute("value");
     }
 
-    function sendRating() {
-      sendCommand("getRating");
-    }
-
     /** Execute 'executeOnContentLoad' (if set) when #queue-container is changed. */
     function queueLoaded() {
-      if (contentLoadDestination == "ap/queue" && $.isFunction(executeOnContentLoad)) {
+      if (contentLoadDestination == HASH_QUEUE && $.isFunction(executeOnContentLoad)) {
         var fn = executeOnContentLoad;
         executeOnContentLoad = null;
         contentLoadDestination = null;
@@ -411,17 +464,20 @@ $(function() {
     $(window).on("hashchange", function() {
       listRatings = queueRatings = null;
       resumePlaylistParsingFn = null;
+      restoreActiveTab(needActiveTabCb);
       pausePlaylistParsing = false;
       clearTimeout(asyncListTimer);
+      clearTimeout(playlistRowCommandTimer);
     });
 
     $("#playerSongInfo").on("click", ".rating-container > *[data-rating]", function(e) {
       //when click is simulated by injected script, clientX will be 0
-      if (e.clientX) ratedInGpm = parseRating(e);
+      if (e.clientX) ratedInGpm = isRatingActive(this) ? parseRating(this) : 0;
     });
     //listen for "mouseup", because "click" won't bubble up to "#music-content" and we can't attach this directly to ".rating-container" because it's dynamically created
-    $("#music-content,#queue-container").on("mouseup", ".song-row td[data-col='rating'] ul.rating-container li:not(.selected)[data-rating]", function() {
-      post("rated", { song: parseSongRow($(this).closest(".song-row"), true), rating: parseRating(this) });
+    $("#music-content,#queue-container").on("mouseup", ".song-row td[data-col='rating'] ul.rating-container li[data-rating]", function() {
+      var button = $(this);
+      post("rated", { song: parseSongRow(button.closest(".song-row"), true), rating: button.hasClass("selected") ? 0 : parseRating(this) });
     });
 
     window.addEventListener("message", onMessage);
@@ -450,7 +506,6 @@ $(function() {
       }
     }
     sendConnectedInterval = setInterval(sendConnected, 500);
-    sendConnected();
   }
 
   /** callback for messages from the injected script */
@@ -459,16 +514,6 @@ $(function() {
     if (event.source != window || event.data.type != "FROM_PRIMEPLAYER" || !event.data.msg) return;
     console.debug("inj->cs: ", event.data);
     switch (event.data.msg) {
-    case "rating":
-      if (currentRating !== event.data.rating) {
-        currentRating = event.data.rating;
-        //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
-        if (listRatings || queueRatings) $("#music-content,#queue-container").find(".song-row td[data-col='rating']").trigger("DOMSubtreeModified");
-        post("song-rating", currentRating);
-        if (ratedInGpm > 0 && ratedInGpm === currentRating) post("rated", { song: parseSongInfo(), rating: currentRating });
-        ratedInGpm = 0;
-      }
-      break;
     case "plSongRated":
       $("#music-content,#queue-container").find(".song-row[data-index='" + event.data.index + "']").find("td[data-col='rating']").trigger("DOMSubtreeModified");
       /* falls through */
@@ -491,6 +536,27 @@ $(function() {
     window.postMessage({ type: "FROM_PRIMEPLAYER", command: command, options: options }, location.href);
   }
 
+  function needActiveTab(cb) {
+    if (document.hidden && !needActiveTabId) {
+      post("needActiveTab", needActiveTabId = $.now());
+      needActiveTabCb = cb;
+    }
+  }
+
+  function restoreActiveTab(cb) {
+    if (needActiveTabId && cb == needActiveTabCb) {
+      post("restoreActiveTab", needActiveTabId);
+      needActiveTabId = null;
+      needActiveTabCb = null;
+    }
+  }
+
+  function scrollAndContinue(scrollTo, cb, alignToTop) {
+    scrollTo.scrollIntoView(alignToTop);
+    needActiveTab(cb);
+    return setTimeout(cb, 100);
+  }
+
   /** Send a command for a playlist row to the injected script. Ensures that the row is visible. */
   function sendPlaylistRowCommand(command, options) {
     var queue = options.link == "#/ap/queue";
@@ -508,21 +574,25 @@ $(function() {
     /* jshint -W082 */
     function callForRow() {//make sure row with requested index is available
       var rows = body.find(".song-row");
-      var scrollToRow;
-      if (rows.first().data("index") > options.index) scrollToRow = rows[0];
-      else if (rows.last().data("index") < options.index) scrollToRow = rows.last()[0];
-      if (scrollToRow) {
-        scrollToRow.scrollIntoView(true);
-        setTimeout(callForRow, 50);
-      } else {
+      var scrollToRow, alignToTop;
+      if (rows.first().data("index") > options.index) {
+        scrollToRow = rows[0];
+        alignToTop = true;
+      } else if (rows.last().data("index") < options.index) {
+        scrollToRow = rows.last()[0];
+        alignToTop = false;
+      }
+      if (scrollToRow) playlistRowCommandTimer = scrollAndContinue(scrollToRow, callForRow, alignToTop);
+      else {
         sendCommand(command, options);
+        restoreActiveTab(callForRow);
       }
     }
     callForRow();
   }
 
   function isAutoQueueList(link) {
-    return link == "ap/queue" || !link.indexOf("im/") || !link.indexOf("st/") || !link.indexOf("sm/") || !link.indexOf("situations/");
+    return link == HASH_QUEUE || !link.indexOf("im/") || !link.indexOf("st/") || !link.indexOf("sm/") || !link.indexOf("situations/");
   }
 
   /**
@@ -533,7 +603,7 @@ $(function() {
     var id = hash.substr(hash.indexOf("/") + 1);
     var type = hash.substr(0, hash.indexOf("/"));
     if ($(".material-card[data-id='" + id + "'][data-type='" + type + "']").length) {
-      contentLoadDestination = "ap/queue";
+      contentLoadDestination = HASH_QUEUE;
       sendCommand("clickCard", { id: id });
       return true;
     }
@@ -544,12 +614,12 @@ $(function() {
   function selectAndExecute(hash, cb) {
     if (matchesHash(hash)) {
       if (cb) cb();
-    } else if (hash == "ap/queue") {
+    } else if (hash == HASH_QUEUE) {
       if ($("#queue-container").is(":visible")) {
         if (cb) cb();
       } else {
         executeOnContentLoad = cb;
-        contentLoadDestination = "ap/queue";
+        contentLoadDestination = HASH_QUEUE;
         sendCommand("openQueue");
       }
     } else {
@@ -565,7 +635,7 @@ $(function() {
           });
         }
       } else {
-        contentLoadDestination = !hash.indexOf("im/") ? "ap/queue" : hash;//type im is automatically started
+        contentLoadDestination = !hash.indexOf("im/") ? HASH_QUEUE : hash;//type im is automatically started
         location.hash = "/" + hash;
       }
     }
@@ -595,26 +665,63 @@ $(function() {
     return item;
   }
 
+  function parseCards(parser, parent, end, cb) {
+    var pageCount = parseInt(parent.data("row-count"));
+    var cardsPerPage = parseInt(parent.data("cards-per-page")) || parent.find(".cluster-page:first .material-card").length;
+    var update = false;
+    var lastIndex = -1;
+    var lastPageNum = -1;
+    function loadNextCards() {
+      var firstPage = parent.find(".cluster-page:first");
+      if (!update && pageCount && cb && firstPage[0] && firstPage.data("page-num") !== 0) {//not yet there
+        asyncListTimer = scrollAndContinue(firstPage[0], loadNextCards, true);
+        return;
+      }
+      var items = [];
+      var lastLoaded = null;
+      parent.find(".material-card").slice(0, end).each(function() {
+        var card = $(this);
+        var page = card.closest(".cluster-page");
+        lastLoaded = page[0];
+        var pageNum = parseInt(page.data("page-num"));
+        var index = cardsPerPage * pageNum + page.find(".material-card").index(card);
+        if (index <= lastIndex) return;
+        lastPageNum = pageNum;
+        var item = parser(card);
+        if (item) {
+          item.index = index;
+          items.push(item);
+          lastIndex = index;
+        }
+      });
+      if (!cb) return items;
+
+      if (!update || items.length) {
+        cb(items, update);
+        update = true;
+      }
+      if (lastLoaded && pageCount && lastPageNum + 1 < pageCount && (end === undefined || lastIndex + 1 < end)) asyncListTimer = scrollAndContinue(lastLoaded, loadNextCards, false);
+      else restoreActiveTab(loadNextCards);
+    }
+    return loadNextCards();
+  }
+
   /** parse handlers for the different list types (playlistsList, playlist or albumContainers) */
   var parseNavigationList = {
     playlistsList: function(parent, end, cb, omitUnknownAlbums) {
-      var playlists = [];
-      parent.children(".material-card").slice(0, end).each(function() {
-        var card = $(this);
+      return parseCards(function(card) {
         var id = card.data("id");
-        if (omitUnknownAlbums && id.substr(1).indexOf("/") < 0) return;
+        if (omitUnknownAlbums && id.substr(1).indexOf("/") < 0) return null;
         var item = {};
         item.titleLink = getLink(card);
-        if (item.titleLink === null) return;
+        if (!item.titleLink) return null;
         item.cover = parseCover(card.find(".image-wrapper img"));
         item.title = $.trim(card.find(".title").text());
         var subTitle = card.find(".sub-title");
         item.subTitle = $.trim(subTitle.text());
         item.subTitleLink = getLink(subTitle);
-        playlists.push(item);
-      });
-      if (!cb) return playlists;
-      cb(playlists);
+        return item;
+      }, parent, end, cb);
     },
     playlist: function(parent, end, cb) {
       var queue = !!parent.closest("#queue-container").length;
@@ -631,9 +738,8 @@ $(function() {
         if (queue) queueRatings = selectedRatings;
         else listRatings[ci] = selectedRatings;
         var rows = parent.find(".song-row");
-        if (!update && count && rows.first().data("index") !== 0) {//not yet there
-          parent.scrollTop(0);
-          asyncListTimer = setTimeout(loadNextSongs, 150);
+        if (!update && count && cb && rows[0] && rows.first().data("index") !== 0) {//not yet there
+          asyncListTimer = scrollAndContinue(rows[0], loadNextSongs, true);
           return;
         }
         //scroll to last needed song row to trigger lazy loading
@@ -651,9 +757,8 @@ $(function() {
           selectedRatings.push(item.rating);
           playlist.push(item);
         });
-        if (!cb) {
-          return playlist;
-        }
+        if (!cb) return playlist;
+
         if (!update || playlist.length) {
           cb(playlist, update);
           update = true;
@@ -666,28 +771,26 @@ $(function() {
               //avoid conflicts with DOMSubtreeModified handler that listens for list rating changes
               if (queue) queueRatings = null;
               else listRatings[ci] = null;
-              lastLoaded.scrollIntoView(true);
+              lastLoaded.scrollIntoView(false);
+              needActiveTab(loadNextSongs);
             }
             asyncListTimer = setTimeout(loadNextSongs, 150);
           }
-        }
+        } else restoreActiveTab(loadNextSongs);
       }
       if (!cb) return loadNextSongs();
       pausePlaylistParsing = false;
       loadNextSongs();
     },
     albumContainers: function(parent, end, cb) {
-      var items = [];
-      parent.children(".material-card").slice(0, end).each(function() {
-        var card = $(this);
-        var item = {};
-        item.cover = parseCover(card.find(".image-inner-wrapper img"));
-        item.title = $.trim(card.find(".details .title").text());
-        item.link = getLink(card);
-        items.push(item);
-      });
-      if (!cb) return items;
-      cb(items);
+      return parseCards(function(card) {
+        var link = getLink(card);
+        return link ? {
+          cover: parseCover(card.find(".image-inner-wrapper img")),
+          title: $.trim(card.find(".details .title").text()),
+          link: link
+        } : null;
+      }, parent, end, cb);
     }
   };
 
@@ -743,7 +846,7 @@ $(function() {
       var cardType = firstCard.data("type");
       if (!cardType) return null;//maybe no ".material-card" found
       type = getListType(cardType) == "playlist" ? "playlistsList" : "albumContainers";
-      listParent = firstCard.parent();
+      listParent = firstCard.closest(".material-cluster");
     }
     var list = parseNavigationList[type](listParent, 10);
     if (!list.length) return null;
@@ -794,7 +897,7 @@ $(function() {
             contentId = "#queue-container";
             response.controlLink = "#/ap/queue";
           }
-          parseNavigationList[type]($(contentId).find(":has(>.material-card),.song-table"), undefined, function(list, update) {
+          parseNavigationList[type]($(contentId).find(".material-cluster,.song-table").first(), undefined, function(list, update) {
             response.list = list;
             response.update = update;
             response.empty = !list.length;
@@ -815,9 +918,8 @@ $(function() {
       var rows = $("#music-content .song-row");
       if (rows.length) {
         if (!topFound) {
-          if (rows.first().data("index") !== 0) {
-            $("#music-content").scrollTop(0);
-            asyncListTimer = setTimeout(sendResume, 150);
+          if (rows[0] && rows.first().data("index") !== 0) {
+            asyncListTimer = scrollAndContinue(rows[0], sendResume, true);
             return;
           }
           topFound = true;
@@ -827,16 +929,15 @@ $(function() {
           var song = parseSongRow($(this));
           if (song.title == msg.title && song.duration == msg.duration && (!song.artist || !msg.artist || song.artist == msg.artist)) {
             found = true;
-            sendPlaylistRowCommand("resumePlaylistSong", { index: song.index, position: msg.position, link: location.hash });
+            sendCommand("resumePlaylistSong", { index: song.index, position: msg.position });
             return false;
           }
         });
         var last = found || rows.last();
-        if (!found && last.data("index") < last.parent().data("count") - 1) {
-          last[0].scrollIntoView(true);
-          asyncListTimer = setTimeout(sendResume, 150);
-        }
-      }
+        console.debug("resumeSong - last", last);
+        if (!found && last[0] && last.data("index") < last.parent().data("count") - 1) asyncListTimer = scrollAndContinue(last[0], sendResume, false);
+        else restoreActiveTab(sendResume);
+      } else console.debug("resumeSong - no rows");
     }
     sendResume();
   }
@@ -882,6 +983,9 @@ $(function() {
       if (msg.enabled) enableLyrics(msg.fontSize, msg.width);
       else disableLyrics();
       lyricsAutoReload = msg.autoReload;
+      break;
+    case "starRatingMode":
+      toggleStarRatingMode(msg.value);
       break;
     case "alreadyConnected":
       port.disconnect();

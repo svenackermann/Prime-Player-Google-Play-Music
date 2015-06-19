@@ -10,6 +10,7 @@
 
 /* global hex_md5 */
 /* exported LastFM */
+/* jshint jquery: true */
 
 function LastFM(apiKey, apiSecret) {
   var API_URL    = "https://ws.audioscrobbler.com/2.0/";

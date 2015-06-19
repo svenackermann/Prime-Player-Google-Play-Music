@@ -1,4 +1,4 @@
-/*jshint node: true, jquery: false, devel: false, browser: false */
+/*jshint node: true, devel: false, browser: false */
 var gulp = require("gulp");
 var jshint = require("gulp-jshint");
 var jscs = require("gulp-jscs");
@@ -18,7 +18,7 @@ var n2a = require("gulp-native2ascii");
 var runSequence = require("run-sequence");
 var gulpif = require("gulp-if");
 var argv = require("yargs").argv;
-var develop = true;
+var develop = !argv.dist;
 var full = argv.full;
 
 var PATHS = {
@@ -124,12 +124,13 @@ gulp.task("zip", function() {
         //remove *.map from web_accessible_resources
         // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
         var war = json.web_accessible_resources;
-        // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
         for (var i = 0; i < war.length;) {
           if (war[i].search(/\.map\b/) > 0) war.splice(i, 1);
           else i++;
         }
         delete json.key;
+        delete json.homepage_url;
+        // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
       }
       return json;
     }))

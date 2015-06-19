@@ -204,8 +204,16 @@
     "description": "label for option to auto-link ratings"
   },
   "setting_linkRatingsAutoHint": {
-    "message": "When a song starts that you already rated 5 stars/thumbs up but is not loved in last.fm, it will be loved without user interaction. If it is loved already and has no rating in Google Music, it will be given 5 stars/thumbs up.",
+    "message": "When a song starts that you already rated thumbs up/five stars but is not loved in last.fm, it will be loved without user interaction. If it is loved already and has no rating in Google Music, it will be given thumbs up/five stars.",
     "description": "hint for option to auto-link ratings"
+  },
+  "setting_linkRatingsReset": {
+    "message": "Also reset ratings",
+    "description": "label for option to reset ratings"
+  },
+  "setting_linkRatingsResetHint": {
+    "message": "Unlove a song when its rating is removed or it is rated thumbs down respectivly remove the thumbs up rating when the song is unloved. This does not apply to auto-linked ratings (see option above).",
+    "description": "hint for option to reset ratings"
   },
   "setting_showLovedIndicator": {
     "message": "Show loved status in icon",
@@ -336,7 +344,7 @@
     "description": "title for the miniplayer settings on options page"
   },
   "legendMiniplayerHint": {
-    "message": "The miniplayer is a powerful, highly customizable tool, so take your time to try the different options out. You can open the miniplayer e.g. by clicking on the note icon in the popup that shows up when you click the Prime Player icon in the Chrome toolbar.",
+    "message": "The miniplayer is a powerful, highly customizable tool, so take your time to try the different options out. You can open the miniplayer e.g. by clicking on the headphones icon in the popup that shows up when you click the Prime Player icon in the Chrome toolbar.",
     "description": "hint for the miniplayer settings on options page"
   },
   "legendLookfeel": {
@@ -480,6 +488,18 @@
     "message": "Normally, when you rate a song with the rating it already has, its rating is reset to unrated. When you use keyboard shortcuts or the notification actions for rating, you typically don't want this, because you can't see the current rating. Deactivate this option to reset the rating in that case anyway.",
     "description": "hint for option to prevent rating resets"
   },
+  "setting_autoActivateGm": {
+    "message": "Make Google Music tab visible when needed",
+    "description": "label for option to automatically activate the Google Music tab when needed"
+  },
+  "setting_autoActivateGmHint": {
+    "message": "Some operations (e.g. song position change, fast forward, parsing of longer playlists) need the Google Music tab to be visible to work correctly. With this option enabled, the tab will automatically be made visible in such cases.",
+    "description": "hint for option to automatically activate the Google Music tab when needed"
+  },
+  "setting_autoRestoreGm": {
+    "message": "Restore the previously visible tab/window afterwards",
+    "description": "label for option to restore the tab/window after the Google Music tab has been automatically activated"
+  },
   "setting_updateNotifier": {
     "message": "Notify on updates (icon becomes orange)",
     "description": "label for option to be notified on extension updates"
@@ -515,6 +535,14 @@
   "setting_saveLastPositionHint": {
     "message": "Saves the last played song with its position (locally), so you know where you left off before closing Google Music. The last song will be displayed in the miniplayer like a normal song with some limitations. The play button will try to load the song's album and resume the song at its last position. Unfortunately, it's not possible to restore your last queue or playlist on restart.",
     "description": "hint for option to save last song position"
+  },
+  "setting_starRatingMode": {
+    "message": "Use star ratings (experimental)",
+    "description": "label for option to use star rating mode"
+  },
+  "setting_starRatingModeHint": {
+    "message": "The star ratings lab has been removed by Google. However, your old ratings are still available and can still be changed. This option tries to bring that feature back, but might be broken as soon as Google completely removes the star ratings or (hopefully) reintroduces them. The stars are only visible within Prime Player, the Google page itself still shows the thumbs.",
+    "description": "hint for option to use star rating mode"
   },
   "setting_hideFavorites": {
     "message": "Hide favorites in miniplayer and context menu",
@@ -858,7 +886,7 @@
     "description": "text for fast forward in toast action and keyboard shortcut"
   },
   "command_rate1": {
-    "message": "Rate thumbs down",
+    "message": "Rate 1 star/thumbs down",
     "description": "text for rate 1 in toast action (if not connected to Google Music) and keyboard shortcut"
   },
   "command_rate2": {
@@ -874,7 +902,7 @@
     "description": "text for rate 4 in toast action and keyboard shortcut"
   },
   "command_rate5": {
-    "message": "Rate thumbs up",
+    "message": "Rate 5 stars/thumbs up",
     "description": "text for rate 5 in toast action (if not connected to Google Music) and keyboard shortcut"
   },
   "command_showToast": {
@@ -1146,7 +1174,7 @@
     "placeholders": { "TEXT": { "content": "$1", "example": "mysearch" } }
   },
   "ob_loading": {
-    "message": "Loading results for $TEXT$...",
+    "message": "Loading results for $TEXT$",
     "description": "omnibox default suggestion text while searching for results",
     "placeholders": { "TEXT": { "content": "$1", "example": "mysearch" } }
   },
