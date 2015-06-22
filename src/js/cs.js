@@ -279,6 +279,7 @@ $(function() {
         }
         rating = parseRating(currentSongRow.children("[data-col='rating']")[0]);
       } else {
+        rating = 0;
         ratingContainer.children("[data-rating]").each(function() {
           if (isRatingActive(this)) {
             rating = parseRating(this);
