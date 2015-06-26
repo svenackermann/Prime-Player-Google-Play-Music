@@ -151,17 +151,20 @@
     if (!ratingContainer) return false;
     var button = ratingContainer.querySelector("[data-rating='" + rating + "']");
     var reset;
-    if (!button) {
-      //for star-only ratings (2-4), temporarily set data-rating of thumbs up to the selected rating
-      if (rating < 2 || rating > 4) return false;
-      button = ratingContainer.querySelector("[data-rating='5']");
-      if (!button) return false;
-      reset = true;
-      button.dataset.rating = rating;
-    }
-    simulateClick(button);
-    if (reset) {
-      button.dataset.rating = 5;
+    try {
+      if (!button) {
+        //for star-only ratings (2-4), temporarily set data-rating of thumbs up to the selected rating
+        if (rating < 2 || rating > 4) return false;
+        button = ratingContainer.querySelector("[data-rating='5']");
+        if (!button) return false;
+        reset = true;
+        button.dataset.rating = rating;
+      }
+      simulateClick(button);
+    } finally {
+      if (reset) {
+        button.dataset.rating = 5;
+      }
     }
     return true;
   }
