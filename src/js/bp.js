@@ -1791,7 +1791,7 @@ function fixForUri(string) {
   function updateContextMenuConnectedItem(cmds) {
     if (player.connected) {
       cmds.forEach(function(cmd) {
-        chromeContextMenus.update(cmd, { title: getCommandText(cmd), enabled: isCommandAvailable(cmd) });
+        chromeContextMenus.update(cmd, { title: getCommandText(cmd), enabled: isCommandAvailable(cmd) }, ignoreLastError);
       });
     }
   }
