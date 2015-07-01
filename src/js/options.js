@@ -59,11 +59,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function toastChanged() {
     $("#_toast").prop("checked", settings.toast);
-    $("#_toastIfMpOpen, #_toastNotIfGmActive, #_toastDuration").prop("disabled", !settings.toast);
-    $("#_toastIfMpMinimized").prop("disabled", !settings.toast || !settings.toastIfMpOpen);
-    $("#_toastUseMpStyle").prop("disabled", !settings.toast || !localSettings.notificationsEnabled);
-    $("fieldset.toast > .notif").children("input, select").prop("disabled", !settings.toast || settings.toastUseMpStyle);
-    $("#toast").children(".hint").toggle(!settings.toastIfMpOpen);
+    var toastDisabled = !settings.toast && !settings.toastOnPlayPause;
+    $("#_toastIfMpOpen, #_toastNotIfGmActive, #_toastDuration").prop("disabled", toastDisabled);
+    $("#_toastIfMpMinimized").prop("disabled", toastDisabled || !settings.toastIfMpOpen);
+    $("#_toastUseMpStyle").prop("disabled", toastDisabled || !localSettings.notificationsEnabled);
+    $("fieldset.toast > .notif").children("input, select").prop("disabled", toastDisabled || settings.toastUseMpStyle);
   }
 
   function lyricsChanged() {
@@ -562,9 +562,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
     //{ toast settings
     $("#notificationDisabledWarning").text(i18n("notificationsDisabled"));
-    $("#_toast").click(toastChanged);
-    $("#_toastIfMpOpen").click(toastChanged);
-    $("#_toastUseMpStyle").click(toastChanged);
+    $("#_toast,#_toastOnPlayPause,#_toastIfMpOpen,#_toastUseMpStyle").click(toastChanged);
     //}
 
     //{ miniplayer settings

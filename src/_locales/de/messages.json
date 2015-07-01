@@ -21,10 +21,10 @@
     "message": "Scrobbeln aktivieren"
   },
   "setting_toast": {
-    "message": "Toast-Benachrichtigungen aktivieren"
+    "message": "Toast bei neuem Titel aktivieren"
   },
-  "setting_toastHint": {
-    "message": "Toast-Benachrichtigungen werden nicht angezeigt, solange der Miniplayer aktiv ist."
+  "setting_toastOnPlayPause": {
+    "message": "Toast bei Pause/Wiedergabe via Tastatur-Kürzel"
   },
   "openMiniplayer": {
     "message": "Miniplayer öffnen"
@@ -252,7 +252,7 @@
     "message": "Toast Einstellungen"
   },
   "legendToastHint": {
-    "message": "Toasts sind Desktop-Benachrichtigungen, die den aktuellen Titel anzeigen und ein paar Aktionen erlauben. Immer wenn ein neuer Titel startet, erscheint ein Toast auf dem Bildschirm."
+    "message": "Toasts sind Desktop-Benachrichtigungen, die den aktuellen Titel anzeigen und ein paar Aktionen erlauben. Immer wenn ein neuer Titel startet, erscheint ein Toast auf dem Bildschirm. Toast-Benachrichtigungen werden nicht angezeigt, solange der Miniplayer aktiv ist."
   },
   "legendMiniplayer": {
     "message": "Miniplayer Einstellungen"
