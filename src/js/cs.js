@@ -473,7 +473,7 @@ $(function() {
 
     $("#playerSongInfo").on("click", ".rating-container > *[data-rating]", function(e) {
       //when click is simulated by injected script, clientX will be 0
-      if (e.clientX) ratedInGpm = isRatingActive(this) ? parseRating(this) : 0;
+      if (e.clientX) ratedInGpm = isRatingActive(this) ? 0 : parseRating(this);
     });
     //listen for "mouseup", because "click" won't bubble up to "#music-content" and we can't attach this directly to ".rating-container" because it's dynamically created
     $("#music-content,#queue-container").on("mouseup", ".song-row td[data-col='rating'] ul.rating-container li[data-rating]", function() {

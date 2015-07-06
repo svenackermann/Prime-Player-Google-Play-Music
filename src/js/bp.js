@@ -124,6 +124,7 @@ function fixForUri(string) {
     //}
     //{ toast
     toast: true,
+    toastOnPlayPause: false,
     toastDuration: 0,
     toastIfMpOpen: false,
     toastIfMpMinimized: false,
@@ -1331,6 +1332,25 @@ function fixForUri(string) {
     });
   }
 
+  /** Open a toast if the user settings "toastIfMpOpen", "toastIfMpMinimized" and "toastNotIfGmActive" match. */
+  function openToastIfNeeded() {
+    function doToast() {
+      if (!settings.toastNotIfGmActive) openToast();
+      else chromeTabs.get(googlemusictabId, function(tab) {
+        if (tab.active) chromeWindows.get(tab.windowId, function(win) { if (!win.focused) openToast(); });
+        else openToast();
+      });
+    }
+
+    if (!miniplayer && !(settings.mpAutoOpen && !player.playing) || settings.toastIfMpOpen) {
+      if (miniplayer && settings.toastIfMpMinimized) {
+        chromeWindows.get(miniplayer.id, function(win) {
+          if (win.state == "minimized") doToast();
+        });
+      } else doToast();
+    }
+  }
+
   function updateToast() {
     if (toastOptions && song.info) {
       var iconUrl = toastOptions.iconUrl;
@@ -1791,7 +1811,7 @@ function fixForUri(string) {
   function updateContextMenuConnectedItem(cmds) {
     if (player.connected) {
       cmds.forEach(function(cmd) {
-        chromeContextMenus.update(cmd, { title: getCommandText(cmd), enabled: isCommandAvailable(cmd) });
+        chromeContextMenus.update(cmd, { title: getCommandText(cmd), enabled: isCommandAvailable(cmd) }, ignoreLastError);
       });
     }
   }
@@ -2148,23 +2168,9 @@ function fixForUri(string) {
     song.loved = null;
     song.timestamp = null;
 
-    function doToast() {
-      if (!settings.toastNotIfGmActive) openToast();
-      else chromeTabs.get(googlemusictabId, function(tab) {
-        if (tab.active) chromeWindows.get(tab.windowId, function(win) { if (!win.focused) openToast(); });
-        else openToast();
-      });
-    }
-
     if (info) {
       info.durationSec = parseSeconds(info.duration);
-      if (settings.toast && (!miniplayer && !(settings.mpAutoOpen && !player.playing) || settings.toastIfMpOpen)) {
-        if (miniplayer && settings.toastIfMpMinimized) {
-          chromeWindows.get(miniplayer.id, function(win) {
-            if (win.state == "minimized") doToast();
-          });
-        } else doToast();
-      }
+      if (settings.toast) openToastIfNeeded();
       if (!settings.hideRatings || settings.showLastfmInfo) loadCurrentLastfmInfo();
     } else closeToast();
 
@@ -2339,6 +2345,9 @@ function fixForUri(string) {
   function executeCommand(command, src) {
     switch (command) {
     case "playPause":
+      //open toast when keyboard shortcut is pressed
+      if (!src && settings.toastOnPlayPause && song.info) openToastIfNeeded();
+      /* falls through */
     case "nextSong":
     case "prevSong":
     case "toggleRepeat":

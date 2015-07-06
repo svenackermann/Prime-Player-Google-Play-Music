@@ -28,12 +28,12 @@
     "description": "label for option to enable scrobbling"
   },
   "setting_toast": {
-    "message": "Enable toast notifications",
+    "message": "Enable toast on new song",
     "description": "label for option to enable toasts"
   },
-  "setting_toastHint": {
-    "message": "Toast notifications will not show up as long as the miniplayer is active.",
-    "description": "enable toast option hint text"
+  "setting_toastOnPlayPause": {
+    "message": "Toast on pause/resume via keyboard shortcut",
+    "description": "label for option to toast on play/pause"
   },
   "openMiniplayer": {
     "message": "Open miniplayer",
@@ -336,7 +336,7 @@
     "description": "title for the toast settings on options page"
   },
   "legendToastHint": {
-    "message": "Toasts are desktop notifications that show you the current song and allow for some actions. Whenever a new song starts, a toast will appear on your screen.",
+    "message": "Toasts are desktop notifications that show you the current song and allow for some actions. Whenever a new song starts, a toast will appear on your screen. Toast notifications will not show up as long as the miniplayer is active.",
     "description": "hint for the toast settings on options page"
   },
   "legendMiniplayer": {
