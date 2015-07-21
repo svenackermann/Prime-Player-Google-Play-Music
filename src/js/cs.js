@@ -490,9 +490,9 @@ $(function() {
       if (!$("#loading-progress").is(":visible")) {
         clearInterval(sendConnectedInterval);
         var ql = {};
-        var nav = $("#nav_collections");
-        ql.now = $.trim(nav.children("a[data-type='now']").text());
-        ql.rd = $.trim(nav.children("a[data-type='rd']").text());
+        $("#nav_collections > *[data-type]").each(function() {
+          ql[$(this).data("type")] = $.trim($(this).text());
+        });
         $("#header-tabs-container .tab-container > *[data-type]").each(function() {
           ql[$(this).data("type")] = $.trim($(this).text());
         });
@@ -816,20 +816,16 @@ $(function() {
       return "albumContainers";
     case "now":
     case "albums":
-    case "rd":
     case "artist":
+    case "wta":
+    case "wnr":
     case "sar":
     case "tg":
     case "sral":
     case "srp":
     case "saral":
     case "ar":
-    case "exprec":
-    case "expnew":
       return "playlistsList";
-    case "exptop": //depend on content
-    case "expgenremore":
-      return $("#music-content .song-table").length ? "playlist" : "playlistsList";
     default:
       return "playlist";
     }
@@ -884,7 +880,7 @@ $(function() {
       }
       if (error) {
         sendError();
-      } else if (link == "exptop" || link == "exprec" || link == "rd" || !link.indexOf("expgenres/") || !link.indexOf("artist/") || !link.indexOf("sr/")) {
+      } else if (!link.indexOf("artist/") || !link.indexOf("sr/") || !link.indexOf("wtc/") || !link.indexOf("wms/")) {
         sendMixed(response);
       } else {
         var autoQueueList = isAutoQueueList(link);

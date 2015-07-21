@@ -533,8 +533,8 @@
   "quicklink_genres": {
     "message": "Жанры"
   },
-  "quicklink_rd": {
-    "message": "Автомикс/Радио"
+  "quicklink_wms": {
+    "message": "Радиостанции"
   },
   "quicklink_ap_queue": {
     "message": "Очередь"
@@ -548,17 +548,11 @@
   "quicklink_ap_auto_playlist_promo": {
     "message": "Музыка из Google Play"
   },
-  "quicklink_ap_google_play_recommends": {
-    "message": "Рекомендации Google Play"
+  "quicklink_wnr": {
+    "message": "Новинки"
   },
-  "quicklink_exptop": {
-    "message": "Интересное"
-  },
-  "quicklink_expnew": {
-    "message": "Новые"
-  },
-  "quicklink_exprec": {
-    "message": "Рекомендуем"
+  "quicklink_wtc": {
+    "message": "Хит-парад"
   },
   "openLink": {
     "message": "Открыть '$LINK$'",
