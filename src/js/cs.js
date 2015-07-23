@@ -232,7 +232,8 @@ $(function() {
 
   /** @return info object for the current song or null if none is playing */
   function parseSongInfo(extended) {
-    if ($("#playerSongInfo").find("div").length) {
+    var playerSongInfo = $("#playerSongInfo");
+    if (playerSongInfo.is(":visible") && playerSongInfo.find("div").length) {
       var artist = $("#player-artist");
       var album = $("#playerSongInfo").find(".player-album");
       var albumId = album.data("id");
