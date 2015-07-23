@@ -221,6 +221,8 @@ function fixForUri(string) {
   var player = new Bean({
     shuffle: "",
     repeat: "",
+    rewind: false,
+    forward: false,
     playing: null,
     volume: null,
     navigationList: null,

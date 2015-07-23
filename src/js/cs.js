@@ -336,13 +336,16 @@ $(function() {
 
     /** @return null if play button is disabled or true/false if a song is playing/paused */
     function playingGetter(el) {
-      var play = $(el);
-      return play.is(":disabled") ? null : play.hasClass("playing");
+      return enabledGetter(el) ? $(el).hasClass("playing") : null;
+    }
+
+    function enabledGetter(el) {
+      return $(el).attr("disabled") === undefined;
     }
 
     /** @return shuffle state (NO_SHUFFLE/ALL_SHUFFLE) or null if shuffle is not available */
     function shuffleGetter(el) {
-      return $(el).is(":disabled") ? null : el.getAttribute("value");
+      return enabledGetter(el) ? el.value : null;
     }
 
     /** Execute 'executeOnContentLoad' (if set) when #queue-container is changed. */
@@ -438,9 +441,12 @@ $(function() {
     watchContent(sendPosition, "#time_container_current");
     watchContent(musicContentLoaded, "#music-content", 1000);
     watchContent(queueLoaded, "#queue-container", 1000);
-    watchAttr("class disabled", "#player > div.material-player-middle > [data-id='play-pause']", "player-playing", playingGetter, 500);
-    watchAttr("value", "#player > div.material-player-middle > [data-id='repeat']", "player-repeat");
-    watchAttr("value", "#player > div.material-player-middle > [data-id='shuffle']", "player-shuffle", shuffleGetter);
+    var playerButtonPrefix = "#player > div.material-player-middle > [data-id='";
+    watchAttr("class disabled", playerButtonPrefix + "play-pause']", "player-playing", playingGetter, 500);
+    watchAttr("disabled", playerButtonPrefix + "rewind']", "player-rewind", enabledGetter);
+    watchAttr("disabled", playerButtonPrefix + "forward']", "player-forward", enabledGetter);
+    watchAttr("value", playerButtonPrefix + "repeat']", "player-repeat");
+    watchAttr("value", playerButtonPrefix + "shuffle']", "player-shuffle", shuffleGetter);
     watchAttr("aria-valuenow", "#material-vslider", "player-volume");
 
     $("#music-content,#queue-container").on("DOMSubtreeModified", ".song-row td[data-col='rating']", function() {
