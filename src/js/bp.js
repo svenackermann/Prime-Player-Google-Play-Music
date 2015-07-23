@@ -2300,7 +2300,9 @@ function fixForUri(string) {
     case "resumeLastSong":
       return settings.saveLastPosition && !!lastSongInfo;
     case "prevSong":
+      return player.rewind;
     case "nextSong":
+      return player.forward;
     case "ff":
       return !!song.info;
     case "volumeUp":
@@ -2327,7 +2329,7 @@ function fixForUri(string) {
   }
 
   function updateIconClickActionListeners(cmd) {
-    //player.playing is already watched if cmd=="playPause"
+    //player.playing is already watched by commandOptionListener if cmd=="playPause"
     //song.info listener always triggers updateBrowserActionInfo
 
     function updateListener(add, bean, prop) {
@@ -2335,6 +2337,8 @@ function fixForUri(string) {
     }
 
     updateListener(cmd.indexOf("volume") === 0, player, "volume");
+    updateListener(cmd == "prevSong", player, "rewind");
+    updateListener(cmd == "nextSong", player, "forward");
     updateListener(cmd == "toggleRepeat", player, "repeat");
     updateListener(cmd == "toggleShuffle", player, "shuffle");
     updateListener(cmd == "loveUnloveSong", localSettings, "lastfmSessionKey");
@@ -2349,6 +2353,8 @@ function fixForUri(string) {
 
   player.al("playing", updateContextMenuConnectedItem.bind(window, ["playPause"]));
   player.al("volume", updateContextMenuConnectedItem.bind(window, ["volumeUp", "volumeDown", "volumeMute"]));
+  player.al("rewind", updateContextMenuConnectedItem.bind(window, ["prevSong"]));
+  player.al("forward", updateContextMenuConnectedItem.bind(window, ["nextSong"]));
   player.al("repeat", updateContextMenuConnectedItem.bind(window, ["toggleRepeat"]));
   player.al("shuffle", updateContextMenuConnectedItem.bind(window, ["toggleShuffle"]));
   song.al("loved", updateContextMenuConnectedItem.bind(window, ["loveUnloveSong"]));
