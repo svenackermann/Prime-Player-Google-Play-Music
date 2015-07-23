@@ -232,7 +232,8 @@ $(function() {
 
   /** @return info object for the current song or null if none is playing */
   function parseSongInfo(extended) {
-    if ($("#playerSongInfo").find("div").length) {
+    var playerSongInfo = $("#playerSongInfo");
+    if (playerSongInfo.is(":visible") && playerSongInfo.find("div").length) {
       var artist = $("#player-artist");
       var album = $("#playerSongInfo").find(".player-album");
       var albumId = album.data("id");
@@ -336,13 +337,16 @@ $(function() {
 
     /** @return null if play button is disabled or true/false if a song is playing/paused */
     function playingGetter(el) {
-      var play = $(el);
-      return play.is(":disabled") ? null : play.hasClass("playing");
+      return enabledGetter(el) ? $(el).hasClass("playing") : null;
+    }
+
+    function enabledGetter(el) {
+      return $(el).attr("disabled") === undefined;
     }
 
     /** @return shuffle state (NO_SHUFFLE/ALL_SHUFFLE) or null if shuffle is not available */
     function shuffleGetter(el) {
-      return $(el).is(":disabled") ? null : el.getAttribute("value");
+      return enabledGetter(el) ? el.value : null;
     }
 
     /** Execute 'executeOnContentLoad' (if set) when #queue-container is changed. */
@@ -438,9 +442,12 @@ $(function() {
     watchContent(sendPosition, "#time_container_current");
     watchContent(musicContentLoaded, "#music-content", 1000);
     watchContent(queueLoaded, "#queue-container", 1000);
-    watchAttr("class disabled", "#player > div.material-player-middle > [data-id='play-pause']", "player-playing", playingGetter, 500);
-    watchAttr("value", "#player > div.material-player-middle > [data-id='repeat']", "player-repeat");
-    watchAttr("value", "#player > div.material-player-middle > [data-id='shuffle']", "player-shuffle", shuffleGetter);
+    var playerButtonPrefix = "#player > div.material-player-middle > [data-id='";
+    watchAttr("class disabled", playerButtonPrefix + "play-pause']", "player-playing", playingGetter, 500);
+    watchAttr("disabled", playerButtonPrefix + "rewind']", "player-rewind", enabledGetter);
+    watchAttr("disabled", playerButtonPrefix + "forward']", "player-forward", enabledGetter);
+    watchAttr("value", playerButtonPrefix + "repeat']", "player-repeat");
+    watchAttr("value", playerButtonPrefix + "shuffle']", "player-shuffle", shuffleGetter);
     watchAttr("aria-valuenow", "#material-vslider", "player-volume");
 
     $("#music-content,#queue-container").on("DOMSubtreeModified", ".song-row td[data-col='rating']", function() {
@@ -490,9 +497,9 @@ $(function() {
       if (!$("#loading-progress").is(":visible")) {
         clearInterval(sendConnectedInterval);
         var ql = {};
-        var nav = $("#nav_collections");
-        ql.now = $.trim(nav.children("a[data-type='now']").text());
-        ql.rd = $.trim(nav.children("a[data-type='rd']").text());
+        $("#nav_collections > *[data-type]").each(function() {
+          ql[$(this).data("type")] = $.trim($(this).text());
+        });
         $("#header-tabs-container .tab-container > *[data-type]").each(function() {
           ql[$(this).data("type")] = $.trim($(this).text());
         });
@@ -816,20 +823,16 @@ $(function() {
       return "albumContainers";
     case "now":
     case "albums":
-    case "rd":
     case "artist":
+    case "wta":
+    case "wnr":
     case "sar":
     case "tg":
     case "sral":
     case "srp":
     case "saral":
     case "ar":
-    case "exprec":
-    case "expnew":
       return "playlistsList";
-    case "exptop": //depend on content
-    case "expgenremore":
-      return $("#music-content .song-table").length ? "playlist" : "playlistsList";
     default:
       return "playlist";
     }
@@ -884,7 +887,7 @@ $(function() {
       }
       if (error) {
         sendError();
-      } else if (link == "exptop" || link == "exprec" || link == "rd" || !link.indexOf("expgenres/") || !link.indexOf("artist/") || !link.indexOf("sr/")) {
+      } else if (!link.indexOf("artist/") || !link.indexOf("sr/") || !link.indexOf("wtc/") || !link.indexOf("wms/")) {
         sendMixed(response);
       } else {
         var autoQueueList = isAutoQueueList(link);

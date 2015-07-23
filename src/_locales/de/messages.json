@@ -545,14 +545,14 @@
   "quicklink_genres": {
     "message": "Genres"
   },
-  "quicklink_rd": {
-    "message": "Schnellmixe/Radio"
+  "quicklink_wms": {
+    "message": "Sender"
   },
   "quicklink_ap_queue": {
     "message": "Wiedergabeliste"
   },
   "quicklink_ap_auto_playlist_thumbs_up": {
-    "message": "Hoch bewertet/Mag ich"
+    "message": "Mag ich"
   },
   "quicklink_ap_auto_playlist_recent": {
     "message": "Zuletzt hinzugefügt"
@@ -560,17 +560,11 @@
   "quicklink_ap_auto_playlist_promo": {
     "message": "Kostenlos & gekauft"
   },
-  "quicklink_ap_google_play_recommends": {
-    "message": "Empfehlungen auf Play"
-  },
-  "quicklink_exptop": {
-    "message": "Angesagt"
-  },
-  "quicklink_expnew": {
+  "quicklink_wnr": {
     "message": "Neuerscheinungen"
   },
-  "quicklink_exprec": {
-    "message": "Empfehlungen"
+  "quicklink_wtc": {
+    "message": "Top-Charts"
   },
   "openLink": {
     "message": "Öffne '$LINK$'",

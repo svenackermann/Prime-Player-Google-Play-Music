@@ -39,7 +39,6 @@
     var playButton;
     var hash = location.hash.substr(2);
     if (!hash.indexOf("artist/")) playButton = document.querySelector("#music-content .actions [data-id='radio']");
-    else if (!hash.indexOf("expgenres/")) playButton = document.querySelector("#action_bar_container [data-id='start-genre-radio']");
 
     playButton = playButton || document.querySelector("#music-content .material-container-details [data-id='play']");
     if (playButton) simulateClick(playButton);

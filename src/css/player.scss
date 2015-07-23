@@ -108,10 +108,6 @@ a {
   #pause {
     cursor: pointer;
   }
-  #prev, #next {
-    opacity: 1;
-    cursor: pointer;
-  }
   #timeBarHolder {
     cursor: pointer;
   }
@@ -327,15 +323,15 @@ a {
 ::-webkit-scrollbar {
     width: 12px;
 }
- 
+
 ::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
     border-radius: 10px;
 }
- 
+
 ::-webkit-scrollbar-thumb {
     border-radius: 10px;
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
 }
 
 .fav {
@@ -929,8 +925,12 @@ a {
   }
 }
 
-#prev, #next, #showlyrics {
+#prev, #next {
   opacity: 0.2;
+  &.enabled {
+    opacity: 1;
+    cursor: pointer;
+  }
 }
 
 a#showfavorites {
@@ -941,6 +941,7 @@ a#showfavorites {
 }
 
 #showlyrics {
+  opacity: 0.2;
   display: none;
 }
 

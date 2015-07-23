@@ -86,6 +86,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
 
+  function rewindWatcher(val) {
+    $("#prev").toggleClass("enabled", val);
+  }
+
+  function forwardWatcher(val) {
+    $("#next").toggleClass("enabled", val);
+  }
+
   function playingWatcher(val) {
     $("#resume").toggleClass("enabled", val !== null);
     $("body").toggleClass("playing", val === true);
@@ -1049,6 +1057,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
     player.w("repeat", repeatWatcher, typeClass);
     player.w("shuffle", shuffleWatcher, typeClass);
+    player.w("rewind", rewindWatcher, typeClass);
+    player.w("forward", forwardWatcher, typeClass);
     player.w("playing", playingWatcher, typeClass);
     player.w("volume", volumeWatcher, typeClass);
     player.w("connected", connectedWatcher, typeClass);

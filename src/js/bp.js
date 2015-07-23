@@ -89,7 +89,7 @@ function fixForUri(string) {
     playlistSizing: { width: 500, height: 295 },
     albumContainersSizing: { width: 220, height: 320 },
     mixedSizing: { width: 350, height: 320 },
-    quicklinksSizing: { width: 280, height: 160 },
+    quicklinksSizing: { width: 280, height: 150 },
     favoritesSizing: { width: 280, height: 200 },
     lyricsSizing: { width: 400, height: 400 },
     timerMinutes: 60,
@@ -221,6 +221,8 @@ function fixForUri(string) {
   var player = new Bean({
     shuffle: "",
     repeat: "",
+    rewind: false,
+    forward: false,
     playing: null,
     volume: null,
     navigationList: null,
@@ -287,15 +289,14 @@ function fixForUri(string) {
       "artists",
       "albums",
       "genres",
-      "rd",
+      "wms",
       "myPlaylists",
       "ap/queue",
       "ap/auto-playlist-thumbs-up",
       "ap/auto-playlist-recent",
       "ap/auto-playlist-promo"
     ];
-    if (localSettings.quicklinks && localSettings.quicklinks.exptop) quicklinks.push("exptop", "expnew", "exprec");
-    else quicklinks.push("ap/google-play-recommends");
+    if (localSettings.quicklinks && localSettings.quicklinks.wtc) quicklinks.push("wtc", "wnr");
     return quicklinks;
   }
 
@@ -1598,6 +1599,17 @@ function fixForUri(string) {
       //fix skipRatedLower property that might have become a string
       settings.skipRatedLower = parseInt(settings.skipRatedLower);
     }
+
+    //--- 3.4 ---
+    function migrateQuicklink(name) {
+      if (settings[name] == "rd") settings[name] = "wms";
+      else if (settings[name] == "expnew") settings[name] = "wnr";
+      else if (settings[name] == "exptop") settings[name] = "wtc";
+      else if (settings[name] == "exprec" || settings[name] == "ap/google-play-recommends") settings[name] = "";
+    }
+    migrateQuicklink("coverClickLink");
+    migrateQuicklink("titleClickLink");
+    if (localSettings.quicklinks && localSettings.quicklinks.exptop) localSettings.quicklinks.wtc = i18n("quicklink_wtc");
   }
 
   /** handler for onInstalled event (show the orange icon on update / notification on install) */
@@ -2288,7 +2300,9 @@ function fixForUri(string) {
     case "resumeLastSong":
       return settings.saveLastPosition && !!lastSongInfo;
     case "prevSong":
+      return player.rewind;
     case "nextSong":
+      return player.forward;
     case "ff":
       return !!song.info;
     case "volumeUp":
@@ -2315,7 +2329,7 @@ function fixForUri(string) {
   }
 
   function updateIconClickActionListeners(cmd) {
-    //player.playing is already watched if cmd=="playPause"
+    //player.playing is already watched by commandOptionListener if cmd=="playPause"
     //song.info listener always triggers updateBrowserActionInfo
 
     function updateListener(add, bean, prop) {
@@ -2323,6 +2337,8 @@ function fixForUri(string) {
     }
 
     updateListener(cmd.indexOf("volume") === 0, player, "volume");
+    updateListener(cmd == "prevSong", player, "rewind");
+    updateListener(cmd == "nextSong", player, "forward");
     updateListener(cmd == "toggleRepeat", player, "repeat");
     updateListener(cmd == "toggleShuffle", player, "shuffle");
     updateListener(cmd == "loveUnloveSong", localSettings, "lastfmSessionKey");
@@ -2337,6 +2353,8 @@ function fixForUri(string) {
 
   player.al("playing", updateContextMenuConnectedItem.bind(window, ["playPause"]));
   player.al("volume", updateContextMenuConnectedItem.bind(window, ["volumeUp", "volumeDown", "volumeMute"]));
+  player.al("rewind", updateContextMenuConnectedItem.bind(window, ["prevSong"]));
+  player.al("forward", updateContextMenuConnectedItem.bind(window, ["nextSong"]));
   player.al("repeat", updateContextMenuConnectedItem.bind(window, ["toggleRepeat"]));
   player.al("shuffle", updateContextMenuConnectedItem.bind(window, ["toggleShuffle"]));
   song.al("loved", updateContextMenuConnectedItem.bind(window, ["loveUnloveSong"]));
