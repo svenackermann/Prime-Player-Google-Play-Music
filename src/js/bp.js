@@ -190,6 +190,7 @@ function fixForUri(string) {
     autoRestoreGm: true,
     updateNotifier: true,
     gaEnabled: true,
+    confirmClose: false,
     //}
     //{ filter
     optionsMode: "beg",
@@ -1408,6 +1409,11 @@ function fixForUri(string) {
   function closeGm() {
     if (googlemusictabId) chromeTabs.remove(googlemusictabId);
   }
+
+  /** Enable or disable the confirmation dialogue when closing the tab while music is playing */
+  function setConfirmClose(val) {
+    executeInGoogleMusic("setConfirmClose", { confirmClose: val });
+  }
   //} Google tab handling
 
   //{ miniplayer handling
@@ -1975,6 +1981,12 @@ function fixForUri(string) {
   //} idle/locked handling
 
   //{ register general listeners
+  settings.w("confirmClose", function(val) {
+    if (!val) {
+      setConfirmClose(false);
+    }
+    player.wrl("playing", setConfirmClose, val);
+  });
   settings.w("iconClickAction0 iconClickConnectAction", iconClickSettingsChanged);
   settings.w("miniplayerType", function() {
     if (miniplayer) openMiniplayer();//reopen

@@ -7,6 +7,8 @@
  * @license BSD license
  */
 (function() {
+  var confirmClose = false;
+
   /**
    * Simulate a mouse event.
    * @param eventname type of event
@@ -253,9 +255,17 @@
     case "cleanup":
       cleanup();
       break;
+    case "setConfirmClose":
+      confirmClose = event.data.options.confirmClose;
+      break;
     }
   }
 
   window.addEventListener("message", onMessage);
+  window.onbeforeunload = function() {
+    if (confirmClose) {
+      return "Google Music is currently playing.";
+    }
+  };
   console.info("Prime Player extension connected.");
 })();
