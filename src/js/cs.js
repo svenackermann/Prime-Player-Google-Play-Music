@@ -341,7 +341,13 @@ $(function() {
     }
 
     function enabledGetter(el) {
-      return $(el).attr("disabled") === undefined;
+      if($(el).hasClass("disabled")){
+        return false;
+      }
+      if($(el).attr("aria-disabled") == "true") {
+        return false;
+      }
+      return true;
     }
 
     /** @return shuffle state (NO_SHUFFLE/ALL_SHUFFLE) or null if shuffle is not available */
@@ -445,7 +451,9 @@ $(function() {
     var playerButtonPrefix = "#player > div.material-player-middle > [data-id='";
     watchAttr("class disabled", playerButtonPrefix + "play-pause']", "player-playing", playingGetter, 500);
     watchAttr("disabled", playerButtonPrefix + "rewind']", "player-rewind", enabledGetter);
+    watchAttr("aria-disabled", playerButtonPrefix + "rewind']", "player-rewind", enabledGetter);
     watchAttr("disabled", playerButtonPrefix + "forward']", "player-forward", enabledGetter);
+    watchAttr("aria-disabled", playerButtonPrefix + "forward']", "player-forward", enabledGetter);
     watchAttr("value", playerButtonPrefix + "repeat']", "player-repeat");
     watchAttr("value", playerButtonPrefix + "shuffle']", "player-shuffle", shuffleGetter);
     watchAttr("aria-valuenow", "#material-vslider", "player-volume");
