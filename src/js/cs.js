@@ -341,10 +341,10 @@ $(function() {
     }
 
     function enabledGetter(el) {
-      if($(el).hasClass("disabled")){
+      if ($(el).hasClass("disabled")) {
         return false;
       }
-      if($(el).attr("aria-disabled") == "true") {
+      if ($(el).attr("aria-disabled") == "true") {
         return false;
       }
       return true;
