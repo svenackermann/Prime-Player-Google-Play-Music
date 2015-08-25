@@ -188,6 +188,7 @@ function fixForUri(string) {
     preventCommandRatingReset: true,
     autoActivateGm: true,
     autoRestoreGm: true,
+    confirmClose: false,
     updateNotifier: true,
     gaEnabled: true,
     //}
@@ -1404,9 +1405,17 @@ function fixForUri(string) {
     });
   }
 
+  /** Enable or disable the confirmation dialogue when closing the tab while music is playing */
+  function setConfirmClose(val) {
+    postToGooglemusic({ type: "setConfirmClose", confirmClose: val });
+  }
+
   /** Close the Google Music tab. */
   function closeGm() {
-    if (googlemusictabId) chromeTabs.remove(googlemusictabId);
+    if (googlemusictabId) {
+      setConfirmClose(false);
+      chromeTabs.remove(googlemusictabId);
+    }
   }
   //} Google tab handling
 
@@ -1975,6 +1984,7 @@ function fixForUri(string) {
   //} idle/locked handling
 
   //{ register general listeners
+  settings.w("confirmClose", setConfirmClose);
   settings.w("iconClickAction0 iconClickConnectAction", iconClickSettingsChanged);
   settings.w("miniplayerType", function() {
     if (miniplayer) openMiniplayer();//reopen
@@ -2095,6 +2105,7 @@ function fixForUri(string) {
       if (settings.connectedIndicator) postToGooglemusic({ type: "connectedIndicator", show: true });
       if (localSettings.lyrics && settings.lyricsInGpm) postLyricsState();
       if (settings.starRatingMode) postStarRatingMode();
+      if (settings.confirmClose) setConfirmClose(true);
       localSettings.timerEnd = 0;
     } else {
       clearSleepTimer();

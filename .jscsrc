@@ -30,7 +30,8 @@
   },
   "requireSpacesInsideObjectBrackets": "all",
   "validateIndentation": 2,
-  "validateJSDoc": {
+  "jsDoc": {
+    "checkAnnotations": true,
     "checkParamNames": true,
     "checkRedundantParams": true
   },

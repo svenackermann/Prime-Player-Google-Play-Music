@@ -26,7 +26,9 @@ $(function() {
   var lyricsAutoReloadTimer;
   var starRatingMode = false;
   var position;
+  var playing;
   var currentRating = -1;
+  var currentSong;
   var ratedInGpm = -1;
   var needActiveTabId;
   var needActiveTabCb;
@@ -77,6 +79,11 @@ $(function() {
       return isNaN(rating) ? 0 : rating;
     }
     return -1;
+  }
+
+  /** @return true, if title and duration match and if artist is present on both songs they must also match */
+  function areSongsEqual(song1, song2) {
+    return song1.title == song2.title && song1.duration == song2.duration && (!song1.artist || !song2.artist || song1.artist == song2.artist);
   }
 
   /** Show the P-icon as indicator for successful connection. */
@@ -202,6 +209,15 @@ $(function() {
     sendRating();
   }
 
+  function confirmCloseWhenPlaying() {
+    if (playing) return i18n("musicIsPlaying");
+  }
+
+  function setConfirmClose(confirmClose) {
+    $(window).off("beforeunload", confirmCloseWhenPlaying);
+    if (confirmClose) $(window).on("beforeunload", confirmCloseWhenPlaying);
+  }
+
   /** remove all listeners/observers and revert DOM modifications */
   function cleanup() {
     sendCommand("cleanup");
@@ -210,6 +226,7 @@ $(function() {
     $("#music-content,#queue-container").off("DOMSubtreeModified mouseup");
     $("#playerSongInfo").off("click");
     $(window).off("hashchange");
+    setConfirmClose(false);
     observers.forEach(function(o) { o.disconnect(); });
     hideConnectedIndicator();
     disableLyrics();
@@ -300,8 +317,13 @@ $(function() {
     }
   }
 
-  /** add listeners/observers and extend DOM */
   function init() {
+    if ($("#playerSongInfo").length) doInit();
+    else setTimeout(init, 250);
+  }
+
+  /** add listeners/observers and extend DOM */
+  function doInit() {
     function onCleanupCsDone(event) {
       if (event.source == window && event.data.type == "FROM_PRIMEPLAYER" && event.data.msg == "cleanupCsDone") {
         window.removeEventListener("message", onCleanupCsDone);
@@ -318,10 +340,11 @@ $(function() {
     /** Send current song info to bp. */
     function sendSong() {
       var info = parseSongInfo(true);
-      if (info && lyricsAutoReload && $("#ppLyricsContainer").is(":visible")) {
+      if (info && lyricsAutoReload && $("#ppLyricsContainer").is(":visible") && !areSongsEqual(info, currentSong)) {
         clearTimeout(lyricsAutoReloadTimer);
         lyricsAutoReloadTimer = setTimeout(loadLyrics, 1000);
       }
+      currentSong = info;
       $("#ppLyricsButton").toggleClass("active", !!info);
       post("song-info", info);
     }
@@ -335,13 +358,15 @@ $(function() {
       }
     }
 
-    /** @return null if play button is disabled or true/false if a song is playing/paused */
-    function playingGetter(el) {
-      return enabledGetter(el) ? $(el).hasClass("playing") : null;
+    function enabledGetter(el) {
+      var $el = $(el);
+      return $el.attr("disabled") === undefined && !$el.hasClass("disabled");
     }
 
-    function enabledGetter(el) {
-      return $(el).attr("disabled") === undefined;
+    /** @return null if play button is disabled or true/false if a song is playing/paused */
+    function playingGetter(el) {
+      playing = enabledGetter(el) ? $(el).hasClass("playing") : null;
+      return playing;
     }
 
     /** @return shuffle state (NO_SHUFFLE/ALL_SHUFFLE) or null if shuffle is not available */
@@ -444,8 +469,8 @@ $(function() {
     watchContent(queueLoaded, "#queue-container", 1000);
     var playerButtonPrefix = "#player > div.material-player-middle > [data-id='";
     watchAttr("class disabled", playerButtonPrefix + "play-pause']", "player-playing", playingGetter, 500);
-    watchAttr("disabled", playerButtonPrefix + "rewind']", "player-rewind", enabledGetter);
-    watchAttr("disabled", playerButtonPrefix + "forward']", "player-forward", enabledGetter);
+    watchAttr("class disabled", playerButtonPrefix + "rewind']", "player-rewind", enabledGetter);
+    watchAttr("class disabled", playerButtonPrefix + "forward']", "player-forward", enabledGetter);
     watchAttr("value", playerButtonPrefix + "repeat']", "player-repeat");
     watchAttr("value", playerButtonPrefix + "shuffle']", "player-shuffle", shuffleGetter);
     watchAttr("aria-valuenow", "#material-vslider", "player-volume");
@@ -931,7 +956,7 @@ $(function() {
         var found = false;
         rows.each(function() {
           var song = parseSongRow($(this));
-          if (song.title == msg.title && song.duration == msg.duration && (!song.artist || !msg.artist || song.artist == msg.artist)) {
+          if (areSongsEqual(song, msg)) {
             found = true;
             sendCommand("resumePlaylistSong", { index: song.index, position: msg.position });
             return false;
@@ -990,6 +1015,9 @@ $(function() {
       break;
     case "starRatingMode":
       toggleStarRatingMode(msg.value);
+      break;
+    case "setConfirmClose":
+      setConfirmClose(msg.confirmClose);
       break;
     case "alreadyConnected":
       port.disconnect();

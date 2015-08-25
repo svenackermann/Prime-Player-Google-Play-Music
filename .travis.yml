@@ -11,3 +11,4 @@ deploy:
   on:
     repo: svenackermann/Prime-Player-Google-Play-Music
     tags: true
+sudo: false

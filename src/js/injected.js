@@ -203,9 +203,10 @@
     // We only accept messages from ourselves
     if (event.source != window || event.data.type != "FROM_PRIMEPLAYER" || !event.data.command) return;
     console.debug("cs->inj: ", event.data);
+    var options = event.data.options;
     switch (event.data.command) {
     case "playPause":
-      var resume = event.data.options.resume;
+      var resume = options.resume;
       clickPlayerButton("play-pause", resume === false ? "playing" : null, resume ? "playing" : null);
       break;
     case "nextSong":
@@ -224,31 +225,31 @@
       simulateClick(document.querySelector("#queue"));
       break;
     case "rate":
-      rateSong(event.data.options.rating);
+      rateSong(options.rating);
       break;
     case "startPlaylist":
       startPlaylist();
       break;
     case "setPosition":
-      setPositionPercent("#material-player-progress", event.data.options.percent);
+      setPositionPercent("#material-player-progress", options.percent);
       break;
     case "setVolume":
-      setPositionPercent("#material-vslider", event.data.options.percent);
+      setPositionPercent("#material-vslider", options.percent);
       break;
     case "clickCard":
-      clickCard(event.data.options.id);
+      clickCard(options.id);
       break;
     case "feelingLucky":
       clickFeelingLucky();
       break;
     case "startPlaylistSong":
-      startPlaylistSong(event.data.options);
+      startPlaylistSong(options);
       break;
     case "resumePlaylistSong":
-      resumePlaylistSong(event.data.options);
+      resumePlaylistSong(options);
       break;
     case "ratePlaylistSong":
-      ratePlaylistSong(event.data.options);
+      ratePlaylistSong(options);
       break;
     case "cleanup":
       cleanup();

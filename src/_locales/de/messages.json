@@ -278,6 +278,9 @@
   "legendLyricsHint": {
     "message": "Du kannst Prime Player erlauben, Songtexte von externen Webseiten zu laden, um diese im Miniplayer und/oder dem Google Music Tab anzuzeigen. Dazu musst du zunächst mind. eine Seite unten aktivieren. Die aktivierten Seiten können per Drag & Drop sortiert werden, die erste Seite wird immer zuerst durchsucht."
   },
+  "setting_confirmClose": {
+    "message": "Warnung bei Schliessen des Google Music Tabs während Wiedergabe"
+  },
   "setting_gaEnabled": {
     "message": "Google Analytics aktivieren"
   },
@@ -890,5 +893,8 @@
   "ob_noresults": {
     "message": "Keine Ergebnisse gefunden für $TEXT$.",
     "placeholders": { "TEXT": { "content": "$1" } }
+  },
+  "musicIsPlaying": {
+    "message": "Die Wiedergabe läuft noch."
   }
 }
