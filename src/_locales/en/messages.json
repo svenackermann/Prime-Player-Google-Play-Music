@@ -371,6 +371,10 @@
     "message": "You can allow Prime Player to load lyrics from external websites to show them in the miniplayer or the Google Music tab. For this, you first must enable at least one site below. The enabled sites can be sorted with drag & drop, the first site is always searched first for lyrics.",
     "description": "hint for the lyrics settings on options page"
   },
+  "setting_confirmClose": {
+    "message": "Warn when closing the Google Music tab while music is playing",
+    "description": "label for option to show a confirmation dialogue on close"
+  },
   "setting_gaEnabled": {
     "message": "Enable Google Analytics",
     "description": "label for option to enable Google Analytics"
@@ -378,10 +382,6 @@
   "setting_gaEnabledHint": {
     "message": "No personal data (e.g. played songs) will be collected. This is only to analyse commonly used features and settings.",
     "description": "hint for option to enable Google Analytics"
-  },
-  "setting_confirmClose": {
-    "message": "Show a confirmation dialogue before closing the Google Music tab when music is playing.",
-    "description": "label for option to show a confirmation dialogue on close"
   },
   "scrobblePosition": {
     "message": "Here will be scrobbled",
@@ -1183,5 +1183,9 @@
     "message": "No results found for $TEXT$.",
     "description": "omnibox default suggestion text if no results found",
     "placeholders": { "TEXT": { "content": "$1", "example": "mysearch" } }
+  },
+  "musicIsPlaying": {
+    "message": "Music is currently playing.",
+    "description": "Warning message if music is playing when closing the GM tab"
   }
 }

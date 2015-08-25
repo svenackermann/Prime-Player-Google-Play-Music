@@ -26,6 +26,7 @@ $(function() {
   var lyricsAutoReloadTimer;
   var starRatingMode = false;
   var position;
+  var playing;
   var currentRating = -1;
   var currentSong;
   var ratedInGpm = -1;
@@ -208,6 +209,15 @@ $(function() {
     sendRating();
   }
 
+  function confirmCloseWhenPlaying() {
+    if (playing) return i18n("musicIsPlaying");
+  }
+
+  function setConfirmClose(confirmClose) {
+    $(window).off("beforeunload", confirmCloseWhenPlaying);
+    if (confirmClose) $(window).on("beforeunload", confirmCloseWhenPlaying);
+  }
+
   /** remove all listeners/observers and revert DOM modifications */
   function cleanup() {
     sendCommand("cleanup");
@@ -216,6 +226,7 @@ $(function() {
     $("#music-content,#queue-container").off("DOMSubtreeModified mouseup");
     $("#playerSongInfo").off("click");
     $(window).off("hashchange");
+    setConfirmClose(false);
     observers.forEach(function(o) { o.disconnect(); });
     hideConnectedIndicator();
     disableLyrics();
@@ -354,7 +365,8 @@ $(function() {
 
     /** @return null if play button is disabled or true/false if a song is playing/paused */
     function playingGetter(el) {
-      return enabledGetter(el) ? $(el).hasClass("playing") : null;
+      playing = enabledGetter(el) ? $(el).hasClass("playing") : null;
+      return playing;
     }
 
     /** @return shuffle state (NO_SHUFFLE/ALL_SHUFFLE) or null if shuffle is not available */
@@ -1003,6 +1015,9 @@ $(function() {
       break;
     case "starRatingMode":
       toggleStarRatingMode(msg.value);
+      break;
+    case "setConfirmClose":
+      setConfirmClose(msg.confirmClose);
       break;
     case "alreadyConnected":
       port.disconnect();
