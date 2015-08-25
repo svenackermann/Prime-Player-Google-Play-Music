@@ -306,8 +306,13 @@ $(function() {
     }
   }
 
-  /** add listeners/observers and extend DOM */
   function init() {
+    if ($("#playerSongInfo").length) doInit();
+    else setTimeout(init, 250);
+  }
+
+  /** add listeners/observers and extend DOM */
+  function doInit() {
     function onCleanupCsDone(event) {
       if (event.source == window && event.data.type == "FROM_PRIMEPLAYER" && event.data.msg == "cleanupCsDone") {
         window.removeEventListener("message", onCleanupCsDone);
