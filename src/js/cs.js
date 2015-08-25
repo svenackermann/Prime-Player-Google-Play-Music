@@ -27,6 +27,7 @@ $(function() {
   var starRatingMode = false;
   var position;
   var currentRating = -1;
+  var currentSong;
   var ratedInGpm = -1;
   var needActiveTabId;
   var needActiveTabCb;
@@ -77,6 +78,11 @@ $(function() {
       return isNaN(rating) ? 0 : rating;
     }
     return -1;
+  }
+
+  /** @return true, if title and duration match and if artist is present on both songs they must also match */
+  function areSongsEqual(song1, song2) {
+    return song1.title == song2.title && song1.duration == song2.duration && (!song1.artist || !song2.artist || song1.artist == song2.artist);
   }
 
   /** Show the P-icon as indicator for successful connection. */
@@ -318,10 +324,11 @@ $(function() {
     /** Send current song info to bp. */
     function sendSong() {
       var info = parseSongInfo(true);
-      if (info && lyricsAutoReload && $("#ppLyricsContainer").is(":visible")) {
+      if (info && lyricsAutoReload && $("#ppLyricsContainer").is(":visible") && !areSongsEqual(info, currentSong)) {
         clearTimeout(lyricsAutoReloadTimer);
         lyricsAutoReloadTimer = setTimeout(loadLyrics, 1000);
       }
+      currentSong = info;
       $("#ppLyricsButton").toggleClass("active", !!info);
       post("song-info", info);
     }
@@ -932,7 +939,7 @@ $(function() {
         var found = false;
         rows.each(function() {
           var song = parseSongRow($(this));
-          if (song.title == msg.title && song.duration == msg.duration && (!song.artist || !msg.artist || song.artist == msg.artist)) {
+          if (areSongsEqual(song, msg)) {
             found = true;
             sendCommand("resumePlaylistSong", { index: song.index, position: msg.position });
             return false;
