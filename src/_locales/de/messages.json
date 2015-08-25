@@ -284,6 +284,9 @@
   "setting_gaEnabledHint": {
     "message": "Es werden keine persönlichen Daten (z.B. gespielte Songs) gesammelt. Die Daten dienen nur zur Analyse häufig genutzer Funktionen und Einstellungen."
   },
+  "setting_confirmClose": {
+    "message": "Während der Wiedergabe vor dem Schliessen des Google Music Tabs nachfragen."
+  },
   "scrobblePosition": {
     "message": "Hier wird gescrobbelt"
   },

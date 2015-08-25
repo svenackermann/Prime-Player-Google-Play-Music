@@ -379,6 +379,10 @@
     "message": "No personal data (e.g. played songs) will be collected. This is only to analyse commonly used features and settings.",
     "description": "hint for option to enable Google Analytics"
   },
+  "setting_confirmClose": {
+    "message": "Show a confirmation dialogue before closing the Google Music tab when music is playing.",
+    "description": "label for option to show a confirmation dialogue on close"
+  },
   "scrobblePosition": {
     "message": "Here will be scrobbled",
     "description": "tooltip for scrobble position indicator in miniplayer"
