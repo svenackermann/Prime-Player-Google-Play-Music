@@ -401,7 +401,7 @@ $(function() {
      * @param selector element(s) to be watched for DOM manipulation
      * @param timeout time to wait after DOM manipulation before executing the function
      */
-    function watchContent(fn, selector, timeout) {
+    function watchContent(fn, selector, timeout, attributes) {
       var content = $(selector);
       if (content.length) {
         var listener;
@@ -418,7 +418,12 @@ $(function() {
 
         var observer = new MutationObserver(function(mutations) { mutations.forEach(listener); });
         observers.push(observer);
-        observer.observe(content[0], { childList: true, subtree: true });
+        var params = { childList: true, subtree: true };
+        if (attributes) {
+          params.attributes = true;
+          params.attributeFilter = attributes.split(" ");
+        }
+        observer.observe(content[0], params);
         listener();
       } else {
         console.error("element(s) do(es) not exist (did Google change their site?): " + selector);
@@ -462,7 +467,7 @@ $(function() {
       }
     }
 
-    watchContent(sendSong, "#playerSongInfo", 500);
+    watchContent(sendSong, "#playerSongInfo", 500, "style");
     watchContent(sendRating, "#playerSongInfo", 250);
     watchContent(sendPosition, "#time_container_current");
     watchContent(musicContentLoaded, "#music-content", 1000);
