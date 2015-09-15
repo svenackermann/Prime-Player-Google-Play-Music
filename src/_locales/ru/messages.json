@@ -680,6 +680,9 @@
   "command_openLyrics": {
     "message": "Открыть текст трека"
   },
+  "command_closeGm": {
+    "message": "Закрыть Google Music"
+  },
   "lyricsFor": {
     "message": "Текст для '$SONG$'",
     "placeholders": {"SONG":{"content":"$1"}}

@@ -456,6 +456,10 @@
     "message": "Action on Chrome startup",
     "description": "label for option to select a Chrome startup action"
   },
+  "setting_playlistEndAction": {
+    "message": "Action when playlist ends",
+    "description": "label for option to select a playlist end action"
+  },
   "setting_googleAccountNo": {
     "message": "Index of Google account to open",
     "description": "label for option to select Google account number"
@@ -925,6 +929,14 @@
     "message": "Open lyrics",
     "description": "text for open lyrics in toast action, keyboard shortcut and tooltip of lyrics button in Google Music"
   },
+  "command_closeMp": {
+    "message": "Close miniplayer",
+    "description": "text for close miniplayer option on playlist end"
+  },
+  "command_closeGm": {
+    "message": "Close Google Music",
+    "description": "text for close Google Music option on playlist end"
+  },
   "lyricsFor": {
     "message": "Lyrics for '$SONG$'",
     "description": "tooltip for song title link in miniplayer lists and lyrics button",
@@ -1152,7 +1164,7 @@
   },
   "ob_startsugg": {
     "message": "Start $SUG$",
-    "description": "omnibox content text to start a suggestion",
+    "description": "omnibox content text to start a suggestion, also used for playlistEndAction options",
     "placeholders": { "SUG": { "content": "$1", "example": "MyFavorite" } }
   },
   "ob_favoritessugg": {

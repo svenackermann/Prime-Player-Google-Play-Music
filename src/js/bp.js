@@ -182,6 +182,7 @@ function fixForUri(string) {
     openGoogleMusicPinned: false,
     openGmBackground: false,
     startupAction: "",
+    playlistEndAction: "",
     pauseOnLock: false,
     pauseOnIdleSec: -60,//negative value means disabled
     connectedIndicator: true,
@@ -2207,6 +2208,8 @@ function fixForUri(string) {
       if (isStarRatingMode()) commands.push("rate-2", "rate-3", "rate-4");
       updateContextMenuConnectedItem(commands);
     }
+
+    if (!info) executePlaylistEndAction(settings.playlistEndAction);
   });
   //} position/info handler
 
@@ -2301,6 +2304,23 @@ function fixForUri(string) {
 
   function executeIconClickConnectAction() {
     executeConnectAction(settings.iconClickConnectAction);
+  }
+
+  function executePlaylistEndAction(action) {
+    if (!action) return;
+    switch (action) {
+    case "closeMp":
+      if (miniplayer) chromeWindows.remove(miniplayer.id);
+      break;
+    case "closeGm":
+      closeGm();
+      break;
+    case "feelingLucky":
+      executeFeelingLucky();
+      break;
+    default:
+      startPlaylist(action);
+    }
   }
 
   function isCommandAvailable(cmd) {

@@ -504,6 +504,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
       connectActionText: function(val) {
         if (val) return i18n(val);
         return i18n("openPopup");
+      },
+      playlistEndActionText: function(action) {
+        if (!action.indexOf("ap/")) {
+          return i18n("ob_startsugg", bp.getTextForQuicklink(action));
+        }
+        return bp.getCommandOptionText(action);
       }
     };
 
