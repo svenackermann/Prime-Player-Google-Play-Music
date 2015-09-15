@@ -242,7 +242,7 @@ function initLyricsProviders(GA) {
     });
   }, function(song) {
     if (!song.artist || !song.title) return null;
-    return this.getHomepage() + "/api.php?artist=" + fixForUri(song.artist) + "&song=" + fixTitle(song.title);
+    return this.getHomepage() + "/api.php?func=getSong&artist=" + fixForUri(song.artist) + "&song=" + fixTitle(song.title);
   });
 
   new LyricsProvider("musixmatch", "https://www.musixmatch.com", function(cb, searchUrl, report) {
