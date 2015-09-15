@@ -740,7 +740,7 @@ function fixForUri(string) {
   function executeFeelingLuckyIfConnected() {
     if (!feelingLucky) return;
     if (player.connected) {
-      executeInGoogleMusic("feelingLucky");
+      postToGooglemusic({ type: "feelingLucky" });
       feelingLucky = false;
     } else openGoogleMusicTab(null, false, true);//when connected, we get triggered again
   }

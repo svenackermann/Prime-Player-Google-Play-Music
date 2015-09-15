@@ -1006,6 +1006,9 @@ $(function() {
     case "lyrics":
       renderLyrics(msg.result, msg.providers, msg.srcUrl);
       break;
+    case "feelingLucky":
+      selectAndExecute("now", sendCommand.bind(window, "feelingLucky"));
+      break;
     case "connected":
       init();
       break;

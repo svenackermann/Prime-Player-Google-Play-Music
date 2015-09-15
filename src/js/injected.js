@@ -54,9 +54,9 @@
     simulateClick(document.querySelector(".material-card[data-id='" + id + "'] .title"));
   }
 
-  /** Click the feeling lucky button. */
+  /** Click the feeling lucky card on the listen now page. */
   function clickFeelingLucky() {
-    simulateClick(document.querySelector("#action_bar_container [data-id='im-feeling-lucky']"));
+    simulateClick(document.querySelector(".material-card[data-type='imfl'] .title"));
   }
 
   /** Click the player button with given id. If given, only click if the button has class includeClass and doesn't have class excludeClass. */
