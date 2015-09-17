@@ -54,9 +54,9 @@
     simulateClick(document.querySelector(".material-card[data-id='" + id + "'] .title"));
   }
 
-  /** Click the feeling lucky button. */
+  /** Click the feeling lucky card on the listen now page. */
   function clickFeelingLucky() {
-    simulateClick(document.querySelector("#action_bar_container [data-id='im-feeling-lucky']"));
+    simulateClick(document.querySelector(".material-card[data-type='imfl'] .title"));
   }
 
   /** Click the player button with given id. If given, only click if the button has class includeClass and doesn't have class excludeClass. */
@@ -72,7 +72,7 @@
 
   /** @return the matching TD element for the playlist row with given index and cluster or null if not found. */
   function getPlaylistCol(index, cluster, queue, colName) {
-    var content = document.querySelector(queue ? "#queue-container" : "#music-content");
+    var content = document.querySelector(queue ? "#queueContainer" : "#music-content");
     if (content) {
       if (cluster) content = content.querySelectorAll(".cluster")[cluster - 1];
       var songTables = content.querySelectorAll(".song-table");

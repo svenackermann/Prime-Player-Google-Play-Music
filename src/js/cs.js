@@ -202,9 +202,9 @@ $(function() {
     starRatingMode = state;
     currentRating = -1;
     if (state) {
-      $("#queue-container").on("DOMSubtreeModified", ".song-row.currently-playing [data-col='rating']", sendRating);
+      $("#queueContainer").on("DOMSubtreeModified", ".song-row.currently-playing [data-col='rating']", sendRating);
     } else {
-      $("#queue-container").off("DOMSubtreeModified", sendRating);
+      $("#queueContainer").off("DOMSubtreeModified", sendRating);
     }
     sendRating();
   }
@@ -223,7 +223,7 @@ $(function() {
     sendCommand("cleanup");
     window.removeEventListener("message", onMessage);
     $("#primeplayerinjected").remove();
-    $("#music-content,#queue-container").off("DOMSubtreeModified mouseup");
+    $("#music-content,#queueContainer").off("DOMSubtreeModified mouseup");
     $("#playerSongInfo").off("click");
     $(window).off("hashchange");
     setConfirmClose(false);
@@ -289,7 +289,7 @@ $(function() {
     if (ratingContainer[0]) {
       if (starRatingMode) {
         //this must be loaded from the queue, because we only have the thumbs rating in playerSongInfo
-        var currentSongRow = $("#queue-container .song-row.currently-playing");
+        var currentSongRow = $("#queueContainer .song-row.currently-playing");
         if (!currentSongRow[0]) {
           //open the queue (needed before it is opened the very first time) and get triggered again by event listener
           selectAndExecute(HASH_QUEUE, $.noop);
@@ -310,7 +310,7 @@ $(function() {
     if (currentRating !== rating) {
       currentRating = rating;
       //post player-listrating if neccessary, we must check all song rows (not just the current playing), because if rated "1", the current song changes immediately
-      if (listRatings || queueRatings) $("#music-content,#queue-container").find(".song-row td[data-col='rating']").trigger("DOMSubtreeModified");
+      if (listRatings || queueRatings) $("#music-content,#queueContainer").find(".song-row td[data-col='rating']").trigger("DOMSubtreeModified");
       post("song-rating", currentRating);
       if (ratedInGpm >= 0 && ratedInGpm === currentRating) post("rated", { song: parseSongInfo(), rating: currentRating });
       ratedInGpm = -1;
@@ -374,7 +374,7 @@ $(function() {
       return enabledGetter(el) ? el.value : null;
     }
 
-    /** Execute 'executeOnContentLoad' (if set) when #queue-container is changed. */
+    /** Execute 'executeOnContentLoad' (if set) when #queueContainer is changed. */
     function queueLoaded() {
       if (contentLoadDestination == HASH_QUEUE && $.isFunction(executeOnContentLoad)) {
         var fn = executeOnContentLoad;
@@ -401,7 +401,7 @@ $(function() {
      * @param selector element(s) to be watched for DOM manipulation
      * @param timeout time to wait after DOM manipulation before executing the function
      */
-    function watchContent(fn, selector, timeout) {
+    function watchContent(fn, selector, timeout, attributes) {
       var content = $(selector);
       if (content.length) {
         var listener;
@@ -418,7 +418,12 @@ $(function() {
 
         var observer = new MutationObserver(function(mutations) { mutations.forEach(listener); });
         observers.push(observer);
-        observer.observe(content[0], { childList: true, subtree: true });
+        var params = { childList: true, subtree: true };
+        if (attributes) {
+          params.attributes = true;
+          params.attributeFilter = attributes.split(" ");
+        }
+        observer.observe(content[0], params);
         listener();
       } else {
         console.error("element(s) do(es) not exist (did Google change their site?): " + selector);
@@ -462,11 +467,11 @@ $(function() {
       }
     }
 
-    watchContent(sendSong, "#playerSongInfo", 500);
+    watchContent(sendSong, "#playerSongInfo", 500, "style");
     watchContent(sendRating, "#playerSongInfo", 250);
     watchContent(sendPosition, "#time_container_current");
     watchContent(musicContentLoaded, "#music-content", 1000);
-    watchContent(queueLoaded, "#queue-container", 1000);
+    watchContent(queueLoaded, "#queueContainer", 1000);
     var playerButtonPrefix = "#player > div.material-player-middle > [data-id='";
     watchAttr("class disabled", playerButtonPrefix + "play-pause']", "player-playing", playingGetter, 500);
     watchAttr("class disabled", playerButtonPrefix + "rewind']", "player-rewind", enabledGetter);
@@ -475,9 +480,9 @@ $(function() {
     watchAttr("value", playerButtonPrefix + "shuffle']", "player-shuffle", shuffleGetter);
     watchAttr("aria-valuenow", "#material-vslider", "player-volume");
 
-    $("#music-content,#queue-container").on("DOMSubtreeModified", ".song-row td[data-col='rating']", function() {
+    $("#music-content,#queueContainer").on("DOMSubtreeModified", ".song-row td[data-col='rating']", function() {
       var td = $(this);
-      var queue = !!td.closest("#queue-container").length;
+      var queue = !!td.closest("#queueContainer").length;
       if (!queue && listRatings || queue && queueRatings) {
         var rating = parseRating(this);
         var index = td.closest(".song-row").data("index");
@@ -508,7 +513,7 @@ $(function() {
       if (e.clientX) ratedInGpm = isRatingActive(this) ? 0 : parseRating(this);
     });
     //listen for "mouseup", because "click" won't bubble up to "#music-content" and we can't attach this directly to ".rating-container" because it's dynamically created
-    $("#music-content,#queue-container").on("mouseup", ".song-row td[data-col='rating'] ul.rating-container li[data-rating]", function() {
+    $("#music-content,#queueContainer").on("mouseup", ".song-row td[data-col='rating'] ul.rating-container li[data-rating]", function() {
       var button = $(this);
       post("rated", { song: parseSongRow(button.closest(".song-row"), true), rating: button.hasClass("selected") ? 0 : parseRating(this) });
     });
@@ -548,7 +553,7 @@ $(function() {
     console.debug("inj->cs: ", event.data);
     switch (event.data.msg) {
     case "plSongRated":
-      $("#music-content,#queue-container").find(".song-row[data-index='" + event.data.index + "']").find("td[data-col='rating']").trigger("DOMSubtreeModified");
+      $("#music-content,#queueContainer").find(".song-row[data-index='" + event.data.index + "']").find("td[data-col='rating']").trigger("DOMSubtreeModified");
       /* falls through */
     case "plSongStarted":
     case "plSongError":
@@ -596,8 +601,8 @@ $(function() {
     if (!queue && location.hash != options.link) return;
     var bodySelector = "#music-content";
     if (queue) {
-      bodySelector = "#queue-container";
-      if (!$("#queue-container").is(":visible")) sendCommand("openQueue");
+      bodySelector = "#queueContainer";
+      if (!$("#queueContainer").is(":visible")) sendCommand("openQueue");
     }
     var body = $(bodySelector);
     if (options.cluster) body = $(body.find(CLUSTER_SELECTOR)[options.cluster - 1]);
@@ -648,7 +653,7 @@ $(function() {
     if (matchesHash(hash)) {
       if (cb) cb();
     } else if (hash == HASH_QUEUE) {
-      if ($("#queue-container").is(":visible")) {
+      if ($("#queueContainer").is(":visible")) {
         if (cb) cb();
       } else {
         executeOnContentLoad = cb;
@@ -757,7 +762,7 @@ $(function() {
       }, parent, end, cb);
     },
     playlist: function(parent, end, cb) {
-      var queue = !!parent.closest("#queue-container").length;
+      var queue = !!parent.closest("#queueContainer").length;
       var selectedRatings = [];
       var ci;
       if (!queue) {
@@ -923,7 +928,7 @@ $(function() {
           response.type = type;
           var contentId = "#music-content";
           if (autoQueueList) {
-            contentId = "#queue-container";
+            contentId = "#queueContainer";
             response.controlLink = "#/ap/queue";
           }
           parseNavigationList[type]($(contentId).find(".material-cluster,.song-table").first(), undefined, function(list, update) {
@@ -1000,6 +1005,9 @@ $(function() {
       break;
     case "lyrics":
       renderLyrics(msg.result, msg.providers, msg.srcUrl);
+      break;
+    case "feelingLucky":
+      selectAndExecute("now", sendCommand.bind(window, "feelingLucky"));
       break;
     case "connected":
       init();

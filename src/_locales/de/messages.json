@@ -342,6 +342,9 @@
   "setting_startupAction": {
     "message": "Aktion bei Chrome-Start"
   },
+  "setting_playlistEndAction": {
+    "message": "Aktion bei Playlist Ende"
+  },
   "setting_googleAccountNo": {
     "message": "Index des zu öffnenden Google Kontos"
   },
@@ -694,6 +697,12 @@
   },
   "command_openLyrics": {
     "message": "Öffne Songtext"
+  },
+  "command_closeMp": {
+    "message": "Miniplayer schließen"
+  },
+  "command_closeGm": {
+    "message": "Google Music schließen"
   },
   "lyricsFor": {
     "message": "Songtext für '$SONG$'",
