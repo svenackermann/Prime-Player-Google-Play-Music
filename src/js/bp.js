@@ -971,7 +971,7 @@ function fixForUri(string) {
           iconPaths.push(iconPath + "loved");
         }
         if (song.rating && settings.showRatingIndicator) {
-          if (isStarRatingMode()) {
+          if (isStarRatingMode() && song.rating > 0) {
             chromeBrowserAction.setBadgeText({ text: "" + song.rating });
           } else if (isThumbsRatingMode()) {
             if (song.rating >= 4) {
