@@ -52,7 +52,7 @@ gulp.task("style", function() {
 });
 
 gulp.task("clean", function(cb) {
-  del(["build", "PrimePlayer.zip"], cb);
+  del(["build", "PrimePlayer.zip"]).then(function() { cb(); });
 });
 
 gulp.task("compile-js-bp", function() {
