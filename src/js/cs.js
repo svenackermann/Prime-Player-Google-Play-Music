@@ -371,7 +371,7 @@ $(function() {
 
     /** @return shuffle state (NO_SHUFFLE/ALL_SHUFFLE) or null if shuffle is not available */
     function shuffleGetter(el) {
-      return enabledGetter(el) ? el.value : null;
+      return enabledGetter(el) ? el.getAttribute("value") : null;
     }
 
     /** Execute 'executeOnContentLoad' (if set) when #queueContainer is changed. */
