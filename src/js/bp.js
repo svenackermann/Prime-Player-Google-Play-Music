@@ -674,8 +674,7 @@ function fixForUri(string) {
 
   /** Change the song position in Google Music. */
   function setSongPosition(percent) {
-    //setting the position only works when the Google Music tab is active and its window is not minimized
-    executeWithActiveGmTab(executeInGoogleMusic.bind(window, "setPosition", { percent: percent }));
+    executeInGoogleMusic("setPosition", { percent: percent });
   }
 
   /** Rate the current song in Google Music, if possible. For arg 5, this triggers the link-ratings logic, if not a rating reset. */
