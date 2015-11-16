@@ -124,6 +124,20 @@ chrome.runtime.getBackgroundPage(function(bp) {
     timebar.appendTo(playlists.find(".current"));
   }
 
+  function getSongTitle(songInfo) {
+    var title = songInfo.title;
+    if (songInfo.artist) title = songInfo.artist + " - " + title;
+    return title;
+  }
+
+  function updateMpShowTitle(showTitle) {
+    var windowTitle = i18n("extTitle");
+    if (showTitle && song.info) {
+      windowTitle = getSongTitle(song.info) + " - " + windowTitle;
+    }
+    $("head > title").text(windowTitle);
+  }
+  
   function songInfoWatcher(val) {
     if ($("body").hasClass("hasLastSong")) {
       $("body").removeClass("hasLastSong");
@@ -139,14 +153,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
       //although the value of scrobbleTime might not have changed, the relative position might have (e.g. if the new song's duration is different and both songs reached settings.scrobbleTime)
       updateScrobblePosition(song.scrobbleTime);
       if (settings.lyricsAutoReload && $("#lyrics").is(":visible")) {
-        var title = val.title;
-        if (val.artist) title = val.artist + " - " + title;
-        switchView(i18n("lyricsTitle", title), "lyrics", null, { artist: val.artist, title: val.title });
+        switchView(i18n("lyricsTitle", getSongTitle(val)), "lyrics", null, { artist: val.artist, title: val.title });
       }
     } else {
       $("#cover").attr("src", "img/cover.png");
       $("#showlyrics").removeAttr("title").removeClass("nav").removeData("options");
     }
+    updateMpShowTitle(settings.mpShowTitle);
 
     function markCurrent(songRow) {
       var curSong = songRow.data("song");
@@ -994,7 +1007,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   $(function() {
     $("html").addClass(typeClass);
-    $("head > title").first().text(i18n("extTitle"));
 
     setupGoogleRating();
     renderPlayControls();
@@ -1048,6 +1060,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     settings.w("color", colorWatcher, typeClass);
     settings.w("mpBgColor", mpBgColorWatcher, typeClass);
     settings.w("mpTextColor", mpTextColorWatcher, typeClass);
+    settings.al("mpShowTitle", updateMpShowTitle, typeClass);
     settings.al("coverClickLink", updateCoverClickLink, typeClass);
     settings.al("titleClickLink", updateTitleClickLink, typeClass);
     settings.w("hideSearchfield", hideSearchfieldWatcher, typeClass);

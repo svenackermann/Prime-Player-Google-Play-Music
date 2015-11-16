@@ -152,6 +152,7 @@ function fixForUri(string) {
     mpAutoOpen: false,
     mpAutoClose: false,
     mpCloseGm: false,
+    mpShowTitle: false,
     //}
     //{ lyrics
     lyricsAutoNext: false,

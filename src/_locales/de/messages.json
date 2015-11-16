@@ -459,6 +459,9 @@
   "setting_mpCloseGm": {
     "message": "Google Music automatisch schließen, wenn Miniplayer geschlossen wird"
   },
+  "setting_mpShowTitle": {
+    "message": "Zeige Song-Titel in Miniplayer-Fenster-Titel"
+  },
   "installNotifierTitle": {
     "message": "Prime Player wurde installiert"
   },
