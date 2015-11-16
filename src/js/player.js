@@ -137,7 +137,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
     $("head > title").text(windowTitle);
   }
-  
+
   function songInfoWatcher(val) {
     if ($("body").hasClass("hasLastSong")) {
       $("body").removeClass("hasLastSong");
@@ -171,12 +171,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
       return false;
     }
 
+    var playlists = getVisiblePlaylists();
     function tryListMatch(listData) {
       var expectedDiv = playlists.filter(clusterFilter(listData.cluster)).children("div[data-index='" + listData.index + "']");
       return expectedDiv[0] && markCurrent(expectedDiv);
     }
 
-    var playlists = getVisiblePlaylists();
     if (playlists.length) {
       var currentData;
       //clear currents

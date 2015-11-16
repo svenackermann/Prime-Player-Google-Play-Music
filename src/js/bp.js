@@ -42,6 +42,11 @@ function fixForUri(string) {
   var GA_CAT_LASTFM = "LastFM";
   var GA_CAT_OPTIONS = "Options";
 
+  var RELOGIN = "pp.relogin";
+  var TOAST = "pp.toast";
+  var TIMEREND = "pp.timerEnd";
+  var TIMERWARN = "pp.timerwarn";
+
   /** the miniplayer instance, if opened */
   var miniplayer = null;
   /** if the toast notification is opened, its options */
@@ -837,10 +842,6 @@ function fixForUri(string) {
   //{ notifications handling
   /** Wrap chrome notifications API for convenience. */
   var notifications = {};
-  var RELOGIN = "pp.relogin";
-  var TOAST = "pp.toast";
-  var TIMEREND = "pp.timerEnd";
-  var TIMERWARN = "pp.timerwarn";
 
   function updateNotification(id, options, cb) {
     if (localSettings.notificationsEnabled) chromeNotifications.update(id, options, cb || $.noop);

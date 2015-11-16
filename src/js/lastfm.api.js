@@ -68,6 +68,32 @@ function LastFM(apiKey, apiSecret) {
     internalCall(params, callbacks, requestMethod);
   };
 
+  /* Private auth methods. */
+  var auth = {
+    getApiSignature: function(params) {
+      var keys   = [];
+      var string = "";
+
+      for (var param in params) {
+        keys.push(param);
+      }
+
+      keys.sort();
+
+      for (var index in keys) {
+        var key = keys[index];
+
+        string += key + params[key];
+      }
+
+      string += apiSecret;
+
+      // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
+      return hex_md5(string);
+      // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
+    }
+  };
+
   /* Signed method call. */
   var signedCall = function(method, params, callbacks, requestMethod) {
     /* Set default values. */
@@ -122,32 +148,6 @@ function LastFM(apiKey, apiSecret) {
 
     updateNowPlaying: function(params, callbacks) {
       signedCall("track.updateNowPlaying", params, callbacks, "POST");
-    }
-  };
-
-  /* Private auth methods. */
-  var auth = {
-    getApiSignature: function(params) {
-      var keys   = [];
-      var string = "";
-
-      for (var param in params) {
-        keys.push(param);
-      }
-
-      keys.sort();
-
-      for (var index in keys) {
-        var key = keys[index];
-
-        string += key + params[key];
-      }
-
-      string += apiSecret;
-
-      // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
-      return hex_md5(string);
-      // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
     }
   };
 
