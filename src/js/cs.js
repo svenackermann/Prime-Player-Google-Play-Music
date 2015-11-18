@@ -278,9 +278,7 @@ $(function() {
   }
 
   function isRatingActive(iconButton) {
-    var shadowRoot = iconButton.shadowRoot && iconButton.shadowRoot.olderShadowRoot;
-    var label = $(shadowRoot).find("core-icon").attr("aria-label");
-    return !!(label && label.indexOf("-outline") < 0);
+    return !$(iconButton).find("iron-icon>svg>g").attr("transform");
   }
 
   function sendRating() {
