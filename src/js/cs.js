@@ -278,9 +278,7 @@ $(function() {
   }
 
   function isRatingActive(iconButton) {
-    var shadowRoot = iconButton.shadowRoot && iconButton.shadowRoot.olderShadowRoot;
-    var label = $(shadowRoot).find("core-icon").attr("aria-label");
-    return !!(label && label.indexOf("-outline") < 0);
+    return !$(iconButton).find("iron-icon>svg>g").attr("transform");
   }
 
   function sendRating() {
@@ -681,20 +679,20 @@ $(function() {
 
   /** @return parsed song info for a playlist row */
   function parseSongRow(song, basic) {
-    var title = song.find("td[data-col='title'] .content");
+    var title = song.find("td[data-col='title'] .column-content");
     if (!title[0]) title = song.find("td[data-col='song-details'] .song-title");
     var artist = song.find("td[data-col='artist']");
     var album = song.find("td[data-col='album']");
     var item = {
       title: $.trim(title.text()),
-      artist: $.trim(artist.find(".content").text()),
-      album: $.trim(album.find(".content").text())
+      artist: $.trim(artist.text()),
+      album: $.trim(album.text())
     };
     var duration = $.trim(song.find("td[data-col='duration']").text());
     if (/^\d\d?(\:\d\d)*$/.test(duration)) item.duration = duration;//no real duration on recommendation page
     if (!basic) {
       item.index = song.data("index");
-      item.cover = parseCover(song.find("td[data-col='title'],td[data-col='song-details']").find(".content img"));
+      item.cover = parseCover(song.find("td[data-col='title'],td[data-col='song-details']").find(".column-content img"));
       var artistId = artist.data("matched-id") || "";
       if (item.artist || artistId) item.artistLink = "artist/" + forHash(artistId) + "/" + forHash(item.artist);
       var albumId = album.data("matched-id") || "";

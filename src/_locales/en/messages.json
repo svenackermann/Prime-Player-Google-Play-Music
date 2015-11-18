@@ -612,6 +612,10 @@
     "message": "Automatically close Google Music, when miniplayer is closed",
     "description": "label for option to close Google Music on miniplayer close"
   },
+  "setting_mpShowTitle": {
+    "message": "Show song title in miniplayer window title",
+    "description": "label for option to show the song title in miniplayer window title"
+  },
   "installNotifierTitle": {
     "message": "Prime Player installed",
     "description": "title for install notification"
