@@ -86,9 +86,6 @@
   "setting_toastPriority": {
     "message": "in Benachrichtigungs-Leiste verschieben"
   },
-  "setting_toastPriority_1": {
-    "message": "sofort"
-  },
   "setting_toastPriority_2": {
     "message": "nach 7 Sekunden"
   },

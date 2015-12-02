@@ -115,10 +115,6 @@
     "message": "move to notification area",
     "description": "label for option to change the toast priority"
   },
-  "setting_toastPriority_1": {
-    "message": "immediately",
-    "description": "text for option 1 for toast priority"
-  },
   "setting_toastPriority_2": {
     "message": "after 7 seconds",
     "description": "text for option 2 for toast priority"
