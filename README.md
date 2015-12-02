@@ -5,6 +5,9 @@
 [![Dependency Status](https://img.shields.io/david/svenackermann/Prime-Player-Google-Play-Music.svg)](https://david-dm.org/svenackermann/Prime-Player-Google-Play-Music)
 [![devDependency Status](https://img.shields.io/david/dev/svenackermann/Prime-Player-Google-Play-Music.svg)](https://david-dm.org/svenackermann/Prime-Player-Google-Play-Music#info=devDependencies)
 
+[![Issue Stats](http://www.issuestats.com/github/svenackermann/Prime-Player-Google-Play-Music/badge/issue)](http://www.issuestats.com/github/svenackermann/Prime-Player-Google-Play-Music)
+[![Issue Stats](http://www.issuestats.com/github/svenackermann/Prime-Player-Google-Play-Music/badge/pr)](http://www.issuestats.com/github/svenackermann/Prime-Player-Google-Play-Music)
+
 This is the repository for the Chrome extension for Google Play Music.
 It is based on ideas of the extension "Better Music For Google Music".
 
