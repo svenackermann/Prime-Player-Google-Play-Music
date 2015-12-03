@@ -11,8 +11,8 @@
     "gulp-concat": "^2.6.0",
     "gulp-if": "^2.0.0",
     "gulp-jscs": "^3.0.2",
-    "gulp-jscs-stylish": "^1.2.1",
-    "gulp-jshint": "^1.12.0",
+    "gulp-jscs-stylish": "^1.3.0",
+    "gulp-jshint": "^2.0.0",
     "gulp-json-transform": "^0.3.0",
     "gulp-minify-html": "^1.0.4",
     "gulp-native2ascii": "^0.0.3",
@@ -23,7 +23,7 @@
     "gulp-zip": "^3.0.2",
     "jshint-stylish": "^2.1.0",
     "merge-stream": "^1.0.0",
-    "run-sequence": "^1.1.4",
+    "run-sequence": "^1.1.5",
     "yargs": "^3.30.0"
   },
   "scripts": {

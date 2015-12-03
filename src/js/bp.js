@@ -1621,7 +1621,7 @@ function fixForUri(string) {
     migrateQuicklink("coverClickLink");
     migrateQuicklink("titleClickLink");
     if (localSettings.quicklinks && localSettings.quicklinks.exptop) localSettings.quicklinks.wtc = i18n("quicklink_wtc");
-    
+
     //--- Chrome 47 ---
     if (settings.toastPriority < 2) settings.toastPriority = 2;
   }
