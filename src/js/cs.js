@@ -59,9 +59,9 @@ $(function() {
   }
 
   /** @return link (for hash) constructed from attributes data-type and data-id */
-  function getLink(el) {
+  function getLink(el, idOptional) {
     if (el.data("id")) return el.data("type") + "/" + el.data("id");
-    return null;
+    return idOptional ? el.data("type") : null;
   }
 
   /** @return valid cover URL from src attribute of the element or null */
@@ -876,7 +876,7 @@ $(function() {
       list: list,
       type: type,
       header: $.trim(cont.find(".header .title,.recommended-header").filter(filter).text()) || $.trim(cont.find(".section-header").filter(filter).text()),
-      moreLink: cont.hasClass("has-more") ? getLink(cont) : null,
+      moreLink: cont.hasClass("has-more") ? getLink(cont, true) : null,
       cluster: getClusterIndex(cont)
     };
   }
@@ -888,7 +888,10 @@ $(function() {
     response.moreText = $.trim(view.find("div .header .more:visible").first().text());
     response.header = $.trim($("#header-tabs-container .header-tab-title.selected:visible").text()) || $.trim($("#material-breadcrumbs .tab-text:visible").text()) || $.trim($("#header-tabs-container .genre-dropdown-title .dropdown-title-text:visible").text());
     view.find(CLUSTER_SELECTOR).addBack().each(function() {
-      var list = parseSublist($(this));
+      var cluster = $(this);
+      // situations are not supported at the moment
+      if (cluster.data("type") == "situations") return;
+      var list = parseSublist(cluster);
       if (list) response.lists.push(list);
     });
     response.empty = !response.lists.length;
