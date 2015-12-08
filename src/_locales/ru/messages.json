@@ -83,9 +83,6 @@
   "setting_toastPriority": {
     "message": "переместить в Оповещения"
   },
-  "setting_toastPriority_1": {
-    "message": "немедленно "
-  },
   "setting_toastPriority_2": {
     "message": "спустя 7 секунд"
   },

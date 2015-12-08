@@ -32,7 +32,7 @@ $(function() {
   var ratedInGpm = -1;
   var needActiveTabId;
   var needActiveTabCb;
-  var CLUSTER_SELECTOR = ".cluster,.genre-stations-container";
+  var CLUSTER_SELECTOR = ".cluster,.genre-stations-container,.cluster-text-protection";
   var HASH_QUEUE = "ap/queue";
   var i18n = chrome.i18n.getMessage;
   var getExtensionUrl = chrome.runtime.getURL;
@@ -59,9 +59,9 @@ $(function() {
   }
 
   /** @return link (for hash) constructed from attributes data-type and data-id */
-  function getLink(el) {
+  function getLink(el, idOptional) {
     if (el.data("id")) return el.data("type") + "/" + el.data("id");
-    return null;
+    return idOptional ? el.data("type") : null;
   }
 
   /** @return valid cover URL from src attribute of the element or null */
@@ -186,7 +186,7 @@ $(function() {
       $("<img id='ppLyricsButton'/>")
         .attr("src", getExtensionUrl("img/cmd/openLyrics.png"))
         .attr("title", i18n("command_openLyrics"))
-        .toggleClass("active", !!$("#player-song-title").length)
+        .toggleClass("active", !!$("#currently-playing-title").length)
         .click(toggleLyrics)
         .appendTo("#material-player-right-wrapper");
       $("<div id='ppLyricsContainer'><div id='ppLyricsTitle'><a class='reloadLyrics'></a><div></div></div><div id='ppLyricsScroller'><div id='ppLyricsContent'></div><div id='ppLyricsCredits'></div></div></div>")
@@ -252,11 +252,11 @@ $(function() {
     var playerSongInfo = $("#playerSongInfo");
     if (playerSongInfo.is(":visible") && playerSongInfo.find("div").length) {
       var artist = $("#player-artist");
-      var album = $("#playerSongInfo").find(".player-album");
+      var album = playerSongInfo.find(".player-album");
       var albumId = album.data("id");
       var info = {
         artist: $.trim(artist.text()),
-        title: $.trim($("#player-song-title").text()),
+        title: $.trim($("#currently-playing-title").text()),
         album: $.trim(album.text()),
         albumArtist: albumId && parseHash(albumId.split("/")[1]),
         duration: $.trim($("#time_container_duration").text())
@@ -264,7 +264,7 @@ $(function() {
       if (extended) {
         info.artistLink = getLink(artist) || "artist//" + forHash(info.artist);
         info.albumLink = getLink(album);
-        info.cover = parseCover($("#playingAlbumArt"));
+        info.cover = parseCover($("#playerBarArt"));
         var playlistSong = $(".song-row.currently-playing");
         if (playlistSong[0]) {
           info.playlist = location.hash.substr(2);
@@ -702,27 +702,17 @@ $(function() {
   }
 
   function parseCards(parser, parent, end, cb) {
-    var pageCount = parseInt(parent.data("row-count"));
-    var cardsPerPage = parseInt(parent.data("cards-per-page")) || parent.find(".cluster-page:first .material-card").length;
     var update = false;
     var lastIndex = -1;
-    var lastPageNum = -1;
     function loadNextCards() {
-      var firstPage = parent.find(".cluster-page:first");
-      if (!update && pageCount && cb && firstPage[0] && firstPage.data("page-num") !== 0) {//not yet there
-        asyncListTimer = scrollAndContinue(firstPage[0], loadNextCards, true);
-        return;
-      }
       var items = [];
       var lastLoaded = null;
-      parent.find(".material-card").slice(0, end).each(function() {
+      var cards = parent.find(".material-card");
+      cards.slice(0, end).each(function() {
         var card = $(this);
-        var page = card.closest(".cluster-page");
-        lastLoaded = page[0];
-        var pageNum = parseInt(page.data("page-num"));
-        var index = cardsPerPage * pageNum + page.find(".material-card").index(card);
+        lastLoaded = this;
+        var index = cards.index(card);
         if (index <= lastIndex) return;
-        lastPageNum = pageNum;
         var item = parser(card);
         if (item) {
           item.index = index;
@@ -736,7 +726,7 @@ $(function() {
         cb(items, update);
         update = true;
       }
-      if (lastLoaded && pageCount && lastPageNum + 1 < pageCount && (end === undefined || lastIndex + 1 < end)) asyncListTimer = scrollAndContinue(lastLoaded, loadNextCards, false);
+      if (lastLoaded && (end === undefined || lastIndex + 1 < end)) asyncListTimer = scrollAndContinue(lastLoaded, loadNextCards, false);
       else restoreActiveTab(loadNextCards);
     }
     return loadNextCards();
@@ -878,15 +868,15 @@ $(function() {
       var cardType = firstCard.data("type");
       if (!cardType) return null;//maybe no ".material-card" found
       type = getListType(cardType) == "playlist" ? "playlistsList" : "albumContainers";
-      listParent = firstCard.closest(".material-cluster");
+      listParent = firstCard.closest(".material-cluster,.cluster-text-protection");
     }
-    var list = parseNavigationList[type](listParent, 10);
+    var list = parseNavigationList[type](listParent, listParent.hasClass("cluster-text-protection") ? 100 : 10);
     if (!list.length) return null;
     return {
       list: list,
       type: type,
-      header: $.trim(cont.find(".header .title").filter(filter).text()) || $.trim(cont.find(".section-header").filter(filter).text()),
-      moreLink: cont.hasClass("has-more") ? getLink(cont) : null,
+      header: $.trim(cont.find(".header .title,.recommended-header").filter(filter).text()) || $.trim(cont.find(".section-header").filter(filter).text()),
+      moreLink: cont.hasClass("has-more") ? getLink(cont, true) : null,
       cluster: getClusterIndex(cont)
     };
   }
@@ -896,9 +886,12 @@ $(function() {
     response.type = "mixed";
     response.lists = [];
     response.moreText = $.trim(view.find("div .header .more:visible").first().text());
-    response.header = $.trim($("#header-tabs-container .header-tab-title.selected:visible").text()) || $.trim($("#breadcrumbs .tab-text:visible").text()) || $.trim($("#header-tabs-container .genre-dropdown-title .dropdown-title-text:visible").text());
+    response.header = $.trim($("#header-tabs-container .header-tab-title.selected:visible").text()) || $.trim($("#material-breadcrumbs .tab-text:visible").text()) || $.trim($("#header-tabs-container .genre-dropdown-title .dropdown-title-text:visible").text());
     view.find(CLUSTER_SELECTOR).addBack().each(function() {
-      var list = parseSublist($(this));
+      var cluster = $(this);
+      // situations are not supported at the moment
+      if (cluster.data("type") == "situations") return;
+      var list = parseSublist(cluster);
       if (list) response.lists.push(list);
     });
     response.empty = !response.lists.length;
@@ -915,7 +908,7 @@ $(function() {
       }
       if (error) {
         sendError();
-      } else if (!link.indexOf("artist/") || !link.indexOf("sr/") || !link.indexOf("wtc/") || !link.indexOf("wms/")) {
+      } else if (link == "now" || !link.indexOf("artist/") || !link.indexOf("sr/") || !link.indexOf("wtc/") || !link.indexOf("wms/")) {
         sendMixed(response);
       } else {
         var autoQueueList = isAutoQueueList(link);
@@ -929,7 +922,7 @@ $(function() {
             contentId = "#queueContainer";
             response.controlLink = "#/ap/queue";
           }
-          parseNavigationList[type]($(contentId).find(".material-cluster,.song-table").first(), undefined, function(list, update) {
+          parseNavigationList[type]($(contentId).find(".material-cluster,.material-card-grid,.song-table").first(), undefined, function(list, update) {
             response.list = list;
             response.update = update;
             response.empty = !list.length;
