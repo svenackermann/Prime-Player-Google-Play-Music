@@ -32,7 +32,7 @@ $(function() {
   var ratedInGpm = -1;
   var needActiveTabId;
   var needActiveTabCb;
-  var CLUSTER_SELECTOR = ".cluster,.genre-stations-container";
+  var CLUSTER_SELECTOR = ".cluster,.genre-stations-container,.cluster-text-protection";
   var HASH_QUEUE = "ap/queue";
   var i18n = chrome.i18n.getMessage;
   var getExtensionUrl = chrome.runtime.getURL;
@@ -868,14 +868,14 @@ $(function() {
       var cardType = firstCard.data("type");
       if (!cardType) return null;//maybe no ".material-card" found
       type = getListType(cardType) == "playlist" ? "playlistsList" : "albumContainers";
-      listParent = firstCard.closest(".material-cluster");
+      listParent = firstCard.closest(".material-cluster,.cluster-text-protection");
     }
-    var list = parseNavigationList[type](listParent, 10);
+    var list = parseNavigationList[type](listParent, listParent.hasClass("cluster-text-protection") ? 100 : 10);
     if (!list.length) return null;
     return {
       list: list,
       type: type,
-      header: $.trim(cont.find(".header .title").filter(filter).text()) || $.trim(cont.find(".section-header").filter(filter).text()),
+      header: $.trim(cont.find(".header .title,.recommended-header").filter(filter).text()) || $.trim(cont.find(".section-header").filter(filter).text()),
       moreLink: cont.hasClass("has-more") ? getLink(cont) : null,
       cluster: getClusterIndex(cont)
     };
@@ -886,7 +886,7 @@ $(function() {
     response.type = "mixed";
     response.lists = [];
     response.moreText = $.trim(view.find("div .header .more:visible").first().text());
-    response.header = $.trim($("#header-tabs-container .header-tab-title.selected:visible").text()) || $.trim($("#breadcrumbs .tab-text:visible").text()) || $.trim($("#header-tabs-container .genre-dropdown-title .dropdown-title-text:visible").text());
+    response.header = $.trim($("#header-tabs-container .header-tab-title.selected:visible").text()) || $.trim($("#material-breadcrumbs .tab-text:visible").text()) || $.trim($("#header-tabs-container .genre-dropdown-title .dropdown-title-text:visible").text());
     view.find(CLUSTER_SELECTOR).addBack().each(function() {
       var list = parseSublist($(this));
       if (list) response.lists.push(list);
@@ -905,7 +905,7 @@ $(function() {
       }
       if (error) {
         sendError();
-      } else if (!link.indexOf("artist/") || !link.indexOf("sr/") || !link.indexOf("wtc/") || !link.indexOf("wms/")) {
+      } else if (link == "now" || !link.indexOf("artist/") || !link.indexOf("sr/") || !link.indexOf("wtc/") || !link.indexOf("wms/")) {
         sendMixed(response);
       } else {
         var autoQueueList = isAutoQueueList(link);
