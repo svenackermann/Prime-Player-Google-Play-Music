@@ -702,27 +702,17 @@ $(function() {
   }
 
   function parseCards(parser, parent, end, cb) {
-    var pageCount = parseInt(parent.data("row-count"));
-    var cardsPerPage = parseInt(parent.data("cards-per-page")) || parent.find(".cluster-page:first .material-card").length;
     var update = false;
     var lastIndex = -1;
-    var lastPageNum = -1;
     function loadNextCards() {
-      var firstPage = parent.find(".cluster-page:first");
-      if (!update && pageCount && cb && firstPage[0] && firstPage.data("page-num") !== 0) {//not yet there
-        asyncListTimer = scrollAndContinue(firstPage[0], loadNextCards, true);
-        return;
-      }
       var items = [];
       var lastLoaded = null;
-      parent.find(".material-card").slice(0, end).each(function() {
+      var cards = parent.find(".material-card");
+      cards.slice(0, end).each(function() {
         var card = $(this);
-        var page = card.closest(".cluster-page");
-        lastLoaded = page[0];
-        var pageNum = parseInt(page.data("page-num"));
-        var index = cardsPerPage * pageNum + page.find(".material-card").index(card);
+        lastLoaded = this;
+        var index = cards.index(card);
         if (index <= lastIndex) return;
-        lastPageNum = pageNum;
         var item = parser(card);
         if (item) {
           item.index = index;
@@ -736,7 +726,7 @@ $(function() {
         cb(items, update);
         update = true;
       }
-      if (lastLoaded && pageCount && lastPageNum + 1 < pageCount && (end === undefined || lastIndex + 1 < end)) asyncListTimer = scrollAndContinue(lastLoaded, loadNextCards, false);
+      if (lastLoaded && (end === undefined || lastIndex + 1 < end)) asyncListTimer = scrollAndContinue(lastLoaded, loadNextCards, false);
       else restoreActiveTab(loadNextCards);
     }
     return loadNextCards();
@@ -929,7 +919,7 @@ $(function() {
             contentId = "#queueContainer";
             response.controlLink = "#/ap/queue";
           }
-          parseNavigationList[type]($(contentId).find(".material-cluster,.song-table").first(), undefined, function(list, update) {
+          parseNavigationList[type]($(contentId).find(".material-cluster,.material-card-grid,.song-table").first(), undefined, function(list, update) {
             response.list = list;
             response.update = update;
             response.empty = !list.length;
