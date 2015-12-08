@@ -186,7 +186,7 @@ $(function() {
       $("<img id='ppLyricsButton'/>")
         .attr("src", getExtensionUrl("img/cmd/openLyrics.png"))
         .attr("title", i18n("command_openLyrics"))
-        .toggleClass("active", !!$("#player-song-title").length)
+        .toggleClass("active", !!$("#currently-playing-title").length)
         .click(toggleLyrics)
         .appendTo("#material-player-right-wrapper");
       $("<div id='ppLyricsContainer'><div id='ppLyricsTitle'><a class='reloadLyrics'></a><div></div></div><div id='ppLyricsScroller'><div id='ppLyricsContent'></div><div id='ppLyricsCredits'></div></div></div>")
@@ -252,11 +252,11 @@ $(function() {
     var playerSongInfo = $("#playerSongInfo");
     if (playerSongInfo.is(":visible") && playerSongInfo.find("div").length) {
       var artist = $("#player-artist");
-      var album = $("#playerSongInfo").find(".player-album");
+      var album = playerSongInfo.find(".player-album");
       var albumId = album.data("id");
       var info = {
         artist: $.trim(artist.text()),
-        title: $.trim($("#player-song-title").text()),
+        title: $.trim($("#currently-playing-title").text()),
         album: $.trim(album.text()),
         albumArtist: albumId && parseHash(albumId.split("/")[1]),
         duration: $.trim($("#time_container_duration").text())
@@ -264,7 +264,7 @@ $(function() {
       if (extended) {
         info.artistLink = getLink(artist) || "artist//" + forHash(info.artist);
         info.albumLink = getLink(album);
-        info.cover = parseCover($("#playingAlbumArt"));
+        info.cover = parseCover($("#playerBarArt"));
         var playlistSong = $(".song-row.currently-playing");
         if (playlistSong[0]) {
           info.playlist = location.hash.substr(2);
