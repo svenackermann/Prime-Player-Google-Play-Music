@@ -71,6 +71,8 @@ function fixForUri(string) {
   /** while we are connecting to Google Music, the browser icon should not allow for any action */
   var connecting = false;
   var connectingTabId;
+  /** stores the time when music was started or activity has been simulated */
+  var inactivityTimerStart;
   //} private variables
 
   //{ beans
@@ -2112,8 +2114,10 @@ function fixForUri(string) {
       if (settings.starRatingMode) postStarRatingMode();
       if (settings.confirmClose) setConfirmClose(true);
       localSettings.timerEnd = 0;
+      inactivityTimerStart = $.now();
     } else {
       clearSleepTimer();
+      inactivityTimerStart = null;
     }
   });
   //} register general listeners
@@ -2175,6 +2179,12 @@ function fixForUri(string) {
         }
 
         if (drawProgress()) updateBrowserIcon();
+
+        //simulate user activity once an hour while playing, do this at the end of a song to avoid noticeable effects
+        if (inactivityTimerStart && player.playing && newPos > song.info.durationSec - 3 && inactivityTimerStart < $.now() - 60 * 60 * 1000) {
+          inactivityTimerStart = $.now();
+          executeInGoogleMusic("simulateActivity");
+        }
       }
     }
   });
