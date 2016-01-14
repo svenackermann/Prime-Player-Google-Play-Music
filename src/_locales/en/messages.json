@@ -588,6 +588,10 @@
     "message": "Hide rating icons (last.fm and thumbs/stars)",
     "description": "label for option to hide ratings"
   },
+  "setting_hideLucky": {
+    "message": "Hide 'feeling lucky' button",
+    "description": "label for option to hide the feeling lucky button"
+  },
   "setting_omitUnknownAlbums": {
     "message": "Omit 'unknown albums' in the album list of the miniplayer",
     "description": "label for option to omit unknown albums"

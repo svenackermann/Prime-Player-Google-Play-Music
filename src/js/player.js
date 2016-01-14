@@ -316,6 +316,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#nav").toggleClass("searchField", !val);
   }
 
+  function hideLuckyWatcher(hide) {
+    $("#feelingLucky").toggle(!hide);
+  }
+
   function updateClickLink(target, link) {
     target = $(target);
     target.toggleClass("nav", !!link);
@@ -1064,6 +1068,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     settings.al("coverClickLink", updateCoverClickLink, typeClass);
     settings.al("titleClickLink", updateTitleClickLink, typeClass);
     settings.w("hideSearchfield", hideSearchfieldWatcher, typeClass);
+    settings.w("hideLucky", hideLuckyWatcher, typeClass);
     settings.al("saveLastPosition", saveLastPositionUpdated, typeClass);
     settings.w("hideFavorites", hideFavoritesWatcher, typeClass);
     settings.al("starRatingMode", ratingModeWatcher, typeClass);

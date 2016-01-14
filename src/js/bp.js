@@ -153,6 +153,7 @@ function fixForUri(string) {
     openLinksInMiniplayer: true,
     hideSearchfield: false,
     hideRatings: false,
+    hideLucky: false,
     omitUnknownAlbums: false,
     mpAutoOpen: false,
     mpAutoClose: false,

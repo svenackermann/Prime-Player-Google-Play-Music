@@ -439,7 +439,10 @@
     "message": "Titel mit Daumen runter überspringen"
   },
   "setting_hideRatings": {
-    "message": "Bewertungs-Symbole verstecken (last.fm und Daumen/Sterne)"
+    "message": "Verstecke Bewertungs-Symbole (last.fm und Daumen/Sterne)"
+  },
+  "setting_hideLucky": {
+    "message": "Verstecke 'Mix auf gut Glück' Button"
   },
   "setting_omitUnknownAlbums": {
     "message": "Verberge 'Unbekannte Alben' in der Alben-Liste des Miniplayers"
