@@ -71,6 +71,8 @@ function fixForUri(string) {
   /** while we are connecting to Google Music, the browser icon should not allow for any action */
   var connecting = false;
   var connectingTabId;
+  /** stores the time when music was started or activity has been simulated */
+  var inactivityTimerStart;
   //} private variables
 
   //{ beans
@@ -153,6 +155,7 @@ function fixForUri(string) {
     openLinksInMiniplayer: true,
     hideSearchfield: false,
     hideRatings: false,
+    hideLucky: false,
     omitUnknownAlbums: false,
     mpAutoOpen: false,
     mpAutoClose: false,
@@ -187,6 +190,7 @@ function fixForUri(string) {
     skipRatedLower: 0,
     openGoogleMusicPinned: false,
     openGmBackground: false,
+    simulateActivity: false,
     startupAction: "",
     playlistEndAction: "",
     pauseOnLock: false,
@@ -2112,8 +2116,10 @@ function fixForUri(string) {
       if (settings.starRatingMode) postStarRatingMode();
       if (settings.confirmClose) setConfirmClose(true);
       localSettings.timerEnd = 0;
+      inactivityTimerStart = $.now();
     } else {
       clearSleepTimer();
+      inactivityTimerStart = null;
     }
   });
   //} register general listeners
@@ -2175,6 +2181,12 @@ function fixForUri(string) {
         }
 
         if (drawProgress()) updateBrowserIcon();
+
+        //simulate user activity once an hour while playing, do this at the end of a song to avoid noticeable effects
+        if (settings.simulateActivity && inactivityTimerStart && player.playing && newPos > song.info.durationSec - 3 && inactivityTimerStart < $.now() - 60 * 60 * 1000) {
+          inactivityTimerStart = $.now();
+          executeInGoogleMusic("simulateActivity");
+        }
       }
     }
   });

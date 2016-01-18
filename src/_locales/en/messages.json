@@ -448,6 +448,14 @@
     "message": "Open Google Music tab in the background",
     "description": "label for option to open Google Music in the background"
   },
+  "setting_simulateActivity": {
+    "message": "Simulate user activity in Google Music tab",
+    "description": "label for option to simulate user interaction in Google Music"
+  },
+  "setting_simulateActivityHint": {
+    "message": "Google Music automatically pauses music after a while if there is no user interaction on the page. To avoid this, you can let Prime Player simulate a click on the volume bar once an hour.",
+    "description": "hint for option to simulate user interaction in Google Music"
+  },
   "setting_startupAction": {
     "message": "Action on Chrome startup",
     "description": "label for option to select a Chrome startup action"
@@ -587,6 +595,10 @@
   "setting_hideRatings": {
     "message": "Hide rating icons (last.fm and thumbs/stars)",
     "description": "label for option to hide ratings"
+  },
+  "setting_hideLucky": {
+    "message": "Hide 'feeling lucky' button",
+    "description": "label for option to hide the feeling lucky button"
   },
   "setting_omitUnknownAlbums": {
     "message": "Omit 'unknown albums' in the album list of the miniplayer",

@@ -189,7 +189,18 @@
     var slider = document.querySelector(selector);
     var progress = slider.querySelector("#sliderBar");
     var rect = progress.getBoundingClientRect();
-    simulateMouseEvent("mousedown", progress, rect.left + percent * rect.width, rect.top + 1);
+    var clientX = rect.left + percent * rect.width;
+    var clientY = rect.top + 1;
+    simulateMouseEvent("mousedown", progress, clientX, clientY);
+    setTimeout(function() {
+      simulateMouseEvent("mouseup", progress, clientX, clientY);
+    }, 250);
+  }
+
+  function simulateActivity() {
+    var selector = "#material-vslider";
+    var slider = document.querySelector(selector);
+    setPositionPercent(selector, slider.getAttribute("aria-valuenow") / 100);
   }
 
   /** Cleanup this script, i.e. remove the message listener from the window. */
@@ -250,6 +261,9 @@
       break;
     case "ratePlaylistSong":
       ratePlaylistSong(options);
+      break;
+    case "simulateActivity":
+      simulateActivity();
       break;
     case "cleanup":
       cleanup();

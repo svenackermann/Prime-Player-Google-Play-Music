@@ -12,7 +12,7 @@ var del = require("del");
 var replace = require("gulp-replace");
 var zip = require("gulp-zip");
 var merge = require("merge-stream");
-var htmlminify = require("gulp-minify-html");
+var htmlmin = require("gulp-htmlmin");
 var jsonedit = require("gulp-json-transform");
 var n2a = require("gulp-native2ascii");
 var runSequence = require("run-sequence");
@@ -137,7 +137,7 @@ gulp.task("zip", function() {
     .pipe(n2a({ reverse: false }));
 
   var html = gulp.src("build/**/*.html", { base: "build" })
-    .pipe(gulpif(!full, htmlminify({ empty: true })));
+    .pipe(gulpif(!full, htmlmin({ collapseWhitespace: true })));
 
   var rest = gulp.src(["build/**", "!**/*.json", "!**/*.html"]);
 
