@@ -190,6 +190,7 @@ function fixForUri(string) {
     skipRatedLower: 0,
     openGoogleMusicPinned: false,
     openGmBackground: false,
+    simulateActivity: false,
     startupAction: "",
     playlistEndAction: "",
     pauseOnLock: false,
@@ -2182,7 +2183,7 @@ function fixForUri(string) {
         if (drawProgress()) updateBrowserIcon();
 
         //simulate user activity once an hour while playing, do this at the end of a song to avoid noticeable effects
-        if (inactivityTimerStart && player.playing && newPos > song.info.durationSec - 3 && inactivityTimerStart < $.now() - 60 * 60 * 1000) {
+        if (settings.simulateActivity && inactivityTimerStart && player.playing && newPos > song.info.durationSec - 3 && inactivityTimerStart < $.now() - 60 * 60 * 1000) {
           inactivityTimerStart = $.now();
           executeInGoogleMusic("simulateActivity");
         }

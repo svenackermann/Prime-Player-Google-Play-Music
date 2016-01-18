@@ -336,6 +336,12 @@
   "setting_openGmBackground": {
     "message": "Google Music Tab im Hintergrund öffnen"
   },
+  "setting_simulateActivity": {
+    "message": "Simuliere Aktivität im Google Music Tab"
+  },
+  "setting_simulateActivityHint": {
+    "message": "Google Music pausiert die Musik automatisch, wenn eine Weile keine Nutzer-Interaktion stattgefunden hat. Um das zu vermeiden, kannst du Prime Player einmal pro Stunde einen Klick auf die Lautstärke-Leiste simulieren lassen."
+  },
   "setting_startupAction": {
     "message": "Aktion bei Chrome-Start"
   },
