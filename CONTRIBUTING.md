@@ -32,3 +32,19 @@ I do not use any automated tests. That would just be too hard to implement, beca
 So please take care that you tested your changes manually. Don't forget that users can have many different setups because of the large number of extension options and the different kinds of Google Music accounts (with or without "All Access" or with some labs enabled).
 
 Your changes should work in the currently stable Chrome release. If you implement sth. that needs Chrome features which are only available for the Canary/Dev/Beta build at the moment, I might accept it but will not release it yet. Instead it will be moved to some branch and maybe merged in later. In such case please also take care of the `minimum_chrome_version` property in the `manifest.json`.
+
+### Adding a setting to the options page
+These are the steps if you add sth. that should be configurable with an option:
+
+1. In ```bp.js``` add a property with its default value (e.g. ```myNewSetting: false```) to ```settings``` (or ```localSettings``` if it's not intended to be synchronized with Chrome sync). Take care that you add it at the position corresponding to the position where you'd like it on the options page. Because of the large number of options I need some order here.
+2. In ```options.html``` add a ```div``` at the desired position  (e.g. ```<div class="i-c" id="myNewSetting"></div>``` for a checkbox). Its ```id``` must be the name of the setting. The version and mode filter classes (e.g. ```v-3.8 adv```) will be added by me later. For local settings (see above) the class ```local``` must be added. The type (checkbox, select, ...) is required in the class attribute:
+  * ```i-c``` is for boolean properties (checkbox).
+  * ```i-n``` is for number properties (number input), minimum/maximum allowed values can be provided with ```data-min```/```data-max``` attributes.
+  * ```i-s``` is for enum properties (i.e. type string/number with predefined values, results in select input), possible values can be defined with attribute ```data-options``` (comma-separated). If an option needs a special CSS class added, you can add a colon and the class after the value (e.g. ```data-options="option1,option2:myCssClass,option3"```). If the type is number, ```data-type="n"``` must be added. You can also provide a custom function to determine the labels for the options with ```data-getoptionstext="myCustomFunction"``` if you need more control than described below.
+  * Other rare cases are color inputs (```i-co```) and select inputs that have their values copied from another select (```i-sf```). See ```options.html``` and code in ```options.js``` for examples.
+  * If the setting needs detailed explanation with a hint (green question mark icon), class ```i-h``` must be added and additional texts provided (see below).
+3. Add texts to the resource bundles (```_locales/*/messages.json```) (at least English is required):
+  * The label for the option has key "setting_" followed by the name of the setting (e.g. "setting_myNewSetting").
+  * If the setting has a hint, the same key with suffix "Hint" is used for that (e.g. "setting_myNewSettingHint").
+  * For enum properties, the options labels have the same key with suffix "_(option)" (e.g. "setting_myNewSetting_option1"; if you provided a custom function with ```data-getoptionstext```, you don't need that).
+4. Use the new setting (```bp.settings.myNewSetting```) wherever you need it and register listeners as described below.
