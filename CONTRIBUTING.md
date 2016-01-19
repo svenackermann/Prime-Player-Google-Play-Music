@@ -67,3 +67,11 @@ You e.g. call ```settings.al("myNewSetting", myListener)```. The listener functi
 If you add a listener to the miniplayer (in ```player.js```) or options page (in ```options.js```), be sure to provide the ```src``` attribute (either ```typeClass``` or ```CONTEXT```). This is needed for the listener to be removed when the miniplayer/popup/toast/page closes (```ral``` is called on unload for that).
 
 For more details see ```beans.js```.
+
+### Adding a lyrics provider
+If you want to add a new provider, you basically need the following steps. For details see the existing implementations.
+
+1. In ```manifest.json``` add an optional permission for the providers URL.
+2. In ```lyrics.js``` implement a new ```LyricsProvider``` object to search/load/parse the lyrics from the page via AJAX.
+3. Add a file ```cs-myProvider.js``` to be used as content script on the provider page if the user decides to open the lyrics on the page directly.
+4. Add a new ```div``` below the other providers in ```options.html``` to make it available to the user.
