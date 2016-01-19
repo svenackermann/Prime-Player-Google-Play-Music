@@ -48,3 +48,22 @@ These are the steps if you add sth. that should be configurable with an option:
   * If the setting has a hint, the same key with suffix "Hint" is used for that (e.g. "setting_myNewSettingHint").
   * For enum properties, the options labels have the same key with suffix "_(option)" (e.g. "setting_myNewSetting_option1"; if you provided a custom function with ```data-getoptionstext```, you don't need that).
 4. Use the new setting (```bp.settings.myNewSetting```) wherever you need it and register listeners as described below.
+
+### Using settings for control
+You can use the ```settings```, ```localSettings```, ```song``` and ```player``` objects from the background page to react on current state of user settings, the current song and the Google player.
+
+You can access the current value like with a normal object (e.g. ```if (settings.myNewSetting) ...```). Note that this value is actually hidden behind a Javascript get property. If you set the value, all registered listeners will be notified if and only if it really changed (so setting the same value multiple times will only trigger one notification).
+
+To register or remove a listener you have the following functions:
+* ```al```: add a listener function
+* ```rl```: remove a listener function
+* ```arl```: add or remove a listener function (depending on value of the ```add``` attribute)
+* ```ral```: remove all listeners for a given source (e.g. the miniplayer)
+* ```w```: add a watcher function, that is the same as ```al```, except that the listener will be called immediately with the current value for old and new value, this is useful for initialisation
+* ```wrl```: same as ```ral```, except that the listener will be called immediately if the ```add``` attribute is ```true```
+
+You e.g. call ```settings.al("myNewSetting", myListener)```. The listener function will be called with 3 arguments: The new value, the old value and the name of the property that changed. Just look at the existing examples in the code.
+
+If you add a listener to the miniplayer (in ```player.js```) or options page (in ```options.js```), be sure to provide the ```src``` attribute (either ```typeClass``` or ```CONTEXT```). This is needed for the listener to be removed when the miniplayer/popup/toast/page closes (```ral``` is called on unload for that).
+
+For more details see ```beans.js```.
