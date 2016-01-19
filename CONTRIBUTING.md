@@ -60,7 +60,7 @@ To register or remove a listener you have the following functions:
 * ```arl```: add or remove a listener function (depending on value of the ```add``` attribute)
 * ```ral```: remove all listeners for a given source (e.g. the miniplayer)
 * ```w```: add a watcher function, that is the same as ```al```, except that the listener will be called immediately with the current value for old and new value, this is useful for initialisation
-* ```wrl```: same as ```ral```, except that the listener will be called immediately if the ```add``` attribute is ```true```
+* ```wrl```: same as ```arl```, except that the listener will be called immediately if the ```add``` attribute is ```true```
 
 You e.g. call ```settings.al("myNewSetting", myListener)```. The listener function will be called with 3 arguments: The new value, the old value and the name of the property that changed. Just look at the existing examples in the code.
 
