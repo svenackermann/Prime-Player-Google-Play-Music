@@ -302,7 +302,7 @@ function fixForUri(string) {
       "albums",
       "genres",
       "wms",
-      "myPlaylists",
+      "wmp",
       "ap/queue",
       "ap/auto-playlist-thumbs-up",
       "ap/auto-playlist-recent",
@@ -339,7 +339,6 @@ function fixForUri(string) {
 
   /** @return the label for a quick link, if connected to Google Music, the labels from the site are used. */
   function getTextForQuicklink(link) {
-    if (link == "myPlaylists") return i18n("myPlaylists");
     var text;
     if (link) text = localSettings.quicklinks[link];//try to get text from Google site
     //use default
@@ -1616,18 +1615,24 @@ function fixForUri(string) {
     }
 
     //--- 3.4 ---
-    function migrateQuicklink(name) {
-      if (settings[name] == "rd") settings[name] = "wms";
-      else if (settings[name] == "expnew") settings[name] = "wnr";
-      else if (settings[name] == "exptop") settings[name] = "wtc";
-      else if (settings[name] == "exprec" || settings[name] == "ap/google-play-recommends") settings[name] = "";
+    function migrateQuicklink(oldLink, newLink) {
+      if (settings.coverClickLink == oldLink) settings.coverClickLink = newLink;
+      if (settings.titleClickLink == oldLink) settings.titleClickLink = newLink;
     }
-    migrateQuicklink("coverClickLink");
-    migrateQuicklink("titleClickLink");
-    if (localSettings.quicklinks && localSettings.quicklinks.exptop) localSettings.quicklinks.wtc = i18n("quicklink_wtc");
+    if (previousVersion < 3.4) {
+      migrateQuicklink("rd", "wms");
+      migrateQuicklink("expnew", "wnr");
+      migrateQuicklink("exptop", "wtc");
+      migrateQuicklink("exprec", "");
+      migrateQuicklink("ap/google-play-recommends", "");
+      if (localSettings.quicklinks && localSettings.quicklinks.exptop) localSettings.quicklinks.wtc = i18n("quicklink_wtc");
+    }
 
     //--- Chrome 47 ---
     if (settings.toastPriority < 2) settings.toastPriority = 2;
+
+    //--- 3.8.1 ---
+    if (previousVersion <= 3.8) migrateQuicklink("myPlaylists", "wmp");
   }
 
   /** handler for onInstalled event (show the orange icon on update / notification on install) */
@@ -1890,7 +1895,7 @@ function fixForUri(string) {
         var menuQuicklinksId = "menuQuicklinks";
         createContextMenuEntry(menuQuicklinksId, i18n("quicklinks"), function() {
           getQuicklinks().forEach(function(ql) {
-            if (ql != "myPlaylists") createContextMenuEntry("ql_" + ql, getTextForQuicklink(ql).replace(/&/g, "&&"), null, menuQuicklinksId);
+            createContextMenuEntry("ql_" + ql, getTextForQuicklink(ql).replace(/&/g, "&&"), null, menuQuicklinksId);
           });
         });
       }

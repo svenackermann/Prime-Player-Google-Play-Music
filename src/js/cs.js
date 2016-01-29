@@ -535,6 +535,7 @@ $(function() {
           ql[getLink($(this))] = $.trim($(this).find(".tooltip").text());
         });
         ql.searchPlaceholder = $.trim($("#material-one-middle input.material-search").attr("placeholder"));
+        ql.wmp = $.trim($("#playlists").prev(".nav-section-header").text());
         post("connected", {
           ratingMode: "thumbs",
           quicklinks: ql
@@ -826,7 +827,7 @@ $(function() {
     $("#playlists").children("a").each(function() {
       playlists.push({ title: $.trim($(this).find(".tooltip").text()), titleLink: getLink($(this)) });
     });
-    post("player-navigationList", { type: "playlistsList", link: "myPlaylists", list: playlists, empty: !playlists.length });
+    post("player-navigationList", { type: "playlistsList", link: "wmp", list: playlists, empty: !playlists.length });
   }
 
   /** @return the type of list for a hash value ("playlistsList" [e.g. artist page showing albums], "playlist" [e.g. album page] or "albumContainers" [e.g. genre page showing artists]) */
@@ -979,7 +980,7 @@ $(function() {
     case "getNavigationList":
       clearTimeout(asyncListTimer);
       listRatings = null;
-      if (msg.link == "myPlaylists") sendMyPlaylists();
+      if (msg.link == "wmp") sendMyPlaylists();
       else sendNavigationList(msg.link, msg.omitUnknownAlbums);
       break;
     case "selectLink":

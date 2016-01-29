@@ -14,9 +14,6 @@
   "gotoGmusic": {
     "message": "Öffne Google Play Music"
   },
-  "myPlaylists": {
-    "message": "Meine Playlists"
-  },
   "setting_scrobble": {
     "message": "Scrobbeln aktivieren"
   },
@@ -562,6 +559,9 @@
   },
   "quicklink_wms": {
     "message": "Sender"
+  },
+  "quicklink_wmp": {
+    "message": "Meine Playlists"
   },
   "quicklink_ap_queue": {
     "message": "Wiedergabeliste"
