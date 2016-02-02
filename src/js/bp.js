@@ -861,6 +861,7 @@ function fixForUri(string) {
   function createNotification(id, options, cb) {
     options.type = options.type || "basic";
     options.iconUrl = options.iconUrl || "img/icon-128x128.png";
+    options.appIconMaskUrl = "img/icon-alpha.png";
     if (localSettings.notificationsEnabled) chromeNotifications.create(id, options, function(nid) {
       notifications[nid] = { click: [], btnClick: [], close: [] };
       cb(nid);
