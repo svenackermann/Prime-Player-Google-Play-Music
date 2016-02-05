@@ -164,6 +164,7 @@ img.hint {
 
 #changelog {
   clear: both;
+  display: none;
   h2 {
     display: inline-block;
     margin-right: 1ex;
@@ -180,6 +181,7 @@ img.hint {
     height: 12px;
   }
   li {
+    font-size: 11px;
     &.B:before {
       content: "B: ";
     }
@@ -202,8 +204,20 @@ img.hint {
   &.F .F, &.I .I, &.B .B {
     display: list-item;
   }
-  &.V h3 {
-    display: block;
+  > div {
+    font-size: 0;
+  }
+  &.V {
+    h3 {
+      display: block;
+      margin-bottom: 1ex;
+    }
+    > div {
+      font-size: 11px;
+    }
+  }
+  h3 > a {
+    text-decoration: none;
   }
 }
 

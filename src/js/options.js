@@ -12,6 +12,7 @@
 chrome.runtime.getBackgroundPage(function(bp) {
   var thisTabId;
   var CONTEXT = "options";
+  var CHANGELOG_STORAGE_KEY = "releases";
   var settingsView = $("#settings");
   var i18n = chrome.i18n.getMessage;
   var settings = bp.settings;
@@ -543,6 +544,94 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
   }
 
+  function loadReleases(cb, fallbackReleases) {
+    var releases = [];
+    function loadFromUrl(url) {
+      $.get(url).done(function(data, textStatus, jqXHR) {
+        data.forEach(function(release) {
+          // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
+          var version = release.tag_name;
+          if (!release.prerelease && /^(\d+\.)*\d+$/.test(version)) releases.push({ v: version, d: $.trim(release.body), p: new Date(release.published_at).getTime() });
+          // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
+        });
+        var link = jqXHR.getResponseHeader("Link");
+        if (link) {
+          var next = link.match(/^.*<([^>]+)>; rel\=\"next\".*$/);
+          if (next) next = next[1];
+          if (next) return loadFromUrl(next);
+        }
+
+        //sort, save, callback
+        releases.sort(function(r1, r2) { return bp.compareVersions(r2.v, r1.v); });
+        var items = {};
+        items[CHANGELOG_STORAGE_KEY] = releases;
+        chrome.storage.local.set(items);
+        cb(releases);
+      }).fail(function(jqXHR, textStatus, errorThrown) {
+        cb(fallbackReleases);
+        console.error(textStatus, errorThrown);
+      });
+    }
+
+    loadFromUrl("https://api.github.com/repos/svenackermann/Prime-Player-Google-Play-Music/releases");
+  }
+
+  function renderChangelog(releases) {
+    var releasesUrl = "https://github.com/svenackermann/Prime-Player-Google-Play-Music/releases/";
+    var changelog = $("#changelog");
+    changelog.children("a").attr("href", releasesUrl);
+    if (releases.length) {
+      releases.forEach(function(release) {
+        var container = $("<div>").addClass("v-" + release.v).appendTo(changelog);
+        var header = $("<h3>").appendTo(container);
+        $("<a>").attr("target", "_blank").attr("href", releasesUrl + release.v).text("Version " + release.v).appendTo(header);
+        header.append(" (" + new Date(release.p).toLocaleDateString() + ")");
+        var ulStarted = false;
+        release.d.split("\n").forEach(function(line) {
+          line = $.trim(line);
+          if (line.indexOf("* ")) {
+            if (ulStarted) {
+              container = container.parent();
+              ulStarted = false;
+            }
+            container.append(line + "<br/>");
+          } else {
+            if (!ulStarted) {
+              container = $("<ul>").appendTo(container);
+              ulStarted = true;
+            }
+            line = line.substr(2);
+            var classes = line.match(/^([FIBV/]+)\:.*$/);
+            if (classes) {
+              classes = classes[1].replace(/\//g, " ");
+              line = $.trim(line.substr(line.indexOf(":") + 1));
+            }
+            $("<li>").addClass(classes || "").text(line).appendTo(container);
+          }
+        });
+      });
+      changelog.show();
+    }
+
+    //mark new features
+    if (bp.previousVersion) {
+      $("div[class*='v-']").each(function() {
+        var version = extractVersionFromClass(this);
+        if (bp.isNewerVersion(version)) $(this).addClass("newFeature");
+      });
+      bp.updateInfosViewed();
+    }
+  }
+
+  function initChangelog() {
+    chrome.storage.local.get(CHANGELOG_STORAGE_KEY, function(items) {
+      var releases = items[CHANGELOG_STORAGE_KEY];
+      if (!releases || !releases.length || bp.compareVersions(releases[0].v, chrome.runtime.getManifest().version) < 0) {
+        loadReleases(renderChangelog, releases || []);
+      } else renderChangelog(releases);
+    });
+  }
+
   $(function() {
     $("head > title").text(i18n("options") + " - " + i18n("extTitle"));
     initLegends();
@@ -619,7 +708,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#_autoActivateGm").click(autoActivateGmChanged);
     //}
 
-    //watch this if changed via miniplayer
+    //watch this if changed via miniplayer or context menu
     settings.al("scrobble", scrobbleChanged, CONTEXT);
     //we must watch this as the session could be expired
     localSettings.w("lastfmSessionName", lastfmUserChanged, CONTEXT);
@@ -667,20 +756,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       history.replaceState("", "", location.protocol + "//" + location.host + location.pathname);//remove token from URL
     }
 
-    //mark new features
-    if (bp.previousVersion) {
-      $("div[class*='v-']").each(function() {
-        var version = extractVersionFromClass(this);
-        if (bp.isNewerVersion(version)) $(this).addClass("newFeature");
-      });
-      bp.updateInfosViewed();
-    }
-
-    //set headings in changelog
-    $("#changelog > div[class*='v-']").each(function() {
-      var version = extractVersionFromClass(this);
-      $(this).prepend("<h3>Version " + version + "</h3>");
-    });
+    initChangelog();
 
     $("#changelog").on("click", "input[type='checkbox']", function() {
       $("#changelog").toggleClass(this.id.substr(3,1));

@@ -281,18 +281,23 @@ function fixForUri(string) {
   //do not notify listeners, if not a real change (the content script might send the same song info multiple times)
   song.setEqualsFn("info", songsEqual);
 
+  /** @return a value > 0 if v1 is newer, < 0 if v2 is newer, 0 if equal */
+  function compareVersions(v1, v2) {
+    v1 = v1.split(".");
+    v2 = v2.split(".");
+    for (var i = 0; i < v1.length; i++) {
+      if (v2.length <= i) return 1;//v2 is shorter (e.g. 1.0.1 > 1.0)
+      var v1i = parseInt(v1[i]);
+      var v2i = parseInt(v2[i]);
+      if (v1i != v2i) return v1i - v2i;//maybe same length, but different number (e.g. 1.1.x < 1.2)
+    }
+    return v1.length - v2.length;//v2 is longer (e.g. 1.0 < 1.0.1), else same version
+  }
+
   /** @return true, if the given version is newer than the saved previous version (used by options page and update listener) */
   function isNewerVersion(version) {
     if (previousVersion == null) return false;//jshint ignore:line
-    var prev = previousVersion.split(".");
-    version = version.split(".");
-    for (var i = 0; i < prev.length; i++) {
-      if (version.length <= i) return false;//version is shorter (e.g. 1.0 < 1.0.1)
-      var p = parseInt(prev[i]);
-      var v = parseInt(version[i]);
-      if (p != v) return v > p;
-    }
-    return version.length > prev.length;//version is longer (e.g. 1.0.1 > 1.0), else same version
+    return compareVersions(previousVersion, version) < 0;
   }
 
   function getQuicklinks() {
@@ -2610,6 +2615,7 @@ function fixForUri(string) {
   exports.parseSeconds = parseSeconds;
   exports.songsEqual = songsEqual;
   exports.isNewerVersion = isNewerVersion;
+  exports.compareVersions = compareVersions;
   exports.getQuicklinks = getQuicklinks;
   exports.isRatingReset = isRatingReset;
   exports.getLastSong = getLastSong;
