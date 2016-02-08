@@ -897,6 +897,10 @@
     "message": "Fast forward 15 seconds",
     "description": "text for fast forward in toast action and keyboard shortcut"
   },
+  "command_rew": {
+    "message": "Rewind 15 seconds",
+    "description": "text for rewind in toast action and keyboard shortcut"
+  },
   "command_rate1": {
     "message": "Rate 1 star/thumbs down",
     "description": "text for rate 1 in toast action (if not connected to Google Music) and keyboard shortcut"

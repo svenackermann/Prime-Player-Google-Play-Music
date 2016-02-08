@@ -76,6 +76,9 @@
     "ff": {
       "description": "__MSG_command_ff__"
     },
+    "rew": {
+      "description": "__MSG_command_rew__"
+    },
     "openMiniplayer": {
       "suggested_key": { "default": "Alt+W" },
       "description": "__MSG_openMiniplayer__"

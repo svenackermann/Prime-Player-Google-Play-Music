@@ -1867,7 +1867,7 @@ function fixForUri(string) {
       if (player.connected) {
         var menuConnectedId = "menuConnected";
         createContextMenuEntry(menuConnectedId, i18n("action"), function() {
-          var commands = ["playPause", "prevSong", "nextSong", "ff", "openMiniplayer", "volumeUp", "volumeDown", "volumeMute", "toggleRepeat", "toggleShuffle"];
+          var commands = ["playPause", "prevSong", "nextSong", "ff", "rew", "openMiniplayer", "volumeUp", "volumeDown", "volumeMute", "toggleRepeat", "toggleShuffle"];
           if (localSettings.lastfmSessionKey) commands.push("loveUnloveSong");
           commands.push("rate-1");
           if (isStarRatingMode()) commands.push("rate-2", "rate-3", "rate-4");
@@ -2230,7 +2230,7 @@ function fixForUri(string) {
     calcScrobbleTime();
     if (!old != !info) {//jshint ignore:line
       // (only update if exactly one of them is null)
-      var commands = ["prevSong", "nextSong", "ff", "openLyrics", "rate-1", "rate-5"];
+      var commands = ["prevSong", "nextSong", "ff", "rew", "openLyrics", "rate-1", "rate-5"];
       if (isStarRatingMode()) commands.push("rate-2", "rate-3", "rate-4");
       updateContextMenuConnectedItem(commands);
     }
@@ -2362,6 +2362,8 @@ function fixForUri(string) {
       return player.forward;
     case "ff":
       return !!song.info;
+    case "rew":
+      return !!song.info;
     case "volumeUp":
       return !!player.volume && player.volume != "100";
     case "volumeDown":
@@ -2461,6 +2463,9 @@ function fixForUri(string) {
       break;
     case "ff":
       if (song.info && song.info.durationSec > 0) setSongPosition(Math.min(1, (song.positionSec + 15) / song.info.durationSec));
+      break;
+    case "rew":
+      if (song.info && song.info.durationSec > 0) setSongPosition(Math.max(0, (song.positionSec - 15) / song.info.durationSec));
       break;
     case "openLyrics":
       if (localSettings.lyrics) openLyrics();

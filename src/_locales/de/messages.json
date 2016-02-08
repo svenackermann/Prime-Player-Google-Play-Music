@@ -674,6 +674,9 @@
   "command_ff": {
     "message": "15 Sekunden vorspulen"
   },
+  "command_rew": {
+    "message": "15 Sekunden zurückspulen"
+  },
   "command_rate1": {
     "message": "Bewerte 1 Stern/Daumen runter"
   },
