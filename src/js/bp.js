@@ -1636,7 +1636,7 @@ function fixForUri(string) {
     //--- Chrome 47 ---
     if (settings.toastPriority < 2) settings.toastPriority = 2;
 
-    //--- 3.8.1 ---
+    //--- 3.9 ---
     if (previousVersion <= 3.8) migrateQuicklink("myPlaylists", "wmp");
   }
 
