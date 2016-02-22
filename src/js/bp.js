@@ -281,18 +281,23 @@ function fixForUri(string) {
   //do not notify listeners, if not a real change (the content script might send the same song info multiple times)
   song.setEqualsFn("info", songsEqual);
 
+  /** @return a value > 0 if v1 is newer, < 0 if v2 is newer, 0 if equal */
+  function compareVersions(v1, v2) {
+    v1 = v1.split(".");
+    v2 = v2.split(".");
+    for (var i = 0; i < v1.length; i++) {
+      if (v2.length <= i) return 1;//v2 is shorter (e.g. 1.0.1 > 1.0)
+      var v1i = parseInt(v1[i]);
+      var v2i = parseInt(v2[i]);
+      if (v1i != v2i) return v1i - v2i;//maybe same length, but different number (e.g. 1.1.x < 1.2)
+    }
+    return v1.length - v2.length;//v2 is longer (e.g. 1.0 < 1.0.1), else same version
+  }
+
   /** @return true, if the given version is newer than the saved previous version (used by options page and update listener) */
   function isNewerVersion(version) {
     if (previousVersion == null) return false;//jshint ignore:line
-    var prev = previousVersion.split(".");
-    version = version.split(".");
-    for (var i = 0; i < prev.length; i++) {
-      if (version.length <= i) return false;//version is shorter (e.g. 1.0 < 1.0.1)
-      var p = parseInt(prev[i]);
-      var v = parseInt(version[i]);
-      if (p != v) return v > p;
-    }
-    return version.length > prev.length;//version is longer (e.g. 1.0.1 > 1.0), else same version
+    return compareVersions(previousVersion, version) < 0;
   }
 
   function getQuicklinks() {
@@ -302,7 +307,7 @@ function fixForUri(string) {
       "albums",
       "genres",
       "wms",
-      "myPlaylists",
+      "wmp",
       "ap/queue",
       "ap/auto-playlist-thumbs-up",
       "ap/auto-playlist-recent",
@@ -339,7 +344,6 @@ function fixForUri(string) {
 
   /** @return the label for a quick link, if connected to Google Music, the labels from the site are used. */
   function getTextForQuicklink(link) {
-    if (link == "myPlaylists") return i18n("myPlaylists");
     var text;
     if (link) text = localSettings.quicklinks[link];//try to get text from Google site
     //use default
@@ -1616,18 +1620,24 @@ function fixForUri(string) {
     }
 
     //--- 3.4 ---
-    function migrateQuicklink(name) {
-      if (settings[name] == "rd") settings[name] = "wms";
-      else if (settings[name] == "expnew") settings[name] = "wnr";
-      else if (settings[name] == "exptop") settings[name] = "wtc";
-      else if (settings[name] == "exprec" || settings[name] == "ap/google-play-recommends") settings[name] = "";
+    function migrateQuicklink(oldLink, newLink) {
+      if (settings.coverClickLink == oldLink) settings.coverClickLink = newLink;
+      if (settings.titleClickLink == oldLink) settings.titleClickLink = newLink;
     }
-    migrateQuicklink("coverClickLink");
-    migrateQuicklink("titleClickLink");
-    if (localSettings.quicklinks && localSettings.quicklinks.exptop) localSettings.quicklinks.wtc = i18n("quicklink_wtc");
+    if (previousVersion < 3.4) {
+      migrateQuicklink("rd", "wms");
+      migrateQuicklink("expnew", "wnr");
+      migrateQuicklink("exptop", "wtc");
+      migrateQuicklink("exprec", "");
+      migrateQuicklink("ap/google-play-recommends", "");
+      if (localSettings.quicklinks && localSettings.quicklinks.exptop) localSettings.quicklinks.wtc = i18n("quicklink_wtc");
+    }
 
     //--- Chrome 47 ---
     if (settings.toastPriority < 2) settings.toastPriority = 2;
+
+    //--- 3.9 ---
+    if (previousVersion <= 3.8) migrateQuicklink("myPlaylists", "wmp");
   }
 
   /** handler for onInstalled event (show the orange icon on update / notification on install) */
@@ -1857,7 +1867,7 @@ function fixForUri(string) {
       if (player.connected) {
         var menuConnectedId = "menuConnected";
         createContextMenuEntry(menuConnectedId, i18n("action"), function() {
-          var commands = ["playPause", "prevSong", "nextSong", "ff", "openMiniplayer", "volumeUp", "volumeDown", "volumeMute", "toggleRepeat", "toggleShuffle"];
+          var commands = ["playPause", "prevSong", "nextSong", "ff", "rew", "openMiniplayer", "volumeUp", "volumeDown", "volumeMute", "toggleRepeat", "toggleShuffle"];
           if (localSettings.lastfmSessionKey) commands.push("loveUnloveSong");
           commands.push("rate-1");
           if (isStarRatingMode()) commands.push("rate-2", "rate-3", "rate-4");
@@ -1890,7 +1900,7 @@ function fixForUri(string) {
         var menuQuicklinksId = "menuQuicklinks";
         createContextMenuEntry(menuQuicklinksId, i18n("quicklinks"), function() {
           getQuicklinks().forEach(function(ql) {
-            if (ql != "myPlaylists") createContextMenuEntry("ql_" + ql, getTextForQuicklink(ql).replace(/&/g, "&&"), null, menuQuicklinksId);
+            createContextMenuEntry("ql_" + ql, getTextForQuicklink(ql).replace(/&/g, "&&"), null, menuQuicklinksId);
           });
         });
       }
@@ -2220,7 +2230,7 @@ function fixForUri(string) {
     calcScrobbleTime();
     if (!old != !info) {//jshint ignore:line
       // (only update if exactly one of them is null)
-      var commands = ["prevSong", "nextSong", "ff", "openLyrics", "rate-1", "rate-5"];
+      var commands = ["prevSong", "nextSong", "ff", "rew", "openLyrics", "rate-1", "rate-5"];
       if (isStarRatingMode()) commands.push("rate-2", "rate-3", "rate-4");
       updateContextMenuConnectedItem(commands);
     }
@@ -2352,6 +2362,8 @@ function fixForUri(string) {
       return player.forward;
     case "ff":
       return !!song.info;
+    case "rew":
+      return !!song.info;
     case "volumeUp":
       return !!player.volume && player.volume != "100";
     case "volumeDown":
@@ -2451,6 +2463,9 @@ function fixForUri(string) {
       break;
     case "ff":
       if (song.info && song.info.durationSec > 0) setSongPosition(Math.min(1, (song.positionSec + 15) / song.info.durationSec));
+      break;
+    case "rew":
+      if (song.info && song.info.durationSec > 0) setSongPosition(Math.max(0, (song.positionSec - 15) / song.info.durationSec));
       break;
     case "openLyrics":
       if (localSettings.lyrics) openLyrics();
@@ -2605,6 +2620,7 @@ function fixForUri(string) {
   exports.parseSeconds = parseSeconds;
   exports.songsEqual = songsEqual;
   exports.isNewerVersion = isNewerVersion;
+  exports.compareVersions = compareVersions;
   exports.getQuicklinks = getQuicklinks;
   exports.isRatingReset = isRatingReset;
   exports.getLastSong = getLastSong;

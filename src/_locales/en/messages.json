@@ -19,10 +19,6 @@
     "message": "Open Google Play Music",
     "description": "link text in miniplayer when not connected to Google music"
   },
-  "myPlaylists": {
-    "message": "My Playlists",
-    "description": "text for quicklink 'my playlists'"
-  },
   "setting_scrobble": {
     "message": "Enable scrobbling",
     "description": "label for option to enable scrobbling"
@@ -750,6 +746,10 @@
     "message": "Stations",
     "description": "text for click action option 'instant mixes/radio' (will be replaced with text from Google Music if connected)"
   },
+  "quicklink_wmp": {
+    "message": "My Playlists",
+    "description": "text for quicklink 'my playlists'"
+  },
   "quicklink_ap_queue": {
     "message": "Queue",
     "description": "text for click action option 'queue' (will be replaced with text from Google Music if connected)"
@@ -896,6 +896,10 @@
   "command_ff": {
     "message": "Fast forward 15 seconds",
     "description": "text for fast forward in toast action and keyboard shortcut"
+  },
+  "command_rew": {
+    "message": "Rewind 15 seconds",
+    "description": "text for rewind in toast action and keyboard shortcut"
   },
   "command_rate1": {
     "message": "Rate 1 star/thumbs down",

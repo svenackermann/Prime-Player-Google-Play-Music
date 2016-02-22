@@ -11,9 +11,6 @@
   "gotoGmusic": {
     "message": "Открыть Google Play Music"
   },
-  "myPlaylists": {
-    "message": "Мои плейлисты"
-  },
   "setting_scrobble": {
     "message": "Включить скробблинг"
   },
@@ -532,6 +529,9 @@
   },
   "quicklink_wms": {
     "message": "Радиостанции"
+  },
+  "quicklink_wmp": {
+    "message": "Мои плейлисты"
   },
   "quicklink_ap_queue": {
     "message": "Очередь"

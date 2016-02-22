@@ -119,7 +119,7 @@
    */
   function startPlaylistRow(col, success) {
     if (!col) return false;
-    var span = col.querySelector(".content");
+    var span = col.querySelector(".column-content");
     if (span) {
       simulateMouseEvent("mouseover", span);
       setTimeout(function() {
