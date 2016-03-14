@@ -152,13 +152,14 @@ $(function() {
 
   /** Adjust the music content size to make the lyrics container fit in the page. */
   function contentResize() {
-    $("#music-content").css("width", $("#content-container").width() - $("#ppLyricsContainer").width() - 10 + "px");
+    var lyricsWidth = $("#ppLyricsContainer").width() + 10;
+    $("#mainPanel").css({ width: $("#content-container").width() - lyricsWidth + "px", left: lyricsWidth + "px" });
   }
 
   /** Undo the music content resize. */
   function resetContentResize() {
     $(window).off("resize", contentResize);
-    $("#music-content").css("width", "");
+    $("#mainPanel").css("width", "").css("left", "");
   }
 
   /** Show/hide the lyrics container. */
@@ -192,7 +193,7 @@ $(function() {
       $("<div id='ppLyricsContainer'><div id='ppLyricsTitle'><a class='reloadLyrics'></a><div></div></div><div id='ppLyricsScroller'><div id='ppLyricsContent'></div><div id='ppLyricsCredits'></div></div></div>")
         .on("click", ".reloadLyrics", loadLyrics.bind(window, null))
         .css({ bottom: $("#player").height() + 5 + "px", top: $("#material-app-bar").height() + 5 + "px" })
-        .insertAfter("#music-content");
+        .appendTo("body");
     }
     $("#ppLyricsContainer").css({ "font-size": fontSize + "px", width: width });
     if ($("#ppLyricsContainer").is(":visible")) contentResize();
