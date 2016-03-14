@@ -235,11 +235,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
    * @param prop the option name
    * @param min the minimum value to set, or null/undefined if not needed
    * @param max the maximum value to set, or null/undefined if not needed
+   * @param step the step value to set, or null/undefined if not needed (default: 1)
    * @param theSettings the settings object
    * @return the number input element
    */
-  function initNumberInput(prop, min, max, theSettings) {
-    var input = $("<input type='number'>").attr("min", min).attr("max", max);
+  function initNumberInput(prop, min, max, step, theSettings) {
+    var input = $("<input type='number'>").attr("min", min).attr("max", max).attr("step", step);
     input.val(theSettings[prop]).blur(function() {
       var value = parseFloat($(this).val());
       if ($.isNumeric(min) && value < min || $.isNumeric(max) && value > max) $(this).val(theSettings[prop]);
@@ -519,7 +520,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
     $(".i-n").each(function() {
       var inputContainer = $(this);
-      initNumberInput(this.id, inputContainer.data("min"), inputContainer.data("max"), getSettings(inputContainer));
+      initNumberInput(this.id, inputContainer.data("min"), inputContainer.data("max"), inputContainer.data("step"), getSettings(inputContainer));
     });
     $(".i-c").each(function() {
       initCheckbox(this.id, getSettings($(this)));

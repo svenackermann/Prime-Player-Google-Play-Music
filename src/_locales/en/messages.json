@@ -849,6 +849,10 @@
     "message": "Width (in pixels) of lyrics panel in Google Music",
     "description": "label for option to change the width for the lyrics panel"
   },
+  "setting_lyricsOpacity": {
+    "message": "Opacity of lyrics panel in Google Music",
+    "description": "label for option to change the opacity for the lyrics panel"
+  },
   "setting_skipSongSeconds": {
     "message": "Change song after x seconds played (0=disabled)",
     "description": "label for option to skip to next song after x seconds"

@@ -86,6 +86,7 @@ function fixForUri(string) {
     lyricsProviders: [],
     lyricsFontSize: 11,
     lyricsWidth: 250,
+    lyricsOpacity: 0.9,
     miniplayerSizing: {
       normal:   { width: 310, height: 153, left: 0, top: 0 },
       compact1: { width: 306, height: 118, left: 0, top: 0 },
@@ -708,6 +709,7 @@ function fixForUri(string) {
       enabled: localSettings.lyrics && settings.lyricsInGpm,
       fontSize: localSettings.lyricsFontSize,
       width: localSettings.lyricsWidth,
+      opacity: localSettings.lyricsOpacity,
       autoReload: settings.lyricsAutoReload
     });
   }
@@ -2109,7 +2111,7 @@ function fixForUri(string) {
     });
   });
   localSettings.al("lastfmSessionName", calcScrobbleTime);
-  localSettings.al("lyrics lyricsFontSize lyricsWidth", postLyricsState);
+  localSettings.al("lyrics lyricsFontSize lyricsWidth lyricsOpacity", postLyricsState);
   localSettings.w("notificationsEnabled", function(val, old) {
     if (val) initNotifications();
     else if (old) GA.event(GA_CAT_OPTIONS, "notifications-disabled");

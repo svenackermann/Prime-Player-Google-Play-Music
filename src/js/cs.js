@@ -182,7 +182,7 @@ $(function() {
   }
 
   /** Setup lyrics feature on the site. */
-  function enableLyrics(fontSize, width) {
+  function enableLyrics(fontSize, width, opacity) {
     if (!$("#ppLyricsButton").length) {
       $("<img id='ppLyricsButton'/>")
         .attr("src", getExtensionUrl("img/cmd/openLyrics.png"))
@@ -195,7 +195,7 @@ $(function() {
         .css({ bottom: $("#player").height() + 5 + "px", top: $("#material-app-bar").height() + 5 + "px" })
         .appendTo("body");
     }
-    $("#ppLyricsContainer").css({ "font-size": fontSize + "px", width: width });
+    $("#ppLyricsContainer").css({ "font-size": fontSize + "px", width: width, opacity: opacity });
     if ($("#ppLyricsContainer").is(":visible")) contentResize();
   }
 
@@ -1010,7 +1010,7 @@ $(function() {
       else hideConnectedIndicator();
       break;
     case "lyricsState":
-      if (msg.enabled) enableLyrics(msg.fontSize, msg.width);
+      if (msg.enabled) enableLyrics(msg.fontSize, msg.width, msg.opacity);
       else disableLyrics();
       lyricsAutoReload = msg.autoReload;
       break;
