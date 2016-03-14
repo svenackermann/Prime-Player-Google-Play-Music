@@ -638,6 +638,9 @@
   "setting_lyricsWidth": {
     "message": "Breite (in Pixeln) der Songtext-Anzeige in Google Music"
   },
+  "setting_lyricsOpacity": {
+    "message": "Deckkraft der Songtext-Anzeige in Google Music"
+  },
   "setting_skipSongSeconds": {
     "message": "Titel nach x Sekunden Wiedergabe wechseln (0=deaktiviert)"
   },
