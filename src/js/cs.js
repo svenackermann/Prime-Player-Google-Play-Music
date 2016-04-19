@@ -870,14 +870,14 @@ $(function() {
       var cardType = firstCard.data("type");
       if (!cardType) return null;//maybe no ".material-card" found
       type = getListType(cardType) == "playlist" ? "playlistsList" : "albumContainers";
-      listParent = firstCard.closest(".material-cluster,.cluster-text-protection");
+      listParent = firstCard.closest(".material-cluster,.cluster,.cluster-text-protection");
     }
     var list = parseNavigationList[type](listParent, listParent.hasClass("cluster-text-protection") ? 100 : 10);
     if (!list.length) return null;
     return {
       list: list,
       type: type,
-      header: $.trim(cont.find(".header .title,.recommended-header").filter(filter).text()) || $.trim(cont.find(".section-header").filter(filter).text()),
+      header: $.trim(cont.find(".header .cluster-title,.header .title,.recommended-header,.top-tracks-header").filter(filter).text()) || $.trim(cont.find(".section-header").filter(filter).text()),
       moreLink: cont.hasClass("has-more") ? getLink(cont, true) : null,
       cluster: getClusterIndex(cont)
     };
@@ -888,7 +888,7 @@ $(function() {
     response.type = "mixed";
     response.lists = [];
     response.moreText = $.trim(view.find("div .header .more:visible").first().text());
-    response.header = $.trim($("#header-tabs-container .header-tab-title.selected:visible").text()) || $.trim($("#material-breadcrumbs .tab-text:visible").text()) || $.trim($("#header-tabs-container .genre-dropdown-title .dropdown-title-text:visible").text());
+    response.header = $.trim($("#header-tabs-container .header-tab-title.selected:visible").text()) || $.trim($("#material-breadcrumbs .tab-text:visible").text()) || $.trim($("#header-tabs-container .genre-dropdown-title .dropdown-title-text:visible").text()) || $.trim($("#music-content .material-detail-view .artist-details .name:visible").text());
     view.find(CLUSTER_SELECTOR).addBack().each(function() {
       var cluster = $(this);
       // situations are not supported at the moment
@@ -910,7 +910,7 @@ $(function() {
       }
       if (error) {
         sendError();
-      } else if (link == "now" || !link.indexOf("artist/") || !link.indexOf("sr/") || !link.indexOf("wtc/") || !link.indexOf("wms/")) {
+      } else if (link == "now" || link == "wnr" || link == "wms" || !link.indexOf("artist/") || !link.indexOf("sr/") || !link.indexOf("wtc") || !link.indexOf("wms/")) {
         sendMixed(response);
       } else {
         var autoQueueList = isAutoQueueList(link);

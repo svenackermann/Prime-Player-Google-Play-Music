@@ -304,7 +304,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function initIconStyle() {
     var iconStyle = $("#iconStyle");
     $("<label>").text(i18n("setting_iconStyle")).appendTo(iconStyle);
-    ["default", "grey", "phones", "phones-grey", "phones-app", "phones-beta", "play"].forEach(function(value) {
+    ["default", "grey", "phones", "phones-grey", "phones-app", "phones-beta", "favicon", "play", "app"].forEach(function(value) {
       $("<input type='radio' name='iconStyle'>").attr("value", value).click(stringUpdater("iconStyle", settings)).appendTo(iconStyle);
       $("<img src='img/icon/" + value + "/connected.png'>").appendTo(iconStyle);
     });
