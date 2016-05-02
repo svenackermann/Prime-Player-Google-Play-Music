@@ -19,21 +19,17 @@
     "message": "Open Google Play Music",
     "description": "link text in miniplayer when not connected to Google music"
   },
-  "myPlaylists": {
-    "message": "My Playlists",
-    "description": "text for quicklink 'my playlists'"
-  },
   "setting_scrobble": {
     "message": "Enable scrobbling",
     "description": "label for option to enable scrobbling"
   },
   "setting_toast": {
-    "message": "Enable toast notifications",
+    "message": "Enable toast on new song",
     "description": "label for option to enable toasts"
   },
-  "setting_toastHint": {
-    "message": "Toast notifications will not show up as long as the miniplayer is active.",
-    "description": "enable toast option hint text"
+  "setting_toastOnPlayPause": {
+    "message": "Toast on pause/resume via keyboard shortcut",
+    "description": "label for option to toast on play/pause"
   },
   "openMiniplayer": {
     "message": "Open miniplayer",
@@ -114,10 +110,6 @@
   "setting_toastPriority": {
     "message": "move to notification area",
     "description": "label for option to change the toast priority"
-  },
-  "setting_toastPriority_1": {
-    "message": "immediately",
-    "description": "text for option 1 for toast priority"
   },
   "setting_toastPriority_2": {
     "message": "after 7 seconds",
@@ -204,8 +196,16 @@
     "description": "label for option to auto-link ratings"
   },
   "setting_linkRatingsAutoHint": {
-    "message": "When a song starts that you already rated 5 stars/thumbs up but is not loved in last.fm, it will be loved without user interaction. If it is loved already and has no rating in Google Music, it will be given 5 stars/thumbs up.",
+    "message": "When a song starts that you already rated thumbs up/five stars but is not loved in last.fm, it will be loved without user interaction. If it is loved already and has no rating in Google Music, it will be given thumbs up/five stars.",
     "description": "hint for option to auto-link ratings"
+  },
+  "setting_linkRatingsReset": {
+    "message": "Also reset ratings",
+    "description": "label for option to reset ratings"
+  },
+  "setting_linkRatingsResetHint": {
+    "message": "Unlove a song when its rating is removed or it is rated thumbs down respectivly remove the thumbs up rating when the song is unloved. This does not apply to auto-linked ratings (see option above).",
+    "description": "hint for option to reset ratings"
   },
   "setting_showLovedIndicator": {
     "message": "Show loved status in icon",
@@ -328,7 +328,7 @@
     "description": "title for the toast settings on options page"
   },
   "legendToastHint": {
-    "message": "Toasts are desktop notifications that show you the current song and allow for some actions. Whenever a new song starts, a toast will appear on your screen.",
+    "message": "Toasts are desktop notifications that show you the current song and allow for some actions. Whenever a new song starts, a toast will appear on your screen. Toast notifications will not show up as long as the miniplayer is active.",
     "description": "hint for the toast settings on options page"
   },
   "legendMiniplayer": {
@@ -336,11 +336,11 @@
     "description": "title for the miniplayer settings on options page"
   },
   "legendMiniplayerHint": {
-    "message": "The miniplayer is a powerful, highly customizable tool, so take your time to try the different options out. You can open the miniplayer e.g. by clicking on the note icon in the popup that shows up when you click the Prime Player icon in the Chrome toolbar.",
+    "message": "The miniplayer is a powerful, highly customizable tool, so take your time to try the different options out. You can open the miniplayer e.g. by clicking on the headphones icon in the popup that shows up when you click the Prime Player icon in the Chrome toolbar.",
     "description": "hint for the miniplayer settings on options page"
   },
   "legendLookfeel": {
-    "message": "Look \u0026 feel",
+    "message": "Look & feel",
     "description": "title for the look and feel settings on options page"
   },
   "legendLookfeelHint": {
@@ -362,6 +362,10 @@
   "legendLyricsHint": {
     "message": "You can allow Prime Player to load lyrics from external websites to show them in the miniplayer or the Google Music tab. For this, you first must enable at least one site below. The enabled sites can be sorted with drag & drop, the first site is always searched first for lyrics.",
     "description": "hint for the lyrics settings on options page"
+  },
+  "setting_confirmClose": {
+    "message": "Warn when closing the Google Music tab while music is playing",
+    "description": "label for option to show a confirmation dialogue on close"
   },
   "setting_gaEnabled": {
     "message": "Enable Google Analytics",
@@ -440,9 +444,21 @@
     "message": "Open Google Music tab in the background",
     "description": "label for option to open Google Music in the background"
   },
+  "setting_simulateActivity": {
+    "message": "Simulate user activity in Google Music tab",
+    "description": "label for option to simulate user interaction in Google Music"
+  },
+  "setting_simulateActivityHint": {
+    "message": "Google Music automatically pauses music after a while if there is no user interaction on the page. To avoid this, you can let Prime Player simulate a click on the volume bar once an hour.",
+    "description": "hint for option to simulate user interaction in Google Music"
+  },
   "setting_startupAction": {
     "message": "Action on Chrome startup",
     "description": "label for option to select a Chrome startup action"
+  },
+  "setting_playlistEndAction": {
+    "message": "Action when playlist ends",
+    "description": "label for option to select a playlist end action"
   },
   "setting_googleAccountNo": {
     "message": "Index of Google account to open",
@@ -455,6 +471,10 @@
   "setting_syncSettings": {
     "message": "Sync settings with Chrome sync",
     "description": "label for option to sync settings"
+  },
+  "setting_syncSettingsHint": {
+    "message": "To use this, you must be logged in to Chrome with your Google account and have synchronisation of extensions enabled. For different reasons not all settings can be synchronized, only settings marked with a * will be. Also note that the settings will be loaded from your account only during startup of Prime Player (e.g. on install, update or Chrome start) and when you enable the option, but are saved (with a short delay) to your account whenever you change them.",
+    "description": "hint for option to sync settings"
   },
   "setting_pauseOnLock": {
     "message": "Pause music when computer is locked (resume on unlock)",
@@ -475,6 +495,18 @@
   "setting_preventCommandRatingResetHint": {
     "message": "Normally, when you rate a song with the rating it already has, its rating is reset to unrated. When you use keyboard shortcuts or the notification actions for rating, you typically don't want this, because you can't see the current rating. Deactivate this option to reset the rating in that case anyway.",
     "description": "hint for option to prevent rating resets"
+  },
+  "setting_autoActivateGm": {
+    "message": "Make Google Music tab visible when needed",
+    "description": "label for option to automatically activate the Google Music tab when needed"
+  },
+  "setting_autoActivateGmHint": {
+    "message": "Some operations (e.g. song position change, fast forward, parsing of longer playlists) need the Google Music tab to be visible to work correctly. With this option enabled, the tab will automatically be made visible in such cases.",
+    "description": "hint for option to automatically activate the Google Music tab when needed"
+  },
+  "setting_autoRestoreGm": {
+    "message": "Restore the previously visible tab/window afterwards",
+    "description": "label for option to restore the tab/window after the Google Music tab has been automatically activated"
   },
   "setting_updateNotifier": {
     "message": "Notify on updates (icon becomes orange)",
@@ -511,6 +543,14 @@
   "setting_saveLastPositionHint": {
     "message": "Saves the last played song with its position (locally), so you know where you left off before closing Google Music. The last song will be displayed in the miniplayer like a normal song with some limitations. The play button will try to load the song's album and resume the song at its last position. Unfortunately, it's not possible to restore your last queue or playlist on restart.",
     "description": "hint for option to save last song position"
+  },
+  "setting_starRatingMode": {
+    "message": "Use star ratings (experimental)",
+    "description": "label for option to use star rating mode"
+  },
+  "setting_starRatingModeHint": {
+    "message": "The star ratings lab has been removed by Google. However, your old ratings are still available and can still be changed. This option tries to bring that feature back, but might be broken as soon as Google completely removes the star ratings or (hopefully) reintroduces them. The stars are only visible within Prime Player, the Google page itself still shows the thumbs.",
+    "description": "hint for option to use star rating mode"
   },
   "setting_hideFavorites": {
     "message": "Hide favorites in miniplayer and context menu",
@@ -552,6 +592,10 @@
     "message": "Hide rating icons (last.fm and thumbs/stars)",
     "description": "label for option to hide ratings"
   },
+  "setting_hideLucky": {
+    "message": "Hide 'feeling lucky' button",
+    "description": "label for option to hide the feeling lucky button"
+  },
   "setting_omitUnknownAlbums": {
     "message": "Omit 'unknown albums' in the album list of the miniplayer",
     "description": "label for option to omit unknown albums"
@@ -572,15 +616,31 @@
     "message": "Automatically close Google Music, when miniplayer is closed",
     "description": "label for option to close Google Music on miniplayer close"
   },
+  "setting_mpShowTitle": {
+    "message": "Show song title in miniplayer window title",
+    "description": "label for option to show the song title in miniplayer window title"
+  },
+  "installNotifierTitle": {
+    "message": "Prime Player installed",
+    "description": "title for install notification"
+  },
+  "installNotifierText": {
+    "message": "The extension has a bunch of options that you can adjust to fit your needs. Also note the FAQ on the extension's homepage at the Chrome Store and the Wiki on Github. And now have fun with Prime Player!",
+    "description": "message for install notification"
+  },
   "updateNotifierTitle": {
-    "message": "Prime Player Updated",
+    "message": "Prime Player updated",
     "description": "title for update notification"
   },
   "updateNotifierText": {
     "message": "The extension just updated. Go to the options page to see what's new.",
     "description": "message for update notification"
   },
-  "browserActionTitle_updated": {
+  "browserActionTitle_install": {
+    "message": "just installed",
+    "description": "browser icon tooltip when extension was installed"
+  },
+  "browserActionTitle_update": {
     "message": "just updated",
     "description": "browser icon tooltip when extension was updated"
   },
@@ -638,14 +698,6 @@
     "message": "Quick links",
     "description": "title for quicklinks view in miniplayer"
   },
-  "welcomeTitle": {
-    "message": "Prime Player installed",
-    "description": "title for notification that is shown directly after install"
-  },
-  "welcomeMessage": {
-    "message": "The extension has a bunch of options that you can adjust to fit your needs. Also note the FAQ on the extension's homepage at the Chrome Store. And now have fun with Prime Player!",
-    "description": "welcome message that is shown in notification directly after install"
-  },
   "toOptions": {
     "message": "To the options",
     "description": "text for 'to options' button in welcome notification"
@@ -690,16 +742,20 @@
     "message": "Genres",
     "description": "text for click action option 'genres' (will be replaced with text from Google Music if connected)"
   },
-  "quicklink_rd": {
-    "message": "Instant Mixes/Radio",
+  "quicklink_wms": {
+    "message": "Stations",
     "description": "text for click action option 'instant mixes/radio' (will be replaced with text from Google Music if connected)"
+  },
+  "quicklink_wmp": {
+    "message": "My Playlists",
+    "description": "text for quicklink 'my playlists'"
   },
   "quicklink_ap_queue": {
     "message": "Queue",
     "description": "text for click action option 'queue' (will be replaced with text from Google Music if connected)"
   },
   "quicklink_ap_auto_playlist_thumbs_up": {
-    "message": "Highly rated/Thumbs up",
+    "message": "Thumbs up",
     "description": "text for click action option 'higly rated/thumbs up' (will be replaced with text from Google Music if connected)"
   },
   "quicklink_ap_auto_playlist_recent": {
@@ -710,24 +766,12 @@
     "message": "Free and purchased",
     "description": "text for click action option 'free and purchased' (will be replaced with text from Google Music if connected)"
   },
-  "quicklink_ap_shared_with_me": {
-    "message": "Shared with me",
-    "description": "text for click action option 'shared with me' (will be replaced with text from Google Music if connected)"
-  },
-  "quicklink_ap_google_play_recommends": {
-    "message": "Google Play recommends",
-    "description": "text for click action option 'Google Play recommends' (will be replaced with text from Google Music if connected)"
-  },
-  "quicklink_exptop": {
-    "message": "Featured",
-    "description": "text for click action option 'features' (will be replaced with text from Google Music if connected)"
-  },
-  "quicklink_expnew": {
-    "message": "New Releases",
+  "quicklink_wnr": {
+    "message": "New releases",
     "description": "text for click action option 'new releases' (will be replaced with text from Google Music if connected)"
   },
-  "quicklink_exprec": {
-    "message": "Recommendations",
+  "quicklink_wtc": {
+    "message": "Top charts",
     "description": "text for click action option 'recommendations' (will be replaced with text from Google Music if connected)"
   },
   "openLink": {
@@ -781,6 +825,10 @@
     "message": "Reset settings to default",
     "description": "text for reset settings button"
   },
+  "resetSettingsConfirm": {
+    "message": "Do really want to reset all your settings? This will also remove your favorites and last.fm connection and remove all your Prime Player related data from Chrome sync.",
+    "description": "text for reset settings confirm dialogue"
+  },
   "setting_connectedIndicator": {
     "message": "Show 'P'-icon on connected Google Music tab",
     "description": "label for option to show the Prime Player icon in Google Music"
@@ -800,6 +848,14 @@
   "setting_lyricsWidth": {
     "message": "Width (in pixels) of lyrics panel in Google Music",
     "description": "label for option to change the width for the lyrics panel"
+  },
+  "setting_lyricsOpacity": {
+    "message": "Opacity of lyrics panel in Google Music",
+    "description": "label for option to change the opacity for the lyrics panel"
+  },
+  "setting_skipSongSeconds": {
+    "message": "Change song after x seconds played (0=disabled)",
+    "description": "label for option to skip to next song after x seconds"
   },
   "moreThanOneDay": {
     "message": "> 1 day",
@@ -845,6 +901,10 @@
     "message": "Fast forward 15 seconds",
     "description": "text for fast forward in toast action and keyboard shortcut"
   },
+  "command_rew": {
+    "message": "Rewind 15 seconds",
+    "description": "text for rewind in toast action and keyboard shortcut"
+  },
   "command_rate1": {
     "message": "Rate 1 star/thumbs down",
     "description": "text for rate 1 in toast action (if not connected to Google Music) and keyboard shortcut"
@@ -889,6 +949,14 @@
     "message": "Open lyrics",
     "description": "text for open lyrics in toast action, keyboard shortcut and tooltip of lyrics button in Google Music"
   },
+  "command_closeMp": {
+    "message": "Close miniplayer",
+    "description": "text for close miniplayer option on playlist end"
+  },
+  "command_closeGm": {
+    "message": "Close Google Music",
+    "description": "text for close Google Music option on playlist end"
+  },
   "lyricsFor": {
     "message": "Lyrics for '$SONG$'",
     "description": "tooltip for song title link in miniplayer lists and lyrics button",
@@ -930,27 +998,27 @@
     "message": "Keyboard shortcuts",
     "description": "text for link to open the keyboard shortcuts settings"
   },
-  "timerMinutes": {
+  "setting_timerMinutes": {
     "message": "Countdown minutes",
     "description": "label for timer minutes setting"
   },
-  "timerNotify": {
+  "setting_timerNotify": {
     "message": "Notify on timeout",
     "description": "label for timer notification setting"
   },
-  "timerPreNotify": {
+  "setting_timerPreNotify": {
     "message": "seconds to warn before before timeout (0=do not warn)",
     "description": "label for timer warning setting"
   },
-  "timerAction": {
+  "setting_timerAction": {
     "message": "Action on timeout",
     "description": "label for timer action setting"
   },
-  "timerAction_closeGm": {
+  "setting_timerAction_closeGm": {
     "message": "Close Google Music",
     "description": "label for timer action option to close Google Music"
   },
-  "timerAction_pause": {
+  "setting_timerAction_pause": {
     "message": "Pause music",
     "description": "label for timer action option to pause music"
   },
@@ -1063,7 +1131,7 @@
     "description": "label for options lyrics filter"
   },
   "setting_filterLookfeel": {
-    "message": "Look \u0026 feel",
+    "message": "Look & feel",
     "description": "label for options look and feel filter"
   },
   "notificationsDisabled": {
@@ -1116,7 +1184,7 @@
   },
   "ob_startsugg": {
     "message": "Start $SUG$",
-    "description": "omnibox content text to start a suggestion",
+    "description": "omnibox content text to start a suggestion, also used for playlistEndAction options",
     "placeholders": { "SUG": { "content": "$1", "example": "MyFavorite" } }
   },
   "ob_favoritessugg": {
@@ -1134,7 +1202,7 @@
     "placeholders": { "TEXT": { "content": "$1", "example": "mysearch" } }
   },
   "ob_loading": {
-    "message": "Loading results for $TEXT$...",
+    "message": "Loading results for $TEXT$",
     "description": "omnibox default suggestion text while searching for results",
     "placeholders": { "TEXT": { "content": "$1", "example": "mysearch" } }
   },
@@ -1147,5 +1215,9 @@
     "message": "No results found for $TEXT$.",
     "description": "omnibox default suggestion text if no results found",
     "placeholders": { "TEXT": { "content": "$1", "example": "mysearch" } }
+  },
+  "musicIsPlaying": {
+    "message": "Music is currently playing.",
+    "description": "Warning message if music is playing when closing the GM tab"
   }
 }

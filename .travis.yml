@@ -1,4 +1,14 @@
 language: node_js
 node_js:
-   - "0.10"
-script: gulp jshint build
+- "4.1"
+script: gulp release
+deploy:
+  provider: releases
+  api_key:
+    secure: BGsOu8StF2Z442mcNpHtiQqaB5vDgyBN4OdQ6MxCtCe9xJD+VASdKcyB8FeHjfVfj4aBSQlqQZEj1Gvbgydlc+wsOSKoaRdxbDZqJaYwx1/CNALluyFPoRYrYJCSLQjhQI1CB/1rw9E7ijXRXXHfB1mXlLHMpVHz0eJYeGv1mvE=
+  file: PrimePlayer.zip
+  skip_cleanup: true
+  on:
+    repo: svenackermann/Prime-Player-Google-Play-Music
+    tags: true
+sudo: false

@@ -2,7 +2,8 @@
 *.css
 build
 .sass-cache
-PrimePlayer.crx
-PrimePlayer.pem
+build.crx
+build.pem
 PrimePlayer.zip
 node_modules
+*.log

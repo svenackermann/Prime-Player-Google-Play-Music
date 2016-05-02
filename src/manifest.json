@@ -3,9 +3,10 @@
   "name": "Prime Player for Google Play Music\u2122",
   "short_name": "__MSG_extTitle__",
   "description": "__MSG_extDesc__",
-  "version": "2.28",
+  "version": "3.11",
   "author": "Sven Ackermann",
-  "minimum_chrome_version": "40",
+  "homepage_url": "https://chrome.google.com/webstore/detail/prime-player-for-google-p/npngaakpdgeaajbnidkkginekmnaejbi",
+  "minimum_chrome_version": "50",
   "default_locale": "en",
   "icons": {
     "128": "img/icon-128x128.png",
@@ -28,7 +29,7 @@
     "default_popup": "player.html"
   },
   "background": {
-    "scripts": ["js/jquery-2.0.2.min.js", "js/ga.js", "js/bp.js"],
+    "scripts": ["js/jquery.min.js", "js/ga.js", "js/bp.js"],
     "persistent": false
   },
   "options_ui": {
@@ -37,7 +38,7 @@
   },
   "content_scripts": [ 
     {
-      "js": ["js/jquery-2.0.2.min.js", "js/cs.js"],
+      "js": ["js/jquery.min.js", "js/cs.js"],
       "css": ["css/gpm.css"],
       "matches": ["*://play.google.com/music/listen*"]
     }
@@ -56,6 +57,7 @@
     "js/cs-songlyrics.js.map",
     "js/cs-lyricswikia.js.map",
     "js/cs-musixmatch.js.map",
+    "js/jquery.min.map",
     "css/gpm.css.map"
   ],
   "commands": {
@@ -76,6 +78,9 @@
     },
     "ff": {
       "description": "__MSG_command_ff__"
+    },
+    "rew": {
+      "description": "__MSG_command_rew__"
     },
     "openMiniplayer": {
       "suggested_key": { "default": "Alt+W" },
@@ -124,5 +129,6 @@
       "description": "__MSG_command_openLyrics__"
     }
   },
-  "omnibox": { "keyword" : "pp" }
+  "omnibox": { "keyword" : "pp" },
+  "key": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCtBwmcNVs4EF/5EHOstfl3X21yzBIc9iD4MhH+hPg6zklXXEMnzuz19jGBRxtbjBAQOaM5MnKqBREeQmceLRbILQuC6mwpiGjeja17pFaSWhPXws87k/wgAia1vZ18aQY7LAPloeFrNmki1/gf2IpsKBwJ/0TD+EVIy6p9ilr8SQIDAQAC"
 }

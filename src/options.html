@@ -9,34 +9,18 @@
 <head>
 <title></title>
 <link rel="stylesheet" type="text/css" href="css/options.css" />
-<script type="text/javascript" src="js/jquery-2.0.2.min.js"></script>
-<script type="text/javascript" src="js/ga.js"></script>
-<script type="text/javascript" src="js/options.js"></script>
+<script src="js/jquery.min.js"></script>
+<script src="js/ga.js"></script>
+<script src="js/options.js"></script>
 </head>
 <body>
   <div id="settings">
     <fieldset class="timer">
       <legend id="legendTimer"></legend>
-      <div class="v-2.20">
-        <input id="timerMin" type="number" min="1"/>
-        <label for="timerMin"></label>
-        <span id="timerStatus"></span>
-      </div>
-      <div class="v-2.20 adv notif">
-        <input id="timerNotify" type="checkbox"/>
-        <label for="timerNotify"></label>
-      </div>
-      <div class="v-2.22 adv notif">
-        <input id="timerPreNotify" type="number" min="0"/>
-        <label for="timerPreNotify"></label>
-      </div>
-      <div class="v-2.20">
-        <select id="timerAction">
-          <option value="pause"></option>
-          <option value="closeGm"></option>
-        </select>
-        <label for="timerAction"></label>
-      </div>
+      <div class="v-2.20 local i-n" id="timerMinutes" data-min="1"></div><div id="timerStatus"></div>
+      <div class="v-2.20 adv notif local i-c" id="timerNotify"></div>
+      <div class="v-2.22 adv notif local i-n" id="timerPreNotify" data-min="0"></div>
+      <div class="v-2.20 local i-s" id="timerAction" data-options="pause,closeGm"></div>
       <button id="startTimer"></button>
       <button id="stopTimer"></button>
     </fieldset>
@@ -50,107 +34,119 @@
         <img class="success" src="img/check.png">
         <img class="failure" src="img/cross.png">
       </div>
-      <div id="scrobble"></div>
-      <div class="sub" id="scrobblePercent">
+      <div class="i-c" id="scrobble"></div>
+      <div class="sub synced" id="scrobblePercent">
         <input id="_scrobblePercent" type="range" min="1" max="100" step="1"/>
         (<span></span>%)
       </div>
-      <div class="sub exp" id="scrobbleTime"></div>
-      <div class="sub exp" id="scrobbleMaxDuration"></div>
-      <div class="sub v-1.2 adv" id="disableScrobbleOnFf"></div>
-      <div class="sub v-2.15 exp" id="scrobbleRepeated"></div>
-      <div class="v-1.2 adv" id="linkRatings"></div>
-      <div class="sub v-2.26 exp stars" id="linkRatingsMin"></div>
-      <div class="sub v-2.24 adv" id="linkRatingsGpm"></div>
-      <div class="sub v-2.24 adv" id="linkRatingsAuto"></div>
-      <div class="v-2.17 miniplayer" id="showLastfmInfo"></div>
+      <div class="sub exp i-n" id="scrobbleTime" data-min="0"></div>
+      <div class="sub exp i-n" id="scrobbleMaxDuration" data-min="0"></div>
+      <div class="sub v-1.2 adv i-c i-h" id="disableScrobbleOnFf"></div>
+      <div class="sub v-2.15 exp i-c" id="scrobbleRepeated"></div>
+      <div class="v-1.2 adv i-c i-h" id="linkRatings"></div>
+      <div class="sub v-2.26 exp stars i-n" id="linkRatingsMin" data-min="2" data-max="5"></div>
+      <div class="sub v-2.24 adv i-c" id="linkRatingsGpm"></div>
+      <div class="sub v-2.24 adv i-c i-h" id="linkRatingsAuto"></div>
+      <div class="sub v-3.2 exp i-c i-h" id="linkRatingsReset"></div>
+      <div class="v-2.17 miniplayer i-c" id="showLastfmInfo"></div>
     </fieldset>
     <fieldset class="toast">
       <legend id="legendToast"></legend>
       <div id="notificationDisabledWarning"></div>
-      <div id="toast"></div>
-      <div class="sub v-2.18" id="toastDuration"></div>
-      <div class="sub v-2.6 exp miniplayer" id="toastIfMpOpen"></div>
-      <div class="sub2 v-2.27 exp miniplayer" id="toastIfMpMinimized"></div>
-      <div class="sub v-2.26 exp" id="toastNotIfGmActive"></div>
-      <div class="sub v-1.6 exp" id="toastUseMpStyle"></div>
-      <div class="sub2 exp v-2.24 notif" id="toastPriority"></div>
-      <div class="sub2 v-2.24 adv notif" id="toastProgress"></div>
-      <div class="sub2 v-2.25 adv notif" id="toastRating"></div>
-      <div class="sub2 v-2.8 adv notif" id="toastClick"></div>
-      <div class="sub2 v-2.8 adv notif" id="toastButton1"></div>
-      <div class="sub2 v-2.8 adv notif" id="toastButton2"></div>
+      <div class="i-c" id="toast"></div>
+      <div class="v-3.3 i-c adv" id="toastOnPlayPause"></div>
+      <div class="sub v-2.18 i-n i-h" id="toastDuration" data-min="0"></div>
+      <div class="sub v-2.6 exp miniplayer i-c" id="toastIfMpOpen"></div>
+      <div class="sub2 v-2.27 exp miniplayer i-c" id="toastIfMpMinimized"></div>
+      <div class="sub v-2.26 exp i-c" id="toastNotIfGmActive"></div>
+      <div class="sub v-1.6 exp i-c i-h" id="toastUseMpStyle"></div>
+      <div class="sub2 exp v-2.24 notif i-s" id="toastPriority" data-options="2,3" data-type="n"></div>
+      <div class="sub2 v-2.24 adv notif i-c" id="toastProgress"></div>
+      <div class="sub2 v-2.25 adv notif i-c" id="toastRating"></div>
+      <div class="sub2 v-2.8 adv notif i-s" id="toastClick" data-options=",playPause,prevSong,nextSong,ff,rew,openMiniplayer:miniplayer,volumeUp,volumeDown,volumeMute,toggleRepeat,toggleShuffle,loveUnloveSong:lastfm,rate-1,rate-2:stars,rate-3:stars,rate-4:stars,rate-5,feelingLucky,openLyrics:lyrics" data-getoptionstext="commandOptionText"></div>
+      <div class="sub2 v-2.8 adv notif i-sf" id="toastButton1" data-from="toastClick"></div>
+      <div class="sub2 v-2.8 adv notif i-sf" id="toastButton2" data-from="toastClick"></div>
     </fieldset>
     <fieldset class="miniplayer">
       <legend id="legendMiniplayer"></legend>
-      <div class="exp" id="miniplayerType"></div>
-      <div id="layout"></div>
-      <div id="color"></div>
-      <div class="v-2.19 adv" id="mpBgColor"></div>
-      <div class="v-2.19 adv" id="mpTextColor"></div>
-      <div class="v-2.26 adv" id="coverClickLink"></div>
-      <div class="v-2.26 adv" id="titleClickLink"></div>
-      <div class="v-2.0 exp" id="openLinksInMiniplayer"></div>
-      <div class="v-2.1 adv" id="hideSearchfield"></div>
-      <div class="v-1.11 exp" id="hideRatings"></div>
-      <div class="v-2.0 exp" id="omitUnknownAlbums"></div>
-      <div class="v-2.2 adv" id="mpAutoOpen"></div>
-      <div class="v-2.2 adv" id="mpAutoClose"></div>
-      <div class="v-2.15 adv" id="mpCloseGm"></div>
+      <div class="exp i-s i-h" id="miniplayerType" data-options="normal,popup,panel,detached_panel"></div>
+      <div class="i-s i-h" id="layout" data-options="normal,compact1,compact2,hbar"></div>
+      <div class="i-s" id="color" data-options="turq,green,red,blue,black,orange"></div>
+      <div class="v-2.19 adv i-co" id="mpBgColor"></div>
+      <div class="v-2.19 adv i-co" id="mpTextColor"></div>
+      <div class="v-2.26 adv i-s" id="coverClickLink"></div>
+      <div class="v-2.26 adv i-s" id="titleClickLink"></div>
+      <div class="v-2.0 exp i-c i-h" id="openLinksInMiniplayer"></div>
+      <div class="v-2.1 adv i-c" id="hideSearchfield"></div>
+      <div class="v-1.11 exp i-c" id="hideRatings"></div>
+      <div class="v-3.8 adv i-c" id="hideLucky"></div>
+      <div class="v-2.0 exp i-c i-h" id="omitUnknownAlbums"></div>
+      <div class="v-2.2 adv i-c" id="mpAutoOpen"></div>
+      <div class="v-2.2 adv i-c" id="mpAutoClose"></div>
+      <div class="v-2.15 adv i-c" id="mpCloseGm"></div>
+      <div class="v-3.7 i-c" id="mpShowTitle"></div>
     </fieldset>
     <fieldset class="lyrics">
       <legend id="legendLyrics"></legend>
       <div class="lyrics-providers v-3.0" id="lyrics_songlyrics"></div>
       <div class="lyrics-providers v-3.0" id="lyrics_lyricswikia"></div>
       <div class="lyrics-providers v-3.0" id="lyrics_musixmatch"></div>
-      <div class="sub v-3.0 adv" id="lyricsAutoNext"></div>
-      <div class="v-2.8" id="lyrics"></div>
-      <div class="sub v-2.8 exp miniplayer" id="openLyricsInMiniplayer"></div>
-      <div class="sub v-2.10 adv" id="lyricsAutoReload"></div>
-      <div class="sub v-2.10 adv" id="lyricsFontSize"></div>
-      <div class="sub v-2.9" id="lyricsInGpm"></div>
-      <div class="sub2 v-2.10 adv" id="lyricsWidth"></div>
+      <div class="sub v-3.0 adv i-c" id="lyricsAutoNext"></div>
+      <div class="v-2.8 i-c local" id="lyrics"></div>
+      <div class="sub v-2.8 exp miniplayer i-c i-h" id="openLyricsInMiniplayer"></div>
+      <div class="sub v-2.10 adv i-c" id="lyricsAutoReload"></div>
+      <div class="sub v-2.10 adv local i-n" id="lyricsFontSize" data-min="1"></div>
+      <div class="sub v-2.9 i-c" id="lyricsInGpm"></div>
+      <div class="sub2 v-2.10 adv local i-n" id="lyricsWidth" data-min="50"></div>
+      <div class="sub2 v-3.10 adv local i-n" id="lyricsOpacity" data-min="0" data-max="1" data-step="0.01"></div>
     </fieldset>
     <fieldset class="lookfeel">
       <legend id="legendLookfeel"></legend>
       <div class="v-2.18">
         <a tabindex="0" id="shortcutsLink"></a>
       </div>
-      <div class="v-2.11" id="iconStyle"></div>
-      <div class="v-2.11" id="showPlayingIndicator"></div>
-      <div class="v-2.11" id="showRatingIndicator"></div>
-      <div class="v-2.11 lastfm" id="showLovedIndicator"></div>
-      <div class="v-2.11 lastfm" id="showScrobbledIndicator"></div>
-      <div class="v-2.21" id="showProgress"></div>
-      <div class="v-2.21 adv sub" id="showProgressColor"></div>
-      <div class="v-2.28 adv sub" id="showProgressColorPaused"></div>
+      <div class="v-3.11 synced" id="iconStyle"></div>
+      <div class="v-2.11 i-c" id="showPlayingIndicator"></div>
+      <div class="v-2.11 i-c" id="showRatingIndicator"></div>
+      <div class="v-2.11 lastfm i-c" id="showLovedIndicator"></div>
+      <div class="v-2.11 lastfm i-c" id="showScrobbledIndicator"></div>
+      <div class="v-2.21 i-c" id="showProgress"></div>
+      <div class="v-2.21 adv sub i-co" id="showProgressColor"></div>
+      <div class="v-2.28 adv sub i-co" id="showProgressColorPaused"></div>
       <fieldset class="adv">
         <legend id="legendIc"></legend>
-        <div class="v-2.28" id="iconClickConnectAction"></div>
+        <div class="v-2.28 i-s" id="iconClickConnectAction" data-options=",feelingLucky,resumeLastSong,gotoGmusic,openMiniplayer" data-getoptionstext="connectActionText"></div>
         <h3 id="iconClickActionTitle"></h3>
-        <div class="v-2.15 sub" id="iconClickAction0"></div>
-        <div class="v-2.15 sub" id="iconClickAction1"></div>
-        <div class="v-2.15 sub" id="iconClickAction2"></div>
-        <div class="v-2.15 sub" id="iconClickAction3"></div>
-        <div class="v-2.15 sub" id="iconDoubleClickTime"></div>
-        <div class="v-2.28 exp" id="iconShowAction"></div>
+        <div class="v-2.15 sub i-sf" id="iconClickAction0" data-from="toastClick"></div>
+        <div class="v-2.15 sub i-sf" id="iconClickAction1" data-from="toastClick"></div>
+        <div class="v-2.15 sub i-sf" id="iconClickAction2" data-from="toastClick"></div>
+        <div class="v-2.15 sub i-sf" id="iconClickAction3" data-from="toastClick"></div>
+        <div class="v-2.15 sub i-n i-h" id="iconDoubleClickTime" data-min="0" data-max="1000"></div>
+        <div class="v-2.28 exp i-c" id="iconShowAction"></div>
       </fieldset>
-      <div class="v-2.13" id="saveLastPosition"></div>
-      <div class="v-3.0 adv" id="hideFavorites"></div>
-      <div class="v-2.19 adv stars" id="skipRatedLower"></div>
-      <div class="v-2.26 adv thumbsOnly" id="skipRatedThumbsDown"></div>
-      <div class="v-1.1 exp" id="openGoogleMusicPinned"></div>
-      <div class="v-2.26 exp" id="openGmBackground"></div>
-      <div class="v-2.26 adv" id="startupAction"></div>
-      <div class="v-3.0 adv" id="pauseOnLock"></div>
-      <div class="v-3.0 adv" id="pauseOnIdle"></div>
-      <div class="v-3.0 adv sub" id="pauseOnIdleSec"></div>
-      <div class="v-2.14 exp" id="googleAccountNo"></div>
-      <div class="v-2.0 exp" id="connectedIndicator"></div>
-      <div class="v-2.7.1 exp" id="preventCommandRatingReset"></div>
-      <div class="v-1.1 adv" id="updateNotifier"></div>
-      <div class="v-1.4 adv" id="syncSettings"></div>
-      <div class="exp" id="gaEnabled"></div>
+      <div class="v-2.13 i-c i-h" id="saveLastPosition"></div>
+      <div class="v-3.2 exp i-c i-h" id="starRatingMode"></div>
+      <div class="v-3.0 adv i-c" id="hideFavorites"></div>
+      <div class="v-2.19 adv stars i-s" id="skipRatedLower" data-options="0,1,2,3,4" data-type="n"></div>
+      <div class="v-2.26 adv thumbsOnly i-c" id="skipRatedThumbsDown"></div>
+      <div class="v-1.1 exp i-c" id="openGoogleMusicPinned"></div>
+      <div class="v-2.26 exp i-c" id="openGmBackground"></div>
+      <div class="v-3.8 adv i-c i-h" id="simulateActivity"></div>
+      <div class="v-2.26 adv i-sf" id="startupAction" data-from="iconClickConnectAction"></div>
+      <div class="v-3.6 adv i-s" id="playlistEndAction" data-options=",closeMp:miniplayer,closeGm,feelingLucky,ap/auto-playlist-thumbs-up,ap/auto-playlist-recent,ap/auto-playlist-promo" data-getoptionstext="playlistEndActionText"></div>
+      <div class="v-3.0 adv i-c" id="pauseOnLock"></div>
+      <div class="v-3.0 adv i-c" id="pauseOnIdle"></div>
+      <div class="v-3.0 adv sub i-n" id="pauseOnIdleSec" data-min="15"></div>
+      <div class="v-3.0 exp local i-n" id="skipSongSeconds" data-min="0"></div>
+      <div class="v-2.14 exp local i-n i-h" id="googleAccountNo" data-min="0"></div>
+      <div class="v-2.0 exp i-c" id="connectedIndicator"></div>
+      <div class="v-2.7.1 exp i-c i-h" id="preventCommandRatingReset"></div>
+      <div class="v-3.2 exp i-c i-h" id="autoActivateGm"></div>
+      <div class="v-3.2 sub exp i-c" id="autoRestoreGm"></div>
+      <div class="v-3.5 adv i-c" id="confirmClose"></div>
+      <div class="v-1.1 adv i-c" id="updateNotifier"></div>
+      <div class="v-1.4 adv local i-c i-h" id="syncSettings"></div>
+      <div class="exp i-c i-h" id="gaEnabled"></div>
     </fieldset>
     <button id="resetSettings"></button>
   </div>
@@ -158,12 +154,22 @@
     <div id="filter" class="v-2.23">
       <h1>Filter</h1>
       <p></p>
-      <div id="optionsMode"></div>
+      <div id="optionsMode" class="i-s" data-options="beg,adv,exp"></div>
+      <div>
+        <div class="i-c" id="filterTimer"></div>
+        <div class="i-c" id="filterLastfm"></div>
+        <div class="i-c" id="filterToast"></div>
+      </div>
+      <div>
+        <div class="i-c" id="filterMiniplayer"></div>
+        <div class="i-c" id="filterLyrics"></div>
+        <div class="i-c" id="filterLookfeel"></div>
+      </div>
     </div>
     <div id="credits">
       <h1>Credits</h1>
-      <div>Copyright (c) 2014, Sven Ackermann<br/>Licensed under the BSD license.</div>
-      <div style="clear:none;">
+      <div>Copyright (c) 2013-2016, Sven Ackermann<br/>Licensed under the BSD license.</div>
+      <div class="sociallinks">
         <a target="_blank" href="https://github.com/svenackermann" data-network="github"><img alt="GitHub" src="img/link-github.png"></a>
         <a target="_blank" href="http://www.last.fm/user/djdixit" data-network="lastfm"><img alt="Last.fm" src="img/link-lastfm.png"></a>
         <a target="_blank" href="https://plus.google.com/+SvenAckermann4" data-network="googleplus"><img alt="Google+" src="img/link-googleplus.png"></a>
@@ -173,7 +179,7 @@
         <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
           <input type="hidden" name="cmd" value="_s-xclick">
           <input type="hidden" name="hosted_button_id" value="VYAWB4Q5ULSS6">
-          <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+          <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!" data-network="paypal">
           <img alt="" border="0" src="https://www.paypalobjects.com/de_DE/i/scr/pixel.gif" width="1" height="1">
         </form>
         <a target="_blank" href="https://flattr.com/thing/2412149/Prime-Player-for-Google-Music-Chrome-extension" data-network="flattr"><img src="https://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0"/></a>
@@ -183,6 +189,7 @@
     </div>
     <div id="changelog" class="F I B V">
       <h1>Changelog</h1>
+      <a target="_blank" data-network="github" data-action="changelog">on GitHub</a>
       <input title="Show/hide features" id="cl-F" type="checkbox" checked/>
       <label for="cl-F">F</label>
       <input title="Show/hide improvements" id="cl-I" type="checkbox" checked/>
@@ -191,482 +198,6 @@
       <label for="cl-B">B</label>
       <input title="Show/hide versions" id="cl-V" type="checkbox" checked/>
       <label for="cl-V">V</label>
-      <div class="v-2.28">
-        <ul>
-          <li class="F">Dedicated icon click action if not connected to Google Music</li>
-          <li class="F">Dedicated color for progress in icon when paused</li>
-          <li class="F">Option to show the 1st click action in browser icon (enabled by default)</li>
-          <li class="I">Do not allow browser icon click actions while connecting to Google Music</li>
-          <li class="I">Some little UI improvements</li>
-        </ul>
-      </div>
-      <div class="v-2.27">
-        <ul>
-          <li class="F">Option to show toast only when miniplayer is minimized</li>
-          <li class="I">Small improvements on options page</li>
-        </ul>
-      </div>
-      <div class="v-2.26">
-        <ul>
-          <li class="F">Option to set the minimum stars to auto-love a song</li>
-          <li class="F">Option to avoid toast when Google Music tab has focus</li>
-          <li class="F">Option to open Google Music tab in background</li>
-          <li class="F">Option to set an action to be executed on Chrome startup</li>
-          <li class="I">Show song progress in playlist view in miniplayer</li>
-          <li class="I">New quicklinks for Google All Inclusive users (visible after first load of Google Music site)</li>
-          <li class="I">Display/hide options according to account details (All Inclusive, stars/thumbs ratings)</li>
-          <li class="I">Many stability/usability improvements</li>
-          <li class="B">Fixed playlists loading in miniplayer when Google Music is in background</li>
-        </ul>
-      </div>
-      <div class="v-2.25">
-        <ul>
-          <li class="F">Option to hide ratings in toast</li>
-          <li class="B">Fixed missing currentVersion error</li>
-        </ul>
-      </div>
-      <div class="v-2.24">
-        <ul>
-          <li class="F">Option to show title progress in toasts</li>
-          <li class="F">Option to link ratings even when rated in Google Music tab</li>
-          <li class="F">Option to auto-link ratings</li>
-          <li class="F">Option to change when the toast will be moved to notification area</li>
-          <li class="I">Lots of stability, performance and usability improvements</li>
-          <li class="B">Fixed lyrics view in Google Music tab after update on the site</li>
-          <li class="B">Preserve timer upon extension update</li>
-        </ul>
-      </div>
-      <div class="v-2.23">
-        <ul>
-          <li class="F">Options can now be filtered</li>
-          <li class="I">Options hints reworked</li>
-          <li class="I">Timer settings improved</li>
-          <li class="I">last.fm info (playcount, ...) can now even be displayed if not logged in (loved status/user scrobbles still need login)</li>
-        </ul>
-      </div>
-      <div class="v-2.22">
-        <ul>
-          <li class="F">Option to show a warning notification before timout</li>
-          <li class="I">Added <a target="_blank" href="http://goo.gl/9gEuI7" data-network="github" data-action="wiki">Wiki</a> at Github</li>
-        </ul>
-      </div>
-      <div class="v-2.21">
-        <ul>
-          <li class="F">Option to show song progress indicator in browser icon</li>
-          <li class="I">Improved auto-stop timer behavior</li>
-        </ul>
-      </div>
-      <div class="v-2.20">
-        <ul>
-          <li class="F">Ctrl+click on title/artist/album in miniplayer to open corresponding last.fm page</li>
-          <li class="F">Timer to automatically stop music or close Google Music after specified time</li>
-          <li class="I">Toogle scrobbling from miniplayer (right-click on last.fm icon)</li>
-        </ul>
-      </div>
-      <div class="v-2.19.1">
-        <ul>
-          <li class="B">Fixed player buttons</li>
-        </ul>
-      </div>
-      <div class="v-2.19">
-        <ul>
-          <li class="F">Options to change miniplayer background and text color</li>
-          <li class="I">Option to skip downvoted songs made adjustable</li>
-        </ul>
-      </div>
-      <div class="v-2.18">
-        <ul>
-          <li class="F">Allow auto-dismiss for toast notifications</li>
-          <li class="I">Included link to keyboard shortcuts on options page</li>
-          <li class="I">Changed my lastname/accounts (I got married)</li>
-          <li class="I">After installation, show a notification instead of opening a tab</li>
-          <li class="B">Fixed parsing of personal playlists</li>
-          <li class="B">Fixed hover state for buttons when last song is shown in miniplayer</li>
-        </ul>
-      </div>
-      <div class="v-2.17">
-        <ul>
-          <li class="F">Option to show additional last.fm information in miniplayer</li>
-          <li class="F">Show additional last.fm information in heart button tooltip</li>
-          <li class="B">Fixed unlove functionality</li>
-        </ul>
-      </div>
-      <div class="v-2.16.1">
-        <ul>
-          <li class="B">Fixed play/pause button after change on Google Music site</li>
-        </ul>
-      </div>
-      <div class="v-2.16">
-        <ul>
-          <li class="F">Option to skip downvoted songs</li>
-          <li class="B">Fixed miniplayer link for albums without artist</li>
-        </ul>
-      </div>
-      <div class="v-2.15">
-        <ul>
-          <li class="F">Options to customize actions for clicks on browser icon</li>
-          <li class="F">Option to close Google Music with miniplayer</li>
-          <li class="F">Option to disable scrobbling of repeated songs</li>
-          <li class="B">Fixed toggle repeat/shuffle after change on Google site</li>
-        </ul>
-      </div>
-      <div class="v-2.14">
-        <ul>
-          <li class="F">Option to choose Google account</li>
-          <li class="I">Improved miniplayer size restore</li>
-        </ul>
-      </div>
-      <div class="v-2.13">
-        <ul>
-          <li class="F">Option to save last song position</li>
-          <li class="F">Possibility to resume last song (load the song's album and try to resume the song)</li>
-          <li class="B">Fixed toast popup for some cases</li>
-          <li class="B">Fixed playlist loading for some cases</li>
-        </ul>
-      </div>
-      <div class="v-2.12.1">
-        <ul>
-          <li class="B">Do not play/pause in miniplayer while search field has focus</li>
-          <li class="B">Fixed handling for icon click options</li>
-        </ul>
-      </div>
-      <div class="v-2.12">
-        <ul>
-          <li class="F">Option to enable popup opening on icon double click</li>
-          <li class="I">Use spacebar in miniplayer to play/pause current song</li>
-          <li class="B">Fixed title/artist/album info update after Google change</li>
-        </ul>
-      </div>
-      <div class="v-2.11">
-        <ul>
-          <li class="F">Options to customize status indicators in browser icon</li>
-          <li class="F">New browser icon styles</li>
-          <li class="I">Show rating/loved status in toasts</li>
-          <li class="I">Improved cleanup of old version on updates</li>
-          <li class="B">Fixed artist/album links for some cases</li>
-        </ul>
-      </div>
-      <div class="v-2.10.1">
-        <ul>
-          <li class="F">Included flattr button</li>
-          <li class="I">Open the miniplayer focused</li>
-          <li class="I">Switched to Universal Google Analytics</li>
-          <li class="B">Fixed scrobble retry functionality</li>
-        </ul>
-      </div>
-      <div class="v-2.10">
-        <ul>
-          <li class="F">Added option to change lyrics font size</li>
-          <li class="F">Added option to change lyrics panel width</li>
-          <li class="F">Added option to auto-reload lyrics</li>
-        </ul>
-      </div>
-      <div class="v-2.9.1">
-        <ul>
-          <li class="I">Avoid hyperlink hint in miniplayer when hovered over controls</li>
-          <li class="I">Improved lyrics integration in Google Music tab</li>
-        </ul>
-      </div>
-      <div class="v-2.9">
-        <ul>
-          <li class="F">Added option to view lyrics in Google Music tab</li>
-          <li class="B">Fixed back navigation to lyrics in miniplayer</li>
-        </ul>
-      </div>
-      <div class="v-2.8">
-        <ul>
-          <li class="F">Added lyrics support</li>
-          <li class="F">Added keyboard shortcut and toast action for lyrics</li>
-          <li class="I">Updated icons</li>
-          <li class="B">Fixed popup layout with hidden ratings buttons</li>
-        </ul>
-      </div>
-      <div class="v-2.7.2">
-        <ul>
-          <li class="I">Show different icon when play/pause on browser icon click is enabled (thanks to MrKieren)</li>
-          <li class="I">Improved scrobbling of cached songs</li>
-        </ul>
-      </div>
-      <div class="v-2.7.1">
-        <ul>
-          <li class="I">Prevent rating resets when rated via keyboard shortcut or notification (added option to disable this) (thanks to jackcasey)</li>
-        </ul>
-      </div>
-      <div class="v-2.7">
-        <ul>
-          <li class="F">Added options change the toast notification actions</li>
-          <li class="B">Fixed duplicate execution of toast actions</li>
-        </ul>
-      </div>
-      <div class="v-2.6.1">
-        <ul>
-          <li class="I">Changed default keyboard shortcuts to use media keys (see <a target="_blank" href="https://chrome.google.com/webstore/detail/prime-player-for-google-p/npngaakpdgeaajbnidkkginekmnaejbi/details">FAQ</a> for setup instructions)</li>
-        </ul>
-      </div>
-      <div class="v-2.6">
-        <ul>
-          <li class="F">Added option to even show toasts if the miniplayer is opened</li>
-          <li class="F">Added button to start &quot;I'm feeling lucky&quot; mix</li>
-        </ul>
-      </div>
-      <div class="v-2.5">
-        <ul>
-          <li class="F">Added option to play/pause on icon click (thanks to MrKieren)</li>
-          <li class="B">Fixed hide unknown albums functionality after Google change</li>
-          <li class="B">Fixed update of rating in playlists in miniplayer</li>
-        </ul>
-      </div>
-      <div class="v-2.4">
-        <ul>
-          <li class="F">Added shortcut to open toast again</li>
-          <li class="I">German translation for keyboard shortcuts</li>
-        </ul>
-      </div>
-      <div class="v-2.3.2">
-        <ul>
-          <li class="B">Fixed next song navigation after another Google change (thanks to Steven Mariscal)</li>
-        </ul>
-      </div>
-      <div class="v-2.3.1">
-        <ul>
-          <li class="B">Fixed previous song navigation after Google change (thanks to jmon822)</li>
-        </ul>
-      </div>
-      <div class="v-2.3">
-        <ul>
-          <li class="I">Improved load time for long playlists</li>
-          <li class="I">Reload list in player when shuffled</li>
-        </ul>
-      </div>
-      <div class="v-2.2.1">
-        <ul>
-          <li class="B">Fixed playlist parsing when same list is opened again</li>
-          <li class="B">Fixed rating in playlists</li>
-        </ul>
-      </div>
-      <div class="v-2.2">
-        <ul>
-          <li class="F">Option to automatically open miniplayer when music is started</li>
-          <li class="F">Option to automatically close miniplayer when Google Music is disconnected</li>
-          <li class="I">Load complete lists again after Google introduced lazy loading</li>
-        </ul>
-      </div>
-      <div class="v-2.1.6">
-        <ul>
-          <li class="B">Fixes after changes on Google site (ratings in playlists, &quot;I'm feeling lucky&quot; mix)</li>
-        </ul>
-      </div>
-      <div class="v-2.1.5">
-        <ul>
-          <li class="B">Fixed scrobbling for songs where no song was loaded before</li>
-        </ul>
-      </div>
-      <div class="v-2.1.4">
-        <ul>
-          <li class="B">Fixed last.fm connect for Chrome version &gt; 30</li>
-        </ul>
-      </div>
-      <div class="v-2.1.3">
-        <ul>
-          <li class="B">Fixed artist list loading after change on Google site</li>
-        </ul>
-      </div>
-      <div class="v-2.1.2">
-        <ul>
-          <li class="I">Search is now enabled even when not connected to Google Music</li>
-          <li class="B">Fixed list open when not connected to Google Music</li>
-          <li class="B">Fixed hbar layout when no song is loaded</li>
-        </ul>
-      </div>
-      <div class="v-2.1.1">
-        <ul>
-          <li class="I">Close navigation/search and return to player anytime by pressing ESC</li>
-          <li class="I">List layout improved</li>
-          <li class="B">Fixed minor issue on auto-update</li>
-        </ul>
-      </div>
-      <div class="v-2.1">
-        <ul>
-          <li class="F">Include search box in miniplayer (quick focus pressing "q")</li>
-          <li class="F">Option to hide the search box in miniplayer</li>
-          <li class="I">Stabilized scrobbling for very low and high percentages</li>
-          <li class="I">Display current player state in miniplayer icon</li>
-          <li class="I">Hide ratings also in playlist if option is enabled</li>
-        </ul>
-      </div>
-      <div class="v-2.0.1">
-        <ul>
-          <li class="B">Fixed some issues with ratings in playlist view</li>
-          <li class="B">Fixed display of playlist duration for lists longer than 1 day</li>
-          <li class="I">Auto-scroll to current song when a playlist is opened</li>
-        </ul>
-      </div>
-      <div class="v-2.0">
-        New major version including:
-        <ul>
-          <li class="F I">Quicklinks for direct access to all areas in Google Music (except "all titles")</li>
-          <li class="I">All links are now opened in the miniplayer (with Shift+Click in Google Music tab)</li>
-          <li class="I">If a link is clicked while Google Music is not connected, it will automatically be opened</li>
-          <li class="I">Removed playlists icon as it is now included as quicklink</li>
-          <li class="F">Options to change action when album cover or song title is clicked</li>
-          <li class="F">Option to omit unknown albums in albums list</li>
-          <li class="F">Option to not use the Prime Player icon in Google Music tab</li>
-          <li class="F">Button to reset settings</li>
-          <li class="I">Ratings in playlist view (former queue) are now updated on keyboard shortcut rating</li>
-          <li class="F">Google Music tab can now be disconnected from the extension by clicking on the "P" icon on the tab (useful for development)</li>
-          <li class="F">Changelog filtering</li>
-          <li class="B I">Many improvements/fixes for design and usability</li>
-          <li>Please see also the new FAQ on the <a target="_blank" href="https://chrome.google.com/webstore/detail/prime-player-for-google-p/npngaakpdgeaajbnidkkginekmnaejbi/details">extension's homepage</a></li>
-        </ul>
-      </div>
-      <div class="v-1.11.1">
-        <ul>
-          <li class="B">Fixed layout issue when no song is loaded</li>
-        </ul>
-      </div>
-      <div class="v-1.11">
-        <ul>
-          <li class="F">Option to hide rating symbols</li>
-          <li class="I">Save individual player size for queue, playlists, listen now and player <img src="img/hint.png" class="hint" title="If you resize the player while it shows the queue (or playlists or listen now), the extension will remember that size and restore it the next time you open the queue. So you can view the queue in a temporary bigger size."></img></li>
-          <li class="B">Do not show an empty link for songs with no album</li>
-        </ul>
-      </div>
-      <div class="v-1.10.1">
-        <ul>
-          <li class="B">Fixed stupid "Uncaught ReferenceError" on updates (thanks to Billy Keyes)</li>
-          <li class="B">Minor fixes/improvements</li>
-        </ul>
-      </div>
-      <div class="v-1.10">
-        <ul>
-          <li class="F">Option to change the browser icon style</li>
-          <li class="I">Show song info in browser action hint</li>
-          <li class="I">Improved volume mute (different icon in miniplayer, unmute when muted)</li>
-        </ul>
-      </div>
-      <div class="v-1.9.2">
-        <ul>
-          <li class="B">Fixed layout issue in queue list for radio station songs (thanks to Gregor Smith)</li>
-          <li class="I">Scrobble and send now playing again when single repeat is active</li>
-          <li class="B">Fixed displaying of covers from recommendations</li>
-        </ul>
-      </div>
-      <div class="v-1.9.1">
-        <ul>
-          <li class="F">Orange color scheme</li>
-        </ul>
-      </div>
-      <div class="v-1.9">
-        <ul>
-          <li class="F">Added more keyboard shortcuts (see bottom of chrome://extensions)</li>
-          <li class="B">Minor fixes for queue preview</li>
-        </ul>
-      </div>
-      <div class="v-1.8">
-        <ul>
-          <li class="F">Direct access to queue in miniplayer (click on title)</li>
-          <li class="I">Show status in browser icon</li>
-          <li class="I">Use Google images for thumbs/volume</li>
-          <li class="B">Minor layout fixes</li>
-          <li class="B">Fixed bug with "disable scrobble after fast forward" option</li>
-        </ul>
-      </div>
-      <div class="v-1.7.5">
-        <ul>
-          <li class="F">Included donate button</li>
-        </ul>
-      </div>
-      <div class="v-1.7.4">
-        <ul>
-          <li class="I">Improved last.fm loved status handling (load only once for a song)</li>
-          <li class="F">Replaced keyboard shortcut for previous song with one to love/unlove the current song</li>
-          <li class="B">Fixed sizing issue when panel is opened</li>
-          <li class="B">Allow link ratings option if scrobbling is disabled</li>
-        </ul>
-      </div>
-      <div class="v-1.7.3">
-        <ul>
-          <li class="B">Fixed some minor bugs with toasts and auto-update</li>
-        </ul>
-      </div>
-      <div class="v-1.7.2">
-        <ul>
-          <li class="I">Removed need for googleusercontent.com permission</li>
-        </ul>
-      </div>
-      <div class="v-1.7">
-        <ul>
-          <li class="F">Direct access to "listen now" area (click on cover in player)</li>
-          <li class="I">Cache (up to 50) songs (on local machine only) for later batch scrobbling when last.fm API is temporarily unavailable</li>
-        </ul>
-      </div>
-      <div class="v-1.6.1">
-        <ul>
-          <li class="I">Renamed extension to include its purpose</li>
-        </ul>
-      </div>
-      <div class="v-1.6">
-        <ul>
-          <li class="F">Volume control</li>
-          <li class="F">Option to use miniplayer style for toasts</li>
-        </ul>
-      </div>
-      <div class="v-1.5">
-        <ul>
-          <li class="F">Use rich notifications for toasts (since Chrome 28 the old notifications no longer work)</li>
-        </ul>
-      </div>
-      <div class="v-1.4">
-        <ul>
-          <li class="I">Use event pages (free memory when unused)</li>
-          <li class="F">Option to sync settings with Chrome sync</li>
-        </ul>
-      </div>
-      <div class="v-1.3">
-        <ul>
-          <li class="F">Control title position from miniplayer (click on timebar)</li>
-          <li class="F">Added keyboard shortcuts <img src="img/hint.png" class="hint" title="Select shortcuts link on bottom of chrome://extensions to configure. Shortcuts only work when Chrome has focus."></img></li>
-          <li class="B">Minor fixes/improvements</li>
-        </ul>
-      </div>
-      <div class="v-1.2">
-        <ul>
-          <li class="F">Option to disable scrobbling after fast forward</li>
-          <li class="F">Option to link ratings between last.fm and Google</li>
-          <li class="I">Linked artist/album</li>
-          <li class="I">Accessibility improvements</li>
-          <li class="I">Improved auto-update behavior</li>
-        </ul>
-      </div>
-      <div class="v-1.1.1">
-        <ul>
-          <li class="B">Fixed scrobbling</li>
-        </ul>
-      </div>
-      <div class="v-1.1">
-        <ul>
-          <li class="F">Option to hide play controls for toasts</li>
-          <li class="F">Option to open Google Music in pinned tab</li>
-          <li class="I">Show last.fm errors on love/unlove (broken heart)</li>
-          <li class="F">Update notifications</li>
-        </ul>
-      </div>
-      <div class="v-1.0.1">
-        <ul>
-          <li class="B">Fixed bug with thumbs ratings</li>
-        </ul>
-      </div>
-      <div class="v-1.0">
-        Initial release including:
-        <ul>
-          <li class="F">last.fm integration (now playing, scrobbling, like/unlike)</li>
-          <li class="F">a powerful miniplayer with different layouts and color schemes</li>
-          <li class="F">toast notifications</li>
-          <li class="F">support for thumbs and 5-star ratings</li>
-          <li class="F">playlist selection</li>
-          <li class="F">and more</li>
-        </ul>
-      </div>
     </div>
   </div>
 </body>

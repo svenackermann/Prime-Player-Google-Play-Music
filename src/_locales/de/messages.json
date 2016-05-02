@@ -1,6 +1,6 @@
 {
   "extDesc": {
-    "message": "Erweitert Google Music mit last.fm Integration, Toast Benachrichtigungen, einem Miniplayer, Tasten-K\u00FCrzeln und mehr."
+    "message": "Erweitert Google Music mit last.fm Integration, Toast Benachrichtigungen, einem Miniplayer, Tasten-Kürzeln und mehr."
   },
   "extTitle": {
     "message": "Prime Player"
@@ -12,22 +12,19 @@
     "message": "Keine Wiedergabe"
   },
   "gotoGmusic": {
-    "message": "\u00D6ffne Google Play Music"
-  },
-  "myPlaylists": {
-    "message": "Meine Playlists"
+    "message": "Öffne Google Play Music"
   },
   "setting_scrobble": {
     "message": "Scrobbeln aktivieren"
   },
   "setting_toast": {
-    "message": "Toast-Benachrichtigungen aktivieren"
+    "message": "Toast bei neuem Titel aktivieren"
   },
-  "setting_toastHint": {
-    "message": "Toast-Benachrichtigungen werden nicht angezeigt, solange der Miniplayer aktiv ist."
+  "setting_toastOnPlayPause": {
+    "message": "Toast bei Pause/Wiedergabe via Tastatur-Kürzel"
   },
   "openMiniplayer": {
-    "message": "Miniplayer \u00F6ffnen"
+    "message": "Miniplayer öffnen"
   },
   "lastfmUser": {
     "message": "last.fm Nutzer: "
@@ -45,7 +42,7 @@
     "message": "Vorheriger Titel"
   },
   "nextSong": {
-    "message": "N\u00E4chster Titel"
+    "message": "Nächster Titel"
   },
   "pauseSong": {
     "message": "Pause"
@@ -54,7 +51,7 @@
     "message": "Wiedergabe fortsetzen"
   },
   "volumeControl": {
-    "message": "Lautst\u00E4rke einstellen"
+    "message": "Lautstärke einstellen"
   },
   "playPause": {
     "message": "Pause/Fortsetzen"
@@ -72,22 +69,19 @@
     "message": "Der last.fm Webservice ist nicht erreichbar."
   },
   "setting_toastUseMpStyle": {
-    "message": "Benutze Stil des Miniplayers f\u00FCr Toasts"
+    "message": "Benutze Stil des Miniplayers für Toasts"
   },
   "setting_toastUseMpStyleHint": {
     "message": "Wenn aktiviert, sehen Toasts genauso aus, wie der Miniplayer. Ansonsten werden Desktop-Benachrichtigungen verwendet, die weniger Funktionen bieten."
   },
   "setting_toastDuration": {
-    "message": "Toast Dauer in Sekunden (0=nicht schlie\u00DFen)"
+    "message": "Toast Dauer in Sekunden (0=nicht schließen)"
   },
   "setting_toastDurationHint": {
     "message": "Bei normalen Toasts ist das die Zeit, nach der die Benachrichtigung entfernt wird (vom Desktop oder Chromes Benachrichtigungs-Leiste), Chrome verschiebt die Nachricht evtl. vorher schon in die Benachrichtigungs-Leiste. Bei Toasts im Miniplayer-Stil (Experten-Modus) ist das die Zeit, nach der der Miniplayer geschlossen wird."
   },
   "setting_toastPriority": {
     "message": "in Benachrichtigungs-Leiste verschieben"
-  },
-  "setting_toastPriority_1": {
-    "message": "sofort"
   },
   "setting_toastPriority_2": {
     "message": "nach 7 Sekunden"
@@ -102,7 +96,7 @@
     "message": "Zeige Titel-Bewertung in Toast"
   },
   "setting_toastIfMpOpen": {
-    "message": "Toast auch zeigen, wenn der Miniplayer ge\u00F6ffnet ist"
+    "message": "Toast auch zeigen, wenn der Miniplayer geöffnet ist"
   },
   "setting_toastIfMpMinimized": {
     "message": "Nur wenn das Miniplayer-Fenster minimiert ist"
@@ -126,22 +120,22 @@
     "message": "Maximale Zeit (Sekunden), nach der gescrobbelt wird (0=deaktiviert)"
   },
   "setting_scrobbleMaxDuration": {
-    "message": "Maximale Titel-L\u00E4nge (Minuten) zum scrobbeln (0=deaktiviert)"
+    "message": "Maximale Titel-Länge (Minuten) zum scrobbeln (0=deaktiviert)"
   },
   "setting_disableScrobbleOnFf": {
     "message": "Scrobbeln nach Vorspulen deaktivieren"
   },
   "setting_disableScrobbleOnFfHint": {
-    "message": "Scrobbelt den aktuellen Titel nicht mehr, nachdem er (mind. f\u00FCnf Sekunden) vorgespult wurde. N\u00FCtzlich, wenn man nur eine bestimmte Stelle in einem Titel sucht. Ansonsten wird der Titel gescrobbelt, sobald er die rote Scrobbel-Marke \u00FCberschreitet."
+    "message": "Scrobbelt den aktuellen Titel nicht mehr, nachdem er (mind. fünf Sekunden) vorgespult wurde. Nützlich, wenn man nur eine bestimmte Stelle in einem Titel sucht. Ansonsten wird der Titel gescrobbelt, sobald er die rote Scrobbel-Marke überschreitet."
   },
   "setting_scrobbleRepeated": {
     "message": "Scrobbel Titel erneut wenn wiederholt gespielt"
   },
   "setting_linkRatings": {
-    "message": "Bewertungen verkn\u00FCpfen"
+    "message": "Bewertungen verknüpfen"
   },
   "setting_linkRatingsHint": {
-    "message": "Titel in last.fm lieben, wenn du Daumen hoch/f\u00FCnf Sterne in Google Music gibst und umgekehrt. Bestehende Wertungen werden nicht \u00FCberschrieben. Funktioniert nicht, wenn direkt auf der Google Music oder last.fm Seite bewertet wird (nur \u00FCber Miniplayer, Tastaturk\u00FCrzel, Toast Aktionen, ...)."
+    "message": "Titel in last.fm lieben, wenn du Daumen hoch/fünf Sterne in Google Music gibst und umgekehrt. Bestehende Wertungen werden nicht überschrieben. Funktioniert nicht, wenn direkt auf der Google Music oder last.fm Seite bewertet wird (nur über Miniplayer, Tastaturkürzel, Toast Aktionen, ...)."
   },
   "setting_linkRatingsMin": {
     "message": "Mindest-Stern-Anzahl zum automatisch lieben"
@@ -150,10 +144,16 @@
     "message": "Auch automatisch lieben, wenn im Google Music Tab bewertet wird"
   },
   "setting_linkRatingsAuto": {
-    "message": "Bewertungen automatisch verkn\u00FCpfen"
+    "message": "Bewertungen automatisch verknüpfen"
   },
   "setting_linkRatingsAutoHint": {
-    "message": "Wenn ein Titel startet, den du bereits mit Daumen hoch/f\u00FCnf Sternen bewertet hast, der aber nicht in last.fm geliebt ist, wird er ohne Nutzer-Interaktion geliebt. Wenn er bereits geliebt ist, aber keine Bewertung in Google Music hat, erh\u00E4lt er Daumen hoch/f\u00FCnf Sterne."
+    "message": "Wenn ein Titel startet, den du bereits mit Daumen hoch/fünf Sternen bewertet hast, der aber nicht in last.fm geliebt ist, wird er ohne Nutzer-Interaktion geliebt. Wenn er bereits geliebt ist, aber keine Bewertung in Google Music hat, erhält er Daumen hoch/fünf Sterne."
+  },
+  "setting_linkRatingsReset": {
+    "message": "Setze Bewertungen auch zurück"
+  },
+  "setting_linkRatingsResetHint": {
+    "message": "Titel nicht mehr lieben, wenn die Daumen-Bewertung entfernt oder Daumen runter bewertet wird bzw. entferne die Daumen-Hoch-Bewertung, wenn der Titel nicht mehr geliebt wird. Das wird nicht bei automatisch verknüpften Bewertungen angewendet (s. vorige Einstellung)."
   },
   "setting_showLovedIndicator": {
     "message": "Zeige 'geliebt'-Status im Symbol"
@@ -162,13 +162,13 @@
     "message": "Zeige 'gescrobbelt'-Status im Symbol"
   },
   "setting_showLastfmInfo": {
-    "message": "Zeige last.fm Daten im Miniplayer (vergr\u00F6\u00DFern zum Einblenden)"
+    "message": "Zeige last.fm Daten im Miniplayer (vergrößern zum Einblenden)"
   },
   "setting_miniplayerType": {
-    "message": "Typ f\u00FCr den Miniplayer"
+    "message": "Typ für den Miniplayer"
   },
   "setting_miniplayerTypeHint": {
-    "message": "Wenn du den Typ 'Panel' nutzen willst, schalte auf <a></a> die Option 'Steuerfelder aktivieren' ein, damit 'echte' Panels erzeugt werden, die im Vordergrund bleiben k\u00F6nnen."
+    "message": "Wenn du den Typ 'Panel' nutzen willst, schalte auf <a></a> die Option 'Steuerfelder aktivieren' ein, damit 'echte' Panels erzeugt werden, die im Vordergrund bleiben können."
   },
   "setting_miniplayerType_normal": {
     "message": "Fenster"
@@ -201,7 +201,7 @@
     "message": "Horizontale Leiste"
   },
   "setting_iconClickConnectAction": {
-    "message": "Aktion, wenn Google Music nicht ge\u00F6ffnet ist"
+    "message": "Aktion, wenn Google Music nicht geöffnet ist"
   },
   "setting_iconClickAction0": {
     "message": "Aktion bei Einfach-Klick"
@@ -219,13 +219,13 @@
     "message": "Klick-Geschwindigkeit in ms (0=deaktiviert)"
   },
   "setting_iconDoubleClickTimeHint": {
-    "message": "Setze dies auf einen Wert gr\u00F6\u00DFer als 0 (empfohlen: 500), um weitere Klick-Aktion oben zu aktivieren. Als letzte Aktion wird immer das Browser-Popup ge\u00F6ffnet."
+    "message": "Setze dies auf einen Wert größer als 0 (empfohlen: 500), um weitere Klick-Aktion oben zu aktivieren. Als letzte Aktion wird immer das Browser-Popup geöffnet."
   },
   "setting_iconShowAction": {
     "message": "Zeige Aktion im Symbol"
   },
   "iconClickActionTitle": {
-    "message": "Aktion(en), wenn Google Music ge\u00F6ffnet ist:"
+    "message": "Aktion(en), wenn Google Music geöffnet ist:"
   },
   "connected": {
     "message": "Dieser Tab ist mit Prime Player verbunden. Zum Trennen klicken."
@@ -234,7 +234,7 @@
     "message": "Timer Einstellungen"
   },
   "legendTimerHint": {
-    "message": "Mit dem Timer kannst du nach einer festgelegten Zeit automatisch die Musik stoppen oder den Google Music Tab schlie\u00DFen. Die Einstellungen werden verf\u00FCgbar, sobald Prime Player mit Google Music verbunden ist."
+    "message": "Mit dem Timer kannst du nach einer festgelegten Zeit automatisch die Musik stoppen oder den Google Music Tab schließen. Die Einstellungen werden verfügbar, sobald Prime Player mit Google Music verbunden ist."
   },
   "legendLastfm": {
     "message": "last.fm Einstellungen"
@@ -246,16 +246,16 @@
     "message": "Toast Einstellungen"
   },
   "legendToastHint": {
-    "message": "Toasts sind Desktop-Benachrichtigungen, die den aktuellen Titel anzeigen und ein paar Aktionen erlauben. Immer wenn ein neuer Titel startet, erscheint ein Toast auf dem Bildschirm."
+    "message": "Toasts sind Desktop-Benachrichtigungen, die den aktuellen Titel anzeigen und ein paar Aktionen erlauben. Immer wenn ein neuer Titel startet, erscheint ein Toast auf dem Bildschirm. Toast-Benachrichtigungen werden nicht angezeigt, solange der Miniplayer aktiv ist."
   },
   "legendMiniplayer": {
     "message": "Miniplayer Einstellungen"
   },
   "legendMiniplayerHint": {
-    "message": "Der Miniplayer ist ein m\u00E4chtiges, anpassbares Tool, also nimm dir die Zeit, die verschiedenen Einstellungen auszuprobieren. Du kannst den Miniplayer z.B. mit dem Noten-Symbol im Popup, das beim Klick auf das Prime-Player-Symbol in Chromes Toolbar erscheint, \u00F6ffnen."
+    "message": "Der Miniplayer ist ein mächtiges, anpassbares Tool, also nimm dir die Zeit, die verschiedenen Einstellungen auszuprobieren. Du kannst den Miniplayer z.B. mit dem Kopfhörer-Symbol im Popup, das beim Klick auf das Prime-Player-Symbol in Chromes Toolbar erscheint, öffnen."
   },
   "legendLookfeel": {
-    "message": "Aussehen \u0026 Verhalten"
+    "message": "Aussehen & Verhalten"
   },
   "legendLookfeelHint": {
     "message": "Diese Einstellungen kontrollieren das Prime-Player-Symbol und anderes allgemeines Verhalten."
@@ -264,19 +264,22 @@
     "message": "Browser-Symbol Klick"
   },
   "legendIcHint": {
-    "message": "Hiermit kannst du die Aktion(en) anpassen, die beim Klick auf das Prime-Player-Symbol in Chromes Toolbar ausgef\u00FChrt wird/werden."
+    "message": "Hiermit kannst du die Aktion(en) anpassen, die beim Klick auf das Prime-Player-Symbol in Chromes Toolbar ausgeführt wird/werden."
   },
   "legendLyrics": {
     "message": "Songtexte Einstellungen"
   },
   "legendLyricsHint": {
-    "message": "Du kannst Prime Player erlauben, Songtexte von externen Webseiten zu laden, um diese im Miniplayer und/oder dem Google Music Tab anzuzeigen. Dazu musst du zun\u00E4chst mind. eine Seite unten aktivieren. Die aktivierten Seiten k\u00F6nnen per Drag & Drop sortiert werden, die erste Seite wird immer zuerst durchsucht."
+    "message": "Du kannst Prime Player erlauben, Songtexte von externen Webseiten zu laden, um diese im Miniplayer und/oder dem Google Music Tab anzuzeigen. Dazu musst du zunächst mind. eine Seite unten aktivieren. Die aktivierten Seiten können per Drag & Drop sortiert werden, die erste Seite wird immer zuerst durchsucht."
+  },
+  "setting_confirmClose": {
+    "message": "Warnung bei Schliessen des Google Music Tabs während Wiedergabe"
   },
   "setting_gaEnabled": {
     "message": "Google Analytics aktivieren"
   },
   "setting_gaEnabledHint": {
-    "message": "Es werden keine pers\u00F6nlichen Daten (z.B. gespielte Songs) gesammelt. Die Daten dienen nur zur Analyse h\u00E4ufig genutzer Funktionen und Einstellungen."
+    "message": "Es werden keine persönlichen Daten (z.B. gespielte Songs) gesammelt. Die Daten dienen nur zur Analyse häufig genutzer Funktionen und Einstellungen."
   },
   "scrobblePosition": {
     "message": "Hier wird gescrobbelt"
@@ -285,10 +288,10 @@
     "message": "Farbschema"
   },
   "setting_color_turq": {
-    "message": "T\u00FCrkis"
+    "message": "Türkis"
   },
   "setting_color_green": {
-    "message": "Gr\u00FCn"
+    "message": "Grün"
   },
   "setting_color_red": {
     "message": "Rot"
@@ -321,26 +324,38 @@
     "message": "Zum Wiederverbinden hier klicken."
   },
   "bugfeatureinfo": {
-    "message": "Wenn du Fehler findest oder Ideen f\u00FCr neue Funktionen hast, lege bitte einen Vorgang auf $GITHUB$ an oder - noch besser - sende mir einen Pull-Request.",
+    "message": "Wenn du Fehler findest oder Ideen für neue Funktionen hast, lege bitte einen Vorgang auf $GITHUB$ an oder - noch besser - sende mir einen Pull-Request.",
     "placeholders": { "GITHUB": { "content": "$1" } }
   },
   "setting_openGoogleMusicPinned": {
-    "message": "Google Music in einem angehefteten Tab \u00F6ffnen"
+    "message": "Google Music in einem angehefteten Tab öffnen"
   },
   "setting_openGmBackground": {
-    "message": "Google Music Tab im Hintergrund \u00F6ffnen"
+    "message": "Google Music Tab im Hintergrund öffnen"
+  },
+  "setting_simulateActivity": {
+    "message": "Simuliere Aktivität im Google Music Tab"
+  },
+  "setting_simulateActivityHint": {
+    "message": "Google Music pausiert die Musik automatisch, wenn eine Weile keine Nutzer-Interaktion stattgefunden hat. Um das zu vermeiden, kannst du Prime Player einmal pro Stunde einen Klick auf die Lautstärke-Leiste simulieren lassen."
   },
   "setting_startupAction": {
     "message": "Aktion bei Chrome-Start"
   },
+  "setting_playlistEndAction": {
+    "message": "Aktion bei Playlist Ende"
+  },
   "setting_googleAccountNo": {
-    "message": "Index des zu \u00F6ffnenden Google Kontos"
+    "message": "Index des zu öffnenden Google Kontos"
   },
   "setting_googleAccountNoHint": {
-    "message": "Wenn du mit mehreren Google Konten angemeldet bist, kannst du hier den Index des Kontos zum \u00D6ffnen von Google Music einstellen (bei 0 beginnend). '0' \u00F6ffnet immer das Standard-Konto, was auch die korrekte Einstellung ist, wenn du nur mit einem Konto angemeldet bist"
+    "message": "Wenn du mit mehreren Google Konten angemeldet bist, kannst du hier den Index des Kontos zum Öffnen von Google Music einstellen (bei 0 beginnend). '0' öffnet immer das Standard-Konto, was auch die korrekte Einstellung ist, wenn du nur mit einem Konto angemeldet bist"
   },
   "setting_syncSettings": {
     "message": "Einstellungen mit Chrome sync synchronisieren"
+  },
+  "setting_syncSettingsHint": {
+    "message": "Um dies zu nutzen, musst du mit deinem Google-Konto bei Chrome angemeldet sein und die Synchronisierung von Erweiterungen aktiviert haben. Aus verschiedenen Gründen können nicht alle Einstellungen synchronisiert werden, nur die mit einem * markierten werden synchronisiert. Beachte auch, dass die Einstellungen nur beim Starten von Prime Player (z.B. Installation, Update oder Chrome Start) bzw. wenn die Option aktiviert wird, geladen werden. Die Einstellungen werden aber bei jeder Änderung in deinem Google-Konto (zeitverzögert) gespeichert."
   },
   "setting_pauseOnLock": {
     "message": "Pausiere Musik, wenn der Computer gesperrt wird (fortsetzen bei Entsperren)"
@@ -352,10 +367,19 @@
     "message": "Sekunden im Leerlauf, bevor die Musik pausiert wird"
   },
   "setting_preventCommandRatingReset": {
-    "message": "Setze Bewertungen niemals zur\u00FCck, die nicht sichtbar sind"
+    "message": "Setze Bewertungen niemals zurück, die nicht sichtbar sind"
   },
   "setting_preventCommandRatingResetHint": {
-    "message": "Normalerweise wird die Bewertung f\u00FCr einen Titel entfernt, wenn du ihn mit der aktuellen Bewertung erneut bewertest. Wenn du Tastaturk\u00FCrzel oder die Aktionen in der Toast-Benachrichtigung zum Bewerten verwendest, ist das \u00FCblicherweise nicht erw\u00FCnscht, weil man die aktuelle Bewertung nicht sieht. Deaktiviere diese Option, um in dem Fall trotzdem die Bewertung zu entfernen."
+    "message": "Normalerweise wird die Bewertung für einen Titel entfernt, wenn du ihn mit der aktuellen Bewertung erneut bewertest. Wenn du Tastaturkürzel oder die Aktionen in der Toast-Benachrichtigung zum Bewerten verwendest, ist das üblicherweise nicht erwünscht, weil man die aktuelle Bewertung nicht sieht. Deaktiviere diese Option, um in dem Fall trotzdem die Bewertung zu entfernen."
+  },
+  "setting_autoActivateGm": {
+    "message": "Mache den Google Music Tab immer sichtbar wenn nötig"
+  },
+  "setting_autoActivateGmHint": {
+    "message": "Einige Aktionen (z.B. Vor-/Zurückspulen, Lesen längerer Wiedergabelisten) funktionieren nur korrekt, wenn der Google Music Tab sichtbar ist. Mit dieser Option wird der Tab in solchen Fällen automatisch sichtbar gemacht."
+  },
+  "setting_autoRestoreGm": {
+    "message": "Stelle den vorher sichtbaren Tab danach wieder her"
   },
   "setting_updateNotifier": {
     "message": "Bei Aktualisierungen benachrichtigen (Symbol wird orange)"
@@ -373,22 +397,28 @@
     "message": "Zeige Titel-Fortschritt im Symbol"
   },
   "setting_showProgressColor": {
-    "message": "Farbe f\u00FCr Titel-Fortschritt"
+    "message": "Farbe für Titel-Fortschritt"
   },
   "setting_showProgressColorPaused": {
-    "message": "Farbe f\u00FCr Titel-Fortschritt wenn pausiert"
+    "message": "Farbe für Titel-Fortschritt wenn pausiert"
   },
   "setting_saveLastPosition": {
     "message": "Speichere zuletzt gespielten Titel"
   },
   "setting_saveLastPositionHint": {
-    "message": "Speichert den letzten Titel (lokal) mit der aktuellen Position, um immer zu wissen, was man vor dem Beenden von Google Music geh\u00F6rt hat. Der letzte Titel wird im Miniplayer wie ein normaler Titel mit einigen Einschr\u00E4nkungen angezeigt. Der Play-Button versucht, das Album des Titels zu laden und den Titel an der letzten Position fortzusetzen. Leider ist es nicht m\u00F6glich, die letzte Wiedergabeliste beim Neustart wiederherzustellen."
+    "message": "Speichert den letzten Titel (lokal) mit der aktuellen Position, um immer zu wissen, was man vor dem Beenden von Google Music gehört hat. Der letzte Titel wird im Miniplayer wie ein normaler Titel mit einigen Einschränkungen angezeigt. Der Play-Button versucht, das Album des Titels zu laden und den Titel an der letzten Position fortzusetzen. Leider ist es nicht möglich, die letzte Wiedergabeliste beim Neustart wiederherzustellen."
+  },
+  "setting_starRatingMode": {
+    "message": "Benutze Sterne-Bewertungen (experimentell)"
+  },
+  "setting_starRatingModeHint": {
+    "message": "Das Lab '5-Sterne-Bewertungen' wurde von Google entfernt. Die Bewertungen sind aber noch erhalten und können auch weiterhin geändert werden. Diese Einstellung versucht, das Feature zurück zu bringen, aber es wird vermutlich unbenutzbar sein, sobald Google die Sterne-Bewertungen komplett entfernt oder (hoffentlich) wieder einführt. Die Sterne sind nur innerhalb von Prime Player sichtbar, die Google-Seite selbst zeigt weiter die Daumen."
   },
   "setting_hideFavorites": {
-    "message": "Verberge Favoriten im Miniplayer und Kontext-Men\u00FC"
+    "message": "Verberge Favoriten im Miniplayer und Kontext-Menü"
   },
   "setting_skipRatedLower": {
-    "message": "(oder schlechter) bewertete Titel \u00FCberspringen"
+    "message": "(oder schlechter) bewertete Titel überspringen"
   },
   "setting_skipRatedLower_0": {
     "message": "deaktiviert"
@@ -409,10 +439,13 @@
     "message": "4 Sterne"
   },
   "setting_skipRatedThumbsDown": {
-    "message": "Titel mit Daumen runter \u00FCberspringen"
+    "message": "Titel mit Daumen runter überspringen"
   },
   "setting_hideRatings": {
-    "message": "Bewertungs-Symbole verstecken (last.fm und Daumen/Sterne)"
+    "message": "Verstecke Bewertungs-Symbole (last.fm und Daumen/Sterne)"
+  },
+  "setting_hideLucky": {
+    "message": "Verstecke 'Mix auf gut Glück' Button"
   },
   "setting_omitUnknownAlbums": {
     "message": "Verberge 'Unbekannte Alben' in der Alben-Liste des Miniplayers"
@@ -421,21 +454,33 @@
     "message": "Google zeigt in der Alben-Liste die Songs eines Interpreten ohne Album als 'Unbekanntes Album' an. Mit dieser Option werden solche 'unechten' Alben in der Alben-Liste des Miniplayers verborgen."
   },
   "setting_mpAutoOpen": {
-    "message": "Miniplayer automatisch \u00F6ffnen, wenn Musik gestartet wird"
+    "message": "Miniplayer automatisch öffnen, wenn Musik gestartet wird"
   },
   "setting_mpAutoClose": {
-    "message": "Miniplayer automatisch schlie\u00DFen, wenn Google Music geschlossen wird"
+    "message": "Miniplayer automatisch schließen, wenn Google Music geschlossen wird"
   },
   "setting_mpCloseGm": {
-    "message": "Google Music automatisch schlie\u00DFen, wenn Miniplayer geschlossen wird"
+    "message": "Google Music automatisch schließen, wenn Miniplayer geschlossen wird"
+  },
+  "setting_mpShowTitle": {
+    "message": "Zeige Song-Titel in Miniplayer-Fenster-Titel"
+  },
+  "installNotifierTitle": {
+    "message": "Prime Player wurde installiert"
+  },
+  "installNotifierText": {
+    "message": "Prime Player bietet viele Optionen, die du an deine Bedürfnisse anpassen kannst. Beachte auch die FAQ auf der Homepage der Erweiterung im Chrome Store und das Wiki auf Github. Und nun viel Spaß mit Prime Player!"
   },
   "updateNotifierTitle": {
     "message": "Prime Player wurde aktualisiert"
   },
   "updateNotifierText": {
-    "message": "Die Erweiterung wurde gerade aktualisiert. \u00D6ffne die Optionen um zu sehen, was es Neues gibt."
+    "message": "Die Erweiterung wurde gerade aktualisiert. Öffne die Optionen um zu sehen, was es Neues gibt."
   },
-  "browserActionTitle_updated": {
+  "browserActionTitle_install": {
+    "message": "Wurde installiert"
+  },
+  "browserActionTitle_update": {
     "message": "Wurde aktualisiert"
   },
   "browserActionTitle_paused": {
@@ -479,12 +524,6 @@
   "quicklinks": {
     "message": "Quick-Links"
   },
-  "welcomeTitle": {
-    "message": "Prime Player wurde installiert"
-  },
-  "welcomeMessage": {
-    "message": "Prime Player bietet viele Optionen, die du an deine Bed\u00FCrfnisse anpassen kannst. Beachte auch die FAQ auf der Homepage der Erweiterung im Chrome Store. Und nun viel Spa\u00DF mit Prime Player!"
-  },
   "toOptions": {
     "message": "Zu den Optionen"
   },
@@ -492,22 +531,22 @@
     "message": "Zum Wiki"
   },
   "close": {
-    "message": "Schlie\u00DFen"
+    "message": "Schließen"
   },
   "feelingLucky": {
-    "message": "Mix auf gut Gl\u00FCck"
+    "message": "Mix auf gut Glück"
   },
   "setting_coverClickLink": {
-    "message": "Beim Klick auf das Album-Cover \u00F6ffnen"
+    "message": "Beim Klick auf das Album-Cover öffnen"
   },
   "setting_titleClickLink": {
-    "message": "Beim Klick auf den Song-Titel \u00F6ffnen"
+    "message": "Beim Klick auf den Song-Titel öffnen"
   },
   "quicklink_": {
     "message": "Nichts"
   },
   "quicklink_now": {
-    "message": "Jetzt anh\u00F6ren"
+    "message": "Jetzt anhören"
   },
   "quicklink_artists": {
     "message": "Interpreten"
@@ -518,74 +557,71 @@
   "quicklink_genres": {
     "message": "Genres"
   },
-  "quicklink_rd": {
-    "message": "Schnellmixe/Radio"
+  "quicklink_wms": {
+    "message": "Sender"
+  },
+  "quicklink_wmp": {
+    "message": "Meine Playlists"
   },
   "quicklink_ap_queue": {
     "message": "Wiedergabeliste"
   },
   "quicklink_ap_auto_playlist_thumbs_up": {
-    "message": "Hoch bewertet/Mag ich"
+    "message": "Mag ich"
   },
   "quicklink_ap_auto_playlist_recent": {
-    "message": "Zuletzt hinzugef\u00FCgt"
+    "message": "Zuletzt hinzugefügt"
   },
   "quicklink_ap_auto_playlist_promo": {
-    "message": "Kostenlos \u0026 gekauft"
+    "message": "Kostenlos & gekauft"
   },
-  "quicklink_ap_shared_with_me": {
-    "message": "Mit mir geteilt"
-  },
-  "quicklink_ap_google_play_recommends": {
-    "message": "Empfehlungen auf Play"
-  },
-  "quicklink_exptop": {
-    "message": "Angesagt"
-  },
-  "quicklink_expnew": {
+  "quicklink_wnr": {
     "message": "Neuerscheinungen"
   },
-  "quicklink_exprec": {
-    "message": "Empfehlungen"
+  "quicklink_wtc": {
+    "message": "Top-Charts"
   },
   "openLink": {
-    "message": "\u00D6ffne '$LINK$'",
+    "message": "Öffne '$LINK$'",
     "placeholders": { "LINK": { "content": "$1" } }
   },
   "backToLink": {
-    "message": "Zur\u00FCck zu '$LINK$'",
+    "message": "Zurück zu '$LINK$'",
     "placeholders": { "LINK": { "content": "$1" } }
   },
   "backToPlayer": {
-    "message": "Zur\u00FCck zum Miniplayer"
+    "message": "Zurück zum Miniplayer"
   },
   "setting_openLinksInMiniplayer": {
-    "message": "\u00D6ffne Links im Miniplayer"
+    "message": "Öffne Links im Miniplayer"
   },
   "setting_openLinksInMiniplayerHint": {
-    "message": "Wenn aktiviert, werden Links zu Alben, Interpreten usw. direkt im Miniplayer ge\u00F6ffnet, ansonsten im Google Music Tab. Mit Umschalt+Klick auf den Link wird das Verhalten vor\u00FCbergehend umgekehrt."
+    "message": "Wenn aktiviert, werden Links zu Alben, Interpreten usw. direkt im Miniplayer geöffnet, ansonsten im Google Music Tab. Mit Umschalt+Klick auf den Link wird das Verhalten vorübergehend umgekehrt."
   },
   "setting_lyricsAutoNext": {
-    "message": "Probiere automatisch die n\u00E4chste(n) Seite(n), wenn nicht gefunden"
+    "message": "Probiere automatisch die nächste(n) Seite(n), wenn nicht gefunden"
   },
   "setting_lyrics": {
     "message": "Aktiviere Songtexte"
   },
   "setting_openLyricsInMiniplayer": {
-    "message": "\u00D6ffne Songtexte im Miniplayer"
+    "message": "Öffne Songtexte im Miniplayer"
   },
   "setting_openLyricsInMiniplayerHint": {
-    "message": "Wenn aktiviert, werden Songtexte direkt im Miniplayer angezeigt, ansonsten wird ein neuer Tab ge\u00F6ffnet. Mit Umschalt+Klick auf den Link wird das Verhalten vor\u00FCbergehend umgekehrt."
+    "message": "Wenn aktiviert, werden Songtexte direkt im Miniplayer angezeigt, ansonsten wird ein neuer Tab geöffnet. Mit Umschalt+Klick auf den Link wird das Verhalten vorübergehend umgekehrt."
   },
   "lyricsAlert": {
-    "message": "Diese Funktion ben\u00F6tigt Zugriff auf $SITE$ um die Texte zu laden.\nBitte beachte, dass f\u00FCr die Qualit\u00E4t der Suchergebnisse nicht Prime Player, sondern $SITE$ verantwortlich ist. Prime Player zeigt immer das erste Suchergebnis von $SITE$ an. Es kann daher vorkommen, dass der angezeigte Text nicht zum Titel passt. Mit den Links am Ende des angezeigten Textes im Miniplayer kannst du die Suchergebnisse kontrollieren.",
+    "message": "Diese Funktion benötigt Zugriff auf $SITE$ um die Texte zu laden.\nBitte beachte, dass für die Qualität der Suchergebnisse nicht Prime Player, sondern $SITE$ verantwortlich ist. Prime Player zeigt immer das erste Suchergebnis von $SITE$ an. Es kann daher vorkommen, dass der angezeigte Text nicht zum Titel passt. Mit den Links am Ende des angezeigten Textes im Miniplayer kannst du die Suchergebnisse kontrollieren.",
     "placeholders": { "SITE": { "content": "$1" } }
   },
   "setting_hideSearchfield": {
     "message": "Verstecke Suchfeld im Miniplayer"
   },
   "resetSettings": {
-    "message": "Einstellungen auf Standard zur\u00FCcksetzen"
+    "message": "Einstellungen auf Standard zurücksetzen"
+  },
+  "resetSettingsConfirm": {
+    "message": "Willst du wirklich alle deine Einstellungen zurücksetzen? Dadurch werden auch deine Favoriten, deine last.fm-Verbindung und alle deine Prime-Player-bezogenen Daten in Chrome sync entfernt."
   },
   "setting_connectedIndicator": {
     "message": "Zeige 'P'-Symbol in dem verbundenen Google Music Tab an"
@@ -597,10 +633,16 @@
     "message": "Aktiviere Songtexte im Google Music Tab"
   },
   "setting_lyricsFontSize": {
-    "message": "Schriftgr\u00F6\u00DFe (in Pixeln) f\u00FCr Songtexte in Miniplayer und Google Music"
+    "message": "Schriftgröße (in Pixeln) für Songtexte in Miniplayer und Google Music"
   },
   "setting_lyricsWidth": {
     "message": "Breite (in Pixeln) der Songtext-Anzeige in Google Music"
+  },
+  "setting_lyricsOpacity": {
+    "message": "Deckkraft der Songtext-Anzeige in Google Music"
+  },
+  "setting_skipSongSeconds": {
+    "message": "Titel nach x Sekunden Wiedergabe wechseln (0=deaktiviert)"
   },
   "moreThanOneDay": {
     "message": "> 1 Tag"
@@ -635,6 +677,9 @@
   "command_ff": {
     "message": "15 Sekunden vorspulen"
   },
+  "command_rew": {
+    "message": "15 Sekunden zurückspulen"
+  },
   "command_rate1": {
     "message": "Bewerte 1 Stern/Daumen runter"
   },
@@ -666,10 +711,16 @@
     "message": "Bewerte 5 Sterne"
   },
   "command_openLyrics": {
-    "message": "\u00D6ffne Songtext"
+    "message": "Öffne Songtext"
+  },
+  "command_closeMp": {
+    "message": "Miniplayer schließen"
+  },
+  "command_closeGm": {
+    "message": "Google Music schließen"
   },
   "lyricsFor": {
-    "message": "Songtext f\u00FCr '$SONG$'",
+    "message": "Songtext für '$SONG$'",
     "placeholders": { "SONG": { "content": "$1" } }
   },
   "lyricsTitle": {
@@ -694,28 +745,28 @@
     "placeholders": { "COUNT": { "content": "$1" } }
   },
   "lastfmInfo_listeners": {
-    "message": "$COUNT$ H\u00F6rer gesamt",
+    "message": "$COUNT$ Hörer gesamt",
     "placeholders": { "COUNT": { "content": "$1" } }
   },
   "configShortcuts": {
-    "message": "Tastaturk\u00FCrzel"
+    "message": "Tastaturkürzel"
   },
-  "timerMinutes": {
-    "message": "Minuten f\u00FCr Countdown"
+  "setting_timerMinutes": {
+    "message": "Minuten für Countdown"
   },
-  "timerNotify": {
+  "setting_timerNotify": {
     "message": "Bei Ablauf benachrichtigen"
   },
-  "timerPreNotify": {
+  "setting_timerPreNotify": {
     "message": "Sekunden vor Ablauf warnen (0=nicht warnen)"
   },
-  "timerAction": {
+  "setting_timerAction": {
     "message": "Aktion bei Ablauf"
   },
-  "timerAction_closeGm": {
-    "message": "Google Music schlie\u00DFen"
+  "setting_timerAction_closeGm": {
+    "message": "Google Music schließen"
   },
-  "timerAction_pause": {
+  "setting_timerAction_pause": {
     "message": "Musik pausieren"
   },
   "startTimer": {
@@ -737,7 +788,7 @@
     "message": "Fortsetzen"
   },
   "timerNotificationBtnCloseGm": {
-    "message": "Wieder \u00F6ffnen"
+    "message": "Wieder öffnen"
   },
   "timerWarningTitle": {
     "message": "Timer endet bald"
@@ -771,13 +822,13 @@
     "placeholders": { "HOU": { "content": "$1" } }
   },
   "filterHint": {
-    "message": "Hier kannst du die sichtbaren Optionen einschr\u00E4nken."
+    "message": "Hier kannst du die sichtbaren Optionen einschränken."
   },
   "setting_optionsMode": {
     "message": "Modus"
   },
   "setting_optionsMode_beg": {
-    "message": "Anf\u00E4nger"
+    "message": "Anfänger"
   },
   "setting_optionsMode_adv": {
     "message": "Fortgeschritten"
@@ -804,7 +855,7 @@
     "message": "Verhalten"
   },
   "notificationsDisabled": {
-    "message": "Benachrichtigungen sind f\u00FCr Prime Player deaktiviert. Daher sind nur Toasts im Miniplayer-Stil m\u00F6glich."
+    "message": "Benachrichtigungen sind für Prime Player deaktiviert. Daher sind nur Toasts im Miniplayer-Stil möglich."
   },
   "resumeLastSong": {
     "message": "Letzten Titel fortsetzen"
@@ -814,7 +865,7 @@
     "placeholders": { "SONG": { "content": "$1" } }
   },
   "openPopup": {
-    "message": "Popup \u00F6ffnen"
+    "message": "Popup öffnen"
   },
   "action": {
     "message": "Aktion"
@@ -826,7 +877,7 @@
     "message": "Du hast keine Favoriten.\\A\\AMarkiere beliebige Wiedergabelisten (Alben, Interpreten, ...) als Favorit mit dem Stern-Symbol in der Listen-Ansicht."
   },
   "addfavorite": {
-    "message": "'$NAME$' zu Favoriten hinzuf\u00FCgen",
+    "message": "'$NAME$' zu Favoriten hinzufügen",
     "placeholders": { "NAME": { "content": "$1" } }
   },
   "delfavorite": {
@@ -848,23 +899,26 @@
     "message": "Tippen, um in Favoriten zu suchen"
   },
   "ob_foundfavorites": {
-    "message": "Favoriten f\u00FCr $TEXT$:",
+    "message": "Favoriten für $TEXT$:",
     "placeholders": { "TEXT": { "content": "$1" } }
   },
   "ob_nofavorites": {
-    "message": "Keine Favoriten gefunden f\u00FCr $TEXT$.",
+    "message": "Keine Favoriten gefunden für $TEXT$.",
     "placeholders": { "TEXT": { "content": "$1" } }
   },
   "ob_loading": {
-    "message": "Lade Ergebnisse f\u00FCr $TEXT$...",
+    "message": "Lade Ergebnisse für $TEXT$",
     "placeholders": { "TEXT": { "content": "$1" } }
   },
   "ob_results": {
-    "message": "Ergebnisse f\u00FCr $TEXT$:",
+    "message": "Ergebnisse für $TEXT$:",
     "placeholders": { "TEXT": { "content": "$1" } }
   },
   "ob_noresults": {
-    "message": "Keine Ergebnisse gefunden f\u00FCr $TEXT$.",
+    "message": "Keine Ergebnisse gefunden für $TEXT$.",
     "placeholders": { "TEXT": { "content": "$1" } }
+  },
+  "musicIsPlaying": {
+    "message": "Die Wiedergabe läuft noch."
   }
 }

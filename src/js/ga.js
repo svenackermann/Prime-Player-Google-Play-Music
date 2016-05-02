@@ -10,7 +10,6 @@
 /* exported initGA */
 
 function initGA(settings, context, initDimensions, initMetrics) {
-  
   /** send an event to Google Analytics, if enabled */
   function event(category, eventName) {
     if (settings.gaEnabled) ga("send", "event", category, eventName);
@@ -28,30 +27,28 @@ function initGA(settings, context, initDimensions, initMetrics) {
   function social(network, action, target) {
     if (settings.gaEnabled) ga("send", "social", network, action, target);
   }
-  
-  function setDimensions(dimensions) {
-    if (settings.gaEnabled && dimensions) {
-      dimensions.forEach(function(dim, i) {
-        ga("set", "dimension" + (i + 2), dim);
+
+  function setOptions(prefix, startIndex, options) {
+    if (settings.gaEnabled && options) {
+      options.forEach(function(opt, i) {
+        ga("set", prefix + (i + startIndex), opt);
       });
     }
   }
-  
-  function setMetrics(metrics) {
-    if (settings.gaEnabled && metrics) {
-      metrics.forEach(function(met, i) {
-        ga("set", "metric" + (i + 1), met);
-      });
-    }
-  }
-  
+
+  var setDimensions = setOptions.bind(window, "dimension", 2);
+
+  var setMetrics = setOptions.bind(window, "metric", 1);
+
   function gaEnabledChanged(val) {
     if (val) {
       settings.rl("gaEnabled", gaEnabledChanged, context);//init only once
+      // jscs:disable
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');//jshint ignore:line
-      ga("create", "UA-41499181-1", "auto");
+      // jscs:enable
+      ga("create", "UA-41499181-3", "auto");
       ga("set", {
-        checkProtocolTask: function(){},
+        checkProtocolTask: null,
         dimension1: chrome.runtime.getManifest().version,
         page: "/primeplayer/" + context
       });
@@ -62,7 +59,7 @@ function initGA(settings, context, initDimensions, initMetrics) {
   }
 
   settings.w("gaEnabled", gaEnabledChanged, context);
-  
+
   return {
     event: event,
     pageview: pageview,

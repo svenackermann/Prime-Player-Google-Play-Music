@@ -7,33 +7,34 @@
  */
 
 /* global chrome, initGA */
+/* jshint jquery: true */
 
 chrome.runtime.getBackgroundPage(function(bp) {
-
-  var context = "options";
+  var CONTEXT = "options";
+  var CHANGELOG_STORAGE_KEY = "releases";
   var settingsView = $("#settings");
   var i18n = chrome.i18n.getMessage;
   var settings = bp.settings;
   var localSettings = bp.localSettings;
 
   /** Google analytics */
-  var GA = initGA(settings, context);
+  var GA = initGA(settings, CONTEXT);
 
   chrome.runtime.onMessage.addListener(function(msg) {
     if (msg.type == "lastfmStatusChanged") {
       var statusDiv = $("#lastfmStatus");
       statusDiv.find("img").hide();
-      
+
       if (msg.status === false) statusDiv.find(".loader").show();
       else if (msg.status === true) statusDiv.find(".success").attr("title", i18n("lastfmConnectSuccess")).show();
-      else if (typeof(msg.status) == "string") statusDiv.find(".failure").attr("title", status).show();
+      else if (typeof msg.status == "string") statusDiv.find(".failure").attr("title", status).show();
     }
   });
 
   function setSubsEnabled(id, enabled) {
     $("#" + id).nextUntil("*:not(.sub)").children("input").prop("disabled", !enabled);
   }
-  
+
   function scrobbleChanged(val) {
     var se = bp.isScrobblingEnabled();
     $("#_showScrobbledIndicator").prop("disabled", !se);
@@ -44,22 +45,22 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function linkRatingsChanged() {
     setSubsEnabled("linkRatings", settings.linkRatings && localSettings.lastfmSessionName);
   }
-  
+
   function toastChanged() {
     $("#_toast").prop("checked", settings.toast);
-    $("#_toastIfMpOpen, #_toastNotIfGmActive, #_toastDuration").prop("disabled", !settings.toast);
-    $("#_toastIfMpMinimized").prop("disabled", !settings.toast || !settings.toastIfMpOpen);
-    $("#_toastUseMpStyle").prop("disabled", !settings.toast || !localSettings.notificationsEnabled);
-    $("fieldset.toast > .notif").children("input, select").prop("disabled", !settings.toast || settings.toastUseMpStyle);
-    $("#toast").children(".hint").toggle(!settings.toastIfMpOpen);
+    var toastDisabled = !settings.toast && !settings.toastOnPlayPause;
+    $("#_toastIfMpOpen, #_toastNotIfGmActive, #_toastDuration").prop("disabled", toastDisabled);
+    $("#_toastIfMpMinimized").prop("disabled", toastDisabled || !settings.toastIfMpOpen);
+    $("#_toastUseMpStyle").prop("disabled", toastDisabled || !localSettings.notificationsEnabled);
+    $("fieldset.toast > .notif").children("input, select").prop("disabled", toastDisabled || settings.toastUseMpStyle);
   }
-  
+
   function lyricsChanged() {
     setSubsEnabled("lyrics", localSettings.lyrics);
     $("#_lyricsWidth").prop("disabled", !localSettings.lyrics || !settings.lyricsInGpm);
     $("option.lyrics").prop("disabled", !localSettings.lyrics);
   }
-  
+
   function lastfmUserChanged(user) {
     var action;
     var actionText;
@@ -93,7 +94,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#_iconClickAction2").prop("disabled", !settings.iconClickAction1 || noClickTime).val(settings.iconClickAction2);
     $("#_iconClickAction3").prop("disabled", !settings.iconClickAction2 || noClickTime).val(settings.iconClickAction3);
   }
-  
+
   function showProgressChanged() {
     setSubsEnabled("showProgress", settings.showProgress);
   }
@@ -101,52 +102,57 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function saveLastPositionChanged() {
     $("option[value='resumeLastSong']").prop("disabled", !settings.saveLastPosition);
   }
-  
+
   function pauseOnIdleChanged() {
     $("#_pauseOnIdleSec").prop("disabled", settings.pauseOnIdleSec < 0).val(Math.abs(settings.pauseOnIdleSec));
   }
-  
+
   function pauseOnIdleClicked() {
     settings.pauseOnIdleSec *= -1;
     pauseOnIdleChanged();
   }
-  
+
+  function autoActivateGmChanged() {
+    setSubsEnabled("autoActivateGm", settings.autoActivateGm);
+  }
+
   function notificationsEnabledChanged(val) {
     settingsView.toggleClass("notifDisabled", !val);
     if (!val && settings.toast && !settings.toastUseMpStyle) $("#_toastUseMpStyle").click();//use click here to change the checkbox value
     else toastChanged();//in if clause this is triggered by the click listener on #toastUseMpStyle
   }
-  
+
   var countdownInterval;
   function updateTimerStatus(timerEnd) {
-    var countdown = Math.floor((timerEnd || 0) - ($.now() / 1000));
+    var countdown = Math.floor((timerEnd || 0) - $.now() / 1000);
     if (countdown > 0) {
-      $("#timerStatus").text(i18n("timerAction_" + localSettings.timerAction) + " in " + bp.toTimeString(countdown));
+      $("#timerStatus").text(i18n("setting_timerAction_" + localSettings.timerAction) + " in " + bp.toTimeString(countdown));
     } else {
       $("#timerStatus").empty();
       clearInterval(countdownInterval);
     }
   }
-  
+
   function timerEndChanged(timerEnd) {
     clearInterval(countdownInterval);
     if (timerEnd) {
       countdownInterval = setInterval(updateTimerStatus.bind(window, timerEnd), 1000);
     }
     updateTimerStatus(timerEnd);
-    $("#startTimer, #timerMin, #timerNotify, #timerPreNotify, #timerAction").prop("disabled", timerEnd !== 0);
+    $("#startTimer, #_timerMinutes, #_timerNotify, #_timerPreNotify, #_timerAction").prop("disabled", timerEnd !== 0);
     $("#stopTimer").prop("disabled", !timerEnd);
   }
-  
-  function ratingModeChanged(val) {
+
+  function ratingModeChanged() {
+    var ratingMode = bp.getRatingMode();
     settingsView.removeClass("star thumbs");
-    if (val) settingsView.addClass(val);
-    $("#_skipRatedLower option[value='2']").text(i18n("setting_skipRatedLower_2" + (val == "star" ? "_stars" : "")));
+    if (ratingMode) settingsView.addClass(ratingMode);
+    $("#_skipRatedLower option[value='2']").text(i18n("setting_skipRatedLower_2" + (ratingMode == "star" ? "_stars" : "")));
     $("option[value='rate-1'], option[value='rate-5']").each(function() {
       $(this).text(bp.getCommandOptionText($(this).attr("value")));
     });
   }
-  
+
   function quicklinksChanged() {
     var linkSelects = $("#_coverClickLink,#_titleClickLink");
     linkSelects.empty();
@@ -157,7 +163,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $(this).val(settings[this.id.substr(1)]);
     });
   }
-  
+
   function stringUpdater(prop, theSettings) {
     return function() { theSettings[prop] = $(this).val(); };
   }
@@ -179,7 +185,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("<img src='img/hint.png' class='hint'/>").click(function() {hint.slideToggle("fast");}).appendTo(container);
     return hint;
   }
-  
+
   /**
    * Adds a question mark symbol for an option and an element containing the hint text, that will be toggled on click on the symbol.
    * The i18n key for the hint is "setting_" + prop + "Hint".
@@ -196,24 +202,23 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function addLabel(input) {
     return $("<label>").attr("for", input.attr("id")).text(i18n("setting_" + input.parent().attr("id"))).insertAfter(input);
   }
-  
-  function setIdAndAddItWithLabel(input, prop) {
+
+  function setIdAndAddItWithLabel(input, prop, synced) {
     input.attr("id", "_" + prop);
-    $("#" + prop).append(input);
+    $("#" + prop).toggleClass("synced", synced).append(input);
     return addLabel(input);
   }
-  
+
   /**
    * Initialize a checkbox input for an option.
    * @param prop the option name
-   * @param theSettings the settings object, defaults to settings
+   * @param theSettings the settings object
    * @return the checkbox input element
    */
   function initCheckbox(prop, theSettings) {
-    theSettings = theSettings || settings;
     var input = $("<input type='checkbox'>");
     input.prop("checked", theSettings[prop]).click(boolUpdater(prop, theSettings));
-    setIdAndAddItWithLabel(input, prop);
+    setIdAndAddItWithLabel(input, prop, theSettings == settings);
     return input;
   }
 
@@ -222,18 +227,18 @@ chrome.runtime.getBackgroundPage(function(bp) {
    * @param prop the option name
    * @param min the minimum value to set, or null/undefined if not needed
    * @param max the maximum value to set, or null/undefined if not needed
-   * @param theSettings the settings object, defaults to settings
+   * @param step the step value to set, or null/undefined if not needed (default: 1)
+   * @param theSettings the settings object
    * @return the number input element
    */
-  function initNumberInput(prop, min, max, theSettings) {
-    theSettings = theSettings || settings;
-    var input = $("<input type='number'>").attr("min", min).attr("max", max);
+  function initNumberInput(prop, min, max, step, theSettings) {
+    var input = $("<input type='number'>").attr("min", min).attr("max", max).attr("step", step);
     input.val(theSettings[prop]).blur(function() {
       var value = parseFloat($(this).val());
-      if (($.isNumeric(min) && value < min) || ($.isNumeric(max) && value > max)) $(this).val(theSettings[prop]);
+      if ($.isNumeric(min) && value < min || $.isNumeric(max) && value > max) $(this).val(theSettings[prop]);
       else theSettings[prop] = value;
     });
-    setIdAndAddItWithLabel(input, prop);
+    setIdAndAddItWithLabel(input, prop, theSettings == settings);
     return input;
   }
 
@@ -241,22 +246,28 @@ chrome.runtime.getBackgroundPage(function(bp) {
    * Initialize a select input for an option.
    * @param prop the option name in settings
    * @param values array with the values for the options
+   * @param theSettings the settings object
+   * @param updater a custom updater for the option's value
    * @param getOptionText function that takes the option's value as argument and returns the label for the option, the default i18n key for option "<opt>" is "setting_" + prop + "_<opt>"
-   * @param updater a custom updater for the option's value, defaults to "stringUpdater"
    * @return the select input element
    */
-  function initSelect(prop, values, getOptionText, updater) {
+  function initSelect(prop, values, theSettings, updater, getOptionText) {
     getOptionText = getOptionText || function(val) {return i18n("setting_" + prop + "_" + val);};
-    updater = updater || stringUpdater;
     var input = $("<select>");
     values.forEach(function(value) {
-      $("<option>").attr("value", value).text(getOptionText(value)).appendTo(input);
+      var optionClass = "";
+      if (value.indexOf(":") >= 0) {
+        var split = value.split(":");
+        value = split[0];
+        optionClass = split[1];
+      }
+      $("<option>").attr("value", value).addClass(optionClass).text(getOptionText(value)).appendTo(input);
     });
-    input.val(settings[prop]).change(updater(prop, settings));
-    setIdAndAddItWithLabel(input, prop);
+    input.val(theSettings[prop]).change(updater(prop, theSettings));
+    setIdAndAddItWithLabel(input, prop, theSettings == settings);
     return input;
   }
-  
+
   /**
    * Initialize a select input for an option based on the options of another select input.
    * @param prop the option name in settings
@@ -264,11 +275,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
    * @return the select input element
    */
   function initSelectFrom(prop, from) {
-    var select = initSelect(prop, []);
+    var select = initSelect(prop, [], settings, stringUpdater);
     select.append(from.children().clone()).val(settings[prop]);
     return select;
   }
-  
+
   /**
    * Initialize a color input for an option.
    * @param prop the option name in settings
@@ -277,31 +288,31 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function initColorInput(prop) {
     var input = $("<input type='color'>");
     input.val(settings[prop]).change(stringUpdater(prop, settings));
-    setIdAndAddItWithLabel(input, prop);
+    setIdAndAddItWithLabel(input, prop, true);
     return input;
   }
-  
+
   /** Initialize the icon style radio buttons. */
   function initIconStyle() {
     var iconStyle = $("#iconStyle");
     $("<label>").text(i18n("setting_iconStyle")).appendTo(iconStyle);
-    ["default", "grey", "phones", "phones-grey", "phones-app", "phones-beta", "play"].forEach(function(value) {
+    ["default", "grey", "phones", "phones-grey", "phones-app", "phones-beta", "favicon", "play", "app"].forEach(function(value) {
       $("<input type='radio' name='iconStyle'>").attr("value", value).click(stringUpdater("iconStyle", settings)).appendTo(iconStyle);
       $("<img src='img/icon/" + value + "/connected.png'>").appendTo(iconStyle);
     });
     iconStyle.find("input[value='" + settings.iconStyle + "']").prop("checked", true);
   }
-  
+
   /** Handle the optional lyrics permission. */
-  function initLyricsProviders(lyrics, lyricsAutoNext) {
+  function initLyricsProviders(lyrics) {
     var providers = localSettings.lyricsProviders;
-    
+
     function setEnabledStates() {
       lyrics.prop("disabled", !providers.length);
-      lyricsAutoNext.prop("disabled", providers.length < 2);
+      $("#_lyricsAutoNext").prop("disabled", providers.length < 2);
     }
     setEnabledStates();
-    
+
     var draggableSelector = "fieldset.lyrics.sortable>[draggable='true']";
     var droppableSelector = draggableSelector + "," + draggableSelector + "+div";
     $("#settings")
@@ -333,7 +344,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         var nextProvider = providers[providers.indexOf(providerName) + 1];
         dt.setData("srcprovider/next/" + nextProvider, "");
       });
-    
+
     function sortProviders() {
       var prev = $(".lyrics-providers").first().prev();
       providers.forEach(function(p) {
@@ -349,17 +360,17 @@ chrome.runtime.getBackgroundPage(function(bp) {
       var providerName = id.substr(7);
       var provider = bp.lyricsProviders[providerName];
       div.data("provider", providerName);
-      
+
       var checkbox = $("<input type='checkbox'>");
-      var label = setIdAndAddItWithLabel(checkbox, id);
+      var label = setIdAndAddItWithLabel(checkbox, id, false);
       var link = $("<a target='_blank'>").attr("href", provider.getHomepage()).text(provider.getUrl());
       label.html(link);
-      
+
       function setDraggable(draggable) {
         div.attr("draggable", draggable);
         div.parent().toggleClass("sortable", providers.length > 1);
       }
-      
+
       function setProviderEnabled(enabled) {
         if (enabled) {
           providers.push(providerName);
@@ -377,17 +388,17 @@ chrome.runtime.getBackgroundPage(function(bp) {
         sortProviders();
         setEnabledStates();
       }
-      
+
       function enableCheckBox() {
         var checked = providers.indexOf(providerName) >= 0;
         checkbox.prop("checked", checked);
         setDraggable(checked);
-        
+
         checkbox.unbind().click(function() {
           setProviderEnabled(checkbox.prop("checked"));
         });
       }
-      
+
       provider.checkPermission(function(hasPermission) {
         if (hasPermission) {
           enableCheckBox();
@@ -410,10 +421,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
         }
       });
     });
-    
+
     sortProviders();
   }
-  
+
   /** @return version from a class attribute (e.g. for an element with class "abc v-1.2.3 def" this returns "1.2.3") */
   function extractVersionFromClass(el) {
     var cl = $(el).attr("class");
@@ -422,66 +433,57 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var end = cl.indexOf(" ", start);
     return cl.substring(start, end < 0 ? cl.length : end);
   }
-  
+
   function updatePreNotifyMax() {
-    var timerPreNotify = $("#timerPreNotify");
-    var max = $("#timerMin").val() * 60;
+    var timerPreNotify = $("#_timerPreNotify");
+    var max = $("#_timerMinutes").val() * 60;
     timerPreNotify.attr("max", max);
     if (timerPreNotify.val() > max) timerPreNotify.val(max);
   }
-  
+
   /** Setup UI and logic for the timer. */
   function initTimer() {
-    $("#timerMin").val(localSettings.timerMinutes).change(updatePreNotifyMax).parent().find("label").text(i18n("timerMinutes"));
-    $("#timerNotify").prop("checked", localSettings.timerNotify).parent().find("label").text(i18n("timerNotify"));
-    $("#timerPreNotify").val(localSettings.timerPreNotify).parent().find("label").text(i18n("timerPreNotify"));
-    $("#timerAction").val(localSettings.timerAction).parent().find("label").text(i18n("timerAction"));
-    $("#timerAction").find("option").each(function() {
-      $(this).text(i18n("timerAction_" + $(this).attr("value")));
-    });
+    var timerMinutes = $("#_timerMinutes").unbind().change(updatePreNotifyMax);
+    var timerNotify = $("#_timerNotify").unbind();
+    var timerPreNotify = $("#_timerPreNotify").unbind();
+    var timerAction = $("#_timerAction").unbind();
     $("#startTimer").text(i18n("startTimer")).click(function() {
-      var min = $("#timerMin").val();
+      var min = timerMinutes.val();
       if (min) {
         localSettings.timerMinutes = min;
-        localSettings.timerAction = $("#timerAction").val();
-        localSettings.timerNotify = $("#timerNotify").prop("checked");
-        localSettings.timerPreNotify = $("#timerPreNotify").val();
-        localSettings.timerEnd = ($.now() / 1000) + (min * 60);
+        localSettings.timerAction = timerAction.val();
+        localSettings.timerNotify = timerNotify.prop("checked");
+        localSettings.timerPreNotify = timerPreNotify.val();
+        localSettings.timerEnd = $.now() / 1000 + min * 60;
         bp.startSleepTimer();
       }
     });
     $("#stopTimer").text(i18n("stopTimer")).click(bp.clearSleepTimer);
     updatePreNotifyMax();
   }
-  
+
   /** Setup UI and logic for the options filter. */
   function initFilter() {
     function optionsModeChanged() {
       settingsView.removeClass("f-beg f-adv f-exp").addClass("f-" + settings.optionsMode);
     }
-    initSelect("optionsMode", ["beg", "adv", "exp"]).change(optionsModeChanged);
+    $("#_optionsMode").change(optionsModeChanged);
     optionsModeChanged();
-    
+
     $("#filter p").text(i18n("filterHint"));
-    
-    var container = $("<div>").appendTo("#filter");
-    var line = $("<div>").appendTo(container);
-    function appendCheckbox(id) {
-      $("<div>").attr("id", id).appendTo(line);
-      var cb = initCheckbox(id);
-      var label = cb.siblings("label").removeAttr("for");
+
+    $("#filter .i-c").each(function() {
+      var id = this.id;
+      var label = $(this).children("label").removeAttr("for");
       function updateFilter() {
         settingsView.toggleClass(id, !settings[id]);
         label.html(settings[id] ? "<a href='#" + id.replace("filter", "legend") + "'>" + label.text() + "</a>" : label.text());
       }
-      cb.click(updateFilter);
+      $("#_" + id).click(updateFilter);
       updateFilter();
-    }
-    ["filterTimer", "filterLastfm", "filterToast"].forEach(appendCheckbox);
-    line = $("<div>").appendTo(container);
-    ["filterMiniplayer", "filterLyrics", "filterLookfeel"].forEach(appendCheckbox);
+    });
   }
-  
+
   /** Set labels and hints for the legends. */
   function initLegends() {
     $("#settings legend").each(function() {
@@ -489,225 +491,121 @@ chrome.runtime.getBackgroundPage(function(bp) {
       appendHint(this).text(i18n(this.id + "Hint")).insertAfter(this);
     });
   }
-  
-  function getConnectActionText(val) {
-    if (val) return i18n(val);
-    return i18n("openPopup");
-  }
-  
-  function addOptionClass(select, value, clazz) {
-    select.children("option[value='" + value + "']").addClass(clazz);
-  }
-  
-  $(function() {
-    $("head > title").text(i18n("options") + " - " + i18n("extTitle"));
-    initLegends();
-    
-    $("#lastfmStatus").find("span").text(i18n("lastfmUser"));
-    $("#bugfeatureinfo").html(i18n("bugfeatureinfo", "<a target='_blank' href='https://github.com/svenackermann/Prime-Player-Google-Play-Music/issues' data-network='github' data-action='issue'>GitHub</a>"));
-    
-    initTimer();
-    
-    initCheckbox("scrobble");
-    var percentSpan = $("#scrobblePercent").find("span");
-    percentSpan.text(settings.scrobblePercent);
-    var scrobblePercent = $("#_scrobblePercent");
-    scrobblePercent
-      .val(settings.scrobblePercent)
-      .mouseup(numberUpdater("scrobblePercent", settings))
-      .change(function(){ percentSpan.text($(this).val()); });
-    addLabel(scrobblePercent);
-    initNumberInput("scrobbleTime", 0);
-    initNumberInput("scrobbleMaxDuration", 0);
-    initCheckbox("disableScrobbleOnFf");
-    initHint("disableScrobbleOnFf");
-    initCheckbox("scrobbleRepeated");
-    initCheckbox("linkRatings").click(linkRatingsChanged);
-    initHint("linkRatings");
-    initNumberInput("linkRatingsMin", 2, 5);
-    initCheckbox("linkRatingsGpm");
-    initCheckbox("linkRatingsAuto");
-    initHint("linkRatingsAuto");
-    initCheckbox("showLastfmInfo");
-    
-    $("#notificationDisabledWarning").text(i18n("notificationsDisabled"));
-    initCheckbox("toast").click(toastChanged);
-    initHint("toast");
-    initNumberInput("toastDuration", 0);
-    initHint("toastDuration");
-    initCheckbox("toastIfMpOpen").click(toastChanged);
-    initCheckbox("toastIfMpMinimized");
-    initCheckbox("toastNotIfGmActive");
-    initCheckbox("toastUseMpStyle").click(toastChanged);
-    initHint("toastUseMpStyle");
-    initSelect("toastPriority", [1, 2, 3], null, numberUpdater);
-    initCheckbox("toastProgress");
-    initCheckbox("toastRating");
-    var toastClick = initSelect("toastClick", [
-      "",
-      "playPause",
-      "prevSong",
-      "nextSong",
-      "ff",
-      "openMiniplayer",
-      "volumeUp",
-      "volumeDown",
-      "volumeMute",
-      "toggleRepeat",
-      "toggleShuffle",
-      "loveUnloveSong",
-      "rate-1",
-      "rate-2",
-      "rate-3",
-      "rate-4",
-      "rate-5",
-      "feelingLucky",
-      "openLyrics"
-    ], bp.getCommandOptionText);
-    addOptionClass(toastClick, "openMiniplayer", "miniplayer");
-    addOptionClass(toastClick, "loveUnloveSong", "lastfm");
-    addOptionClass(toastClick, "rate-2", "stars");
-    addOptionClass(toastClick, "rate-3", "stars");
-    addOptionClass(toastClick, "rate-4", "stars");
-    addOptionClass(toastClick, "openLyrics", "lyrics");
-    initSelectFrom("toastButton1", toastClick);
-    initSelectFrom("toastButton2", toastClick);
-    
-    function setLayoutHintVisibility() {
-      var panel = settings.miniplayerType == "panel" || settings.miniplayerType == "detached_panel";
-      var mpt = $("#miniplayerType");
-      mpt.children(".hint").toggle(panel);
-      if (!panel) mpt.children(".hint-text").hide();
-      
-      var visible = panel && settings.layout == "hbar";
-      var layout = $("#layout");
-      layout.children(".hint").toggle(visible);
-      if (!visible) layout.children(".hint-text").hide();
+
+  function initInputs() {
+    var optionsTextGetter = {
+      commandOptionText: bp.getCommandOptionText,
+      connectActionText: function(val) {
+        if (val) return i18n(val);
+        return i18n("openPopup");
+      },
+      playlistEndActionText: function(action) {
+        if (!action.indexOf("ap/")) {
+          return i18n("ob_startsugg", bp.getTextForQuicklink(action));
+        }
+        return bp.getCommandOptionText(action);
+      }
+    };
+
+    function getSettings(inputContainer) {
+      return inputContainer.hasClass("local") ? localSettings : settings;
     }
-    initSelect("miniplayerType", ["normal", "popup", "panel", "detached_panel"]).change(setLayoutHintVisibility);
-    initHint("miniplayerType").find("a").text("chrome://flags").attr("tabindex", "0").click(function() { chrome.tabs.create({ url: "chrome://flags" }); });
-    initSelect("layout", ["normal", "compact1", "compact2", "hbar"]).change(setLayoutHintVisibility);
-    initHint("layout");
-    setLayoutHintVisibility();
-    initSelect("color", ["turq", "green", "red", "blue", "black", "orange"]);
-    initColorInput("mpBgColor");
-    initColorInput("mpTextColor");
-    initSelect("coverClickLink", []);
-    initSelect("titleClickLink", []);
-    initCheckbox("openLinksInMiniplayer");
-    initHint("openLinksInMiniplayer");
-    initCheckbox("hideSearchfield");
-    initCheckbox("hideRatings");
-    initCheckbox("omitUnknownAlbums");
-    initHint("omitUnknownAlbums");
-    initCheckbox("mpAutoOpen");
-    initCheckbox("mpAutoClose");
-    initCheckbox("mpCloseGm");
-    
-    var lyrics = initCheckbox("lyrics", localSettings).click(lyricsChanged);
-    var lyricsAutoNext = initCheckbox("lyricsAutoNext");
-    initLyricsProviders(lyrics, lyricsAutoNext);
-    initCheckbox("openLyricsInMiniplayer");
-    initHint("openLyricsInMiniplayer");
-    initCheckbox("lyricsAutoReload");
-    initNumberInput("lyricsFontSize", 1, null, localSettings);
-    initCheckbox("lyricsInGpm").click(lyricsChanged);
-    initNumberInput("lyricsWidth", 50, null, localSettings);
-    
-    $("#shortcutsLink").text(i18n("configShortcuts")).click(function() { chrome.tabs.create({ url: "chrome://extensions/configureCommands" }); });
-    initIconStyle();
-    initCheckbox("showPlayingIndicator");
-    initCheckbox("showRatingIndicator");
-    initCheckbox("showLovedIndicator");
-    initCheckbox("showScrobbledIndicator");
-    initCheckbox("showProgress").click(showProgressChanged);
-    initColorInput("showProgressColor");
-    initColorInput("showProgressColorPaused");
-    
-    var iconClickConnectAction = initSelect("iconClickConnectAction", [
-      "",
-      "feelingLucky",
-      "resumeLastSong",
-      "gotoGmusic",
-      "openMiniplayer"
-    ], getConnectActionText);
-    $("#iconClickActionTitle").text(i18n("iconClickActionTitle"));
-    for (var i = 0; i < 4; i++) {
-      initSelectFrom("iconClickAction" + i, toastClick)
-        .change(iconClickChanged)
-        .find("option[value='']").text(i18n("openPopup"));
-    }
-    initNumberInput("iconDoubleClickTime", 0, 1000).change(iconClickChanged);
-    initHint("iconDoubleClickTime");
-    initCheckbox("iconShowAction");
-    
-    initCheckbox("saveLastPosition").click(saveLastPositionChanged);
-    initCheckbox("hideFavorites");
-    initHint("saveLastPosition");
-    var skipRatedLower = initSelect("skipRatedLower", [0, 1, 2, 3, 4]).change(function() { $("#_skipRatedThumbsDown").prop("checked", settings.skipRatedLower > 0); });
-    initCheckbox("skipRatedThumbsDown").unbind().prop("checked", settings.skipRatedLower > 0).click(function() {
-       settings.skipRatedLower = $(this).prop("checked") ? 2 : 0;
-       skipRatedLower.val(settings.skipRatedLower);
+    $(".i-n").each(function() {
+      var inputContainer = $(this);
+      initNumberInput(this.id, inputContainer.data("min"), inputContainer.data("max"), inputContainer.data("step"), getSettings(inputContainer));
     });
-    initCheckbox("openGoogleMusicPinned");
-    initCheckbox("openGmBackground");
-    initSelectFrom("startupAction", iconClickConnectAction).find("option[value='']").text(i18n("command_"));
-    initCheckbox("pauseOnLock");
-    initCheckbox("pauseOnIdle").unbind().prop("checked", settings.pauseOnIdleSec > 0).click(pauseOnIdleClicked);
-    initNumberInput("pauseOnIdleSec", 15);
-    initNumberInput("googleAccountNo", 0, null, localSettings);
-    initHint("googleAccountNo");
-    initCheckbox("connectedIndicator");
-    initCheckbox("preventCommandRatingReset");
-    initHint("preventCommandRatingReset");
-    initCheckbox("updateNotifier");
-    initCheckbox("syncSettings", localSettings).click(function() {
-      settings.setSyncStorage(localSettings.syncSettings, function() { location.reload(); });
+    $(".i-c").each(function() {
+      initCheckbox(this.id, getSettings($(this)));
     });
-    initCheckbox("gaEnabled");
-    initHint("gaEnabled");
-    
-    //watch this if changed via miniplayer
-    settings.al("scrobble", scrobbleChanged, context);
-    //we must watch this as the session could be expired
-    localSettings.w("lastfmSessionName", lastfmUserChanged, context);
-    //show/hide notification based options
-    localSettings.w("notificationsEnabled", notificationsEnabledChanged, context);
-    //update timer
-    localSettings.w("timerEnd", timerEndChanged, context);
-    localSettings.al("timerAction", function(val) {
-      $("#timerAction").val(val);
-    }, context);
-    localSettings.al("timerMinutes", function(val) {
-      $("#timerMin").val(val);
-      updatePreNotifyMax();
-    }, context);
-    //Google account dependent options
-    localSettings.w("ratingMode", ratingModeChanged, context);
-    localSettings.w("quicklinks", quicklinksChanged, context);
-    
-    //disable inputs if neccessary
-    lyricsChanged();
-    iconClickChanged();
-    showProgressChanged();
-    saveLastPositionChanged();
-    pauseOnIdleChanged();
-    
-    $("#resetSettings").click(function() {
-      settings.reset();
-      localSettings.reset();
-      GA.event("Options", "reset");
-      location.reload();
-    }).text(i18n("resetSettings"));
-    
-    //tell the background page that we're open
-    if (bp.optionsWin) try {
-      bp.optionsWin.close();
-    } catch(e) {
-      console.error(e);
+    $(".i-s").each(function() {
+      var inputContainer = $(this);
+      var values = inputContainer.data("options");
+      values = values ? values.split(",") : [];
+      var updater = inputContainer.data("type") == "n" ? numberUpdater : stringUpdater;
+      var getOptionText = inputContainer.data("getoptionstext");
+      if (getOptionText) getOptionText = optionsTextGetter[getOptionText];
+      initSelect(this.id, values, getSettings(inputContainer), updater, getOptionText);
+    });
+    $(".i-sf").each(function() {
+      initSelectFrom(this.id, $("#_" + $(this).data("from")));
+    });
+    $(".i-co").each(function() {
+      initColorInput(this.id);
+    });
+    $(".i-h").each(function() {
+      initHint(this.id);
+    });
+  }
+
+  function loadReleases(cb, fallbackReleases) {
+    var releases = [];
+    function loadFromUrl(url) {
+      $.get(url).done(function(data, textStatus, jqXHR) {
+        data.forEach(function(release) {
+          // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
+          var version = release.tag_name;
+          if (!release.prerelease && /^(\d+\.)*\d+$/.test(version)) releases.push({ v: version, d: $.trim(release.body), p: new Date(release.published_at).getTime() });
+          // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
+        });
+        var link = jqXHR.getResponseHeader("Link");
+        if (link) {
+          var next = link.match(/^.*<([^>]+)>; rel\=\"next\".*$/);
+          if (next) next = next[1];
+          if (next) return loadFromUrl(next);
+        }
+
+        //sort, save, callback
+        releases.sort(function(r1, r2) { return bp.compareVersions(r2.v, r1.v); });
+        var items = {};
+        items[CHANGELOG_STORAGE_KEY] = releases;
+        chrome.storage.local.set(items);
+        cb(releases);
+      }).fail(function(jqXHR, textStatus, errorThrown) {
+        cb(fallbackReleases);
+        console.error(textStatus, errorThrown);
+      });
     }
-    bp.optionsWin = window;
-    
+
+    loadFromUrl("https://api.github.com/repos/svenackermann/Prime-Player-Google-Play-Music/releases");
+  }
+
+  function renderChangelog(releases) {
+    var releasesUrl = "https://github.com/svenackermann/Prime-Player-Google-Play-Music/releases/";
+    var changelog = $("#changelog");
+    changelog.children("a").attr("href", releasesUrl);
+    if (releases.length) {
+      releases.forEach(function(release) {
+        var container = $("<div>").addClass("v-" + release.v).appendTo(changelog);
+        var header = $("<h3>").appendTo(container);
+        $("<a>").attr("target", "_blank").attr("href", releasesUrl + release.v).text("Version " + release.v).appendTo(header);
+        header.append(" (" + new Date(release.p).toLocaleDateString() + ")");
+        var ulStarted = false;
+        release.d.split("\n").forEach(function(line) {
+          line = $.trim(line);
+          if (line.indexOf("* ")) {
+            if (ulStarted) {
+              container = container.parent();
+              ulStarted = false;
+            }
+            container.append(line + "<br/>");
+          } else {
+            if (!ulStarted) {
+              container = $("<ul>").appendTo(container);
+              ulStarted = true;
+            }
+            line = line.substr(2);
+            var classes = line.match(/^([FIBV/]+)\:.*$/);
+            if (classes) {
+              classes = classes[1].replace(/\//g, " ");
+              line = $.trim(line.substr(line.indexOf(":") + 1));
+            }
+            $("<li>").addClass(classes || "").text(line).appendTo(container);
+          }
+        });
+      });
+      changelog.show();
+    }
+
     //mark new features
     if (bp.previousVersion) {
       $("div[class*='v-']").each(function() {
@@ -716,28 +614,163 @@ chrome.runtime.getBackgroundPage(function(bp) {
       });
       bp.updateInfosViewed();
     }
-    
-    //set headings in changelog
-    $("#changelog > div[class*='v-']").each(function() {
-      var version = extractVersionFromClass(this);
-      $(this).prepend("<h3>Version " + version + "</h3>");
+  }
+
+  function initChangelog() {
+    chrome.storage.local.get(CHANGELOG_STORAGE_KEY, function(items) {
+      var releases = items[CHANGELOG_STORAGE_KEY];
+      if (!releases || !releases.length || bp.compareVersions(releases[0].v, chrome.runtime.getManifest().version) < 0) {
+        loadReleases(renderChangelog, releases || []);
+      } else renderChangelog(releases);
     });
-    
+  }
+
+  $(function() {
+    $("head > title").text(i18n("options") + " - " + i18n("extTitle"));
+    initLegends();
+
+    $("#lastfmStatus").find("span").text(i18n("lastfmUser"));
+    $("#bugfeatureinfo").html(i18n("bugfeatureinfo", "<a target='_blank' href='https://github.com/svenackermann/Prime-Player-Google-Play-Music/issues' data-network='github' data-action='issue'>GitHub</a>"));
+
+    initInputs();
+
+    initTimer();
+
+    //{ last.fm settings
+    var percentSpan = $("#scrobblePercent").find("span");
+    percentSpan.text(settings.scrobblePercent);
+    var scrobblePercent = $("#_scrobblePercent");
+    scrobblePercent
+      .val(settings.scrobblePercent)
+      .mouseup(numberUpdater("scrobblePercent", settings))
+      .change(function() { percentSpan.text($(this).val()); });
+    addLabel(scrobblePercent);
+    $("#_linkRatings").click(linkRatingsChanged);
+    //}
+
+    //{ toast settings
+    $("#notificationDisabledWarning").text(i18n("notificationsDisabled"));
+    $("#_toast,#_toastOnPlayPause,#_toastIfMpOpen,#_toastUseMpStyle").click(toastChanged);
+    //}
+
+    //{ miniplayer settings
+    function setLayoutHintVisibility() {
+      var panel = settings.miniplayerType == "panel" || settings.miniplayerType == "detached_panel";
+      var mpt = $("#miniplayerType");
+      mpt.children(".hint").toggle(panel);
+      if (!panel) mpt.children(".hint-text").hide();
+
+      var visible = panel && settings.layout == "hbar";
+      var layout = $("#layout");
+      layout.children(".hint").toggle(visible);
+      if (!visible) layout.children(".hint-text").hide();
+    }
+    $("#_miniplayerType")
+      .change(setLayoutHintVisibility)
+      .siblings(".hint-text").find("a").text("chrome://flags").attr("tabindex", "0").click(function() { chrome.tabs.create({ url: "chrome://flags/#enable-panels" }); });
+    $("#_layout").change(setLayoutHintVisibility);
+    setLayoutHintVisibility();
+    //}
+
+    //{ lyrics settings
+    var lyrics = $("#_lyrics").click(lyricsChanged);
+    initLyricsProviders(lyrics);
+    $("#_lyricsInGpm").click(lyricsChanged);
+    //}
+
+    //{ look & feel settings
+    $("#shortcutsLink").text(i18n("configShortcuts")).click(function() { chrome.tabs.create({ url: "chrome://extensions/configureCommands" }); });
+    initIconStyle();
+    $("#_showProgress").click(showProgressChanged);
+
+    $("#iconClickActionTitle").text(i18n("iconClickActionTitle"));
+    $("select[id^='_iconClickAction']")
+      .change(iconClickChanged)
+      .find("option[value='']").text(i18n("openPopup"));
+    $("#_iconDoubleClickTime").change(iconClickChanged);
+
+    $("#_saveLastPosition").click(saveLastPositionChanged);
+    $("#_starRatingMode").click(ratingModeChanged);
+    var skipRatedLower = $("#_skipRatedLower").change(function() { $("#_skipRatedThumbsDown").prop("checked", settings.skipRatedLower > 0); });
+    $("#_skipRatedThumbsDown").unbind().prop("checked", settings.skipRatedLower > 0).click(function() {
+      settings.skipRatedLower = $(this).prop("checked") ? 2 : 0;
+      skipRatedLower.val(settings.skipRatedLower);
+    });
+    $("#_startupAction option[value='']").text(i18n("command_"));
+    $("#_pauseOnIdle").unbind().prop("checked", settings.pauseOnIdleSec > 0).click(pauseOnIdleClicked);
+    $("#_autoActivateGm").click(autoActivateGmChanged);
+    //}
+
+    //watch this if changed via miniplayer or context menu
+    settings.al("scrobble", scrobbleChanged, CONTEXT);
+    //we must watch this as the session could be expired
+    localSettings.w("lastfmSessionName", lastfmUserChanged, CONTEXT);
+    //show/hide notification based options
+    localSettings.w("notificationsEnabled", notificationsEnabledChanged, CONTEXT);
+    //update timer
+    localSettings.w("timerEnd", timerEndChanged, CONTEXT);
+    localSettings.al("timerAction", function(val) { $("#_timerAction").val(val); }, CONTEXT);
+    localSettings.al("timerMinutes", function(val) {
+      $("#_timerMinutes").val(val);
+      updatePreNotifyMax();
+    }, CONTEXT);
+    //Google account dependent options
+    localSettings.w("ratingMode", ratingModeChanged, CONTEXT);
+    localSettings.w("quicklinks", quicklinksChanged, CONTEXT);
+    localSettings.w("syncSettings", function(val) { $("body").toggleClass("syncenabled", val); }, CONTEXT);
+    localSettings.al("syncSettings", function() { location.reload(); }, CONTEXT);
+
+    //disable inputs if neccessary
+    lyricsChanged();
+    iconClickChanged();
+    showProgressChanged();
+    saveLastPositionChanged();
+    pauseOnIdleChanged();
+    autoActivateGmChanged();
+
+    $("#resetSettings").click(function() {
+      if (confirm(i18n("resetSettingsConfirm"))) {
+        settings.reset();
+        localSettings.reset();
+        GA.event("Options", "reset");
+        location.reload();
+      }
+    }).text(i18n("resetSettings"));
+
+    //tell the background page that we're open
+    if (bp.optionsWin) try {
+      bp.optionsWin.close();
+    } catch (e) {
+      console.error(e);
+    }
+    bp.optionsWin = window;
+
+    //mark new features
+    if (bp.previousVersion) {
+      $("div[class*='v-']").each(function() {
+        var version = extractVersionFromClass(this);
+        if (bp.isNewerVersion(version)) $(this).addClass("newFeature");
+      });
+      bp.updateInfosViewed();
+    }
+
+    initChangelog();
+
     $("#changelog").on("click", "input[type='checkbox']", function() {
       $("#changelog").toggleClass(this.id.substr(3,1));
     });
-    
-    $("#credits").on("click", "a[data-network]", function() {
+
+    $("#credits").on("click", "[data-network]", function() {
       var link = $(this);
-      GA.social(link.data("network"), link.data("action") || "show", link.attr("href"));
+      GA.social(link.data("network"), link.data("action") || "show", link.attr("href") || "-");
     });
-    
+
     initFilter();
   });
 
   $(window).unload(function() {
-    settings.ral(context);
-    localSettings.ral(context);
+    settings.ral(CONTEXT);
+    localSettings.ral(CONTEXT);
     if (bp.optionsWin == window) bp.optionsWin = null;
   });
 });

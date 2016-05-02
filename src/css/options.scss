@@ -23,6 +23,11 @@ h1 {
   box-shadow: 0 -2px 0 #1D6D6D;
 }
 
+.syncenabled .synced label:after {
+  content: "*";
+  padding-left: 1ex;
+}
+
 #settings {
   float: left;
   &.f-beg .adv, &.f-beg .exp, &.f-adv .exp {
@@ -82,6 +87,9 @@ h1 {
   img.hint {
     cursor: pointer;
   }
+  .synced label:after {
+    float: right;
+  }
 }
 
 .hint-text {
@@ -122,6 +130,12 @@ h1 {
       margin-bottom: 0;
     }
   }
+  > div.sociallinks {
+    clear: none;
+    img {
+      height: 20px;
+    }
+  }
   > div#bugfeatureinfo {
     clear: both;
     > a {
@@ -153,14 +167,20 @@ input[type='color'] {
 img.hint {
   margin-left: 0.5ex;
   vertical-align: text-bottom;
+  height: 18px;
 }
 
 #changelog {
   clear: both;
+  display: none;
   h2 {
     display: inline-block;
-    margin-right: 2ex;
+    margin-right: 1ex;
     margin-bottom: 0;
+  }
+  > a {
+    margin-right: 1ex;
+    font-weight: bold;
   }
   label {
     margin-right: 1ex;
@@ -169,6 +189,7 @@ img.hint {
     height: 12px;
   }
   li {
+    font-size: 11px;
     &.B:before {
       content: "B: ";
     }
@@ -191,8 +212,20 @@ img.hint {
   &.F .F, &.I .I, &.B .B {
     display: list-item;
   }
-  &.V h3 {
-    display: block;
+  > div {
+    font-size: 0;
+  }
+  &.V {
+    h3 {
+      display: block;
+      margin-bottom: 1ex;
+    }
+    > div {
+      font-size: 11px;
+    }
+  }
+  h3 > a {
+    text-decoration: none;
   }
 }
 
@@ -210,6 +243,7 @@ img.hint {
     display: none;
     margin-left: 0.5ex;
     vertical-align: top;
+    height: 16px;
   }
 }
 
@@ -225,15 +259,22 @@ div {
     display: block !important;
     color: #FF8F00;
     font-weight: bold;
-    a#shortcutsLink {
+    a {
       color: #FF8F00;
     }
   }
 }
 
+#timerMinutes {
+  float: left;
+}
+
 #timerStatus {
-  margin-left: 15ex;
+  float: right;
   font-weight: bold;
+  ~ div {
+    clear: left;
+  }
 }
 
 #iconStyle img {

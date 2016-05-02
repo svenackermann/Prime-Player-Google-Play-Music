@@ -7,14 +7,15 @@
   font-family: arial;
   font-size: 11px;
   width: 250px;
-  position: absolute;
-  right: 0;
-  bottom: 3px;
-  top: 50px;
+  position: fixed;
+  left: 10px;
+  bottom: 100px;
+  top: 70px;
   background-color: #fafafa;
   border: 1px solid #d1d1d1;
   padding: 3px;
   display: none;
+  z-index: 1600;
 }
 
 #ppLyricsTitle {
@@ -31,6 +32,7 @@
     width: 20px;
     height: 20px;
     background-image: url(chrome-extension://__MSG_@@extension_id__/img/reload.png);
+    background-size: 20px;
     margin-top: -3px;
     margin-left: 3px;
   }
@@ -86,10 +88,16 @@
   margin-top: 1ex;
   padding-top: 1ex;
   padding-bottom: 10px;
+  a {
+    text-decoration: underline;
+    cursor: pointer;
+    line-height: 150%;
+  }
 }
 
 #ppLyricsButton {
   vertical-align: middle;
+  height: 20px;
   margin-right: 5px;
   opacity: 0.2;
   cursor: default;
@@ -99,7 +107,10 @@
   }
 }
 
-.music-banner-icon.ppconnected {
+.ppconnected {
   background: url(chrome-extension://__MSG_@@extension_id__/img/icon-tabconnected.png);
+  width: 16px;
+  height: 16px;
+  margin-top: 16px;
   cursor: pointer;
 }
