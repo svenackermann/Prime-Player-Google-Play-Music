@@ -745,15 +745,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
     bp.optionsWin = window;
 
-    //mark new features
-    if (bp.previousVersion) {
-      $("div[class*='v-']").each(function() {
-        var version = extractVersionFromClass(this);
-        if (bp.isNewerVersion(version)) $(this).addClass("newFeature");
-      });
-      bp.updateInfosViewed();
-    }
-
     initChangelog();
 
     $("#changelog").on("click", "input[type='checkbox']", function() {
