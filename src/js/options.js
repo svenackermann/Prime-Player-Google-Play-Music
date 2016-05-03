@@ -223,26 +223,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   /**
-   * Initialize a number input for an option.
-   * @param prop the option name
-   * @param min the minimum value to set, or null/undefined if not needed
-   * @param max the maximum value to set, or null/undefined if not needed
-   * @param step the step value to set, or null/undefined if not needed (default: 1)
-   * @param theSettings the settings object
-   * @return the number input element
-   */
-  function initNumberInput(prop, min, max, step, theSettings) {
-    var input = $("<input type='number'>").attr("min", min).attr("max", max).attr("step", step);
-    input.val(theSettings[prop]).blur(function() {
-      var value = parseFloat($(this).val());
-      if ($.isNumeric(min) && value < min || $.isNumeric(max) && value > max) $(this).val(theSettings[prop]);
-      else theSettings[prop] = value;
-    });
-    setIdAndAddItWithLabel(input, prop, theSettings == settings);
-    return input;
-  }
-
-  /**
    * Initialize a select input for an option.
    * @param prop the option name in settings
    * @param values array with the values for the options
@@ -510,10 +490,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     function getSettings(inputContainer) {
       return inputContainer.hasClass("local") ? localSettings : settings;
     }
-    $(".i-n").each(function() {
-      var inputContainer = $(this);
-      initNumberInput(this.id, inputContainer.data("min"), inputContainer.data("max"), inputContainer.data("step"), getSettings(inputContainer));
-    });
     $(".i-c").each(function() {
       initCheckbox(this.id, getSettings($(this)));
     });
@@ -626,6 +602,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   $(function() {
+    var settingsready = new Event("settingsready");
+    settingsready.settings = settings;
+    settingsready.localSettings = localSettings;
+    settingsready.context = CONTEXT;
+    $("pp-numberinput").each(function() {
+      this.dispatchEvent(settingsready);
+    });
+
     $("head > title").text(i18n("options") + " - " + i18n("extTitle"));
     initLegends();
 

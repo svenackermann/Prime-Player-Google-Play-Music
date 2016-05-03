@@ -1,0 +1,48 @@
+<!--
+  Imports for options page
+  @author Sven Ackermann (svenrecknagel@gmail.com)
+  @license BSD license
+-->
+<link rel="import" href="../node_modules/npm-polymer-elements/polymer/polymer.html"/>
+<link rel="import" href="../node_modules/npm-polymer-elements/paper-input/paper-input.html"/>
+<link rel="import" href="../node_modules/npm-polymer-elements/paper-toggle-button/paper-toggle-button.html"/>
+
+<dom-module id="pp-numberinput">
+  <template>
+    <paper-input
+      id="input"
+      type="number"
+      min="[[min]]"
+      max="[[max]]"
+      step="[[step]]"
+      label="[[i18nlabel(id)]]"
+    ></paper-input>
+  </template>
+</dom-module>
+
+<script>
+  Polymer({
+    is: "pp-numberinput",
+    properties: {
+      local: Boolean,
+      hint: Boolean
+    },
+    i18nlabel: function(id) {
+      return chrome.i18n.getMessage("setting_" + id);
+    },
+    listeners: {
+      "settingsready": "onSettingsReady"
+    },
+    onSettingsReady: function(e) {
+      var settings = this.local ? e.localSettings : e.settings;
+      var prop = this.id;
+      var input = this.$.input;
+      settings.w(prop, function(val) { input.value = val; }, e.context);
+      $(input).on("blur", function(e) {
+        var value = parseFloat(input.value);
+        if ($.isNumeric(input.min) && value < input.min || $.isNumeric(input.max) && value > input.max) input.value = settings[prop];
+        else settings[prop] = value;
+      });
+    }
+  });
+</script>

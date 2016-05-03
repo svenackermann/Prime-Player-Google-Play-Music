@@ -23,9 +23,21 @@ h1 {
   box-shadow: 0 -2px 0 #1D6D6D;
 }
 
-.syncenabled .synced label:after {
-  content: "*";
-  padding-left: 1ex;
+.syncenabled {
+  .synced, pp-numberinput:not([local]) {
+    label:after {
+      content: "*";
+      padding-left: 1ex;
+      float: right;
+    }
+  }
+}
+
+pp-numberinput {
+  display: block;
+  .paper-input {
+    min-height: initial;
+  }
 }
 
 #settings {
@@ -66,13 +78,13 @@ h1 {
     }
   }
   fieldset {
-    > div.sub {
+    > .sub {
       padding-left: 10px;
       select {
         min-width: 190px;
       }
     }
-    > div.sub2 {
+    > .sub2 {
       padding-left: 20px;
       select {
         min-width: 180px;
@@ -151,13 +163,6 @@ fieldset {
 
 input[type='checkbox'], input[type='radio'] {
   margin: 4px 3px;
-}
-
-input[type='number'] {
-  width: 7ex;
-  margin: 2px 3px;
-  text-align: right;
-  padding-right: 0.5ex;
 }
 
 input[type='color'] {
@@ -253,15 +258,12 @@ img.hint {
   cursor: pointer;
 }
 
-div {
-  margin-bottom: 0.5ex;
-  &.newFeature {
-    display: block !important;
+div.newFeature {
+  display: block !important;
+  color: #FF8F00;
+  font-weight: bold;
+  a {
     color: #FF8F00;
-    font-weight: bold;
-    a {
-      color: #FF8F00;
-    }
   }
 }
 

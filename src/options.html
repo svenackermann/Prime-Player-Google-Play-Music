@@ -8,6 +8,7 @@
 <html>
 <head>
 <title></title>
+<link rel="import" href="polymer.build.html"/>
 <link rel="stylesheet" type="text/css" href="css/options.css" />
 <script src="js/jquery.min.js"></script>
 <script src="js/ga.js"></script>
@@ -17,9 +18,9 @@
   <div id="settings">
     <fieldset class="timer">
       <legend id="legendTimer"></legend>
-      <div class="v-2.20 local i-n" id="timerMinutes" data-min="1"></div><div id="timerStatus"></div>
+      <pp-numberinput class="v-2.20" id="timerMinutes" local min="1"></pp-numberinput><div id="timerStatus"></div>
       <div class="v-2.20 adv notif local i-c" id="timerNotify"></div>
-      <div class="v-2.22 adv notif local i-n" id="timerPreNotify" data-min="0"></div>
+      <pp-numberinput class="v-2.22 adv notif" id="timerPreNotify" local min="0"></pp-numberinput>
       <div class="v-2.20 local i-s" id="timerAction" data-options="pause,closeGm"></div>
       <button id="startTimer"></button>
       <button id="stopTimer"></button>
@@ -39,12 +40,12 @@
         <input id="_scrobblePercent" type="range" min="1" max="100" step="1"/>
         (<span></span>%)
       </div>
-      <div class="sub exp i-n" id="scrobbleTime" data-min="0"></div>
-      <div class="sub exp i-n" id="scrobbleMaxDuration" data-min="0"></div>
+      <pp-numberinput class="sub exp" id="scrobbleTime" min="0"></pp-numberinput>
+      <pp-numberinput class="sub exp" id="scrobbleMaxDuration" min="0"></pp-numberinput>
       <div class="sub v-1.2 adv i-c i-h" id="disableScrobbleOnFf"></div>
       <div class="sub v-2.15 exp i-c" id="scrobbleRepeated"></div>
       <div class="v-1.2 adv i-c i-h" id="linkRatings"></div>
-      <div class="sub v-2.26 exp stars i-n" id="linkRatingsMin" data-min="2" data-max="5"></div>
+      <pp-numberinput class="v-2.26 sub exp stars" id="linkRatingsMin" min="2" max="5"></pp-numberinput>
       <div class="sub v-2.24 adv i-c" id="linkRatingsGpm"></div>
       <div class="sub v-2.24 adv i-c i-h" id="linkRatingsAuto"></div>
       <div class="sub v-3.2 exp i-c i-h" id="linkRatingsReset"></div>
@@ -55,7 +56,7 @@
       <div id="notificationDisabledWarning"></div>
       <div class="i-c" id="toast"></div>
       <div class="v-3.3 i-c adv" id="toastOnPlayPause"></div>
-      <div class="sub v-2.18 i-n i-h" id="toastDuration" data-min="0"></div>
+      <pp-numberinput class="v-2.18 sub" id="toastDuration" min="0" hint></pp-numberinput>
       <div class="sub v-2.6 exp miniplayer i-c" id="toastIfMpOpen"></div>
       <div class="sub2 v-2.27 exp miniplayer i-c" id="toastIfMpMinimized"></div>
       <div class="sub v-2.26 exp i-c" id="toastNotIfGmActive"></div>
@@ -95,10 +96,10 @@
       <div class="v-2.8 i-c local" id="lyrics"></div>
       <div class="sub v-2.8 exp miniplayer i-c i-h" id="openLyricsInMiniplayer"></div>
       <div class="sub v-2.10 adv i-c" id="lyricsAutoReload"></div>
-      <div class="sub v-2.10 adv local i-n" id="lyricsFontSize" data-min="1"></div>
+      <pp-numberinput class="v-2.10 sub adv" id="lyricsFontSize" min="1" local></pp-numberinput>
       <div class="sub v-2.9 i-c" id="lyricsInGpm"></div>
-      <div class="sub2 v-2.10 adv local i-n" id="lyricsWidth" data-min="50"></div>
-      <div class="sub2 v-3.10 adv local i-n" id="lyricsOpacity" data-min="0" data-max="1" data-step="0.01"></div>
+      <pp-numberinput class="v-2.10 sub2 adv" id="lyricsWidth" min="50" local></pp-numberinput>
+      <pp-numberinput class="v-3.10 sub2 adv" id="lyricsOpacity" min="0" max="1" step="0.01" local></pp-numberinput>
     </fieldset>
     <fieldset class="lookfeel">
       <legend id="legendLookfeel"></legend>
@@ -121,7 +122,7 @@
         <div class="v-2.15 sub i-sf" id="iconClickAction1" data-from="toastClick"></div>
         <div class="v-2.15 sub i-sf" id="iconClickAction2" data-from="toastClick"></div>
         <div class="v-2.15 sub i-sf" id="iconClickAction3" data-from="toastClick"></div>
-        <div class="v-2.15 sub i-n i-h" id="iconDoubleClickTime" data-min="0" data-max="1000"></div>
+        <pp-numberinput class="v-2.15 sub" id="iconDoubleClickTime" min="0" max="1000" hint></pp-numberinput>
         <div class="v-2.28 exp i-c" id="iconShowAction"></div>
       </fieldset>
       <div class="v-2.13 i-c i-h" id="saveLastPosition"></div>
@@ -136,9 +137,9 @@
       <div class="v-3.6 adv i-s" id="playlistEndAction" data-options=",closeMp:miniplayer,closeGm,feelingLucky,ap/auto-playlist-thumbs-up,ap/auto-playlist-recent,ap/auto-playlist-promo" data-getoptionstext="playlistEndActionText"></div>
       <div class="v-3.0 adv i-c" id="pauseOnLock"></div>
       <div class="v-3.0 adv i-c" id="pauseOnIdle"></div>
-      <div class="v-3.0 adv sub i-n" id="pauseOnIdleSec" data-min="15"></div>
-      <div class="v-3.0 exp local i-n" id="skipSongSeconds" data-min="0"></div>
-      <div class="v-2.14 exp local i-n i-h" id="googleAccountNo" data-min="0"></div>
+      <pp-numberinput class="v-3.0 sub adv" id="pauseOnIdleSec" min="15"></pp-numberinput>
+      <pp-numberinput class="v-3.0 exp" id="skipSongSeconds" min="0" local></pp-numberinput>
+      <pp-numberinput class="v-2.14 exp" id="googleAccountNo" min="0" local hint></pp-numberinput>
       <div class="v-2.0 exp i-c" id="connectedIndicator"></div>
       <div class="v-2.7.1 exp i-c i-h" id="preventCommandRatingReset"></div>
       <div class="v-3.2 exp i-c i-h" id="autoActivateGm"></div>
