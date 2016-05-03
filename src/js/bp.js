@@ -357,13 +357,6 @@ function fixForUri(string) {
 
   /** Open the options tab or focus it, if already opened. */
   function openOptions() {
-    /* TODO check if chromeRuntime.openOptionsPage() is sufficient
-      var url = "chrome://extensions/?options=" + chromeRuntime.id;
-      chromeTabs.query({ url: url }, function(tabs) {
-        if (tabs && tabs.length) chromeTabs.update(tabs[0].id, { active: true });
-        else chromeTabs.create({ url: url });
-      });
-    */
     chromeRuntime.openOptionsPage();
   }
   chromeNotifications.onShowSettings.addListener(openOptions);
