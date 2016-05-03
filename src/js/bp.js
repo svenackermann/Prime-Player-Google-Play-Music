@@ -8,12 +8,12 @@
  */
 
 /* global chrome, Bean, LastFM, initLyricsProviders, initGA */
-/* exported fixForUri */
+/* exported optionsWin, fixForUri */
 /* jshint jquery: true */
 
 //{ global public declarations
- /** ID of the options tab, if opened */
-var optionsTabId = null;
+/** The options window, if opened */
+var optionsWin = null;
 
 /** the previous version, if we just updated (set in onInstalled event listener, used by options page) */
 var previousVersion = localStorage.previousVersion;
@@ -73,6 +73,8 @@ function fixForUri(string) {
   var connectingTabId;
   /** stores the time when music was started or activity has been simulated */
   var inactivityTimerStart;
+  /** ID of the last.fm login tab */
+  var lastfmAuthTabId;
   //} private variables
 
   //{ beans
@@ -214,6 +216,8 @@ function fixForUri(string) {
     filterLookfeel: true
     //}
   }, true);
+
+  settings.setSyncStorage(localSettings.syncSettings);
 
   /** the song currently loaded */
   var song = new Bean({
@@ -399,12 +403,8 @@ function fixForUri(string) {
 
   /** open the last.fm authentication page */
   function lastfmLogin() {
-    var url = lastfm.getLoginUrl(getExtensionUrl("options.html"));
-    if (optionsTabId) {
-      chromeTabs.update(optionsTabId, { url: url, active: true });
-    } else {
-      chromeTabs.create({ url: url });
-    }
+    var url = lastfm.getLoginUrl(getExtensionUrl("lastfmCallback.html"));
+    chromeTabs.create({ url: url }, function(tab) { lastfmAuthTabId = tab.id; });
     GA.event(GA_CAT_LASTFM, "AuthorizeStarted");
   }
 
@@ -522,9 +522,7 @@ function fixForUri(string) {
       !(song.ff && settings.disableScrobbleOnFf) &&
       !(settings.scrobbleMaxDuration > 0 && song.info.durationSec > settings.scrobbleMaxDuration * 60)) {
       var scrobbleTime = song.info.durationSec * settings.scrobblePercent / 100;
-      if (settings.scrobbleTime > 0 && scrobbleTime > settings.scrobbleTime) {
-        scrobbleTime = settings.scrobbleTime;
-      }
+      if (settings.scrobbleTime > 0 && scrobbleTime > settings.scrobbleTime) scrobbleTime = settings.scrobbleTime;
       //leave 3s at the beginning and end to be sure the correct song will be scrobbled
       scrobbleTime = Math.min(song.info.durationSec - 3, Math.max(3, scrobbleTime));
       song.scrobbleTime = scrobbleTime;
@@ -2106,11 +2104,6 @@ function fixForUri(string) {
     }); else lastSongInfoChanged();
   });
 
-  localSettings.w("syncSettings", function(val) {
-    settings.setSyncStorage(val, function() {
-      if (optionsTabId) chromeTabs.reload(optionsTabId);
-    });
-  });
   localSettings.al("lastfmSessionName", calcScrobbleTime);
   localSettings.al("lyrics lyricsFontSize lyricsWidth lyricsOpacity", postLyricsState);
   localSettings.w("notificationsEnabled", function(val, old) {
@@ -2661,15 +2654,33 @@ function fixForUri(string) {
   exports.loveTrack = loveTrack;
   exports.unloveTrack = unloveTrack;
   exports.loadCurrentLastfmInfo = loadCurrentLastfmInfo;
-
-  /** Remember the session information after successful authentication. */
-  exports.setLastfmSession = function(session) {
-    localSettings.lastfmSessionKey = session.key;
-    localSettings.lastfmSessionName = session.name;
-    lastfm.session = session;
-    GA.event(GA_CAT_LASTFM, "AuthorizeOK");
-    loadCurrentLastfmInfo();
-    scrobbleCachedSongs();
+  exports.getLastfmSession = function(token) {
+    function sendStatusChangedMessage(status) {
+      chromeRuntime.sendMessage({ type: "lastfmStatusChanged", status: status });
+    }
+    sendStatusChangedMessage(false);
+    if (lastfmAuthTabId) {
+      chromeTabs.remove(lastfmAuthTabId);
+      lastfmAuthTabId = null;
+    }
+    lastfm.auth.getSession({ token: token }, {
+      success: function(response) {
+        var session = response.session;
+        localSettings.lastfmSessionKey = session.key;
+        localSettings.lastfmSessionName = session.name;
+        sendStatusChangedMessage(true);
+        lastfm.session = session;
+        GA.event(GA_CAT_LASTFM, "AuthorizeOK");
+        loadCurrentLastfmInfo();
+        scrobbleCachedSongs();
+      },
+      error: function(code, message) {
+        var title = i18n("lastfmConnectError");
+        if (message) title += ": " + message;
+        sendStatusChangedMessage(title);
+        GA.event(GA_CAT_LASTFM, "AuthorizeError-" + code);
+      }
+    });
   };
   //} lastfm functions
 
