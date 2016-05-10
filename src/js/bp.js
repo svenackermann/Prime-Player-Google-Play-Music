@@ -191,13 +191,15 @@ function fixForUri(string) {
     starRatingMode: false,
     hideFavorites: false,
     skipRatedLower: 0,
+    skipRatedThumbsDown: false,
     openGoogleMusicPinned: false,
     openGmBackground: false,
     simulateActivity: false,
     startupAction: "",
     playlistEndAction: "",
     pauseOnLock: false,
-    pauseOnIdleSec: -60,//negative value means disabled
+    pauseOnIdle: false,
+    pauseOnIdleSec: 60,
     connectedIndicator: true,
     preventCommandRatingReset: true,
     autoActivateGm: true,
@@ -1639,6 +1641,12 @@ function fixForUri(string) {
 
     //--- 3.9 ---
     if (previousVersion <= 3.8) migrateQuicklink("myPlaylists", "wmp");
+
+    //--- 3.12 ---
+    if (settings.pauseOnIdleSec < 0) {
+      settings.pauseOnIdle = false;
+      settings.pauseOnIdleSec = -settings.pauseOnIdleSec;
+    }
   }
 
   /** handler for onInstalled event (show the orange icon on update / notification on install) */
@@ -1978,7 +1986,7 @@ function fixForUri(string) {
   //{ idle/locked handling
   function onIdleStateChangedHandler(state) {
     console.debug("onIdleStateChangedHandler", state, player.playing);
-    if (player.playing && (state == "locked" && settings.pauseOnLock || state == "idle" && settings.pauseOnIdleSec > 0)) {
+    if (player.playing && (state == "locked" && settings.pauseOnLock || state == "idle" && settings.pauseOnIdle)) {
       executePlayPause(false);
       chromeLocalStorage.set({ resumeOnActive: true });
     } else if (state == "active") {
@@ -1993,14 +2001,13 @@ function fixForUri(string) {
 
   function pauseOnIdleStateHandler() {
     chromeIdle.onStateChanged.removeListener(onIdleStateChangedHandler);
-    var pauseOnIdle = settings.pauseOnIdleSec > 0;
-    if (settings.pauseOnLock || pauseOnIdle) {
-      if (pauseOnIdle) chromeIdle.setDetectionInterval(settings.pauseOnIdleSec);
+    if (settings.pauseOnLock || settings.pauseOnIdle) {
+      if (settings.pauseOnIdle) chromeIdle.setDetectionInterval(settings.pauseOnIdleSec);
       chromeIdle.onStateChanged.addListener(onIdleStateChangedHandler);
     }
   }
 
-  settings.w("pauseOnLock pauseOnIdleSec", pauseOnIdleStateHandler);
+  settings.w("pauseOnLock pauseOnIdle pauseOnIdleSec", pauseOnIdleStateHandler);
   //} idle/locked handling
 
   //{ register general listeners
@@ -2103,6 +2110,8 @@ function fixForUri(string) {
       lastSongInfoChanged();
     }); else lastSongInfoChanged();
   });
+  settings.w("skipRatedLower", function(val) { settings.skipRatedThumbsDown = val > 0; });
+  settings.al("skipRatedThumbsDown", function(val) { settings.skipRatedLower = val ? 2 : 0; });
 
   localSettings.al("lastfmSessionName", calcScrobbleTime);
   localSettings.al("lyrics lyricsFontSize lyricsWidth lyricsOpacity", postLyricsState);

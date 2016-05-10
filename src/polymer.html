@@ -8,6 +8,7 @@
 <link rel="import" href="../node_modules/npm-polymer-elements/paper-dropdown-menu/paper-dropdown-menu.html"/>
 <link rel="import" href="../node_modules/npm-polymer-elements/paper-listbox/paper-listbox.html"/>
 <link rel="import" href="../node_modules/npm-polymer-elements/paper-item/paper-item.html"/>
+<link rel="import" href="../node_modules/npm-polymer-elements/paper-toggle-button/paper-toggle-button.html"/>
 
 <dom-module id="pp-numberinput">
   <template>
@@ -44,6 +45,17 @@
       <paper-listbox id="input" class="dropdown-content" attr-for-selected="value">
       </paper-listbox>
     </paper-dropdown-menu>
+  </template>
+</dom-module>
+
+<dom-module id="pp-toggle">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <paper-toggle-button id="input">[[i18nlabel(id)]]</paper-toggle-button>
   </template>
 </dom-module>
 
@@ -103,6 +115,9 @@
       },
       from: String
     },
+    _safeValue: function(val) {
+      return val === "" ? "_" : val === 0 ? "_0" : val;
+    },
     _onSettingsReady: function(e) {
       var settings = this.settings = this.getSettings(e);
       var prop = this.id;
@@ -123,22 +138,38 @@
         items.push(item);
       });
       this.setItems(items);
-      settings.al(prop, function(val) { listbox.select(val === "" ? "_" : val); }, e.context);
+      var safeValue = this._safeValue;
+      settings.al(prop, function(val) { listbox.select(safeValue(val)); }, e.context);
       $(listbox).on("iron-select", function() {
         var val = listbox.selected;
-        settings[prop] = val == "_" ? "" : val;
+        settings[prop] = val == "_" ? "" : val == "_0" ? 0 : val;
       });
     },
     setItems: function(items) {
       var listbox = this.$.input;
+      var safeValue = this._safeValue;
       $(listbox).empty();
       items.forEach(function(item) {
         var pItem = $("<paper-item>").addClass(item.clazz || "").text(item.text)[0];
-        pItem.value = item.value === "" ? "_" : item.value;
+        var val = item.value;
+        pItem.value = safeValue(val);
         Polymer.dom(listbox).appendChild(pItem);
       });
       var val = this.settings[this.id];
-      listbox.select(val === "" ? "_" : val);
+      listbox.select(safeValue(val));
+    }
+  });
+
+  Polymer({
+    is: "pp-toggle",
+    behaviors: [PpInputBehavior],
+    _onSettingsReady: function(e) {
+      var settings = this.getSettings(e);
+      var prop = this.id;
+      console.debug(prop);
+      var input = this.$.input;
+      settings.w(prop, function(val) { input.checked = val; }, e.context);
+      $(input).on("change", function() { settings[prop] = input.checked; });
     }
   });
 </script>

@@ -132,7 +132,7 @@ fieldset {
   margin: 1ex 0;
 }
 
-input[type='checkbox'], input[type='radio'] {
+input[type='radio'] {
   margin: 4px 3px;
 }
 
@@ -235,18 +235,6 @@ img.hint {
   font-weight: bold;
   a {
     color: #FF8F00;
-  }
-}
-
-#timerMinutes {
-  float: left;
-}
-
-#timerStatus {
-  float: right;
-  font-weight: bold;
-  ~ div {
-    clear: left;
   }
 }
 
