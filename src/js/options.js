@@ -220,44 +220,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   /**
-   * Initialize a select input for an option.
-   * @param prop the option name in settings
-   * @param values array with the values for the options
-   * @param theSettings the settings object
-   * @param updater a custom updater for the option's value
-   * @param getOptionText function that takes the option's value as argument and returns the label for the option, the default i18n key for option "<opt>" is "setting_" + prop + "_<opt>"
-   * @return the select input element
-   */
-  function initSelect(prop, values, theSettings, updater, getOptionText) {
-    getOptionText = getOptionText || function(val) {return i18n("setting_" + prop + "_" + val);};
-    var input = $("<select>");
-    values.forEach(function(value) {
-      var optionClass = "";
-      if (value.indexOf(":") >= 0) {
-        var split = value.split(":");
-        value = split[0];
-        optionClass = split[1];
-      }
-      $("<option>").attr("value", value).addClass(optionClass).text(getOptionText(value)).appendTo(input);
-    });
-    input.val(theSettings[prop]).change(updater(prop, theSettings));
-    setIdAndAddItWithLabel(input, prop, theSettings == settings);
-    return input;
-  }
-
-  /**
-   * Initialize a select input for an option based on the options of another select input.
-   * @param prop the option name in settings
-   * @param from the other select input as jQuery object
-   * @return the select input element
-   */
-  function initSelectFrom(prop, from) {
-    var select = initSelect(prop, [], settings, stringUpdater);
-    select.append(from.children().clone()).val(settings[prop]);
-    return select;
-  }
-
-  /**
    * Initialize a color input for an option.
    * @param prop the option name in settings
    * @return the color input element
@@ -470,37 +432,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function initInputs() {
-    var optionsTextGetter = {
-      commandOptionText: bp.getCommandOptionText,
-      connectActionText: function(val) {
-        if (val) return i18n(val);
-        return i18n("openPopup");
-      },
-      playlistEndActionText: function(action) {
-        if (!action.indexOf("ap/")) {
-          return i18n("ob_startsugg", bp.getTextForQuicklink(action));
-        }
-        return bp.getCommandOptionText(action);
-      }
-    };
-
     function getSettings(inputContainer) {
       return inputContainer.hasClass("local") ? localSettings : settings;
     }
     $(".i-c").each(function() {
       initCheckbox(this.id, getSettings($(this)));
-    });
-    $(".i-s").each(function() {
-      var inputContainer = $(this);
-      var values = inputContainer.data("options");
-      values = values ? values.split(",") : [];
-      var updater = inputContainer.data("type") == "n" ? numberUpdater : stringUpdater;
-      var getOptionText = inputContainer.data("getoptionstext");
-      if (getOptionText) getOptionText = optionsTextGetter[getOptionText];
-      initSelect(this.id, values, getSettings(inputContainer), updater, getOptionText);
-    });
-    $(".i-sf").each(function() {
-      initSelectFrom(this.id, $("#_" + $(this).data("from")));
     });
     $(".i-co").each(function() {
       initColorInput(this.id);
