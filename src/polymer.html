@@ -5,10 +5,20 @@
 -->
 <link rel="import" href="../node_modules/npm-polymer-elements/polymer/polymer.html"/>
 <link rel="import" href="../node_modules/npm-polymer-elements/paper-input/paper-input.html"/>
-<link rel="import" href="../node_modules/npm-polymer-elements/paper-toggle-button/paper-toggle-button.html"/>
+<link rel="import" href="../node_modules/npm-polymer-elements/paper-dropdown-menu/paper-dropdown-menu.html"/>
+<link rel="import" href="../node_modules/npm-polymer-elements/paper-listbox/paper-listbox.html"/>
+<link rel="import" href="../node_modules/npm-polymer-elements/paper-item/paper-item.html"/>
 
 <dom-module id="pp-numberinput">
   <template>
+    <style>
+      :host {
+        display: block;
+      }
+      #input {  
+        min-height: initial;
+      }
+    </style>
     <paper-input
       id="input"
       type="number"
@@ -20,9 +30,25 @@
   </template>
 </dom-module>
 
+<dom-module id="pp-select">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      paper-dropdown-menu {
+        width: 100%;
+      }
+    </style>
+    <paper-dropdown-menu label="[[i18nlabel(id)]]">
+      <paper-listbox id="input" class="dropdown-content" attr-for-selected="value">
+      </paper-listbox>
+    </paper-dropdown-menu>
+  </template>
+</dom-module>
+
 <script>
-  Polymer({
-    is: "pp-numberinput",
+  var PpInputBehavior = {
     properties: {
       local: Boolean,
       hint: Boolean
@@ -31,18 +57,86 @@
       return chrome.i18n.getMessage("setting_" + id);
     },
     listeners: {
-      "settingsready": "onSettingsReady"
+      settingsready: "_onSettingsReady"
     },
-    onSettingsReady: function(e) {
-      var settings = this.local ? e.localSettings : e.settings;
+    ready: function() {
+      this.toggleClass("pp-input", true);
+    },
+    getSettings: function(e) {
+      return this.local ? e.localSettings : e.settings;
+    }
+  };
+
+  Polymer({
+    is: "pp-numberinput",
+    behaviors: [PpInputBehavior],
+    _onSettingsReady: function(e) {
+      var settings = this.getSettings(e);
       var prop = this.id;
       var input = this.$.input;
       settings.w(prop, function(val) { input.value = val; }, e.context);
-      $(input).on("blur", function(e) {
+      $(input).on("blur", function() {
         var value = parseFloat(input.value);
         if ($.isNumeric(input.min) && value < input.min || $.isNumeric(input.max) && value > input.max) input.value = settings[prop];
         else settings[prop] = value;
       });
+    }
+  });
+  
+  Polymer({
+    is: "pp-select",
+    behaviors: [PpInputBehavior],
+    properties: {
+      options: {
+        type: String,
+        value: ""
+      },
+      type: {
+        type: String,
+        value: "s"
+      },
+      getoptionstext: {
+        type: String,
+        value: "bundle"
+      },
+      from: String
+    },
+    _onSettingsReady: function(e) {
+      var settings = this.settings = this.getSettings(e);
+      var prop = this.id;
+      var config = this.from ? $(this.from)[0] : this;
+      var type = this.type;
+      var options = config.options.split(",");
+      var getOptionText = e.optionsTextGetter[config.getoptionstext];
+      var listbox = this.$.input;
+      var items = [];
+      options.forEach(function(option) {
+        var optionClass;
+        if (option.indexOf(":") >= 0) {
+          var split = option.split(":");
+          option = split[0];
+          optionClass = split[1];
+        }
+        var item = { clazz: optionClass, text: getOptionText(option, prop), value: type == "n" ? parseFloat(option) : option };
+        items.push(item);
+      });
+      this.setItems(items);
+      settings.al(prop, function(val) { listbox.select(val == "" ? "_" : val); }, e.context);
+      $(listbox).on("iron-select", function() {
+        var val = listbox.selected;
+        settings[prop] = val == "_" ? "" : val;
+      });
+    },
+    setItems: function(items) {
+      var listbox = this.$.input;
+      $(listbox).empty();
+      items.forEach(function(item) {
+        var pItem = $("<paper-item>").addClass(item.clazz || "").text(item.text)[0];
+        pItem.value = item.value == "" ? "_" : item.value;
+        Polymer.dom(listbox).appendChild(pItem);
+      });
+      var val = this.settings[this.id];
+      listbox.select(val == "" ? "_" : val);
     }
   });
 </script>

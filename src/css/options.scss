@@ -24,19 +24,12 @@ h1 {
 }
 
 .syncenabled {
-  .synced, pp-numberinput:not([local]) {
+  .synced, .pp-input:not([local]) {
     label:after {
       content: "*";
       padding-left: 1ex;
       float: right;
     }
-  }
-}
-
-pp-numberinput {
-  display: block;
-  .paper-input {
-    min-height: initial;
   }
 }
 
@@ -68,28 +61,6 @@ pp-numberinput {
   }
   &.thumbs .thumbsOnly, &.star .starsOnly {
     display: block;
-  }
-  
-  select {
-    margin-right: 3px;
-    min-width: 200px;
-    &#_skipRatedLower {
-      min-width: 150px;
-    }
-  }
-  fieldset {
-    > .sub {
-      padding-left: 10px;
-      select {
-        min-width: 190px;
-      }
-    }
-    > .sub2 {
-      padding-left: 20px;
-      select {
-        min-width: 180px;
-      }
-    }
   }
   
   h3 {
@@ -258,7 +229,7 @@ img.hint {
   cursor: pointer;
 }
 
-div.newFeature {
+.newFeature {
   display: block !important;
   color: #FF8F00;
   font-weight: bold;
@@ -285,11 +256,6 @@ div.newFeature {
 
 #filter {
   font-size: 12px;
-  #optionsMode label {
-    margin-right: 1ex;
-    float: left;
-    margin-top: 4px;
-  }
   > div > div {
     display: inline-block;
     > div {

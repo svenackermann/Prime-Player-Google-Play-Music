@@ -154,14 +154,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function quicklinksChanged() {
-    var linkSelects = $("#_coverClickLink,#_titleClickLink");
-    linkSelects.empty();
+    var items = [];
     [""].concat(bp.getQuicklinks()).forEach(function(ql) {
-      $("<option>").attr("value", ql).text(bp.getTextForQuicklink(ql)).appendTo(linkSelects);
+      items.push({ text: bp.getTextForQuicklink(ql), value: ql });
     });
-    linkSelects.each(function() {
-      $(this).val(settings[this.id.substr(1)]);
-    });
+    $("#coverClickLink,#titleClickLink").each(function() { this.setItems(items); });
   }
 
   function stringUpdater(prop, theSettings) {
@@ -606,7 +603,21 @@ chrome.runtime.getBackgroundPage(function(bp) {
     settingsready.settings = settings;
     settingsready.localSettings = localSettings;
     settingsready.context = CONTEXT;
-    $("pp-numberinput").each(function() {
+    settingsready.optionsTextGetter = {
+      bundle: function(val, prop) { return chrome.i18n.getMessage("setting_" + prop + "_" + val); },
+      commandOptionText: bp.getCommandOptionText,
+      connectActionText: function(val) {
+        if (val) return i18n(val);
+        return i18n("openPopup");
+      },
+      playlistEndActionText: function(action) {
+        if (!action.indexOf("ap/")) {
+          return i18n("ob_startsugg", bp.getTextForQuicklink(action));
+        }
+        return bp.getCommandOptionText(action);
+      }
+    };
+    $(".pp-input").each(function() {
       this.dispatchEvent(settingsready);
     });
 
