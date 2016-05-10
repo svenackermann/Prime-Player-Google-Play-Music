@@ -1,5 +1,5 @@
 <!--
-  Imports for options page
+  Web components for options page
   @author Sven Ackermann (svenrecknagel@gmail.com)
   @license BSD license
 -->
@@ -48,6 +48,8 @@
 </dom-module>
 
 <script>
+  /* global chrome, Polymer */
+  /* jshint jquery: true */
   var PpInputBehavior = {
     properties: {
       local: Boolean,
@@ -121,7 +123,7 @@
         items.push(item);
       });
       this.setItems(items);
-      settings.al(prop, function(val) { listbox.select(val == "" ? "_" : val); }, e.context);
+      settings.al(prop, function(val) { listbox.select(val === "" ? "_" : val); }, e.context);
       $(listbox).on("iron-select", function() {
         var val = listbox.selected;
         settings[prop] = val == "_" ? "" : val;
@@ -132,11 +134,11 @@
       $(listbox).empty();
       items.forEach(function(item) {
         var pItem = $("<paper-item>").addClass(item.clazz || "").text(item.text)[0];
-        pItem.value = item.value == "" ? "_" : item.value;
+        pItem.value = item.value === "" ? "_" : item.value;
         Polymer.dom(listbox).appendChild(pItem);
       });
       var val = this.settings[this.id];
-      listbox.select(val == "" ? "_" : val);
+      listbox.select(val === "" ? "_" : val);
     }
   });
 </script>

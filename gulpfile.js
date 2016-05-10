@@ -44,9 +44,11 @@ function myUglify() {
 }
 
 gulp.task("style", function() {
-  return gulp.src(["gulpfile.js", "src/js/*.js", "!src/js/*.min.js"])
+  // gulp-jscs does not support "extract" yet, so html can't be checked, see https://github.com/jscs-dev/gulp-jscs/issues/95
+  var polymer = gulp.src(PATHS.POLYMER).pipe(jshint.extract("always"));
+  var js = gulp.src(["gulpfile.js", "src/js/*.js", "!src/js/*.min.js"]).pipe(jscs());
+  return merge(polymer, js)
     .pipe(jshint())
-    .pipe(jscs())
     .on("error", function() {})
     .pipe(jscsstylish.combineWithHintResults())
     .pipe(jshint.reporter("jshint-stylish"))
