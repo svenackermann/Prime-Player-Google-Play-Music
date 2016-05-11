@@ -166,7 +166,6 @@
     _onSettingsReady: function(e) {
       var settings = this.getSettings(e);
       var prop = this.id;
-      console.debug(prop);
       var input = this.$.input;
       settings.w(prop, function(val) { input.checked = val; }, e.context);
       $(input).on("change", function() { settings[prop] = input.checked; });
