@@ -151,9 +151,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function quicklinksChanged() {
     var items = [];
     [""].concat(bp.getQuicklinks()).forEach(function(ql) {
-      items.push({ text: bp.getTextForQuicklink(ql), value: ql });
+      items.push({ text: bp.getTextForQuicklink(ql), value: ql, clazz: "" });
     });
-    $("#coverClickLink,#titleClickLink").each(function() { this.setItems(items); });
+    $("#coverClickLink,#titleClickLink").each(function() { this.items = items; });
   }
 
   function stringUpdater(prop, theSettings) {

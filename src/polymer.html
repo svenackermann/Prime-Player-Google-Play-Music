@@ -43,6 +43,9 @@
     </style>
     <paper-dropdown-menu label="[[i18nlabel(id)]]">
       <paper-listbox id="input" class="dropdown-content" attr-for-selected="value">
+        <template is="dom-repeat" items="[[items]]" as="item">
+          <paper-item class$="[[item.clazz]]" value="_[[item.value]]">[[item.text]]</paper-item>
+        </template>
       </paper-listbox>
     </paper-dropdown-menu>
   </template>
@@ -113,10 +116,11 @@
         type: String,
         value: "bundle"
       },
-      from: String
-    },
-    _safeValue: function(val) {
-      return val === "" ? "_" : val === 0 ? "_0" : val;
+      from: String,
+      items: {
+        type: Array,
+        value: []
+      }
     },
     _onSettingsReady: function(e) {
       var settings = this.settings = this.getSettings(e);
@@ -128,35 +132,22 @@
       var listbox = this.$.input;
       var items = [];
       options.forEach(function(option) {
-        var optionClass;
+        var optionClass = "";
         if (option.indexOf(":") >= 0) {
           var split = option.split(":");
           option = split[0];
           optionClass = split[1];
         }
-        var item = { clazz: optionClass, text: getOptionText(option, prop), value: type == "n" ? parseFloat(option) : option };
+        var item = { clazz: optionClass, text: getOptionText(option, prop), value: option };
         items.push(item);
       });
-      this.setItems(items);
-      var safeValue = this._safeValue;
-      settings.al(prop, function(val) { listbox.select(safeValue(val)); }, e.context);
+      this.items = items;
+      //prefix value with "_", because listbox's attrForSelected does not work correctly with empty string or 0
+      settings.w(prop, function(val) { listbox.select("_" + val); }, e.context);
       $(listbox).on("iron-select", function() {
-        var val = listbox.selected;
-        settings[prop] = val == "_" ? "" : val == "_0" ? 0 : val;
+        var val = listbox.selected.substr(1);
+        settings[prop] = type == "n" ? parseFloat(val) : val;
       });
-    },
-    setItems: function(items) {
-      var listbox = this.$.input;
-      var safeValue = this._safeValue;
-      $(listbox).empty();
-      items.forEach(function(item) {
-        var pItem = $("<paper-item>").addClass(item.clazz || "").text(item.text)[0];
-        var val = item.value;
-        pItem.value = safeValue(val);
-        Polymer.dom(listbox).appendChild(pItem);
-      });
-      var val = this.settings[this.id];
-      listbox.select(safeValue(val));
     }
   });
 
