@@ -18,9 +18,9 @@
   <div id="settings">
     <fieldset class="timer">
       <legend id="legendTimer"></legend>
-      <pp-numberinput class="v-2.20" id="timerMinutes" local min="1"></pp-numberinput><div id="timerStatus"></div>
+      <pp-input class="v-2.20" id="timerMinutes" local min="1"></pp-input><div id="timerStatus"></div>
       <pp-toggle class="v-2.20 adv notif" id="timerNotify" local></pp-toggle>
-      <pp-numberinput class="v-2.22 adv notif" id="timerPreNotify" local min="0"></pp-numberinput>
+      <pp-input class="v-2.22 adv notif" id="timerPreNotify" local min="0"></pp-input>
       <pp-select class="v-2.20" id="timerAction" options="pause,closeGm" local></pp-select>
       <button id="startTimer"></button>
       <button id="stopTimer"></button>
@@ -37,12 +37,12 @@
       </div>
       <pp-toggle id="scrobble"></pp-toggle>
       <pp-slider class="sub" id="scrobblePercent" min="1" max="100" step="1"></pp-slider>
-      <pp-numberinput class="sub exp" id="scrobbleTime" min="0"></pp-numberinput>
-      <pp-numberinput class="sub exp" id="scrobbleMaxDuration" min="0"></pp-numberinput>
+      <pp-input class="sub exp" id="scrobbleTime" min="0"></pp-input>
+      <pp-input class="sub exp" id="scrobbleMaxDuration" min="0"></pp-input>
       <pp-toggle class="sub adv" id="disableScrobbleOnFf" hint></pp-toggle>
       <pp-toggle class="v-2.15 sub exp" id="scrobbleRepeated"></pp-toggle>
       <pp-toggle class="sub adv" id="linkRatings" hint></pp-toggle>
-      <pp-numberinput class="v-2.26 sub exp stars" id="linkRatingsMin" min="2" max="5"></pp-numberinput>
+      <pp-input class="v-2.26 sub exp stars" id="linkRatingsMin" min="2" max="5"></pp-input>
       <pp-toggle class="v-2.24 sub adv" id="linkRatingsGpm"></pp-toggle>
       <pp-toggle class="v-2.24 sub adv" id="linkRatingsAuto" hint></pp-toggle>
       <pp-toggle class="v-3.2 sub exp" id="linkRatingsReset" hint></pp-toggle>
@@ -53,7 +53,7 @@
       <div id="notificationDisabledWarning"></div>
       <pp-toggle id="toast"></pp-toggle>
       <pp-toggle class="v-3.3 adv" id="toastOnPlayPause"></pp-toggle>
-      <pp-numberinput class="v-2.18 sub" id="toastDuration" min="0" hint></pp-numberinput>
+      <pp-input class="v-2.18 sub" id="toastDuration" min="0" hint></pp-input>
       <pp-toggle class="v-2.6 sub exp miniplayer" id="toastIfMpOpen"></pp-toggle>
       <pp-toggle class="v-2.27 sub2 exp miniplayer" id="toastIfMpMinimized"></pp-toggle>
       <pp-toggle class="v-2.26 sub exp" id="toastNotIfGmActive"></pp-toggle>
@@ -70,8 +70,8 @@
       <pp-select class="exp" id="miniplayerType" options="normal,popup,panel,detached_panel" hint></pp-select>
       <pp-select id="layout" options="normal,compact1,compact2,hbar" hint></pp-select>
       <pp-select id="color" options="turq,green,red,blue,black,orange"></pp-select>
-      <div class="v-2.19 adv i-co" id="mpBgColor"></div>
-      <div class="v-2.19 adv i-co" id="mpTextColor"></div>
+      <pp-input class="v-2.19 adv" id="mpBgColor" type="color"></pp-input>
+      <pp-input class="v-2.19 adv" id="mpTextColor" type="color"></pp-input>
       <pp-select class="v-2.26 adv" id="coverClickLink"></pp-select>
       <pp-select class="v-2.26 adv" id="titleClickLink"></pp-select>
       <pp-toggle class="v-2.0 exp" id="openLinksInMiniplayer" hint></pp-toggle>
@@ -93,10 +93,10 @@
       <pp-toggle class="v-2.8" id="lyrics" local></pp-toggle>
       <pp-toggle class="v-2.8 sub exp miniplayer" id="openLyricsInMiniplayer" hint></pp-toggle>
       <pp-toggle class="v-2.10 sub adv" id="lyricsAutoReload"></pp-toggle>
-      <pp-numberinput class="v-2.10 sub adv" id="lyricsFontSize" min="1" local></pp-numberinput>
+      <pp-input class="v-2.10 sub adv" id="lyricsFontSize" min="1" local></pp-input>
       <pp-toggle class="v-2.9 sub" id="lyricsInGpm"></pp-toggle>
-      <pp-numberinput class="v-2.10 sub2 adv" id="lyricsWidth" min="50" local></pp-numberinput>
-      <pp-numberinput class="v-3.10 sub2 adv" id="lyricsOpacity" min="0" max="1" step="0.01" local></pp-numberinput>
+      <pp-input class="v-2.10 sub2 adv" id="lyricsWidth" min="50" local></pp-input>
+      <pp-input class="v-3.10 sub2 adv" id="lyricsOpacity" min="0" max="1" step="0.01" local></pp-input>
     </fieldset>
     <fieldset class="lookfeel">
       <legend id="legendLookfeel"></legend>
@@ -109,8 +109,8 @@
       <pp-toggle class="v-2.11 lastfm" id="showLovedIndicator"></pp-toggle>
       <pp-toggle class="v-2.11 lastfm" id="showScrobbledIndicator"></pp-toggle>
       <pp-toggle class="v-2.21" id="showProgress"></pp-toggle>
-      <div class="v-2.21 adv sub i-co" id="showProgressColor"></div>
-      <div class="v-2.28 adv sub i-co" id="showProgressColorPaused"></div>
+      <pp-input class="v-2.21 sub adv" id="showProgressColor" type="color"></pp-input>
+      <pp-input class="v-2.28 sub adv" id="showProgressColorPaused" type="color"></pp-input>
       <fieldset class="adv">
         <legend id="legendIc"></legend>
         <pp-select class="v-2.28" id="iconClickConnectAction" options=",feelingLucky,resumeLastSong,gotoGmusic,openMiniplayer" getoptionstext="connectActionText"></pp-select>
@@ -119,7 +119,7 @@
         <pp-select class="v-2.15 sub" id="iconClickAction1" from="#toastClick"></pp-select>
         <pp-select class="v-2.15 sub" id="iconClickAction2" from="#toastClick"></pp-select>
         <pp-select class="v-2.15 sub" id="iconClickAction3" from="#toastClick"></pp-select>
-        <pp-numberinput class="v-2.15 sub" id="iconDoubleClickTime" min="0" max="1000" hint></pp-numberinput>
+        <pp-input class="v-2.15 sub" id="iconDoubleClickTime" min="0" max="1000" hint></pp-input>
         <pp-toggle class="v-2.28 exp" id="iconShowAction"></pp-toggle>
       </fieldset>
       <pp-toggle class="v-2.13" id="saveLastPosition" hint></pp-toggle>
@@ -134,9 +134,9 @@
       <pp-select class="v-3.6 adv" id="playlistEndAction" options=",closeMp:miniplayer,closeGm,feelingLucky,ap/auto-playlist-thumbs-up,ap/auto-playlist-recent,ap/auto-playlist-promo" getoptionstext="playlistEndActionText"></pp-select>
       <pp-toggle class="v-3.0 adv" id="pauseOnLock"></pp-toggle>
       <pp-toggle class="v-3.0 adv" id="pauseOnIdle"></pp-toggle>
-      <pp-numberinput class="v-3.0 sub adv" id="pauseOnIdleSec" min="15"></pp-numberinput>
-      <pp-numberinput class="v-3.0 exp" id="skipSongSeconds" min="0" local></pp-numberinput>
-      <pp-numberinput class="v-2.14 exp" id="googleAccountNo" min="0" local hint></pp-numberinput>
+      <pp-input class="v-3.0 sub adv" id="pauseOnIdleSec" min="15"></pp-input>
+      <pp-input class="v-3.0 exp" id="skipSongSeconds" min="0" local></pp-input>
+      <pp-input class="v-2.14 exp" id="googleAccountNo" min="0" local hint></pp-input>
       <pp-toggle class="v-2.0 exp" id="connectedIndicator"></pp-toggle>
       <pp-toggle class="v-2.7.1 exp" id="preventCommandRatingReset" hint></pp-toggle>
       <pp-toggle class="v-3.2 exp" id="autoActivateGm" hint></pp-toggle>

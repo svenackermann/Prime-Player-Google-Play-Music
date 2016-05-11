@@ -193,18 +193,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     return addLabel(input);
   }
 
-  /**
-   * Initialize a color input for an option.
-   * @param prop the option name in settings
-   * @return the color input element
-   */
-  function initColorInput(prop) {
-    var input = $("<input type='color'>");
-    input.val(settings[prop]).change(stringUpdater(prop, settings));
-    setIdAndAddItWithLabel(input, prop, true);
-    return input;
-  }
-
   /** Initialize the icon style radio buttons. */
   function initIconStyle() {
     var iconStyle = $("#iconStyle");
@@ -406,9 +394,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function initInputs() {
-    $(".i-co").each(function() {
-      initColorInput(this.id);
-    });
     $(".i-h").each(function() {
       initHint(this.id);
     });

@@ -11,7 +11,7 @@
 <link rel="import" href="../node_modules/npm-polymer-elements/paper-toggle-button/paper-toggle-button.html"/>
 <link rel="import" href="../node_modules/npm-polymer-elements/paper-slider/paper-slider.html"/>
 
-<dom-module id="pp-numberinput">
+<dom-module id="pp-input">
   <template>
     <style>
       :host {
@@ -23,7 +23,7 @@
     </style>
     <paper-input
       id="input"
-      type="number"
+      type="[[type]]"
       min="[[min]]"
       max="[[max]]"
       step="[[step]]"
@@ -114,17 +114,26 @@
   };
 
   Polymer({
-    is: "pp-numberinput",
+    is: "pp-input",
     behaviors: [PpInputBehavior],
+    properties: {
+      type: {
+        type: String,
+        value: "number"
+      },
+    },
     _onSettingsReady: function(e) {
       var settings = this.getSettings(e);
       var prop = this.id;
       var input = this.$.input;
+      var numeric = this.type == "number";
       settings.w(prop, function(val) { input.value = val; }, e.context);
-      $(input).on("blur", function() {
-        var value = parseFloat(input.value);
-        if ($.isNumeric(input.min) && value < input.min || $.isNumeric(input.max) && value > input.max) input.value = settings[prop];
-        else settings[prop] = value;
+      $(input).on("change", function() {
+        if (numeric) {
+          var value = parseFloat(input.value);
+          if ($.isNumeric(input.min) && value < input.min || $.isNumeric(input.max) && value > input.max) input.value = settings[prop];
+          else settings[prop] = value;
+        } else settings[prop] = input.value;
       });
     }
   });
