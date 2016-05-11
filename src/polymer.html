@@ -9,6 +9,7 @@
 <link rel="import" href="../node_modules/npm-polymer-elements/paper-listbox/paper-listbox.html"/>
 <link rel="import" href="../node_modules/npm-polymer-elements/paper-item/paper-item.html"/>
 <link rel="import" href="../node_modules/npm-polymer-elements/paper-toggle-button/paper-toggle-button.html"/>
+<link rel="import" href="../node_modules/npm-polymer-elements/paper-slider/paper-slider.html"/>
 
 <dom-module id="pp-numberinput">
   <template>
@@ -59,6 +60,34 @@
       }
     </style>
     <paper-toggle-button id="input">[[i18nlabel(id)]]</paper-toggle-button>
+  </template>
+</dom-module>
+
+<dom-module id="pp-slider">
+  <template>
+    <style>
+      :host {
+        display: block;
+        --paper-input-container-underline: {
+          display: none;
+        };
+        --paper-input-container-underline-focus: {
+          display: none;
+        };
+      }
+    </style>
+    <paper-input-container>
+      <label>[[i18nlabel(id)]]</label>
+      <paper-slider
+       class="paper-input-input"
+        id="input"
+        min$="[[min]]"
+        max$="[[max]]"
+        step$="[[step]]"
+        pin
+        editable
+      ></paper-slider>
+    </paper-input-container>
   </template>
 </dom-module>
 
@@ -160,6 +189,18 @@
       var input = this.$.input;
       settings.w(prop, function(val) { input.checked = val; }, e.context);
       $(input).on("change", function() { settings[prop] = input.checked; });
+    }
+  });
+
+  Polymer({
+    is: "pp-slider",
+    behaviors: [PpInputBehavior, Polymer.PaperInputBehavior],
+    _onSettingsReady: function(e) {
+      var settings = this.getSettings(e);
+      var prop = this.id;
+      var input = this.$.input;
+      settings.w(prop, function(val) { input.value = val; }, e.context);
+      $(input).on("change", function() { settings[prop] = input.value; });
     }
   });
 </script>

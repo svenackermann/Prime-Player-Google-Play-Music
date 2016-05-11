@@ -160,14 +160,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     return function() { theSettings[prop] = $(this).val(); };
   }
 
-  function numberUpdater(prop, theSettings) {
-    return function() { theSettings[prop] = parseFloat($(this).val()); };
-  }
-
-  function boolUpdater(prop, theSettings) {
-    return function() { theSettings[prop] = !theSettings[prop]; };
-  }
-
   /**
    * Appends a question mark symbol to the container and links it with a new element for the hint text.
    * @return the empty jQuery <p> element for the hint text, NOT added to the DOM yet
@@ -199,19 +191,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     input.attr("id", "_" + prop);
     $("#" + prop).toggleClass("synced", synced).append(input);
     return addLabel(input);
-  }
-
-  /**
-   * Initialize a checkbox input for an option.
-   * @param prop the option name
-   * @param theSettings the settings object
-   * @return the checkbox input element
-   */
-  function initCheckbox(prop, theSettings) {
-    var input = $("<input type='checkbox'>");
-    input.prop("checked", theSettings[prop]).click(boolUpdater(prop, theSettings));
-    setIdAndAddItWithLabel(input, prop, theSettings == settings);
-    return input;
   }
 
   /**
@@ -427,12 +406,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function initInputs() {
-    function getSettings(inputContainer) {
-      return inputContainer.hasClass("local") ? localSettings : settings;
-    }
-    $(".i-c").each(function() {
-      initCheckbox(this.id, getSettings($(this)));
-    });
     $(".i-co").each(function() {
       initColorInput(this.id);
     });
@@ -563,14 +536,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initTimer();
 
     //{ last.fm settings
-    var percentSpan = $("#scrobblePercent").find("span");
-    percentSpan.text(settings.scrobblePercent);
-    var scrobblePercent = $("#_scrobblePercent");
-    scrobblePercent
-      .val(settings.scrobblePercent)
-      .mouseup(numberUpdater("scrobblePercent", settings))
-      .change(function() { percentSpan.text($(this).val()); });
-    addLabel(scrobblePercent);
     $("#_linkRatings").click(linkRatingsChanged);
     //}
 

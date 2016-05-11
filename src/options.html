@@ -36,10 +36,7 @@
         <img class="failure" src="img/cross.png">
       </div>
       <pp-toggle id="scrobble"></pp-toggle>
-      <div class="sub synced" id="scrobblePercent">
-        <input id="_scrobblePercent" type="range" min="1" max="100" step="1"/>
-        (<span></span>%)
-      </div>
+      <pp-slider class="sub" id="scrobblePercent" min="1" max="100" step="1"></pp-slider>
       <pp-numberinput class="sub exp" id="scrobbleTime" min="0"></pp-numberinput>
       <pp-numberinput class="sub exp" id="scrobbleMaxDuration" min="0"></pp-numberinput>
       <pp-toggle class="sub adv" id="disableScrobbleOnFf" hint></pp-toggle>
