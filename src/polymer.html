@@ -10,6 +10,7 @@
 <link rel="import" href="../node_modules/npm-polymer-elements/paper-item/paper-item.html"/>
 <link rel="import" href="../node_modules/npm-polymer-elements/paper-toggle-button/paper-toggle-button.html"/>
 <link rel="import" href="../node_modules/npm-polymer-elements/paper-slider/paper-slider.html"/>
+<link rel="import" href="../node_modules/npm-polymer-elements/paper-icon-button/paper-icon-button.html"/>
 
 <dom-module id="pp-input">
   <template>
@@ -79,7 +80,7 @@
     <paper-input-container>
       <label>[[i18nlabel(id)]]</label>
       <paper-slider
-       class="paper-input-input"
+        class="paper-input-input"
         id="input"
         min$="[[min]]"
         max$="[[max]]"
@@ -87,6 +88,33 @@
         pin
         editable
       ></paper-slider>
+    </paper-input-container>
+  </template>
+</dom-module>
+
+<dom-module id="pp-iconchoice">
+  <template>
+    <style>
+      :host {
+        display: block;
+        --paper-input-container-underline: {
+          display: none;
+        };
+        --paper-input-container-underline-focus: {
+          display: none;
+        };
+      }
+      paper-icon-button[active] {
+        outline: 1px auto black;
+      }
+    </style>
+    <paper-input-container always-float-label>
+      <label>[[i18nlabel(id)]]</label>
+      <div class="paper-input-input" id="input">
+        <template is="dom-repeat" items="[[items]]" as="item">
+          <paper-icon-button value$="[[item]]" src="img/icon/[[item]]/connected.png" toggles mini on-tap="_tapped"></paper-icon-button>
+        </template>
+      </div>
     </paper-input-container>
   </template>
 </dom-module>
@@ -210,6 +238,34 @@
       var input = this.$.input;
       settings.w(prop, function(val) { input.value = val; }, e.context);
       $(input).on("change", function() { settings[prop] = input.value; });
+    }
+  });
+
+  Polymer({
+    is: "pp-iconchoice",
+    behaviors: [PpInputBehavior, Polymer.PaperInputBehavior],
+    properties: {
+      items: {
+        type: Array,
+        value: []
+      }
+    },
+    _applyValue: function(val) {
+      $("paper-icon-button[value!='" + val + "']", input).removeAttr("active");
+      $("paper-icon-button[value='" + val + "']", input)[0].active = true;
+    },
+    _onSettingsReady: function(e) {
+      this.settings = this.getSettings(e);
+      var prop = this.id;
+      var input = this;
+      this.settings.w(prop, function(val) {
+        input._applyValue(val);
+      }, e.context);
+    },
+    _tapped: function(e) {
+      var val = $(e.target).closest("paper-icon-button")[0].value;
+      this._applyValue(val);
+      this.settings[this.id] = val;
     }
   });
 </script>

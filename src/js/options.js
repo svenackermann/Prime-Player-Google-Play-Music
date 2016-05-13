@@ -156,10 +156,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#coverClickLink,#titleClickLink").each(function() { this.items = items; });
   }
 
-  function stringUpdater(prop, theSettings) {
-    return function() { theSettings[prop] = $(this).val(); };
-  }
-
   /**
    * Appends a question mark symbol to the container and links it with a new element for the hint text.
    * @return the empty jQuery <p> element for the hint text, NOT added to the DOM yet
@@ -191,17 +187,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     input.attr("id", "_" + prop);
     $("#" + prop).toggleClass("synced", synced).append(input);
     return addLabel(input);
-  }
-
-  /** Initialize the icon style radio buttons. */
-  function initIconStyle() {
-    var iconStyle = $("#iconStyle");
-    $("<label>").text(i18n("setting_iconStyle")).appendTo(iconStyle);
-    ["default", "grey", "phones", "phones-grey", "phones-app", "phones-beta", "favicon", "play", "app"].forEach(function(value) {
-      $("<input type='radio' name='iconStyle'>").attr("value", value).click(stringUpdater("iconStyle", settings)).appendTo(iconStyle);
-      $("<img src='img/icon/" + value + "/connected.png'>").appendTo(iconStyle);
-    });
-    iconStyle.find("input[value='" + settings.iconStyle + "']").prop("checked", true);
   }
 
   /** Handle the optional lyrics permission. */
@@ -556,7 +541,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
     //{ look & feel settings
     $("#shortcutsLink").text(i18n("configShortcuts")).click(function() { chrome.tabs.create({ url: "chrome://extensions/configureCommands" }); });
-    initIconStyle();
     $("#_showProgress").click(showProgressChanged);
 
     $("#iconClickActionTitle").text(i18n("iconClickActionTitle"));
