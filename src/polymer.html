@@ -11,6 +11,8 @@
 <link rel="import" href="../node_modules/npm-polymer-elements/paper-toggle-button/paper-toggle-button.html"/>
 <link rel="import" href="../node_modules/npm-polymer-elements/paper-slider/paper-slider.html"/>
 <link rel="import" href="../node_modules/npm-polymer-elements/paper-icon-button/paper-icon-button.html"/>
+<link rel="import" href="../node_modules/npm-polymer-elements/paper-dialog/paper-dialog.html"/>
+<link rel="import" href="../node_modules/npm-polymer-elements/paper-button/paper-button.html"/>
 
 <dom-module id="pp-input">
   <template>
@@ -57,10 +59,11 @@
   <template>
     <style>
       :host {
-        display: block;
+        display: flex;
       }
     </style>
     <paper-toggle-button id="input">[[i18nlabel(id)]]</paper-toggle-button>
+    <label></label>
   </template>
 </dom-module>
 
@@ -122,19 +125,37 @@
 <script>
   /* global chrome, Polymer */
   /* jshint jquery: true */
+  var i18n = chrome.i18n.getMessage;
   var PpInputBehavior = {
     properties: {
       local: Boolean,
-      hint: Boolean
+      hint: Boolean,
+      id: String
     },
     i18nlabel: function(id) {
-      return chrome.i18n.getMessage("setting_" + id);
+      return i18n("setting_" + id);
     },
     listeners: {
       settingsready: "_onSettingsReady"
     },
     ready: function() {
       this.toggleClass("pp-input", true);
+      if (this.hint) {
+        var dialog = $("<paper-dialog modal>");
+        $("<h2>").text(this.i18nlabel(this.id)).appendTo(dialog);
+        $("<p>").html(i18n("setting_" + this.id + "Hint")).appendTo(dialog);
+        var buttons = $("<div class='buttons'>");
+        $("<paper-button dialog-confirm>").text("OK").appendTo(buttons);
+        dialog.append(buttons);
+        $(this).append(dialog);
+        dialog = dialog[0];
+        $("<paper-icon-button icon='help-outline' class='hint-trigger' noink mini>")
+          .on("tap", function() {
+            dialog.open();
+            return false;
+          })
+          .appendTo($("label", this));
+      }
     },
     getSettings: function(e) {
       return this.local ? e.localSettings : e.settings;
@@ -251,8 +272,8 @@
       }
     },
     _applyValue: function(val) {
-      $("paper-icon-button[value!='" + val + "']", input).removeAttr("active");
-      $("paper-icon-button[value='" + val + "']", input)[0].active = true;
+      $("paper-icon-button[value!='" + val + "']", this).removeAttr("active");
+      $("paper-icon-button[value='" + val + "']", this)[0].active = true;
     },
     _onSettingsReady: function(e) {
       this.settings = this.getSettings(e);

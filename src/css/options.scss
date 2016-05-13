@@ -83,6 +83,20 @@ fieldset.lyrics .dragging {
   line-height: 1.3em;
 }
 
+.hint-trigger {
+  cursor: pointer;
+  padding: 0;
+  margin-left: 1ex;
+  color: green;
+  width: 26px;
+  height: 26px;
+}
+
+pp-toggle .hint-trigger {
+  width: 20px;
+  height: 20px;
+}
+
 .info {
   padding-left: 15px;
   overflow-x: hidden;
