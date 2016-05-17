@@ -1980,7 +1980,7 @@ function fixForUri(string) {
     if (!player.connected && !connecting) refreshContextMenu();
   });
   settings.al("hideFavorites", refreshContextMenu);
-  settings.al("scrobble", function(val) { chromeContextMenus.update("toggleScrobble", { checked: val }); });
+  settings.al("scrobble", function(val) { chromeContextMenus.update("toggleScrobble", { checked: val }, ignoreLastError); });
   //} context menu
 
   //{ idle/locked handling

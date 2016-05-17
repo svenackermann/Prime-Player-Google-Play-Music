@@ -24,7 +24,7 @@ fieldset.lyrics .dragging {
 }
 
 .syncenabled {
-  .synced, .pp-input:not([local]) {
+  .synced, .pp-optioninput:not([local]) {
     label:after {
       content: "*";
       padding-left: 1ex;

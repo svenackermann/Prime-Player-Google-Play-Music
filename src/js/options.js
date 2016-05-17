@@ -481,11 +481,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   $(function() {
-    var settingsready = new Event("settingsready");
-    settingsready.settings = settings;
-    settingsready.localSettings = localSettings;
-    settingsready.context = CONTEXT;
-    settingsready.optionsTextGetter = {
+    var optionsTextGetter = {
       bundle: function(val, prop) { return chrome.i18n.getMessage("setting_" + prop + "_" + val); },
       commandOptionText: bp.getCommandOptionText,
       connectActionText: function(val) {
@@ -499,8 +495,35 @@ chrome.runtime.getBackgroundPage(function(bp) {
         return bp.getCommandOptionText(action);
       }
     };
-    $(".pp-input").each(function() {
-      this.dispatchEvent(settingsready);
+    $("pp-select").each(function() {
+      var config = this.from ? $(this.from)[0] : this;
+      var options = config.options.split(",");
+      var getOptionText = optionsTextGetter[config.getoptionstext];
+      var items = [];
+      var prop = this.id;
+      options.forEach(function(option) {
+        var optionClass = "";
+        if (option.indexOf(":") >= 0) {
+          var split = option.split(":");
+          option = split[0];
+          optionClass = split[1];
+        }
+        var item = { clazz: optionClass, text: getOptionText(option, prop), value: option };
+        items.push(item);
+      });
+      this.items = items;
+    });
+    $(".pp-optioninput").each(function() {
+      var theSettings = this.local ? localSettings : settings;
+      var that = this;
+      theSettings.w(this.id, function(val) { that.value = val; }, CONTEXT);
+      this.addEventListener("value-changed", function(e) {
+        if (that.type == "number") {
+          var value = parseFloat(e.detail.value);
+          if ($.isNumeric(that.min) && value < that.min || $.isNumeric(that.max) && value > that.max) that.value = theSettings[that.id];
+          else theSettings[that.id] = value;
+        } else theSettings[that.id] = e.detail.value;
+      });
     });
 
     $("#confirmDialog [dialog-dismiss]").text(i18n("dialogCancel"));
