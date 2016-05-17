@@ -22,15 +22,15 @@
       <pp-toggle class="v-2.20 adv notif" id="timerNotify" local></pp-toggle>
       <pp-input class="v-2.22 adv notif" id="timerPreNotify" local min="0"></pp-input>
       <pp-select class="v-2.20" id="timerAction" options="pause,closeGm" local></pp-select>
-      <button id="startTimer"></button>
-      <button id="stopTimer"></button>
+      <paper-button id="startTimer" raised></paper-button>
+      <paper-button id="stopTimer" raised></paper-button>
     </fieldset>
     <fieldset class="lastfm">
       <legend id="legendLastfm"></legend>
       <div id="lastfmStatus">
         <span></span>
         <a target="_blank" class="disconnected"></a>
-        <a tabindex="0"></a>
+        <paper-button id="lastfmlogin" raised></paper-button>
         <img class="loader" src="img/ajax-loader.gif">
         <img class="success" src="img/check.png">
         <img class="failure" src="img/cross.png">
@@ -146,7 +146,14 @@
       <pp-toggle class="adv" id="syncSettings" local hint></pp-toggle>
       <pp-toggle class="exp" id="gaEnabled" hint></pp-toggle>
     </fieldset>
-    <button id="resetSettings"></button>
+    <paper-button id="resetSettings" raised></paper-button>
+    <paper-dialog id="confirmDialog" modal>
+      <p></p>
+      <div class="buttons">
+        <paper-button dialog-dismiss></paper-button>
+        <paper-button dialog-confirm>OK</paper-button>
+      </div>
+    </paper-dialog>
   </div>
   <div class="info">
     <div id="filter" class="v-2.23">

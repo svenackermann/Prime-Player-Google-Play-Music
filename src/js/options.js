@@ -68,8 +68,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     scrobbleChanged(settings.scrobble);
     linkRatingsChanged();
     var statusDiv = $("#lastfmStatus");
-    var links = statusDiv.find("a");
-    var userLink = links.first();
+    var userLink = statusDiv.find("a");
     if (user) {
       action = function() {
         statusDiv.find("img").hide();
@@ -82,7 +81,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       actionText = i18n("connect");
       userLink.text(i18n("disconnected")).removeAttr("href").addClass("disconnected");
     }
-    links.last().text(actionText).unbind().click(action);
+    $("#lastfmlogin").text(actionText).unbind().on("tap", action);
   }
 
   function iconClickChanged() {
@@ -187,6 +186,15 @@ chrome.runtime.getBackgroundPage(function(bp) {
     input.attr("id", "_" + prop);
     $("#" + prop).toggleClass("synced", synced).append(input);
     return addLabel(input);
+  }
+
+  function confirmDialog(content, onConfirm) {
+    var dialog = $("#confirmDialog");
+    $("p", dialog).text(content);
+    dialog.unbind().on("iron-overlay-closed", function(e) {
+      if (e.detail.confirmed) onConfirm();
+    });
+    dialog[0].open();
   }
 
   /** Handle the optional lyrics permission. */
@@ -294,14 +302,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
             setProviderEnabled(false);
           }
           checkbox.click(function() {
-            alert(i18n("lyricsAlert", provider.getUrl()));
-            provider.requestPermission(function(granted) {
-              if (granted) {
-                setProviderEnabled(true);
-                enableCheckBox();
-              } else {
-                checkbox.prop("checked", false);
-              }
+            checkbox.prop("checked", false);
+            confirmDialog(i18n("lyricsAlert", provider.getUrl()), function() {
+              provider.requestPermission(function(granted) {
+                if (granted) {
+                  setProviderEnabled(true);
+                  enableCheckBox();
+                }
+              });
             });
           });
         }
@@ -495,6 +503,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
       this.dispatchEvent(settingsready);
     });
 
+    $("#confirmDialog [dialog-dismiss]").text(i18n("dialogCancel"));
+
     $("head > title").text(i18n("options") + " - " + i18n("extTitle"));
     initLegends();
 
@@ -582,13 +592,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
     pauseOnIdleChanged();
     autoActivateGmChanged();
 
-    $("#resetSettings").click(function() {
-      if (confirm(i18n("resetSettingsConfirm"))) {
+    $("#resetSettings").on("tap", function() {
+      confirmDialog(i18n("resetSettingsConfirm"), function() {
         settings.reset();
         localSettings.reset();
         GA.event("Options", "reset");
         location.reload();
-      }
+      });
     }).text(i18n("resetSettings"));
 
     //tell the background page that we're open

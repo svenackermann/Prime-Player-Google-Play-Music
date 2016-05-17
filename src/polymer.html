@@ -141,7 +141,7 @@
     ready: function() {
       this.toggleClass("pp-input", true);
       if (this.hint) {
-        var dialog = $("<paper-dialog modal>");
+        var dialog = $("<paper-dialog>");
         $("<h2>").text(this.i18nlabel(this.id)).appendTo(dialog);
         $("<p>").html(i18n("setting_" + this.id + "Hint")).appendTo(dialog);
         var buttons = $("<div class='buttons'>");

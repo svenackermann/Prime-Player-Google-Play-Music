@@ -5,6 +5,9 @@
   "extTitle": {
     "message": "Prime Player"
   },
+  "dialogCancel": {
+    "message": "Abbrechen"
+  },
   "options": {
     "message": "Optionen"
   },
@@ -469,7 +472,7 @@
     "message": "Prime Player wurde installiert"
   },
   "installNotifierText": {
-    "message": "Prime Player bietet viele Optionen, die du an deine Bedürfnisse anpassen kannst. Beachte auch die FAQ auf der Homepage der Erweiterung im Chrome Store und das Wiki auf Github. Und nun viel Spaß mit Prime Player!"
+    "message": "Prime Player bietet viele Optionen, die du an deine Bedürfnisse anpassen kannst. Beachte auch die FAQ im Wiki auf Github. Und nun viel Spaß mit Prime Player!"
   },
   "updateNotifierTitle": {
     "message": "Prime Player wurde aktualisiert"

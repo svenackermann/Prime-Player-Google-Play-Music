@@ -7,6 +7,10 @@
     "message": "Prime Player",
     "description": "short name of the extension"
   },
+  "dialogCancel": {
+    "message": "Cancel",
+    "description": "Cancel button text for confirm dialog"
+  },
   "options": {
     "message": "Options",
     "description": "title for the options page"
@@ -625,7 +629,7 @@
     "description": "title for install notification"
   },
   "installNotifierText": {
-    "message": "The extension has a bunch of options that you can adjust to fit your needs. Also note the FAQ on the extension's homepage at the Chrome Store and the Wiki on Github. And now have fun with Prime Player!",
+    "message": "The extension has a bunch of options that you can adjust to fit your needs. Also note the FAQ in the Wiki on Github. And now have fun with Prime Player!",
     "description": "message for install notification"
   },
   "updateNotifierTitle": {
