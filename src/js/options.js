@@ -155,28 +155,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#coverClickLink,#titleClickLink").each(function() { this.items = items; });
   }
 
-  /**
-   * Appends a question mark symbol to the container and links it with a new element for the hint text.
-   * @return the empty jQuery <p> element for the hint text, NOT added to the DOM yet
-   */
-  function appendHint(container) {
-    var hint = $("<p class='hint-text'></p>");
-    $("<img src='img/hint.png' class='hint'/>").click(function() {hint.slideToggle("fast");}).appendTo(container);
-    return hint;
-  }
-
-  /**
-   * Adds a question mark symbol for an option and an element containing the hint text, that will be toggled on click on the symbol.
-   * The i18n key for the hint is "setting_" + prop + "Hint".
-   * @return the added hint element
-   */
-  function initHint(prop) {
-    var container = $("#" + prop);
-    var hint = appendHint(container);
-    hint.html(i18n("setting_" + prop + "Hint")).appendTo(container);
-    return hint;
-  }
-
   /** the i18n key for the label is "setting_" + prop */
   function addLabel(input) {
     return $("<label>").attr("for", input.attr("id")).text(i18n("setting_" + input.parent().attr("id"))).insertAfter(input);
@@ -382,13 +360,55 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function initLegends() {
     $("#settings legend").each(function() {
       $(this).text(i18n(this.id));
-      appendHint(this).text(i18n(this.id + "Hint")).insertAfter(this);
+      var hint = $("<p class='hint-text'></p>").text(i18n(this.id + "Hint")).insertAfter(this);
+      $("<img src='img/hint.png' class='hint'/>").click(function() { hint.slideToggle("fast"); }).appendTo(this);
     });
   }
 
   function initInputs() {
-    $(".i-h").each(function() {
-      initHint(this.id);
+    var optionsTextGetter = {
+      bundle: function(val, prop) { return chrome.i18n.getMessage("setting_" + prop + "_" + val); },
+      commandOptionText: bp.getCommandOptionText,
+      connectActionText: function(val) {
+        if (val) return i18n(val);
+        return i18n("openPopup");
+      },
+      playlistEndActionText: function(action) {
+        if (!action.indexOf("ap/")) {
+          return i18n("ob_startsugg", bp.getTextForQuicklink(action));
+        }
+        return bp.getCommandOptionText(action);
+      }
+    };
+    $("pp-select").each(function() {
+      var config = this.from ? $(this.from)[0] : this;
+      var options = config.options.split(",");
+      var getOptionText = optionsTextGetter[config.getoptionstext];
+      var items = [];
+      var prop = this.id;
+      options.forEach(function(option) {
+        var optionClass = "";
+        if (option.indexOf(":") >= 0) {
+          var split = option.split(":");
+          option = split[0];
+          optionClass = split[1];
+        }
+        var item = { clazz: optionClass, text: getOptionText(option, prop), value: option };
+        items.push(item);
+      });
+      this.items = items;
+    });
+    $(".pp-optioninput").each(function() {
+      var theSettings = this.local ? localSettings : settings;
+      var that = this;
+      theSettings.w(this.id, function(val) { that.value = val; }, CONTEXT);
+      this.addEventListener("value-changed", function(e) {
+        if (that.type == "number") {
+          var value = parseFloat(e.detail.value);
+          if ($.isNumeric(that.min) && value < that.min || $.isNumeric(that.max) && value > that.max) that.value = theSettings[that.id];
+          else theSettings[that.id] = value;
+        } else theSettings[that.id] = e.detail.value;
+      });
     });
   }
 
@@ -481,51 +501,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   $(function() {
-    var optionsTextGetter = {
-      bundle: function(val, prop) { return chrome.i18n.getMessage("setting_" + prop + "_" + val); },
-      commandOptionText: bp.getCommandOptionText,
-      connectActionText: function(val) {
-        if (val) return i18n(val);
-        return i18n("openPopup");
-      },
-      playlistEndActionText: function(action) {
-        if (!action.indexOf("ap/")) {
-          return i18n("ob_startsugg", bp.getTextForQuicklink(action));
-        }
-        return bp.getCommandOptionText(action);
-      }
-    };
-    $("pp-select").each(function() {
-      var config = this.from ? $(this.from)[0] : this;
-      var options = config.options.split(",");
-      var getOptionText = optionsTextGetter[config.getoptionstext];
-      var items = [];
-      var prop = this.id;
-      options.forEach(function(option) {
-        var optionClass = "";
-        if (option.indexOf(":") >= 0) {
-          var split = option.split(":");
-          option = split[0];
-          optionClass = split[1];
-        }
-        var item = { clazz: optionClass, text: getOptionText(option, prop), value: option };
-        items.push(item);
-      });
-      this.items = items;
-    });
-    $(".pp-optioninput").each(function() {
-      var theSettings = this.local ? localSettings : settings;
-      var that = this;
-      theSettings.w(this.id, function(val) { that.value = val; }, CONTEXT);
-      this.addEventListener("value-changed", function(e) {
-        if (that.type == "number") {
-          var value = parseFloat(e.detail.value);
-          if ($.isNumeric(that.min) && value < that.min || $.isNumeric(that.max) && value > that.max) that.value = theSettings[that.id];
-          else theSettings[that.id] = value;
-        } else theSettings[that.id] = e.detail.value;
-      });
-    });
-
     $("#confirmDialog [dialog-dismiss]").text(i18n("dialogCancel"));
 
     $("head > title").text(i18n("options") + " - " + i18n("extTitle"));
