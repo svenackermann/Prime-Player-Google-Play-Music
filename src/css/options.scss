@@ -108,8 +108,9 @@ fieldset.lyrics .dragging {
 }
 
 pp-toggle .hint-trigger {
-  width: 20px;
-  height: 20px;
+  height: 18px;
+  display: inline-flex;
+  margin-left: 0;
 }
 
 .info {

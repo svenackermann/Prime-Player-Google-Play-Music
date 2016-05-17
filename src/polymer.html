@@ -44,8 +44,14 @@
       paper-dropdown-menu {
         width: 100%;
       }
+      paper-listbox {
+        overflow-x: auto;
+      }
+      paper-item {
+        min-width: 200px;
+      }
     </style>
-    <paper-dropdown-menu label="[[i18nlabel(id)]]">
+    <paper-dropdown-menu label="[[i18nlabel(id)]]" no-animations vertical-align="center">
       <paper-listbox id="input" class="dropdown-content" attr-for-selected="value">
         <template is="dom-repeat" items="[[items]]" as="item">
           <paper-item class$="[[item.clazz]]" value="_[[item.value]]">[[item.text]]</paper-item>
@@ -59,7 +65,14 @@
   <template>
     <style>
       :host {
-        display: flex;
+        display: block;
+        --paper-toggle-button-label-color: var(--secondary-text-color);
+      }
+      paper-toggle-button {
+        display: inline-flex;
+      }
+      label {
+        color: var(--secondary-text-color);
       }
     </style>
     <paper-toggle-button id="input">[[i18nlabel(id)]]</paper-toggle-button>
