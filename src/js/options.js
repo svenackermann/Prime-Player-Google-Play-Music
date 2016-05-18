@@ -31,14 +31,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   });
 
-  function setSubsEnabled(id, enabled) {
-    $("#" + id).nextUntil("*:not(.sub)").children("input").prop("disabled", !enabled);
+  function setSubsEnabled(id, enabled, subclass) {
+    $("#" + id).nextUntil("*:not(." + (subclass || "sub") + ")").prop("disabled", !enabled);
   }
 
-  function scrobbleChanged(val) {
+  function scrobbleChanged() {
     var se = bp.isScrobblingEnabled();
-    $("#_showScrobbledIndicator").prop("disabled", !se);
-    $("#_scrobble").prop("checked", val);
+    $("#showScrobbledIndicator").prop("disabled", !se);
     setSubsEnabled("scrobble", se);
   }
 
@@ -47,25 +46,24 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function toastChanged() {
-    $("#_toast").prop("checked", settings.toast);
     var toastDisabled = !settings.toast && !settings.toastOnPlayPause;
-    $("#_toastIfMpOpen, #_toastNotIfGmActive, #_toastDuration").prop("disabled", toastDisabled);
-    $("#_toastIfMpMinimized").prop("disabled", toastDisabled || !settings.toastIfMpOpen);
-    $("#_toastUseMpStyle").prop("disabled", toastDisabled || !localSettings.notificationsEnabled);
-    $("fieldset.toast > .notif").children("input, select").prop("disabled", toastDisabled || settings.toastUseMpStyle);
+    $("#toastIfMpOpen,#toastNotIfGmActive,#toastDuration").prop("disabled", toastDisabled);
+    $("#toastIfMpMinimized").prop("disabled", toastDisabled || !settings.toastIfMpOpen);
+    $("#toastUseMpStyle").prop("disabled", toastDisabled || !localSettings.notificationsEnabled);
+    setSubsEnabled("toastUseMpStyle", !toastDisabled && !settings.toastUseMpStyle, "sub2");
   }
 
   function lyricsChanged() {
     setSubsEnabled("lyrics", localSettings.lyrics);
-    $("#_lyricsWidth").prop("disabled", !localSettings.lyrics || !settings.lyricsInGpm);
-    $("option.lyrics").prop("disabled", !localSettings.lyrics);
+    $("#lyricsWidth").prop("disabled", !localSettings.lyrics || !settings.lyricsInGpm);
+    $("paper-item.lyrics").prop("disabled", !localSettings.lyrics);
   }
 
   function lastfmUserChanged(user) {
     var action;
     var actionText;
-    $("#_scrobble, #_linkRatings, #_showLovedIndicator, option.lastfm").prop("disabled", !user);
-    scrobbleChanged(settings.scrobble);
+    $("#scrobble, #linkRatings, #showLovedIndicator, paper-item.lastfm").prop("disabled", !user);
+    scrobbleChanged();
     linkRatingsChanged();
     var statusDiv = $("#lastfmStatus");
     var userLink = statusDiv.find("a");
@@ -85,35 +83,33 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function iconClickChanged() {
-    if (!settings.iconClickAction0) settings.iconClickAction1 = "";
-    if (!settings.iconClickAction1) settings.iconClickAction2 = "";
-    if (!settings.iconClickAction2) settings.iconClickAction3 = "";
-    var noClickTime = $("#_iconDoubleClickTime").prop("disabled", !settings.iconClickAction0).val() == "0";
-    $("#_iconClickAction1").prop("disabled", !settings.iconClickAction0 || noClickTime).val(settings.iconClickAction1);
-    $("#_iconClickAction2").prop("disabled", !settings.iconClickAction1 || noClickTime).val(settings.iconClickAction2);
-    $("#_iconClickAction3").prop("disabled", !settings.iconClickAction2 || noClickTime).val(settings.iconClickAction3);
+    var noClickTime = $("#iconDoubleClickTime").prop("disabled", !settings.iconClickAction0).val() == "0";
+    [1, 2, 3].forEach(function(index) {
+      var noPrevAction = !settings["iconClickAction" + (index - 1)];
+      if (noPrevAction) settings["iconClickAction" + index] = "";
+      $("#iconClickAction" + index).prop("disabled", noPrevAction || noClickTime);
+    });
   }
 
-  function showProgressChanged() {
-    setSubsEnabled("showProgress", settings.showProgress);
+  function showProgressChanged(val) {
+    setSubsEnabled("showProgress", val);
   }
 
-  function saveLastPositionChanged() {
-    $("option[value='resumeLastSong']").prop("disabled", !settings.saveLastPosition);
+  function saveLastPositionChanged(val) {
+    $("paper-item.resumeLastSong").prop("disabled", !val);
   }
 
-  function pauseOnIdleChanged() {
-    $("#_pauseOnIdleSec").prop("disabled", settings.pauseOnIdleSec < 0).val(Math.abs(settings.pauseOnIdleSec));
+  function pauseOnIdleChanged(val) {
+    setSubsEnabled("pauseOnIdle", val);
   }
 
-  function autoActivateGmChanged() {
-    setSubsEnabled("autoActivateGm", settings.autoActivateGm);
+  function autoActivateGmChanged(val) {
+    setSubsEnabled("autoActivateGm", val);
   }
 
   function notificationsEnabledChanged(val) {
     settingsView.toggleClass("notifDisabled", !val);
-    if (!val && settings.toast && !settings.toastUseMpStyle) $("#_toastUseMpStyle").click();//use click here to change the checkbox value
-    else toastChanged();//in if clause this is triggered by the click listener on #toastUseMpStyle
+    toastChanged();
   }
 
   var countdownInterval;
@@ -133,7 +129,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       countdownInterval = setInterval(updateTimerStatus.bind(window, timerEnd), 1000);
     }
     updateTimerStatus(timerEnd);
-    $("#startTimer, #_timerMinutes, #_timerNotify, #_timerPreNotify, #_timerAction").prop("disabled", timerEnd !== 0);
+    $("#startTimer, #timerMinutes, #timerNotify, #timerPreNotify, #timerAction").prop("disabled", timerEnd !== 0);
     $("#stopTimer").prop("disabled", !timerEnd);
   }
 
@@ -141,9 +137,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var ratingMode = bp.getRatingMode();
     settingsView.removeClass("star thumbs");
     if (ratingMode) settingsView.addClass(ratingMode);
-    $("#_skipRatedLower option[value='2']").text(i18n("setting_skipRatedLower_2" + (ratingMode == "star" ? "_stars" : "")));
-    $("option[value='rate-1'], option[value='rate-5']").each(function() {
-      $(this).text(bp.getCommandOptionText($(this).attr("value")));
+    $("#skipRatedLower")[0].setText(2, i18n("setting_skipRatedLower_2" + (ratingMode == "star" ? "_stars" : "")));
+    $("#toastClick,pp-select[from='#toastClick']").each(function() {
+      var input = this;
+      input.items.forEach(function(item, index) {
+        if (item.value == "rate-1" || item.value == "rate-5") input.setText(index, bp.getCommandOptionText(item.value));
+      });
     });
   }
 
@@ -152,7 +151,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     [""].concat(bp.getQuicklinks()).forEach(function(ql) {
       items.push({ text: bp.getTextForQuicklink(ql), value: ql, clazz: "" });
     });
-    $("#coverClickLink,#titleClickLink").each(function() { this.items = items; });
+    $("#coverClickLink,#titleClickLink").each(function() { this.setItems(items); });
   }
 
   /** the i18n key for the label is "setting_" + prop */
@@ -176,12 +175,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   /** Handle the optional lyrics permission. */
-  function initLyricsProviders(lyrics) {
+  function initLyricsProviders() {
     var providers = localSettings.lyricsProviders;
 
     function setEnabledStates() {
-      lyrics.prop("disabled", !providers.length);
-      $("#_lyricsAutoNext").prop("disabled", providers.length < 2);
+      $("#lyrics").prop("disabled", !providers.length);
+      $("#lyricsAutoNext").prop("disabled", providers.length < 2);
     }
     setEnabledStates();
 
@@ -250,9 +249,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
           var index = providers.indexOf(providerName);
           providers.splice(index, 1);
           if (!providers.length && localSettings.lyrics) {
-            lyrics.prop("checked", false);
             localSettings.lyrics = false;
-            lyricsChanged();
           }
         }
         localSettings.lyricsProviders = providers;//trigger listeners
@@ -307,25 +304,29 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function updatePreNotifyMax() {
-    var timerPreNotify = $("#_timerPreNotify");
-    var max = $("#_timerMinutes").val() * 60;
+    var timerPreNotify = $("#timerPreNotify");
+    var max = $("#timerMinutes").val() * 60;
     timerPreNotify.attr("max", max);
     if (timerPreNotify.val() > max) timerPreNotify.val(max);
   }
 
   /** Setup UI and logic for the timer. */
   function initTimer() {
-    var timerMinutes = $("#_timerMinutes").unbind().change(updatePreNotifyMax);
-    var timerNotify = $("#_timerNotify").unbind();
-    var timerPreNotify = $("#_timerPreNotify").unbind();
-    var timerAction = $("#_timerAction").unbind();
+    var timerMinutes = $("#timerMinutes").unbind().on("value-changed", updatePreNotifyMax);
+    var timerNotify = $("#timerNotify").unbind();
+    var timerPreNotify = $("#timerPreNotify").unbind().on("value-changed", function(e) {
+      var value = parseFloat(e.detail.value);
+      if (!$.isNumeric(value) || value < this.min) this.value = this.min;
+      else if (value > this.max) this.value = this.max;
+    });
+    var timerAction = $("#timerAction").unbind();
     $("#startTimer").text(i18n("startTimer")).click(function() {
-      var min = timerMinutes.val();
+      var min = parseFloat(timerMinutes.val());
       if (min) {
         localSettings.timerMinutes = min;
         localSettings.timerAction = timerAction.val();
-        localSettings.timerNotify = timerNotify.prop("checked");
-        localSettings.timerPreNotify = timerPreNotify.val();
+        localSettings.timerNotify = timerNotify.val();
+        localSettings.timerPreNotify = parseFloat(timerPreNotify.val());
         localSettings.timerEnd = $.now() / 1000 + min * 60;
         bp.startSleepTimer();
       }
@@ -336,23 +337,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   /** Setup UI and logic for the options filter. */
   function initFilter() {
-    function optionsModeChanged() {
-      settingsView.removeClass("f-beg f-adv f-exp").addClass("f-" + settings.optionsMode);
-    }
-    $("#_optionsMode").change(optionsModeChanged);
-    optionsModeChanged();
+    settings.w("optionsMode", function(val) { settingsView.removeClass("f-beg f-adv f-exp").addClass("f-" + val); }, CONTEXT);
 
     $("#filter p").text(i18n("filterHint"));
 
-    $("#filter .i-c").each(function() {
-      var id = this.id;
-      var label = $(this).children("label").removeAttr("for");
-      function updateFilter() {
-        settingsView.toggleClass(id, !settings[id]);
-        label.html(settings[id] ? "<a href='#" + id.replace("filter", "legend") + "'>" + label.text() + "</a>" : label.text());
-      }
-      $("#_" + id).click(updateFilter);
-      updateFilter();
+    $("#filter pp-toggle").each(function() {
+      settings.w(this.id, function(val, old, prop) { settingsView.toggleClass(prop, !val); }, CONTEXT);
     });
   }
 
@@ -396,13 +386,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
         var item = { clazz: optionClass, text: getOptionText(option, prop), value: option };
         items.push(item);
       });
-      this.items = items;
+      this.setItems(items);
     });
-    $(".pp-optioninput").each(function() {
+    $(".pp-option").each(function() {
       var theSettings = this.local ? localSettings : settings;
       var that = this;
       theSettings.w(this.id, function(val) { that.value = val; }, CONTEXT);
-      this.addEventListener("value-changed", function(e) {
+      $(this).on("value-changed", function(e) {
         if (that.type == "number") {
           var value = parseFloat(e.detail.value);
           if ($.isNumeric(that.min) && value < that.min || $.isNumeric(that.max) && value > that.max) that.value = theSettings[that.id];
@@ -514,53 +504,44 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initTimer();
 
     //{ last.fm settings
-    $("#_linkRatings").click(linkRatingsChanged);
+    settings.al("linkRatings", linkRatingsChanged, CONTEXT);
     //}
 
     //{ toast settings
-    $("#notificationDisabledWarning").text(i18n("notificationsDisabled"));
-    $("#_toast,#_toastOnPlayPause,#_toastIfMpOpen,#_toastUseMpStyle").click(toastChanged);
+    $("#notificationDisabledWarning div").text(i18n("notificationsDisabled"));
+
+    settings.al("toast toastOnPlayPause toastIfMpOpen toastUseMpStyle", toastChanged, CONTEXT);
     //}
 
     //{ miniplayer settings
+    $("#miniplayerType .hint-content a").text("chrome://flags").attr("tabindex", "0").click(function() { chrome.tabs.create({ url: "chrome://flags/#enable-panels" }); });
     function setLayoutHintVisibility() {
       var panel = settings.miniplayerType == "panel" || settings.miniplayerType == "detached_panel";
-      var mpt = $("#miniplayerType");
-      mpt.children(".hint").toggle(panel);
-      if (!panel) mpt.children(".hint-text").hide();
-
-      var visible = panel && settings.layout == "hbar";
-      var layout = $("#layout");
-      layout.children(".hint").toggle(visible);
-      if (!visible) layout.children(".hint-text").hide();
+      $("#miniplayerType .hint-trigger").toggle(panel);
+      $("#layout .hint-trigger").toggle(panel && settings.layout == "hbar");
     }
-    $("#_miniplayerType")
-      .change(setLayoutHintVisibility)
-      .siblings(".hint-text").find("a").text("chrome://flags").attr("tabindex", "0").click(function() { chrome.tabs.create({ url: "chrome://flags/#enable-panels" }); });
-    $("#_layout").change(setLayoutHintVisibility);
-    setLayoutHintVisibility();
+
+    settings.w("miniplayerType layout", setLayoutHintVisibility, CONTEXT);
     //}
 
     //{ lyrics settings
-    var lyrics = $("#_lyrics").click(lyricsChanged);
-    initLyricsProviders(lyrics);
-    $("#_lyricsInGpm").click(lyricsChanged);
+    localSettings.w("lyrics", lyricsChanged, CONTEXT);
+    settings.al("lyricsInGpm", lyricsChanged, CONTEXT);
+    initLyricsProviders();
     //}
 
     //{ look & feel settings
     $("#shortcutsLink").text(i18n("configShortcuts")).click(function() { chrome.tabs.create({ url: "chrome://extensions/configureCommands" }); });
-    $("#_showProgress").click(showProgressChanged);
-
     $("#iconClickActionTitle").text(i18n("iconClickActionTitle"));
-    $("select[id^='_iconClickAction']")
-      .change(iconClickChanged)
-      .find("option[value='']").text(i18n("openPopup"));
-    $("#_iconDoubleClickTime").change(iconClickChanged);
+    $("pp-select[id^='iconClickAction']").each(function() { this.setText(0, i18n("openPopup")); });
+    $("#startupAction")[0].setText(0, i18n("command_"));
 
-    $("#_saveLastPosition").click(saveLastPositionChanged);
-    $("#_starRatingMode").click(ratingModeChanged);
-    $("#_startupAction option[value='']").text(i18n("command_"));
-    $("#_autoActivateGm").click(autoActivateGmChanged);
+    settings.w("showProgress", showProgressChanged, CONTEXT);
+    settings.w("iconClickAction0 iconClickAction1 iconClickAction2 iconClickAction3 iconDoubleClickTime", iconClickChanged, CONTEXT);
+    settings.w("saveLastPosition", saveLastPositionChanged, CONTEXT);
+    settings.w("pauseOnIdle", pauseOnIdleChanged, CONTEXT);
+    settings.w("starRatingMode", ratingModeChanged, CONTEXT);
+    settings.w("autoActivateGm", autoActivateGmChanged, CONTEXT);
     //}
 
     //watch this if changed via miniplayer or context menu
@@ -571,24 +552,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
     localSettings.w("notificationsEnabled", notificationsEnabledChanged, CONTEXT);
     //update timer
     localSettings.w("timerEnd", timerEndChanged, CONTEXT);
-    localSettings.al("timerAction", function(val) { $("#_timerAction").val(val); }, CONTEXT);
-    localSettings.al("timerMinutes", function(val) {
-      $("#_timerMinutes").val(val);
-      updatePreNotifyMax();
-    }, CONTEXT);
+    localSettings.al("timerMinutes", updatePreNotifyMax, CONTEXT);
     //Google account dependent options
-    localSettings.w("ratingMode", ratingModeChanged, CONTEXT);
+    localSettings.al("ratingMode", ratingModeChanged, CONTEXT);
     localSettings.w("quicklinks", quicklinksChanged, CONTEXT);
     localSettings.w("syncSettings", function(val) { $("body").toggleClass("syncenabled", val); }, CONTEXT);
-    localSettings.al("syncSettings", function() { location.reload(); }, CONTEXT);
-
-    //disable inputs if neccessary
-    lyricsChanged();
-    iconClickChanged();
-    showProgressChanged();
-    saveLastPositionChanged();
-    pauseOnIdleChanged();
-    autoActivateGmChanged();
 
     $("#resetSettings").on("tap", function() {
       confirmDialog(i18n("resetSettingsConfirm"), function() {
@@ -598,14 +566,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
         location.reload();
       });
     }).text(i18n("resetSettings"));
-
-    //tell the background page that we're open
-    if (bp.optionsWin) try {
-      bp.optionsWin.close();
-    } catch (e) {
-      console.error(e);
-    }
-    bp.optionsWin = window;
 
     initChangelog();
 
@@ -624,6 +584,5 @@ chrome.runtime.getBackgroundPage(function(bp) {
   $(window).unload(function() {
     settings.ral(CONTEXT);
     localSettings.ral(CONTEXT);
-    if (bp.optionsWin == window) bp.optionsWin = null;
   });
 });

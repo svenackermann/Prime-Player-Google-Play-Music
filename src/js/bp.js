@@ -8,13 +8,10 @@
  */
 
 /* global chrome, Bean, LastFM, initLyricsProviders, initGA */
-/* exported optionsWin, fixForUri */
+/* exported fixForUri */
 /* jshint jquery: true */
 
 //{ global public declarations
-/** The options window, if opened */
-var optionsWin = null;
-
 /** the previous version, if we just updated (set in onInstalled event listener, used by options page) */
 var previousVersion = localStorage.previousVersion;
 
@@ -2117,7 +2114,10 @@ function fixForUri(string) {
   localSettings.al("lyrics lyricsFontSize lyricsWidth lyricsOpacity", postLyricsState);
   localSettings.w("notificationsEnabled", function(val, old) {
     if (val) initNotifications();
-    else if (old) GA.event(GA_CAT_OPTIONS, "notifications-disabled");
+    else {
+      if (old) GA.event(GA_CAT_OPTIONS, "notifications-disabled");
+      if (settings.toast && !settings.toastUseMpStyle) settings.toastUseMpStyle = true;
+    }
   });
 
   player.al("connected", function(val) {

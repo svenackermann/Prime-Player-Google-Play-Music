@@ -32,6 +32,7 @@
       step="[[step]]"
       label="[[i18nlabel(id)]]"
       value="{{value}}"
+      disabled="[[disabled]]"
     ></paper-input>
   </template>
 </dom-module>
@@ -52,9 +53,9 @@
         min-width: 200px;
       }
     </style>
-    <paper-dropdown-menu label="[[i18nlabel(id)]]" no-animations>
+    <paper-dropdown-menu id="dropdown" label="[[i18nlabel(id)]]" disabled="[[disabled]]" no-animations>
       <paper-listbox id="input" class="dropdown-content" attr-for-selected="value">
-        <template is="dom-repeat" items="[[items]]" as="item">
+        <template is="dom-repeat" items="[[items]]">
           <paper-item class$="[[item.clazz]]" value="_[[item.value]]">[[item.text]]</paper-item>
         </template>
       </paper-listbox>
@@ -76,7 +77,7 @@
         color: var(--secondary-text-color);
       }
     </style>
-    <paper-toggle-button id="input">[[i18nlabel(id)]]</paper-toggle-button>
+    <paper-toggle-button id="input" disabled="[[disabled]]">[[i18nlabel(id)]]</paper-toggle-button>
     <label></label>
   </template>
 </dom-module>
@@ -92,6 +93,9 @@
         --paper-input-container-underline-focus: {
           display: none;
         };
+        paper-input-container {
+          padding-bottom: 0;
+        }
       }
     </style>
     <paper-input-container>
@@ -103,6 +107,7 @@
         max$="[[max]]"
         step$="[[step]]"
         value="{{value}}"
+        disabled="[[disabled]]"
         pin
         editable
       ></paper-slider>
@@ -146,6 +151,10 @@
       local: Boolean,
       hint: Boolean,
       id: String,
+      disabled: {
+        type: Boolean,
+        reflectToAttribute: true
+      },
       value: {
         notify: true
       }
@@ -154,11 +163,11 @@
       return i18n("setting_" + id);
     },
     ready: function() {
-      this.toggleClass("pp-optioninput", true);
+      this.toggleClass("pp-option", true);
       if (this.hint) {
         var dialog = $("<paper-dialog>");
         $("<h2>").text(this.i18nlabel(this.id)).appendTo(dialog);
-        $("<p>").html(i18n("setting_" + this.id + "Hint")).appendTo(dialog);
+        $("<p class='hint-content'>").html(i18n("setting_" + this.id + "Hint")).appendTo(dialog);
         var buttons = $("<div class='buttons'>");
         $("<paper-button dialog-confirm>").text("OK").appendTo(buttons);
         dialog.append(buttons);
@@ -204,7 +213,8 @@
       from: String,
       items: {
         type: Array,
-        value: []
+        value: [],
+        readOnly: true
       }
     },
     ready: function() {
@@ -213,6 +223,18 @@
       $(input).on("iron-select", function() { that.value = input.selected.substr(1); });
       //prefix value with "_", because listbox's attrForSelected does not work correctly with empty string or 0
       this.addEventListener("value-changed", function(e) { input.select("_" + e.detail.value); });
+    },
+    _updateLabel: function() {
+      // didn't find a better solution to update also the label in the input
+      this.$.dropdown._selectedItemChanged(this.$.input.selectedItem);
+    },
+    setText: function(index, text) {
+      this.set("items." + index + ".text", text);
+      this._updateLabel();
+    },
+    setItems: function(items) {
+      this._setItems(items);
+      this._updateLabel();
     }
   });
 

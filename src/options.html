@@ -41,7 +41,7 @@
       <pp-input class="sub exp" id="scrobbleMaxDuration" min="0"></pp-input>
       <pp-toggle class="sub adv" id="disableScrobbleOnFf" hint></pp-toggle>
       <pp-toggle class="v-2.15 sub exp" id="scrobbleRepeated"></pp-toggle>
-      <pp-toggle class="sub adv" id="linkRatings" hint></pp-toggle>
+      <pp-toggle class="adv" id="linkRatings" hint></pp-toggle>
       <pp-input class="v-2.26 sub exp stars" id="linkRatingsMin" min="2" max="5"></pp-input>
       <pp-toggle class="v-2.24 sub adv" id="linkRatingsGpm"></pp-toggle>
       <pp-toggle class="v-2.24 sub adv" id="linkRatingsAuto" hint></pp-toggle>
@@ -50,7 +50,10 @@
     </fieldset>
     <fieldset class="toast">
       <legend id="legendToast"></legend>
-      <div id="notificationDisabledWarning"></div>
+      <div id="notificationDisabledWarning">
+        <iron-icon icon="warning"></iron-icon>
+        <div></div>
+      </div>
       <pp-toggle id="toast"></pp-toggle>
       <pp-toggle class="v-3.3 adv" id="toastOnPlayPause"></pp-toggle>
       <pp-input class="v-2.18 sub" id="toastDuration" min="0" hint></pp-input>
@@ -113,7 +116,7 @@
       <pp-input class="v-2.28 sub adv" id="showProgressColorPaused" type="color"></pp-input>
       <fieldset class="adv">
         <legend id="legendIc"></legend>
-        <pp-select class="v-2.28" id="iconClickConnectAction" options=",feelingLucky,resumeLastSong,gotoGmusic,openMiniplayer" getoptionstext="connectActionText"></pp-select>
+        <pp-select class="v-2.28" id="iconClickConnectAction" options=",feelingLucky,resumeLastSong:resumeLastSong,gotoGmusic,openMiniplayer" getoptionstext="connectActionText"></pp-select>
         <h3 id="iconClickActionTitle"></h3>
         <pp-select class="v-2.15 sub" id="iconClickAction0" from="#toastClick"></pp-select>
         <pp-select class="v-2.15 sub" id="iconClickAction1" from="#toastClick"></pp-select>
