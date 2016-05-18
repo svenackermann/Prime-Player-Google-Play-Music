@@ -33,8 +33,15 @@ fieldset.lyrics .dragging {
   }
 }
 
+#bottom {
+  height: 450px;
+  overflow-y: auto;
+}
+
 #settings {
   float: left;
+  width: 65%;
+  margin-bottom: 10px;
   &.f-beg .adv, &.f-beg .exp, &.f-adv .exp {
     display: none;
     &.newFeature {
@@ -51,9 +58,6 @@ fieldset.lyrics .dragging {
     .exp.newFeature label:after {
       content: " (__MSG_setting_optionsMode_exp__)";
     }
-  }
-  &.filterTimer .timer, &.filterLastfm .lastfm, &.filterToast .toast, &.filterMiniplayer .miniplayer, &.filterLyrics .lyrics, &.filterLookfeel .lookfeel {
-    display: none;
   }
   
   &.thumbs .stars, &.star .thumbs, .thumbsOnly, .starsOnly {
@@ -84,6 +88,19 @@ fieldset.lyrics .dragging {
   }
 }
 
+#tools {
+  float: right;
+  width: 30%;
+}
+
+paper-tabs {
+  background-color: #80ECAA;
+}
+
+.tab-hint {
+  margin: 2ex;
+}
+
 .hint-text {
   display: none;
   max-width: 400px;
@@ -109,23 +126,6 @@ pp-toggle .hint-trigger {
   height: 18px;
   display: inline-flex;
   margin-left: 0;
-}
-
-.info {
-  padding-left: 15px;
-  overflow-x: hidden;
-  min-width: 350px;
-  max-width: 450px;
-  font-size: 11px;
-  h3 {
-    font-size: 11px;
-    margin-bottom: 0;
-    font-weight: bold;
-  }
-  ul {
-    margin: 0.3em 0;
-    padding-left: 25px;
-  }
 }
 
 #credits {

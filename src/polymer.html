@@ -13,6 +13,8 @@
 <link rel="import" href="../node_modules/npm-polymer-elements/paper-icon-button/paper-icon-button.html"/>
 <link rel="import" href="../node_modules/npm-polymer-elements/paper-dialog/paper-dialog.html"/>
 <link rel="import" href="../node_modules/npm-polymer-elements/paper-button/paper-button.html"/>
+<link rel="import" href="../node_modules/npm-polymer-elements/paper-tabs/paper-tabs.html"/>
+<link rel="import" href="../node_modules/npm-polymer-elements/iron-pages/iron-pages.html"/>
 
 <dom-module id="pp-input">
   <template>
@@ -139,6 +141,19 @@
         </template>
       </div>
     </paper-input-container>
+  </template>
+</dom-module>
+
+<dom-module id="pp-tab">
+  <template>
+    [[title(id)]]
+  </template>
+</dom-module>
+
+<dom-module id="pp-tabcontent">
+  <template>
+    <div class="tab-hint">[[hint(id)]]</div>
+    <content></content>
   </template>
 </dom-module>
 
@@ -275,6 +290,26 @@
       var val = $(e.target).closest("paper-icon-button")[0].value;
       this._applyValue(val);
       this.value = val;
+    }
+  });
+
+  Polymer({
+    is: "pp-tab",
+    properties: {
+      id: String
+    },
+    title: function(id) {
+      return i18n(id);
+    }
+  });
+
+  Polymer({
+    is: "pp-tabcontent",
+    properties: {
+      id: String
+    },
+    hint: function(id) {
+      return i18n(id + "Hint");
     }
   });
 </script>

@@ -311,45 +311,45 @@
     "message": "This tab is connected to Prime Player. Click to disconnect.",
     "description": "tooltip for the 'P'-icon on Google Music page"
   },
-  "legendTimer": {
-    "message": "Timer settings",
-    "description": "title for the timer settings on options page"
+  "tabTimer": {
+    "message": "Timer",
+    "description": "title for the timer tab on options page"
   },
-  "legendTimerHint": {
+  "tabTimerHint": {
     "message": "The timer allows you to automatically stop the music or close the Google Music tab after a specified amount of time. The settings will become available as soon as Prime Player is connected to Google Music.",
-    "description": "hint for the timer settings on options page"
+    "description": "hint for the timer tab on options page"
   },
-  "legendLastfm": {
-    "message": "last.fm settings",
-    "description": "title for the lastfm settings on options page"
+  "tabLastfm": {
+    "message": "last.fm",
+    "description": "title for the lastfm tab on options page"
   },
-  "legendLastfmHint": {
+  "tabLastfmHint": {
     "message": "Here you can control the connection between Google Music and last.fm and adjust your scrobbling preferences.",
-    "description": "hint for the lastfm settings on options page"
+    "description": "hint for the lastfm tab on options page"
   },
-  "legendToast": {
-    "message": "Toast settings",
-    "description": "title for the toast settings on options page"
+  "tabToast": {
+    "message": "Toast",
+    "description": "title for the toast tab on options page"
   },
-  "legendToastHint": {
+  "tabToastHint": {
     "message": "Toasts are desktop notifications that show you the current song and allow for some actions. Whenever a new song starts, a toast will appear on your screen. Toast notifications will not show up as long as the miniplayer is active.",
-    "description": "hint for the toast settings on options page"
+    "description": "hint for the toast tab on options page"
   },
-  "legendMiniplayer": {
-    "message": "Miniplayer settings",
-    "description": "title for the miniplayer settings on options page"
+  "tabMiniplayer": {
+    "message": "Miniplayer",
+    "description": "title for the miniplayer tab on options page"
   },
-  "legendMiniplayerHint": {
+  "tabMiniplayerHint": {
     "message": "The miniplayer is a powerful, highly customizable tool, so take your time to try the different options out. You can open the miniplayer e.g. by clicking on the headphones icon in the popup that shows up when you click the Prime Player icon in the Chrome toolbar.",
-    "description": "hint for the miniplayer settings on options page"
+    "description": "hint for the miniplayer tab on options page"
   },
-  "legendLookfeel": {
+  "tabLookfeel": {
     "message": "Look & feel",
-    "description": "title for the look and feel settings on options page"
+    "description": "title for the look and feel tab on options page"
   },
-  "legendLookfeelHint": {
+  "tabLookfeelHint": {
     "message": "These settings control the Prime Player icon and some other general behavior.",
-    "description": "hint for the look and feel settings on options page"
+    "description": "hint for the look and feel tab on options page"
   },
   "legendIc": {
     "message": "Browser icon click",
@@ -359,13 +359,21 @@
     "message": "This allows you to customize the action(s) that will be executed when you click the Prime Player icon in the Chrome toolbar.",
     "description": "hint for the icon click settings on options page"
   },
-  "legendLyrics": {
-    "message": "Lyrics settings",
-    "description": "title for the lyrics settings on options page"
+  "tabLyrics": {
+    "message": "Lyrics",
+    "description": "title for the lyrics tab on options page"
   },
-  "legendLyricsHint": {
+  "tabLyricsHint": {
     "message": "You can allow Prime Player to load lyrics from external websites to show them in the miniplayer or the Google Music tab. For this, you first must enable at least one site below. The enabled sites can be sorted with drag & drop, the first site is always searched first for lyrics.",
-    "description": "hint for the lyrics settings on options page"
+    "description": "hint for the lyrics tab on options page"
+  },
+  "tabInfo": {
+    "message": "Info",
+    "description": "title for the info tab on options page"
+  },
+  "tabInfoHint": {
+    "message": "",
+    "description": "hint for the info tab on options page"
   },
   "setting_confirmClose": {
     "message": "Warn when closing the Google Music tab while music is playing",
@@ -1094,13 +1102,13 @@
     "description": "text for context menu entry to start timer in some hours or for remaining time",
     "placeholders": { "HOU": { "content": "$1", "example": "2" } }
   },
-  "filterHint": {
-    "message": "Here you can limit the visible options.",
-    "description": "hint for options filter"
-  },
   "setting_optionsMode": {
     "message": "Mode",
     "description": "label for options filter mode"
+  },
+  "setting_optionsModeHint": {
+    "message": "Here you can limit the visible options.",
+    "description": "hint for options filter"
   },
   "setting_optionsMode_beg": {
     "message": "Beginner",

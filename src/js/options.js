@@ -335,26 +335,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     updatePreNotifyMax();
   }
 
-  /** Setup UI and logic for the options filter. */
-  function initFilter() {
-    settings.w("optionsMode", function(val) { settingsView.removeClass("f-beg f-adv f-exp").addClass("f-" + val); }, CONTEXT);
-
-    $("#filter p").text(i18n("filterHint"));
-
-    $("#filter pp-toggle").each(function() {
-      settings.w(this.id, function(val, old, prop) { settingsView.toggleClass(prop, !val); }, CONTEXT);
-    });
-  }
-
-  /** Set labels and hints for the legends. */
-  function initLegends() {
-    $("#settings legend").each(function() {
-      $(this).text(i18n(this.id));
-      var hint = $("<p class='hint-text'></p>").text(i18n(this.id + "Hint")).insertAfter(this);
-      $("<img src='img/hint.png' class='hint'/>").click(function() { hint.slideToggle("fast"); }).appendTo(this);
-    });
-  }
-
   function initInputs() {
     var optionsTextGetter = {
       bundle: function(val, prop) { return chrome.i18n.getMessage("setting_" + prop + "_" + val); },
@@ -494,9 +474,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#confirmDialog [dialog-dismiss]").text(i18n("dialogCancel"));
 
     $("head > title").text(i18n("options") + " - " + i18n("extTitle"));
-    initLegends();
 
-    $("#lastfmStatus").find("span").text(i18n("lastfmUser"));
     $("#bugfeatureinfo").html(i18n("bugfeatureinfo", "<a target='_blank' href='https://github.com/svenackermann/Prime-Player-Google-Play-Music/issues' data-network='github' data-action='issue'>GitHub</a>"));
 
     initInputs();
@@ -504,6 +482,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initTimer();
 
     //{ last.fm settings
+    $("#lastfmStatus").find("span").text(i18n("lastfmUser"));
     localSettings.w("lastfmSessionName", lastfmUserChanged, CONTEXT);
     settings.al("scrobble", scrobbleChanged, CONTEXT);
     settings.al("linkRatings", linkRatingsChanged, CONTEXT);
@@ -572,7 +551,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
       GA.social(link.data("network"), link.data("action") || "show", link.attr("href") || "-");
     });
 
-    initFilter();
+    settings.w("optionsMode", function(val) { settingsView.removeClass("f-beg f-adv f-exp").addClass("f-" + val); }, CONTEXT);
+
+    var tabs = $("paper-tabs");
+    tabs.on("iron-select", function() {
+      settingsView[0].selected = tabs[0].selected;
+    });
   });
 
   $(window).unload(function() {

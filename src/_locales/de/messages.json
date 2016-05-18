@@ -233,34 +233,34 @@
   "connected": {
     "message": "Dieser Tab ist mit Prime Player verbunden. Zum Trennen klicken."
   },
-  "legendTimer": {
-    "message": "Timer Einstellungen"
+  "tabTimer": {
+    "message": "Timer"
   },
-  "legendTimerHint": {
+  "tabTimerHint": {
     "message": "Mit dem Timer kannst du nach einer festgelegten Zeit automatisch die Musik stoppen oder den Google Music Tab schließen. Die Einstellungen werden verfügbar, sobald Prime Player mit Google Music verbunden ist."
   },
-  "legendLastfm": {
-    "message": "last.fm Einstellungen"
+  "tabLastfm": {
+    "message": "last.fm"
   },
-  "legendLastfmHint": {
+  "tabLastfmHint": {
     "message": "Hier kannst du die Verbindung mit last.fm kontrollieren und deine Scrobbling-Einstellungen anpassen."
   },
-  "legendToast": {
-    "message": "Toast Einstellungen"
+  "tabToast": {
+    "message": "Toast"
   },
-  "legendToastHint": {
+  "tabToastHint": {
     "message": "Toasts sind Desktop-Benachrichtigungen, die den aktuellen Titel anzeigen und ein paar Aktionen erlauben. Immer wenn ein neuer Titel startet, erscheint ein Toast auf dem Bildschirm. Toast-Benachrichtigungen werden nicht angezeigt, solange der Miniplayer aktiv ist."
   },
-  "legendMiniplayer": {
-    "message": "Miniplayer Einstellungen"
+  "tabMiniplayer": {
+    "message": "Miniplayer"
   },
-  "legendMiniplayerHint": {
+  "tabMiniplayerHint": {
     "message": "Der Miniplayer ist ein mächtiges, anpassbares Tool, also nimm dir die Zeit, die verschiedenen Einstellungen auszuprobieren. Du kannst den Miniplayer z.B. mit dem Kopfhörer-Symbol im Popup, das beim Klick auf das Prime-Player-Symbol in Chromes Toolbar erscheint, öffnen."
   },
-  "legendLookfeel": {
+  "tabLookfeel": {
     "message": "Aussehen & Verhalten"
   },
-  "legendLookfeelHint": {
+  "tabLookfeelHint": {
     "message": "Diese Einstellungen kontrollieren das Prime-Player-Symbol und anderes allgemeines Verhalten."
   },
   "legendIc": {
@@ -269,10 +269,10 @@
   "legendIcHint": {
     "message": "Hiermit kannst du die Aktion(en) anpassen, die beim Klick auf das Prime-Player-Symbol in Chromes Toolbar ausgeführt wird/werden."
   },
-  "legendLyrics": {
-    "message": "Songtexte Einstellungen"
+  "tabLyrics": {
+    "message": "Songtexte"
   },
-  "legendLyricsHint": {
+  "tabLyricsHint": {
     "message": "Du kannst Prime Player erlauben, Songtexte von externen Webseiten zu laden, um diese im Miniplayer und/oder dem Google Music Tab anzuzeigen. Dazu musst du zunächst mind. eine Seite unten aktivieren. Die aktivierten Seiten können per Drag & Drop sortiert werden, die erste Seite wird immer zuerst durchsucht."
   },
   "setting_confirmClose": {
@@ -824,11 +824,11 @@
     "message": "$HOU$ Stunden",
     "placeholders": { "HOU": { "content": "$1" } }
   },
-  "filterHint": {
-    "message": "Hier kannst du die sichtbaren Optionen einschränken."
-  },
   "setting_optionsMode": {
     "message": "Modus"
+  },
+  "setting_optionsModeHint": {
+    "message": "Hier kannst du die sichtbaren Optionen einschränken."
   },
   "setting_optionsMode_beg": {
     "message": "Anfänger"
