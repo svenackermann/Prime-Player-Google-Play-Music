@@ -504,12 +504,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initTimer();
 
     //{ last.fm settings
+    localSettings.w("lastfmSessionName", lastfmUserChanged, CONTEXT);
+    settings.al("scrobble", scrobbleChanged, CONTEXT);
     settings.al("linkRatings", linkRatingsChanged, CONTEXT);
     //}
 
     //{ toast settings
     $("#notificationDisabledWarning div").text(i18n("notificationsDisabled"));
-
     settings.al("toast toastOnPlayPause toastIfMpOpen toastUseMpStyle", toastChanged, CONTEXT);
     //}
 
@@ -520,7 +521,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
       $("#miniplayerType .hint-trigger").toggle(panel);
       $("#layout .hint-trigger").toggle(panel && settings.layout == "hbar");
     }
-
     settings.w("miniplayerType layout", setLayoutHintVisibility, CONTEXT);
     //}
 
@@ -535,7 +535,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#iconClickActionTitle").text(i18n("iconClickActionTitle"));
     $("pp-select[id^='iconClickAction']").each(function() { this.setText(0, i18n("openPopup")); });
     $("#startupAction")[0].setText(0, i18n("command_"));
-
     settings.w("showProgress", showProgressChanged, CONTEXT);
     settings.w("iconClickAction0 iconClickAction1 iconClickAction2 iconClickAction3 iconDoubleClickTime", iconClickChanged, CONTEXT);
     settings.w("saveLastPosition", saveLastPositionChanged, CONTEXT);
@@ -544,10 +543,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     settings.w("autoActivateGm", autoActivateGmChanged, CONTEXT);
     //}
 
-    //watch this if changed via miniplayer or context menu
-    settings.al("scrobble", scrobbleChanged, CONTEXT);
-    //we must watch this as the session could be expired
-    localSettings.w("lastfmSessionName", lastfmUserChanged, CONTEXT);
     //show/hide notification based options
     localSettings.w("notificationsEnabled", notificationsEnabledChanged, CONTEXT);
     //update timer
@@ -563,7 +558,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
         settings.reset();
         localSettings.reset();
         GA.event("Options", "reset");
-        location.reload();
       });
     }).text(i18n("resetSettings"));
 

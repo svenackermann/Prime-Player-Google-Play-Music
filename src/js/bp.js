@@ -2669,7 +2669,7 @@ function fixForUri(string) {
     }
     sendStatusChangedMessage(false);
     if (lastfmAuthTabId) {
-      chromeTabs.remove(lastfmAuthTabId);
+      chromeTabs.remove(lastfmAuthTabId, ignoreLastError);
       lastfmAuthTabId = null;
     }
     lastfm.auth.getSession({ token: token }, {
