@@ -46,6 +46,7 @@ iron-pages {
       label:after {
         font-style: italic;
         font-weight: normal;
+        float: right;
       }
     }
   }
@@ -258,28 +259,8 @@ img.hint {
 
 .newFeature {
   display: block !important;
-  color: #FF8F00;
-  font-weight: bold;
-  a {
-    color: #FF8F00;
-  }
-}
-
-#iconStyle img {
-  width: 19px;
-}
-
-#filter {
-  font-size: 12px;
-  > div > div {
-    display: inline-block;
-    > div {
-      float: left;
-    }
-    label {
-      display: inline-block;
-      min-width: 100px;
-    }
+  h3, ul, &.pp-option .toggle-label, &.pp-option label, a {
+    color: #FF8F00 !important;
   }
 }
 
@@ -315,4 +296,8 @@ img.hint {
   > div {
     margin-top: 16px;
   }
+}
+
+paper-badge.hidden {
+  visibility: hidden;
 }

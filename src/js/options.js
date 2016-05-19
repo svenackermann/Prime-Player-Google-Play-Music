@@ -294,15 +294,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     sortProviders();
   }
 
-  /** @return version from a class attribute (e.g. for an element with class "abc v-1.2.3 def" this returns "1.2.3") */
-  function extractVersionFromClass(el) {
-    var cl = $(el).attr("class");
-    var start = cl.indexOf("v-") + 2;
-    if (start < 0) return null;
-    var end = cl.indexOf(" ", start);
-    return cl.substring(start, end < 0 ? cl.length : end);
-  }
-
   function updatePreNotifyMax() {
     var timerPreNotify = $("#timerPreNotify");
     var max = $("#timerMinutes").val() * 60;
@@ -415,6 +406,15 @@ chrome.runtime.getBackgroundPage(function(bp) {
     loadFromUrl("https://api.github.com/repos/svenackermann/Prime-Player-Google-Play-Music/releases");
   }
 
+  /** @return version from a class attribute (e.g. for an element with class "abc v-1.2.3 def" this returns "1.2.3") */
+  function extractVersionFromClass(el) {
+    var cl = $(el).attr("class");
+    var start = cl.indexOf("v-") + 2;
+    if (start < 0) return null;
+    var end = cl.indexOf(" ", start);
+    return cl.substring(start, end < 0 ? cl.length : end);
+  }
+
   function renderChangelog(releases) {
     var releasesUrl = "https://github.com/svenackermann/Prime-Player-Google-Play-Music/releases/";
     var changelog = $("#changelog");
@@ -454,10 +454,16 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
     //mark new features
     if (bp.previousVersion) {
-      $("div[class*='v-']").each(function() {
+      var badges = {};
+      $("[class*='v-']").each(function() {
         var version = extractVersionFromClass(this);
-        if (bp.isNewerVersion(version)) $(this).addClass("newFeature");
+        if (bp.isNewerVersion(version)) {
+          $(this).addClass("newFeature");
+          var tabName = $(this).parents("pp-tab").attr("id");
+          if (tabName && tabName != "tabInfo") badges[tabName] = badges[tabName] ? badges[tabName] + 1 : 1;
+        }
       });
+      $("pp-tabs")[0].badges = badges;
       bp.updateInfosViewed();
     }
   }
