@@ -421,7 +421,7 @@
     "message": "Verberge Favoriten im Miniplayer und Kontext-Menü"
   },
   "setting_skipRatedLower": {
-    "message": "(oder schlechter) bewertete Titel überspringen"
+    "message": "Überspringe Titel bewertet mit (oder schlechter)"
   },
   "setting_skipRatedLower_0": {
     "message": "deaktiviert"
@@ -778,6 +778,9 @@
   "stopTimer": {
     "message": "Stop"
   },
+  "timerActive": {
+    "message": "Timer ist aktiv:"
+  },
   "timerNotificationTitle": {
     "message": "Timer abgelaufen"
   },
@@ -838,24 +841,6 @@
   },
   "setting_optionsMode_exp": {
     "message": "Experte"
-  },
-  "setting_filterTimer": {
-    "message": "Timer"
-  },
-  "setting_filterLastfm": {
-    "message": "Last.fm"
-  },
-  "setting_filterToast": {
-    "message": "Toasts"
-  },
-  "setting_filterMiniplayer": {
-    "message": "Miniplayer"
-  },
-  "setting_filterLyrics": {
-    "message": "Songtexte"
-  },
-  "setting_filterLookfeel": {
-    "message": "Verhalten"
   },
   "notificationsDisabled": {
     "message": "Benachrichtigungen sind für Prime Player deaktiviert. Daher sind nur Toasts im Miniplayer-Stil möglich."

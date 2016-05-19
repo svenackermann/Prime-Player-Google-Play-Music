@@ -12,7 +12,7 @@
 chrome.runtime.getBackgroundPage(function(bp) {
   var CONTEXT = "options";
   var CHANGELOG_STORAGE_KEY = "releases";
-  var settingsView = $("#settings");
+  var settingsView = $("iron-pages");
   var i18n = chrome.i18n.getMessage;
   var settings = bp.settings;
   var localSettings = bp.localSettings;
@@ -116,9 +116,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function updateTimerStatus(timerEnd) {
     var countdown = Math.floor((timerEnd || 0) - $.now() / 1000);
     if (countdown > 0) {
-      $("#timerStatus").text(i18n("setting_timerAction_" + localSettings.timerAction) + " in " + bp.toTimeString(countdown));
+      $("#timerStatus").show().find(">div").text(i18n("setting_timerAction_" + localSettings.timerAction) + " in " + bp.toTimeString(countdown));
     } else {
-      $("#timerStatus").empty();
+      $("#timerStatus").hide();
       clearInterval(countdownInterval);
     }
   }
@@ -129,8 +129,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
       countdownInterval = setInterval(updateTimerStatus.bind(window, timerEnd), 1000);
     }
     updateTimerStatus(timerEnd);
-    $("#startTimer, #timerMinutes, #timerNotify, #timerPreNotify, #timerAction").prop("disabled", timerEnd !== 0);
-    $("#stopTimer").prop("disabled", !timerEnd);
+    $("#startTimer,#timerMinutes,#timerNotify,#timerPreNotify,#timerAction").prop("disabled", timerEnd !== 0);
+    $(".stopTimer").prop("disabled", !timerEnd);
   }
 
   function ratingModeChanged() {
@@ -184,9 +184,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
     setEnabledStates();
 
-    var draggableSelector = "fieldset.lyrics.sortable>[draggable='true']";
+    var draggableSelector = "#tabLyrics.sortable>[draggable='true']";
     var droppableSelector = draggableSelector + "," + draggableSelector + "+div";
-    $("#settings")
+    $("#tabLyrics")
       .on("dragover", droppableSelector, function(ev) {
         var types = ev.originalEvent.dataTransfer.types;
         var providerName = $(this).data("provider");
@@ -312,6 +312,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   /** Setup UI and logic for the timer. */
   function initTimer() {
+    $("#timerStatus h2").text(i18n("timerActive"));
     var timerMinutes = $("#timerMinutes").unbind().on("value-changed", updatePreNotifyMax);
     var timerNotify = $("#timerNotify").unbind();
     var timerPreNotify = $("#timerPreNotify").unbind().on("value-changed", function(e) {
@@ -331,7 +332,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         bp.startSleepTimer();
       }
     });
-    $("#stopTimer").text(i18n("stopTimer")).click(bp.clearSleepTimer);
+    $(".stopTimer").text(i18n("stopTimer")).click(bp.clearSleepTimer);
     updatePreNotifyMax();
   }
 
@@ -552,11 +553,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
 
     settings.w("optionsMode", function(val) { settingsView.removeClass("f-beg f-adv f-exp").addClass("f-" + val); }, CONTEXT);
-
-    var tabs = $("paper-tabs");
-    tabs.on("iron-select", function() {
-      settingsView[0].selected = tabs[0].selected;
-    });
   });
 
   $(window).unload(function() {

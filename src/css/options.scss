@@ -33,14 +33,12 @@ fieldset.lyrics .dragging {
   }
 }
 
-#bottom {
+iron-pages {
+  float: left;
+  width: 70%;
   height: 450px;
   overflow-y: auto;
-}
-
-#settings {
-  float: left;
-  width: 65%;
+  padding-right: 10px;
   margin-bottom: 10px;
   &.f-beg .adv, &.f-beg .exp, &.f-adv .exp {
     display: none;
@@ -88,13 +86,13 @@ fieldset.lyrics .dragging {
   }
 }
 
-#tools {
-  float: right;
-  width: 30%;
-}
-
 paper-tabs {
   background-color: #80ECAA;
+}
+
+#tools {
+  overflow: hidden;
+  padding: 5px 10px 5px 20px;
 }
 
 .tab-hint {
@@ -306,5 +304,15 @@ img.hint {
   }
   .notif {
     display: none;
+  }
+}
+
+#timerStatus {
+  margin-top: 20px;
+  .stopTimer {
+    float: right;
+  }
+  > div {
+    margin-top: 16px;
   }
 }

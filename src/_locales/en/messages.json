@@ -569,7 +569,7 @@
     "description": "label for option to hide favorites"
   },
   "setting_skipRatedLower": {
-    "message": "(or lower) rated songs will be skipped",
+    "message": "skip songs rated (or lower)",
     "description": "label for option to skip songs that have a low rating"
   },
   "setting_skipRatedLower_0": {
@@ -1042,6 +1042,10 @@
     "message": "Stop",
     "description": "label for button to stop timer"
   },
+  "timerActive": {
+    "message": "Timer is active:",
+    "description": "header on options page for timer status display if timer is active"
+  },
   "timerNotificationTitle": {
     "message": "Timeout occured",
     "description": "title for timeout notification"
@@ -1121,30 +1125,6 @@
   "setting_optionsMode_exp": {
     "message": "Expert",
     "description": "label for options filter expert"
-  },
-  "setting_filterTimer": {
-    "message": "Timer",
-    "description": "label for options timer filter"
-  },
-  "setting_filterLastfm": {
-    "message": "Last.fm",
-    "description": "label for options last.fm filter"
-  },
-  "setting_filterToast": {
-    "message": "Toasts",
-    "description": "label for options toast filter"
-  },
-  "setting_filterMiniplayer": {
-    "message": "Miniplayer",
-    "description": "label for options miniplayer filter"
-  },
-  "setting_filterLyrics": {
-    "message": "Lyrics",
-    "description": "label for options lyrics filter"
-  },
-  "setting_filterLookfeel": {
-    "message": "Look & feel",
-    "description": "label for options look and feel filter"
   },
   "notificationsDisabled": {
     "message": "Notifications are disabled for Prime Player, so only miniplayer style toasts are available.",

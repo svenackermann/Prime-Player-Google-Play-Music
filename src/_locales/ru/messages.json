@@ -797,24 +797,6 @@
   "setting_optionsMode_exp": {
     "message": "Эксперт"
   },
-  "setting_filterTimer": {
-    "message": "Таймер"
-  },
-  "setting_filterLastfm": {
-    "message": "Last.FM"
-  },
-  "setting_filterToast": {
-    "message": "Всплывающие уведомления"
-  },
-  "setting_filterMiniplayer": {
-    "message": "Миниплеер"
-  },
-  "setting_filterLyrics": {
-    "message": "Текст треков"
-  },
-  "setting_filterLookfeel": {
-    "message": "Внешний вид"
-  },
   "notificationsDisabled": {
     "message": "Уведомления отключены для Prime Player, поэтому доступны только стили миниплеера"
   },

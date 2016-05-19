@@ -71,6 +71,9 @@
       :host {
         display: block;
         --paper-toggle-button-label-color: var(--secondary-text-color);
+        --paper-toggle-button-checked-bar-color:  var(--paper-green-500);
+        --paper-toggle-button-checked-button-color:  var(--paper-green-500);
+        --paper-toggle-button-checked-ink-color: var(--paper-green-500);
       }
       paper-toggle-button {
         display: inline-flex;
@@ -146,14 +149,27 @@
 
 <dom-module id="pp-tab">
   <template>
-    [[title(id)]]
+    <div class="tab-hint">[[hint(id)]]</div>
+    <content></content>
   </template>
 </dom-module>
 
-<dom-module id="pp-tabcontent">
+<dom-module id="pp-tabs">
+  <style>
+    :host {
+      --paper-tabs-selection-bar-color: #198A09;
+    }
+  </style>
   <template>
-    <div class="tab-hint">[[hint(id)]]</div>
-    <content></content>
+    <paper-tabs selected="{{selectedTab}}" attr-for-selected="name">
+      <template is="dom-repeat" items="[[tabNames]]">
+        <paper-tab name$="[[item]]">[[tabTitle(item)]]</paper-tab>
+      </template>
+    </paper-tabs>
+    
+    <iron-pages selected="{{selectedTab}}" attr-for-selected="id">
+      <content id="content" select="*"></content>
+    </iron-pages>
   </template>
 </dom-module>
 
@@ -298,18 +314,30 @@
     properties: {
       id: String
     },
-    title: function(id) {
-      return i18n(id);
+    hint: function(id) {
+      return i18n(id + "Hint");
     }
   });
 
   Polymer({
-    is: "pp-tabcontent",
+    is: "pp-tabs",
     properties: {
-      id: String
+      selectedTab: {
+        type: String,
+        reflectToAttribute: true
+      },
+      tabNames: {
+        type: Array,
+        value: []
+      }
     },
-    hint: function(id) {
-      return i18n(id + "Hint");
+    tabTitle: function(name) {
+      return i18n(name);
+    },
+    ready: function() {
+      this.tabNames = this.getContentChildren("#content").map(function(el) {
+        return el.id;
+      });
     }
   });
 </script>
