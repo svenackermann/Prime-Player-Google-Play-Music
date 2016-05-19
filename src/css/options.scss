@@ -19,7 +19,7 @@ h1 {
   background-size: 16px;
 }
 
-fieldset.lyrics .dragging {
+pp-tab.lyrics .dragging {
   box-shadow: 0 -2px 0 #1D6D6D;
 }
 
@@ -70,12 +70,12 @@ iron-pages {
     font-size: 12px;
   }
 
-  fieldset {
+  pp-tab {
     > .sub {
-      padding-left: 10px;
+      padding-left: 20px;
     }
     > .sub2 {
-      padding-left: 25px;
+      padding-left: 40px;
     }
   }
 
@@ -155,10 +155,6 @@ pp-toggle .hint-trigger {
   }
 }
 
-fieldset {
-  margin: 1ex 0;
-}
-
 input[type='radio'] {
   margin: 4px 3px;
 }
@@ -172,20 +168,18 @@ img.hint {
 #changelog {
   clear: both;
   display: none;
-  h2 {
+  h1 {
     display: inline-block;
     margin-right: 1ex;
-    margin-bottom: 0;
+    margin-bottom: 10px;
   }
   > a {
     margin-right: 1ex;
     font-weight: bold;
   }
-  label {
-    margin-right: 1ex;
-  }
-  img.hint {
-    height: 12px;
+  > paper-toggle-button {
+    display: inline-flex;
+    margin-left: 10px;
   }
   li {
     font-size: 11px;
@@ -218,6 +212,7 @@ img.hint {
     h3 {
       display: block;
       margin-bottom: 1ex;
+      font-weight: bold;
     }
     > div {
       font-size: 11px;

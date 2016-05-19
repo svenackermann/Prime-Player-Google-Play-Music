@@ -53,13 +53,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     setSubsEnabled("toastUseMpStyle", !toastDisabled && !settings.toastUseMpStyle, "sub2");
   }
 
-  function lyricsChanged() {
-    setSubsEnabled("lyrics", localSettings.lyrics);
-    $("#lyricsWidth").prop("disabled", !localSettings.lyrics || !settings.lyricsInGpm);
-    $("paper-item.lyrics").prop("disabled", !localSettings.lyrics);
-  }
-
-  function lastfmUserChanged(user) {
+  function lastfmSessionNameChanged(user) {
     var action;
     var actionText;
     $("#scrobble, #linkRatings, #showLovedIndicator, paper-item.lastfm").prop("disabled", !user);
@@ -82,29 +76,16 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#lastfmlogin").text(actionText).unbind().on("tap", action);
   }
 
-  function iconClickChanged() {
-    var noClickTime = $("#iconDoubleClickTime").prop("disabled", !settings.iconClickAction0).val() == "0";
-    [1, 2, 3].forEach(function(index) {
-      var noPrevAction = !settings["iconClickAction" + (index - 1)];
-      if (noPrevAction) settings["iconClickAction" + index] = "";
-      $("#iconClickAction" + index).prop("disabled", noPrevAction || noClickTime);
+  function ratingModeChanged() {
+    var ratingMode = bp.getRatingMode();
+    settingsView.removeClass("star thumbs");
+    if (ratingMode) settingsView.addClass(ratingMode);
+    $("#skipRatedLower")[0].setText(2, i18n("setting_skipRatedLower_2" + (ratingMode == "star" ? "_stars" : "")));
+    $("#toastClick,pp-select[from='#toastClick']").each(function() {
+      var input = this;
+      input.setText("rate-1", bp.getCommandOptionText("rate-1"));
+      input.setText("rate-5", bp.getCommandOptionText("rate-5"));
     });
-  }
-
-  function showProgressChanged(val) {
-    setSubsEnabled("showProgress", val);
-  }
-
-  function saveLastPositionChanged(val) {
-    $("paper-item.resumeLastSong").prop("disabled", !val);
-  }
-
-  function pauseOnIdleChanged(val) {
-    setSubsEnabled("pauseOnIdle", val);
-  }
-
-  function autoActivateGmChanged(val) {
-    setSubsEnabled("autoActivateGm", val);
   }
 
   function notificationsEnabledChanged(val) {
@@ -131,19 +112,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     updateTimerStatus(timerEnd);
     $("#startTimer,#timerMinutes,#timerNotify,#timerPreNotify,#timerAction").prop("disabled", timerEnd !== 0);
     $(".stopTimer").prop("disabled", !timerEnd);
-  }
-
-  function ratingModeChanged() {
-    var ratingMode = bp.getRatingMode();
-    settingsView.removeClass("star thumbs");
-    if (ratingMode) settingsView.addClass(ratingMode);
-    $("#skipRatedLower")[0].setText(2, i18n("setting_skipRatedLower_2" + (ratingMode == "star" ? "_stars" : "")));
-    $("#toastClick,pp-select[from='#toastClick']").each(function() {
-      var input = this;
-      input.items.forEach(function(item, index) {
-        if (item.value == "rate-1" || item.value == "rate-5") input.setText(index, bp.getCommandOptionText(item.value));
-      });
-    });
   }
 
   function quicklinksChanged() {
@@ -328,6 +296,42 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function initInputs() {
+    var changedListeners = {
+      iconClickChanged: function() {
+        var noClickTime = $("#iconDoubleClickTime").prop("disabled", !settings.iconClickAction0).val() == "0";
+        [1, 2, 3].forEach(function(index) {
+          var noPrevAction = !settings["iconClickAction" + (index - 1)];
+          if (noPrevAction) settings["iconClickAction" + index] = "";
+          $("#iconClickAction" + index).prop("disabled", noPrevAction || noClickTime);
+        });
+      },
+      saveLastPosition: function(val) {
+        $("#iconClickConnectAction,pp-select[from='#iconClickConnectAction']").each(function() {
+          this.setDisabled("resumeLastSong", !val);
+        });
+      },
+      subsEnabled: function(val, old, prop) {
+        setSubsEnabled(prop, val);
+      },
+      starRatingMode: ratingModeChanged,
+      layoutHint: function() {
+        var panel = settings.miniplayerType == "panel" || settings.miniplayerType == "detached_panel";
+        $("#miniplayerType .hint-trigger").toggle(panel);
+        $("#layout .hint-trigger").toggle(panel && settings.layout == "hbar");
+      },
+      toast: toastChanged,
+      scrobble: scrobbleChanged,
+      linkRatings: linkRatingsChanged,
+      lyrics: function() {
+        setSubsEnabled("lyrics", localSettings.lyrics);
+        $("#lyricsWidth").prop("disabled", !localSettings.lyrics || !settings.lyricsInGpm);
+        $("#toastClick,pp-select[from='#toastClick']").each(function() {
+          this.setDisabled("openLyrics", !localSettings.lyrics);
+        });
+      },
+      timerMinutes: updatePreNotifyMax,
+      optionsMode: function(val) { settingsView.removeClass("f-beg f-adv f-exp").addClass("f-" + val); }
+    };
     var optionsTextGetter = {
       bundle: function(val, prop) { return chrome.i18n.getMessage("setting_" + prop + "_" + val); },
       commandOptionText: bp.getCommandOptionText,
@@ -371,6 +375,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
           else theSettings[that.id] = value;
         } else theSettings[that.id] = e.detail.value;
       });
+      if (this.listened) theSettings.al(this.id, changedListeners[this.listener], CONTEXT);
+      else if (this.watched) theSettings.w(this.id, changedListeners[this.listener], CONTEXT);
     });
   }
 
@@ -486,54 +492,36 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
     initInputs();
 
-    initTimer();
-
-    //{ last.fm settings
-    $("#lastfmStatus").find("span").text(i18n("lastfmUser"));
-    localSettings.w("lastfmSessionName", lastfmUserChanged, CONTEXT);
-    settings.al("scrobble", scrobbleChanged, CONTEXT);
-    settings.al("linkRatings", linkRatingsChanged, CONTEXT);
-    //}
-
-    //{ toast settings
-    $("#notificationDisabledWarning div").text(i18n("notificationsDisabled"));
-    settings.al("toast toastOnPlayPause toastIfMpOpen toastUseMpStyle", toastChanged, CONTEXT);
+    //{ look & feel settings
+    $("#shortcutsLink").text(i18n("configShortcuts")).click(function() { chrome.tabs.create({ url: "chrome://extensions/configureCommands" }); });
+    $("#iconClickActionTitle").text(i18n("iconClickActionTitle"));
+    $("pp-select[id^='iconClickAction']").each(function() { this.setText("", i18n("openPopup")); });
+    $("#startupAction")[0].setText("", i18n("command_"));
     //}
 
     //{ miniplayer settings
     $("#miniplayerType .hint-content a").text("chrome://flags").attr("tabindex", "0").click(function() { chrome.tabs.create({ url: "chrome://flags/#enable-panels" }); });
-    function setLayoutHintVisibility() {
-      var panel = settings.miniplayerType == "panel" || settings.miniplayerType == "detached_panel";
-      $("#miniplayerType .hint-trigger").toggle(panel);
-      $("#layout .hint-trigger").toggle(panel && settings.layout == "hbar");
-    }
-    settings.w("miniplayerType layout", setLayoutHintVisibility, CONTEXT);
+    //}
+
+    //{ toast settings
+    $("#notificationDisabledWarning div").text(i18n("notificationsDisabled"));
+    //}
+
+    //{ last.fm settings
+    $("#lastfmStatus").find("span").text(i18n("lastfmUser"));
     //}
 
     //{ lyrics settings
-    localSettings.w("lyrics", lyricsChanged, CONTEXT);
-    settings.al("lyricsInGpm", lyricsChanged, CONTEXT);
     initLyricsProviders();
     //}
 
-    //{ look & feel settings
-    $("#shortcutsLink").text(i18n("configShortcuts")).click(function() { chrome.tabs.create({ url: "chrome://extensions/configureCommands" }); });
-    $("#iconClickActionTitle").text(i18n("iconClickActionTitle"));
-    $("pp-select[id^='iconClickAction']").each(function() { this.setText(0, i18n("openPopup")); });
-    $("#startupAction")[0].setText(0, i18n("command_"));
-    settings.w("showProgress", showProgressChanged, CONTEXT);
-    settings.w("iconClickAction0 iconClickAction1 iconClickAction2 iconClickAction3 iconDoubleClickTime", iconClickChanged, CONTEXT);
-    settings.w("saveLastPosition", saveLastPositionChanged, CONTEXT);
-    settings.w("pauseOnIdle", pauseOnIdleChanged, CONTEXT);
-    settings.w("starRatingMode", ratingModeChanged, CONTEXT);
-    settings.w("autoActivateGm", autoActivateGmChanged, CONTEXT);
-    //}
+    initTimer();
 
+    localSettings.w("lastfmSessionName", lastfmSessionNameChanged, CONTEXT);
     //show/hide notification based options
     localSettings.w("notificationsEnabled", notificationsEnabledChanged, CONTEXT);
     //update timer
     localSettings.w("timerEnd", timerEndChanged, CONTEXT);
-    localSettings.al("timerMinutes", updatePreNotifyMax, CONTEXT);
     //Google account dependent options
     localSettings.al("ratingMode", ratingModeChanged, CONTEXT);
     localSettings.w("quicklinks", quicklinksChanged, CONTEXT);
@@ -549,16 +537,13 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
     initChangelog();
 
-    $("#changelog").on("click", "input[type='checkbox']", function() {
-      $("#changelog").toggleClass(this.id.substr(3,1));
-    });
+    var changelog = $("#changelog");
+    changelog.on("tap", "paper-toggle-button", function() { changelog.toggleClass(this.id.substr(3,1)); });
 
     $("#credits").on("click", "[data-network]", function() {
       var link = $(this);
       GA.social(link.data("network"), link.data("action") || "show", link.attr("href") || "-");
     });
-
-    settings.w("optionsMode", function(val) { settingsView.removeClass("f-beg f-adv f-exp").addClass("f-" + val); }, CONTEXT);
   });
 
   $(window).unload(function() {

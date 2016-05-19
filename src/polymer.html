@@ -16,6 +16,7 @@
 <link rel="import" href="../node_modules/npm-polymer-elements/paper-tabs/paper-tabs.html"/>
 <link rel="import" href="../node_modules/npm-polymer-elements/paper-badge/paper-badge.html"/>
 <link rel="import" href="../node_modules/npm-polymer-elements/iron-pages/iron-pages.html"/>
+<link rel="import" href="../node_modules/npm-polymer-elements/paper-tooltip/paper-tooltip.html"/>
 
 <dom-module id="pp-input">
   <template>
@@ -56,10 +57,16 @@
         min-width: 200px;
       }
     </style>
-    <paper-dropdown-menu id="dropdown" label="[[i18nlabel(id)]]" disabled="[[disabled]]" no-animations>
+    <paper-dropdown-menu
+      id="dropdown"
+      label="[[i18nlabel(id)]]"
+      disabled="[[disabled]]"
+      vertical-align="center"
+      no-animations
+    >
       <paper-listbox id="input" class="dropdown-content" attr-for-selected="value">
         <template is="dom-repeat" items="[[items]]">
-          <paper-item class$="[[item.clazz]]" value="_[[item.value]]">[[item.text]]</paper-item>
+          <paper-item class$="[[item.clazz]]" value="_[[item.value]]" disabled=[[item.disabled]]>[[item.text]]</paper-item>
         </template>
       </paper-listbox>
     </paper-dropdown-menu>
@@ -195,13 +202,19 @@
       },
       value: {
         notify: true
-      }
+      },
+      listened: Boolean,
+      watched: Boolean,
+      listener: String
     },
     i18nlabel: function(id) {
       return i18n("setting_" + id);
     },
     ready: function() {
       this.toggleClass("pp-option", true);
+      var listening = this.listened || this.watched;
+      if (this.listener && !listening) this.listened = true;
+      else if (!this.listener && listening) this.listener = this.id;
       if (this.hint) {
         var dialog = $("<paper-dialog>");
         $("<h2>").text(this.i18nlabel(this.id)).appendTo(dialog);
@@ -266,9 +279,16 @@
       // didn't find a better solution to update also the label in the input
       this.$.dropdown._selectedItemChanged(this.$.input.selectedItem);
     },
-    setText: function(index, text) {
-      this.set("items." + index + ".text", text);
+    _indexOf: function(value) {
+      return this.items.findIndex(function(item) { return item.value == value; });
+    },
+    setText: function(value, text) {
+      this.set("items." + this._indexOf(value) + ".text", text);
       this._updateLabel();
+    },
+    setDisabled: function(value, disabled) {
+      var index = this._indexOf(value);
+      this.set("items." + index + ".disabled", disabled);
     },
     setItems: function(items) {
       this._setItems(items);

@@ -115,34 +115,42 @@ function fixForUri(string) {
 
   /** settings that should be synced with Chrome sync if enabled */
   var settings = new Bean({
-    //{ lastfm
-    scrobble: true,
-    scrobblePercent: 50,
-    scrobbleTime: 240,
-    scrobbleMaxDuration: 30,
-    disableScrobbleOnFf: false,
-    scrobbleRepeated: true,
-    linkRatings: false,
-    linkRatingsMin: 5,
-    linkRatingsGpm: false,
-    linkRatingsAuto: false,
-    linkRatingsReset: false,
-    showLastfmInfo: false,
-    //}
-    //{ toast
-    toast: true,
-    toastOnPlayPause: false,
-    toastDuration: 0,
-    toastIfMpOpen: false,
-    toastIfMpMinimized: false,
-    toastNotIfGmActive: false,
-    toastUseMpStyle: false,
-    toastPriority: 3,
-    toastProgress: false,
-    toastRating: true,
-    toastClick: "",
-    toastButton1: "nextSong",
-    toastButton2: "playPause",
+    //{ look & feel
+    iconStyle: "default",
+    showPlayingIndicator: true,
+    showRatingIndicator: false,
+    showLovedIndicator: false,
+    showScrobbledIndicator: true,
+    showProgress: false,
+    showProgressColor: "#ff0000",
+    showProgressColorPaused: "#800000",
+    iconClickConnectAction: "",
+    iconClickAction0: "",
+    iconClickAction1: "",
+    iconClickAction2: "",
+    iconClickAction3: "",
+    iconDoubleClickTime: 0,
+    iconShowAction: true,
+    saveLastPosition: false,
+    starRatingMode: false,
+    skipRatedLower: 0,
+    skipRatedThumbsDown: false,
+    hideFavorites: false,
+    openGoogleMusicPinned: false,
+    openGmBackground: false,
+    simulateActivity: false,
+    startupAction: "",
+    playlistEndAction: "",
+    pauseOnLock: false,
+    pauseOnIdle: false,
+    pauseOnIdleSec: 60,
+    connectedIndicator: true,
+    preventCommandRatingReset: true,
+    autoActivateGm: true,
+    autoRestoreGm: true,
+    confirmClose: false,
+    updateNotifier: true,
+    gaEnabled: true,
     //}
     //{ miniplayer
     miniplayerType: "popup",
@@ -162,58 +170,42 @@ function fixForUri(string) {
     mpCloseGm: false,
     mpShowTitle: false,
     //}
+    //{ toast
+    toast: true,
+    toastOnPlayPause: false,
+    toastDuration: 0,
+    toastIfMpOpen: false,
+    toastIfMpMinimized: false,
+    toastNotIfGmActive: false,
+    toastUseMpStyle: false,
+    toastPriority: 3,
+    toastProgress: false,
+    toastRating: true,
+    toastClick: "",
+    toastButton1: "nextSong",
+    toastButton2: "playPause",
+    //}
+    //{ lastfm
+    scrobble: true,
+    scrobblePercent: 50,
+    scrobbleTime: 240,
+    scrobbleMaxDuration: 30,
+    disableScrobbleOnFf: false,
+    scrobbleRepeated: true,
+    linkRatings: false,
+    linkRatingsMin: 5,
+    linkRatingsGpm: false,
+    linkRatingsAuto: false,
+    linkRatingsReset: false,
+    showLastfmInfo: false,
+    //}
     //{ lyrics
     lyricsAutoNext: false,
     openLyricsInMiniplayer: true,
     lyricsAutoReload: false,
     lyricsInGpm: false,
     //}
-    //{ look & feel
-    iconStyle: "default",
-    showPlayingIndicator: true,
-    showRatingIndicator: false,
-    showLovedIndicator: false,
-    showScrobbledIndicator: true,
-    showProgress: false,
-    showProgressColor: "#ff0000",
-    showProgressColorPaused: "#800000",
-    iconClickConnectAction: "",
-    iconClickAction0: "",
-    iconClickAction1: "",
-    iconClickAction2: "",
-    iconClickAction3: "",
-    iconDoubleClickTime: 0,
-    iconShowAction: true,
-    saveLastPosition: false,
-    starRatingMode: false,
-    hideFavorites: false,
-    skipRatedLower: 0,
-    skipRatedThumbsDown: false,
-    openGoogleMusicPinned: false,
-    openGmBackground: false,
-    simulateActivity: false,
-    startupAction: "",
-    playlistEndAction: "",
-    pauseOnLock: false,
-    pauseOnIdle: false,
-    pauseOnIdleSec: 60,
-    connectedIndicator: true,
-    preventCommandRatingReset: true,
-    autoActivateGm: true,
-    autoRestoreGm: true,
-    confirmClose: false,
-    updateNotifier: true,
-    gaEnabled: true,
-    //}
-    //{ filter
-    optionsMode: "beg",
-    filterTimer: true,
-    filterLastfm: true,
-    filterToast: true,
-    filterMiniplayer: true,
-    filterLyrics: true,
-    filterLookfeel: true
-    //}
+    optionsMode: "beg"
   }, true);
 
   settings.setSyncStorage(localSettings.syncSettings);
@@ -1639,11 +1631,17 @@ function fixForUri(string) {
     //--- 3.9 ---
     if (previousVersion <= 3.8) migrateQuicklink("myPlaylists", "wmp");
 
-    //--- 3.12 ---
+    //--- 4.0 ---
     if (settings.pauseOnIdleSec < 0) {
       settings.pauseOnIdle = false;
       settings.pauseOnIdleSec = -settings.pauseOnIdleSec;
     }
+    localStorage.removeItem("filterTimer");
+    localStorage.removeItem("filterLastfm");
+    localStorage.removeItem("filterToast");
+    localStorage.removeItem("filterMiniplayer");
+    localStorage.removeItem("filterLyrics");
+    localStorage.removeItem("filterLookfeel");
   }
 
   /** handler for onInstalled event (show the orange icon on update / notification on install) */
