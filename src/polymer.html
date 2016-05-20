@@ -73,24 +73,34 @@
   </template>
 </dom-module>
 
+<dom-module id="pp-toggle-light">
+  <template>
+    <style>
+      :host {
+        --paper-toggle-button-checked-bar-color:  var(--paper-green-500);
+        --paper-toggle-button-checked-button-color:  var(--paper-green-500);
+        --paper-toggle-button-checked-ink-color: var(--paper-green-500);
+      }
+    </style>
+    <paper-toggle-button id="input" disabled="[[disabled]]" checked={{checked}}><content></content></paper-toggle-button>
+  </template>
+</dom-module>
+
 <dom-module id="pp-toggle">
   <template>
     <style>
       :host {
         display: block;
         --paper-toggle-button-label-color: var(--secondary-text-color);
-        --paper-toggle-button-checked-bar-color:  var(--paper-green-500);
-        --paper-toggle-button-checked-button-color:  var(--paper-green-500);
-        --paper-toggle-button-checked-ink-color: var(--paper-green-500);
       }
-      paper-toggle-button {
+      pp-toggle-light {
         display: inline-flex;
       }
       label {
         color: var(--secondary-text-color);
       }
     </style>
-    <paper-toggle-button id="input" disabled="[[disabled]]">[[i18nlabel(id)]]</paper-toggle-button>
+    <pp-toggle-light id="input" disabled="[[disabled]]">[[i18nlabel(id)]]</pp-toggle-light>
     <label></label>
   </template>
 </dom-module>
@@ -184,6 +194,52 @@
     <iron-pages selected="{{selectedTab}}" attr-for-selected="id">
       <content id="content" select="*"></content>
     </iron-pages>
+  </template>
+</dom-module>
+
+<dom-module id="pp-cltoggle">
+  <style>
+    :host {
+      display: inline-flex;
+      margin-left: 10px;
+    }
+  </style>
+  <template>
+    <pp-toggle-light checked on-checked-changed="_fireChange" id="toggle">[[type]]</pp-toggle-light>
+    <paper-tooltip for="toggle">Show/hide <content></content></paper-tooltip>
+  </template>
+</dom-module>
+
+<dom-module id="pp-lyricsproviders">
+  <style>
+    :host {
+      display: block;
+      --paper-icon-button: {
+        height: 24px;
+        width: 24px;
+        padding: 0;
+      }
+    }
+    .provider {
+      min-height: 26px;
+    }
+    pp-toggle-light {
+      display: block;
+      overflow: hidden;
+    }
+    paper-icon-button {
+      float: right;
+      margin-left: 4px;
+    }
+  </style>
+  <template>
+    <template id="repeater" is="dom-repeat" items="[[providers]]" sort="{{_sortProviders(activeProviders)}}">
+      <div class="provider" provider$=[[item.name]]>
+        <paper-icon-button icon="arrow-drop-down" disabled="[[_downDisabled(activeProviders, item.name)]]" on-tap="_down"></paper-icon-button>
+        <paper-icon-button icon="arrow-drop-up" disabled="[[_upDisabled(activeProviders, item.name)]]" on-tap="_up"></paper-icon-button>
+        <pp-toggle-light checked="[[_isActive(activeProviders, item.name)]]" on-tap="_tapped"><a target="_blank" href$="[[item.homepage]]">[[item.url]]</a></pp-toggle-light>
+      </div>
+    </template>
   </template>
 </dom-module>
 
@@ -297,6 +353,21 @@
   });
 
   Polymer({
+    is: "pp-toggle-light",
+    properties: {
+      disabled: {
+        type: Boolean,
+        reflectToAttribute: true
+      },
+      checked: {
+        type: Boolean,
+        reflectToAttribute: true,
+        notify: true
+      }
+    }
+  });
+
+  Polymer({
     is: "pp-toggle",
     behaviors: [PpInputBehavior],
     ready: function() {
@@ -374,6 +445,69 @@
     },
     _badgeClass: function(badges, tabName) {
       return badges[tabName] ? "" : "hidden";
+    }
+  });
+
+  Polymer({
+    is: "pp-cltoggle",
+    properties: {
+      type: String
+    },
+    _fireChange: function(e) {
+      this.fire("toggled", { active: e.detail.value });
+    }
+  });
+
+  Polymer({
+    is: "pp-lyricsproviders",
+    properties: {
+      providers: {
+        type: Array,
+        value: [],
+        notify: true
+      },
+      activeProviders: {
+        type: Array,
+        value: []
+      }
+    },
+    ready: function() {
+      var that = this;
+      this.$.repeater.addEventListener("dom-change", function() {
+        //prevent click events on link to bubble up (otherwise "checked" property is toggled when clicked on link)
+        $(".toggle-label", that).unbind().click(function(e) { e.stopPropagation(); });
+      });
+    },
+    _isActive: function(activeProviders, provider) {
+      return activeProviders.includes(provider);
+    },
+    _upDisabled: function(activeProviders, provider) {
+      return activeProviders[0] == provider || !activeProviders.includes(provider);
+    },
+    _downDisabled: function(activeProviders, provider) {
+      return activeProviders[activeProviders.length - 1] == provider || !activeProviders.includes(provider);
+    },
+    _sortProviders: function(activeProviders) {
+      return function(left, right) {
+        var leftIndex = activeProviders.indexOf(left.name);
+        if (leftIndex < 0) leftIndex = activeProviders.length;
+        var rightIndex = activeProviders.indexOf(right.name);
+        if (rightIndex < 0) rightIndex = activeProviders.length;
+        return leftIndex - rightIndex;
+      };
+    },
+    _tapped: function(e) {
+      this.fire("toggled", { provider: e.model.item.name });
+    },
+    _up: function(e) {
+      this.fire("moved", { provider: e.model.item.name, up: true });
+    },
+    _down: function(e) {
+      this.fire("moved", { provider: e.model.item.name, up: false });
+    },
+    resetView: function() {
+      //hack to force update on the repeater (this.$.repeater.render() does not work without model change)
+      this.activeProviders = this.activeProviders.slice();
     }
   });
 </script>

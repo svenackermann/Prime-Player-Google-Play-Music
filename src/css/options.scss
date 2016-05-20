@@ -13,16 +13,6 @@ h1 {
   font-weight: bold;
 }
 
-.sortable > *[draggable='true'] {
-  cursor: move;
-  background: url(../img/sort.png) right no-repeat;
-  background-size: 16px;
-}
-
-pp-tab.lyrics .dragging {
-  box-shadow: 0 -2px 0 #1D6D6D;
-}
-
 .syncenabled {
   .synced, .pp-option:not([local]) {
     label:after {
@@ -85,6 +75,14 @@ iron-pages {
   .synced label:after {
     float: right;
   }
+}
+
+.toggle-container {
+  cursor: pointer;
+}
+
+paper-toggle-button {
+  margin-bottom: 4px;
 }
 
 paper-tabs {
@@ -176,10 +174,6 @@ img.hint {
   > a {
     margin-right: 1ex;
     font-weight: bold;
-  }
-  > paper-toggle-button {
-    display: inline-flex;
-    margin-left: 10px;
   }
   li {
     font-size: 11px;
@@ -295,4 +289,8 @@ img.hint {
 
 paper-badge.hidden {
   visibility: hidden;
+}
+
+pp-lyricsproviders .paper-toggle-button.toggle-label {
+  pointer-events: initial;
 }

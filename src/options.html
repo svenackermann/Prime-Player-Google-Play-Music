@@ -123,9 +123,7 @@
       <pp-toggle class="v-2.17 miniplayer" id="showLastfmInfo"></pp-toggle>
     </pp-tab>
     <pp-tab id="tabLyrics">
-      <div class="lyrics-providers v-3.0" id="lyrics_songlyrics"></div>
-      <div class="lyrics-providers v-3.0" id="lyrics_lyricswikia"></div>
-      <div class="lyrics-providers v-3.0" id="lyrics_musixmatch"></div>
+      <pp-lyricsproviders class="v-3.0"></pp-lyricsproviders>
       <pp-toggle class="v-3.0 sub adv" id="lyricsAutoNext"></pp-toggle>
       <pp-toggle class="v-2.8" id="lyrics" local watched></pp-toggle>
       <pp-toggle class="v-2.8 sub exp miniplayer" id="openLyricsInMiniplayer" hint></pp-toggle>
@@ -165,14 +163,10 @@
       <div id="changelog" class="F I B V">
         <h1>Changelog</h1>
         <a target="_blank" data-network="github" data-action="changelog">on GitHub</a>
-        <paper-toggle-button id="cl-F" checked>F</paper-toggle-button>
-        <paper-tooltip for="cl-F">Show/hide features</paper-tooltip>
-        <paper-toggle-button id="cl-I" checked>I</paper-toggle-button>
-        <paper-tooltip for="cl-I">Show/hide improvements</paper-tooltip>
-        <paper-toggle-button id="cl-B" checked>B</paper-toggle-button>
-        <paper-tooltip for="cl-B">Show/hide bugfixes</paper-tooltip>
-        <paper-toggle-button id="cl-V" checked>V</paper-toggle-button>
-        <paper-tooltip for="cl-V">Show/hide versions</paper-tooltip>
+        <pp-cltoggle type="F">features</pp-cltoggle>
+        <pp-cltoggle type="I">improvements</pp-cltoggle>
+        <pp-cltoggle type="B">bugfixes</pp-cltoggle>
+        <pp-cltoggle type="V">versions</pp-cltoggle>
       </div>
     </pp-tab>
   </pp-tabs>

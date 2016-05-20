@@ -122,144 +122,80 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#coverClickLink,#titleClickLink").each(function() { this.setItems(items); });
   }
 
-  /** the i18n key for the label is "setting_" + prop */
-  function addLabel(input) {
-    return $("<label>").attr("for", input.attr("id")).text(i18n("setting_" + input.parent().attr("id"))).insertAfter(input);
-  }
-
-  function setIdAndAddItWithLabel(input, prop, synced) {
-    input.attr("id", "_" + prop);
-    $("#" + prop).toggleClass("synced", synced).append(input);
-    return addLabel(input);
-  }
-
-  function confirmDialog(content, onConfirm) {
+  function confirmDialog(content, onConfirm, onCancel) {
     var dialog = $("#confirmDialog");
     $("p", dialog).text(content);
     dialog.unbind().on("iron-overlay-closed", function(e) {
       if (e.detail.confirmed) onConfirm();
+      else if ($.isFunction(onCancel)) onCancel();
     });
     dialog[0].open();
   }
 
-  /** Handle the optional lyrics permission. */
   function initLyricsProviders() {
-    var providers = localSettings.lyricsProviders;
+    var containerSelector = "pp-lyricsproviders";
+    var providersContainer = $(containerSelector)[0];
+    var providerToggleAction = {};
+    var activeProviders;
+    var providers = [];
 
-    function setEnabledStates() {
-      $("#lyrics").prop("disabled", !providers.length);
-      $("#lyricsAutoNext").prop("disabled", providers.length < 2);
-    }
-    setEnabledStates();
+    localSettings.w("lyricsProviders", function(val) {
+      activeProviders = val;
+      providersContainer.activeProviders = activeProviders;
 
-    var draggableSelector = "#tabLyrics.sortable>[draggable='true']";
-    var droppableSelector = draggableSelector + "," + draggableSelector + "+div";
-    $("#tabLyrics")
-      .on("dragover", droppableSelector, function(ev) {
-        var types = ev.originalEvent.dataTransfer.types;
-        var providerName = $(this).data("provider");
-        var validTarget = providerName ? types.indexOf("srcprovider/" + providerName) < 0 && types.indexOf("srcprovider/next/" + providerName) < 0 : types.indexOf("srcprovider/" + providers[providers.length - 1]) < 0;
-        var dropAllowed = types.indexOf("srcprovider") >= 0 && validTarget;
-        $(this).toggleClass("dragging", dropAllowed);
-        return !dropAllowed;
-      }).on("dragleave", droppableSelector, function() {
-        $(this).removeClass("dragging");
-      }).on("drop", droppableSelector, function(ev) {
-        $(this).removeClass("dragging");
-        var src = ev.originalEvent.dataTransfer.getData("srcprovider");
-        if (!src) return false;//just to be sure (in this cases the dragover handler should not allow dropping)
-        providers.splice(providers.indexOf(src), 1);
-        var providerName = $(this).data("provider");
-        if (providerName) providers.splice(providers.indexOf(providerName), 0, src);
-        else providers.push(src);
-        localSettings.lyricsProviders = providers;//trigger listeners
-        sortProviders();
-        return false;
-      }).on("dragstart", draggableSelector, function(ev) {
-        var dt = ev.originalEvent.dataTransfer;
-        var providerName = $(this).data("provider");
-        dt.setData("srcprovider", providerName);
-        dt.setData("srcprovider/" + providerName, "");
-        var nextProvider = providers[providers.indexOf(providerName) + 1];
-        dt.setData("srcprovider/next/" + nextProvider, "");
-      });
+      $("#lyrics").prop("disabled", !activeProviders.length);
+      $("#lyricsAutoNext").prop("disabled", activeProviders.length < 2);
 
-    function sortProviders() {
-      var prev = $(".lyrics-providers").first().prev();
-      providers.forEach(function(p) {
-        var current = $("#lyrics_" + p);
-        current.insertAfter(prev);
-        prev = current;
-      });
-    }
+      if (!activeProviders.length && localSettings.lyrics) localSettings.lyrics = false;
+    }, CONTEXT);
 
-    $(".lyrics-providers").each(function() {
-      var div = $(this);
-      var id = div.attr("id");
-      var providerName = id.substr(7);
+    ["musixmatch", "lyricswikia", "songlyrics"].forEach(function(providerName) {
       var provider = bp.lyricsProviders[providerName];
-      div.data("provider", providerName);
+      providers.push({ name: providerName, homepage: provider.getHomepage(), url: provider.getUrl() });
 
-      var checkbox = $("<input type='checkbox'>");
-      var label = setIdAndAddItWithLabel(checkbox, id, false);
-      var link = $("<a target='_blank'>").attr("href", provider.getHomepage()).text(provider.getUrl());
-      label.html(link);
-
-      function setDraggable(draggable) {
-        div.attr("draggable", draggable);
-        div.parent().toggleClass("sortable", providers.length > 1);
-      }
-
-      function setProviderEnabled(enabled) {
-        if (enabled) {
-          providers.push(providerName);
+      function toggleProviderEnabled() {
+        var index = activeProviders.indexOf(providerName);
+        if (index < 0) {
+          activeProviders.push(providerName);
         } else {
-          var index = providers.indexOf(providerName);
-          providers.splice(index, 1);
-          if (!providers.length && localSettings.lyrics) {
-            localSettings.lyrics = false;
-          }
+          activeProviders.splice(index, 1);
         }
-        localSettings.lyricsProviders = providers;//trigger listeners
-        setDraggable(enabled);
-        sortProviders();
-        setEnabledStates();
-      }
-
-      function enableCheckBox() {
-        var checked = providers.indexOf(providerName) >= 0;
-        checkbox.prop("checked", checked);
-        setDraggable(checked);
-
-        checkbox.unbind().click(function() {
-          setProviderEnabled(checkbox.prop("checked"));
-        });
+        localSettings.lyricsProviders = activeProviders.slice();//trigger listeners
       }
 
       provider.checkPermission(function(hasPermission) {
         if (hasPermission) {
-          enableCheckBox();
+          providerToggleAction[providerName] = toggleProviderEnabled;
         } else {
           //just to be sure, check if it has to be reset here (e.g. switching to another Chrome channel keeps the settings, but loses the permissions)
-          if (providers.indexOf(providerName) >= 0) {
-            setProviderEnabled(false);
-          }
-          checkbox.click(function() {
-            checkbox.prop("checked", false);
+          if (activeProviders.indexOf(providerName) >= 0) toggleProviderEnabled();
+          providerToggleAction[providerName] = function() {
             confirmDialog(i18n("lyricsAlert", provider.getUrl()), function() {
               provider.requestPermission(function(granted) {
                 if (granted) {
-                  setProviderEnabled(true);
-                  enableCheckBox();
-                }
+                  toggleProviderEnabled();
+                  providerToggleAction[providerName] = toggleProviderEnabled;
+                } else providersContainer.resetView();
               });
+            }, function() {
+              providersContainer.resetView();
             });
-          });
+          };
         }
       });
     });
+    providersContainer.providers = providers;
 
-    sortProviders();
+    $(containerSelector).on("toggled", function(e) {
+      var action = providerToggleAction[e.detail.provider];
+      if ($.isFunction(action)) action();
+    }).on("moved", function(e) {
+      var providerName = e.detail.provider;
+      var index = activeProviders.indexOf(providerName);
+      activeProviders.splice(index, 1);
+      activeProviders.splice(e.detail.up ? index - 1 : index + 1, 0, providerName);
+      localSettings.lyricsProviders = activeProviders.slice();//trigger listeners
+    });
   }
 
   function updatePreNotifyMax() {
@@ -458,6 +394,10 @@ chrome.runtime.getBackgroundPage(function(bp) {
       changelog.show();
     }
 
+    changelog.children("pp-cltoggle").on("toggled", function(e) {
+      changelog.toggleClass(this.type, e.detail.active);
+    });
+
     //mark new features
     if (bp.previousVersion) {
       var badges = {};
@@ -536,9 +476,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }).text(i18n("resetSettings"));
 
     initChangelog();
-
-    var changelog = $("#changelog");
-    changelog.on("tap", "paper-toggle-button", function() { changelog.toggleClass(this.id.substr(3,1)); });
 
     $("#credits").on("click", "[data-network]", function() {
       var link = $(this);
