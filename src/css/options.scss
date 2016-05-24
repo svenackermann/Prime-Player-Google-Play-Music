@@ -26,9 +26,6 @@ h1 {
 iron-pages {
   float: left;
   width: 70%;
-  height: 450px;
-  overflow-y: auto;
-  padding-right: 10px;
   margin-bottom: 10px;
   &.f-beg .adv, &.f-beg .exp, &.f-adv .exp {
     display: none;
@@ -61,17 +58,18 @@ iron-pages {
   }
 
   pp-tab {
-    > .sub {
+    display: block;
+    height: 450px;
+    overflow-y: auto;
+    padding-right: 10px;
+    .sub {
       padding-left: 20px;
     }
-    > .sub2 {
+    .sub2 {
       padding-left: 40px;
     }
   }
-
-  img.hint {
-    cursor: pointer;
-  }
+  
   .synced label:after {
     float: right;
   }
@@ -236,10 +234,18 @@ img.hint {
   }
 }
 
+a {
+  cursor: pointer;
+}
+
 #lastfmStatus a, a#shortcutsLink, .hint-text a {
   text-decoration: underline;
   color: -webkit-link;
-  cursor: pointer;
+}
+
+fieldset {
+  padding: 2ex;
+  margin: 2ex 0;
 }
 
 #iconClickActionTitle {

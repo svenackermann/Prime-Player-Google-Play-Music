@@ -430,30 +430,22 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
     $("#bugfeatureinfo").html(i18n("bugfeatureinfo", "<a target='_blank' href='https://github.com/svenackermann/Prime-Player-Google-Play-Music/issues' data-network='github' data-action='issue'>GitHub</a>"));
 
+    $("#legendIc").text(i18n("legendIc")).after(i18n("legendIcHint"));
+
     initInputs();
 
-    //{ look & feel settings
     $("#shortcutsLink").text(i18n("configShortcuts")).click(function() { chrome.tabs.create({ url: "chrome://extensions/configureCommands" }); });
     $("#iconClickActionTitle").text(i18n("iconClickActionTitle"));
     $("pp-select[id^='iconClickAction']").each(function() { this.setText("", i18n("openPopup")); });
     $("#startupAction")[0].setText("", i18n("command_"));
-    //}
 
-    //{ miniplayer settings
     $("#miniplayerType .hint-content a").text("chrome://flags").attr("tabindex", "0").click(function() { chrome.tabs.create({ url: "chrome://flags/#enable-panels" }); });
-    //}
 
-    //{ toast settings
     $("#notificationDisabledWarning div").text(i18n("notificationsDisabled"));
-    //}
 
-    //{ last.fm settings
     $("#lastfmStatus").find("span").text(i18n("lastfmUser"));
-    //}
 
-    //{ lyrics settings
     initLyricsProviders();
-    //}
 
     initTimer();
 
