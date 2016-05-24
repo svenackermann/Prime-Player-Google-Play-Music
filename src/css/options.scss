@@ -4,23 +4,17 @@
  * @license BSD license
  */
 body {
-  font-size: 12px;
-  font-family: arial;
-  min-width: 1000px;
+  min-width: 800px;
 }
 
 h1 {
   font-weight: bold;
 }
 
-.syncenabled {
-  .synced, .pp-option:not([local]) {
-    label:after {
-      content: "*";
-      padding-left: 1ex;
-      float: right;
-    }
-  }
+.syncenabled .pp-option:not([local]) label:after {
+  content: "*";
+  padding-left: 1ex;
+  float: right;
 }
 
 iron-pages {
@@ -52,26 +46,17 @@ iron-pages {
   &.thumbs .thumbsOnly, &.star .starsOnly {
     display: block;
   }
-  
-  h3 {
-    font-size: 12px;
-  }
+}
 
-  pp-tab {
-    display: block;
-    height: 450px;
-    overflow-y: auto;
-    padding-right: 10px;
-    .sub {
-      padding-left: 20px;
-    }
-    .sub2 {
-      padding-left: 40px;
-    }
+pp-tab {
+  height: 450px;
+  overflow-y: auto;
+  padding-right: 10px;
+  .sub {
+    padding-left: 20px;
   }
-  
-  .synced label:after {
-    float: right;
+  .sub2 {
+    padding-left: 40px;
   }
 }
 
@@ -79,12 +64,8 @@ iron-pages {
   cursor: pointer;
 }
 
-paper-toggle-button {
+pp-toggle {
   margin-bottom: 4px;
-}
-
-paper-tabs {
-  background-color: #80ECAA;
 }
 
 #tools {
@@ -94,14 +75,6 @@ paper-tabs {
 
 .tab-hint {
   margin: 2ex;
-}
-
-.hint-text {
-  display: none;
-  max-width: 400px;
-  color: #009933;
-  font-weight: bold;
-  line-height: 1.3em;
 }
 
 .hint-trigger {
@@ -123,42 +96,23 @@ pp-toggle .hint-trigger {
   margin-left: 0;
 }
 
-#credits {
-  > div {
+#credits > div {
+  float: left;
+  font-weight: bold;
+  margin-right: 10px;
+  margin-bottom: 8px;
+  > a, > form {
     float: left;
-    clear: left;
-    font-weight: bold;
-    margin-right: 10px;
-    margin-bottom: 8px;
-    > a, > form {
-      float: left;
-      margin-right: 2ex;
-      margin-bottom: 0;
-    }
+    margin-right: 2ex;
+    margin-bottom: 0;
   }
-  > div.sociallinks {
-    clear: none;
-    a > img {
-      height: 20px;
-    }
+  &.sociallinks a > img {
+    height: 20px;
   }
-  > div#bugfeatureinfo {
-    clear: both;
-    > a {
-      margin: initial;
-      float: none;
-    }
+  &#bugfeatureinfo > a {
+    margin: initial;
+    float: none;
   }
-}
-
-input[type='radio'] {
-  margin: 4px 3px;
-}
-
-img.hint {
-  margin-left: 0.5ex;
-  vertical-align: text-bottom;
-  height: 18px;
 }
 
 #changelog {
@@ -167,14 +121,12 @@ img.hint {
   h1 {
     display: inline-block;
     margin-right: 1ex;
-    margin-bottom: 10px;
   }
   > a {
-    margin-right: 1ex;
     font-weight: bold;
   }
   li {
-    font-size: 11px;
+    font-size: 12px;
     &.B:before {
       content: "B: ";
     }
@@ -203,15 +155,17 @@ img.hint {
   &.V {
     h3 {
       display: block;
-      margin-bottom: 1ex;
-      font-weight: bold;
     }
     > div {
-      font-size: 11px;
+      font-size: 12px;
     }
   }
-  h3 > a {
-    text-decoration: none;
+  h3 {
+    margin-bottom: 1ex;
+    font-weight: bold;
+    > a {
+      text-decoration: none;
+    }
   }
 }
 
@@ -225,12 +179,18 @@ img.hint {
       cursor: text;
     }
   }
-  img {
+  > .status {
     display: none;
     margin-left: 0.5ex;
     vertical-align: top;
     height: 20px;
-    margin-top: 4px;
+    margin-top: 6px;
+  }
+  > #lastfmSuccess {
+    color: green;
+  }
+  > #lastfmFailure {
+    color: red;
   }
 }
 
@@ -238,7 +198,7 @@ a {
   cursor: pointer;
 }
 
-#lastfmStatus a, a#shortcutsLink, .hint-text a {
+#lastfmStatus a, #shortcutsLink {
   text-decoration: underline;
   color: -webkit-link;
 }
@@ -250,6 +210,7 @@ fieldset {
 
 #iconClickActionTitle {
   color: #737373;
+  font-size: 12px;
 }
 
 .newFeature {
@@ -267,10 +228,10 @@ fieldset {
   display: none;
   max-width: 400px;
   color: red;
-  margin-bottom: 1ex;
+  margin-bottom: 2ex;
   iron-icon {
     float: left;
-    margin-right: 2ex;
+    margin: 1ex 2ex 0 0;
   }
 }
   

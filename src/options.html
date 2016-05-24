@@ -15,7 +15,7 @@
 <script src="js/options.js"></script>
 </head>
 <body>
-  <pp-tabs selected-tab="tabInfo">
+  <pp-tabs>
     <pp-tab id="tabLookfeel">
       <div class="v-2.18">
         <a tabindex="0" id="shortcutsLink"></a>
@@ -96,7 +96,7 @@
       <pp-select class="v-2.24 sub2 exp notif" id="toastPriority" options="2,3" type="number"></pp-select>
       <pp-toggle class="v-2.24 sub2 adv notif" id="toastProgress"></pp-toggle>
       <pp-toggle class="v-2.25 sub2 adv notif" id="toastRating"></pp-toggle>
-      <pp-select class="v-2.8 sub2 adv notif" id="toastClick" options=",playPause,prevSong,nextSong,ff,rew,openMiniplayer:miniplayer,volumeUp,volumeDown,volumeMute,toggleRepeat,toggleShuffle,loveUnloveSong:lastfm,rate-1,rate-2:stars,rate-3:stars,rate-4:stars,rate-5,feelingLucky,openLyrics" getoptionstext="commandOptionText"></pp-select>
+      <pp-select class="v-2.8 sub2 adv notif" id="toastClick" options=",playPause,prevSong,nextSong,ff,rew,openMiniplayer:miniplayer,volumeUp,volumeDown,volumeMute,toggleRepeat,toggleShuffle,loveUnloveSong,rate-1,rate-2:stars,rate-3:stars,rate-4:stars,rate-5,feelingLucky,openLyrics" getoptionstext="commandOptionText"></pp-select>
       <pp-select class="v-2.8 sub2 adv notif" id="toastButton1" from="#toastClick"></pp-select>
       <pp-select class="v-2.8 sub2 adv notif" id="toastButton2" from="#toastClick"></pp-select>
     </pp-tab>
@@ -105,9 +105,11 @@
         <span></span>
         <a target="_blank" class="disconnected"></a>
         <paper-button id="lastfmlogin" raised></paper-button>
-        <img class="loader" src="img/ajax-loader.gif">
-        <img class="success" src="img/check.png">
-        <img class="failure" src="img/cross.png">
+        <img class="status loader" src="img/ajax-loader.gif">
+        <iron-icon class="status" id="lastfmSuccess" icon="check-circle"></iron-icon>
+        <paper-tooltip for="lastfmSuccess"></paper-tooltip>
+        <iron-icon class="status" id="lastfmFailure" icon="error-outline"></iron-icon>
+        <paper-tooltip for="lastfmFailure"></paper-tooltip>
       </div>
       <pp-toggle id="scrobble" listened></pp-toggle>
       <pp-slider class="sub" id="scrobblePercent" min="1" max="100" step="1"></pp-slider>

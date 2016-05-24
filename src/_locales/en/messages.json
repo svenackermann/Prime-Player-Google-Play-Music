@@ -364,7 +364,7 @@
     "description": "title for the lyrics tab on options page"
   },
   "tabLyricsHint": {
-    "message": "You can allow Prime Player to load lyrics from external websites to show them in the miniplayer or the Google Music tab. For this, you first must enable at least one site below. The enabled sites can be sorted with drag & drop, the first site is always searched first for lyrics.",
+    "message": "You can allow Prime Player to load lyrics from external websites to show them in the miniplayer or the Google Music tab. For this, you first must enable at least one site below. The enabled sites can be sorted, the first site is always searched first for lyrics.",
     "description": "hint for the lyrics tab on options page"
   },
   "tabInfo": {

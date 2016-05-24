@@ -166,6 +166,11 @@
 </dom-module>
 
 <dom-module id="pp-tab">
+  <style>
+    :host {
+      display: block;
+    }
+  </style>
   <template>
     <div class="tab-hint">[[hint(id)]]</div>
     <content></content>
@@ -177,6 +182,9 @@
     :host {
       --paper-tabs-selection-bar-color: #198A09;
       --paper-badge-background: #FF8F00;
+      --paper-tabs: {
+        background-color: #80ECAA;
+      }
     }
   </style>
   <template>
@@ -439,6 +447,7 @@
     },
     ready: function() {
       this._setTabNames(this.getContentChildren("#content").map(function(el) { return el.id; }));
+      if (!this.selectedTab) this.selectedTab = this.tabNames[0];
     },
     _badge: function(badges, tabName) {
       return badges[tabName];

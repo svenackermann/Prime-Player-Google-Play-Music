@@ -273,7 +273,7 @@
     "message": "Songtexte"
   },
   "tabLyricsHint": {
-    "message": "Du kannst Prime Player erlauben, Songtexte von externen Webseiten zu laden, um diese im Miniplayer und/oder dem Google Music Tab anzuzeigen. Dazu musst du zunächst mind. eine Seite unten aktivieren. Die aktivierten Seiten können per Drag & Drop sortiert werden, die erste Seite wird immer zuerst durchsucht."
+    "message": "Du kannst Prime Player erlauben, Songtexte von externen Webseiten zu laden, um diese im Miniplayer und/oder dem Google Music Tab anzuzeigen. Dazu musst du zunächst mind. eine Seite unten aktivieren. Die aktivierten Seiten können sortiert werden, die erste Seite wird immer zuerst durchsucht."
   },
   "setting_confirmClose": {
     "message": "Warnung bei Schliessen des Google Music Tabs während Wiedergabe"

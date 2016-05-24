@@ -6,7 +6,7 @@
  * @license BSD license
  */
 
-/* global chrome, initGA */
+/* global chrome, initGA, Polymer */
 /* jshint jquery: true */
 
 chrome.runtime.getBackgroundPage(function(bp) {
@@ -21,13 +21,21 @@ chrome.runtime.getBackgroundPage(function(bp) {
   var GA = initGA(settings, CONTEXT);
 
   chrome.runtime.onMessage.addListener(function(msg) {
+    function updateStatus(id, tooltip) {
+      $("#" + id).show();
+      Polymer.dom($("paper-tooltip[for='" + id + "']")[0]).textContent = tooltip;
+    }
+
     if (msg.type == "lastfmStatusChanged") {
       var statusDiv = $("#lastfmStatus");
-      statusDiv.find("img").hide();
+      statusDiv.children(".status").hide();
 
-      if (msg.status === false) statusDiv.find(".loader").show();
-      else if (msg.status === true) statusDiv.find(".success").attr("title", i18n("lastfmConnectSuccess")).show();
-      else if (typeof msg.status == "string") statusDiv.find(".failure").attr("title", status).show();
+      if (msg.status === false) statusDiv.children(".loader").show();
+      else if (msg.status === true) {
+        updateStatus("lastfmSuccess", i18n("lastfmConnectSuccess"));
+      } else if (typeof msg.status == "string") {
+        updateStatus("lastfmFailure", msg.status);
+      }
     }
   });
 
@@ -53,17 +61,24 @@ chrome.runtime.getBackgroundPage(function(bp) {
     setSubsEnabled("toastUseMpStyle", !toastDisabled && !settings.toastUseMpStyle, "sub2");
   }
 
+  function setOptionDisabled(selectId, option, disabled) {
+    $("pp-select#" + selectId + ",pp-select[from='#" + selectId + "']").each(function() {
+      this.setDisabled(option, disabled);
+    });
+  }
+
   function lastfmSessionNameChanged(user) {
     var action;
     var actionText;
-    $("#scrobble, #linkRatings, #showLovedIndicator, paper-item.lastfm").prop("disabled", !user);
+    $("#scrobble,#linkRatings,#showLovedIndicator").prop("disabled", !user);
+    setOptionDisabled("toastClick", "loveUnloveSong", !user);
     scrobbleChanged();
     linkRatingsChanged();
     var statusDiv = $("#lastfmStatus");
     var userLink = statusDiv.find("a");
     if (user) {
       action = function() {
-        statusDiv.find("img").hide();
+        statusDiv.find(".status").hide();
         bp.lastfmLogout();
       };
       actionText = i18n("logout");
@@ -242,9 +257,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
         });
       },
       saveLastPosition: function(val) {
-        $("#iconClickConnectAction,pp-select[from='#iconClickConnectAction']").each(function() {
-          this.setDisabled("resumeLastSong", !val);
-        });
+        setOptionDisabled("iconClickConnectAction", "resumeLastSong", !val);
       },
       subsEnabled: function(val, old, prop) {
         setSubsEnabled(prop, val);
@@ -261,9 +274,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       lyrics: function() {
         setSubsEnabled("lyrics", localSettings.lyrics);
         $("#lyricsWidth").prop("disabled", !localSettings.lyrics || !settings.lyricsInGpm);
-        $("#toastClick,pp-select[from='#toastClick']").each(function() {
-          this.setDisabled("openLyrics", !localSettings.lyrics);
-        });
+        setOptionDisabled("toastClick", "openLyrics", !localSettings.lyrics);
       },
       timerMinutes: updatePreNotifyMax,
       optionsMode: function(val) { settingsView.removeClass("f-beg f-adv f-exp").addClass("f-" + val); }
@@ -409,7 +420,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
           if (tabName && tabName != "tabInfo") badges[tabName] = badges[tabName] ? badges[tabName] + 1 : 1;
         }
       });
-      $("pp-tabs")[0].badges = badges;
+      var tabs = $("pp-tabs")[0];
+      tabs.badges = badges;
+      tabs.selectedTab = "tabInfo";
       bp.updateInfosViewed();
     }
   }
