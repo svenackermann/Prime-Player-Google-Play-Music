@@ -8,13 +8,10 @@
  */
 
 /* global chrome, Bean, LastFM, initLyricsProviders, initGA */
-/* exported optionsWin, fixForUri */
+/* exported fixForUri */
 /* jshint jquery: true */
 
 //{ global public declarations
-/** The options window, if opened */
-var optionsWin = null;
-
 /** the previous version, if we just updated (set in onInstalled event listener, used by options page) */
 var previousVersion = localStorage.previousVersion;
 
@@ -118,34 +115,42 @@ function fixForUri(string) {
 
   /** settings that should be synced with Chrome sync if enabled */
   var settings = new Bean({
-    //{ lastfm
-    scrobble: true,
-    scrobblePercent: 50,
-    scrobbleTime: 240,
-    scrobbleMaxDuration: 30,
-    disableScrobbleOnFf: false,
-    scrobbleRepeated: true,
-    linkRatings: false,
-    linkRatingsMin: 5,
-    linkRatingsGpm: false,
-    linkRatingsAuto: false,
-    linkRatingsReset: false,
-    showLastfmInfo: false,
-    //}
-    //{ toast
-    toast: true,
-    toastOnPlayPause: false,
-    toastDuration: 0,
-    toastIfMpOpen: false,
-    toastIfMpMinimized: false,
-    toastNotIfGmActive: false,
-    toastUseMpStyle: false,
-    toastPriority: 3,
-    toastProgress: false,
-    toastRating: true,
-    toastClick: "",
-    toastButton1: "nextSong",
-    toastButton2: "playPause",
+    //{ look & feel
+    iconStyle: "default",
+    showPlayingIndicator: true,
+    showRatingIndicator: false,
+    showLovedIndicator: false,
+    showScrobbledIndicator: true,
+    showProgress: false,
+    showProgressColor: "#ff0000",
+    showProgressColorPaused: "#800000",
+    iconClickConnectAction: "",
+    iconClickAction0: "",
+    iconClickAction1: "",
+    iconClickAction2: "",
+    iconClickAction3: "",
+    iconDoubleClickTime: 0,
+    iconShowAction: true,
+    saveLastPosition: false,
+    starRatingMode: false,
+    skipRatedLower: 0,
+    skipRatedThumbsDown: false,
+    hideFavorites: false,
+    openGoogleMusicPinned: false,
+    openGmBackground: false,
+    simulateActivity: false,
+    startupAction: "",
+    playlistEndAction: "",
+    pauseOnLock: false,
+    pauseOnIdle: false,
+    pauseOnIdleSec: 60,
+    connectedIndicator: true,
+    preventCommandRatingReset: true,
+    autoActivateGm: true,
+    autoRestoreGm: true,
+    confirmClose: false,
+    updateNotifier: true,
+    gaEnabled: true,
     //}
     //{ miniplayer
     miniplayerType: "popup",
@@ -165,56 +170,42 @@ function fixForUri(string) {
     mpCloseGm: false,
     mpShowTitle: false,
     //}
+    //{ toast
+    toast: true,
+    toastOnPlayPause: false,
+    toastDuration: 0,
+    toastIfMpOpen: false,
+    toastIfMpMinimized: false,
+    toastNotIfGmActive: false,
+    toastUseMpStyle: false,
+    toastPriority: 3,
+    toastProgress: false,
+    toastRating: true,
+    toastClick: "",
+    toastButton1: "nextSong",
+    toastButton2: "playPause",
+    //}
+    //{ lastfm
+    scrobble: true,
+    scrobblePercent: 50,
+    scrobbleTime: 240,
+    scrobbleMaxDuration: 30,
+    disableScrobbleOnFf: false,
+    scrobbleRepeated: true,
+    linkRatings: false,
+    linkRatingsMin: 5,
+    linkRatingsGpm: false,
+    linkRatingsAuto: false,
+    linkRatingsReset: false,
+    showLastfmInfo: false,
+    //}
     //{ lyrics
     lyricsAutoNext: false,
     openLyricsInMiniplayer: true,
     lyricsAutoReload: false,
     lyricsInGpm: false,
     //}
-    //{ look & feel
-    iconStyle: "default",
-    showPlayingIndicator: true,
-    showRatingIndicator: false,
-    showLovedIndicator: false,
-    showScrobbledIndicator: true,
-    showProgress: false,
-    showProgressColor: "#ff0000",
-    showProgressColorPaused: "#800000",
-    iconClickConnectAction: "",
-    iconClickAction0: "",
-    iconClickAction1: "",
-    iconClickAction2: "",
-    iconClickAction3: "",
-    iconDoubleClickTime: 0,
-    iconShowAction: true,
-    saveLastPosition: false,
-    starRatingMode: false,
-    hideFavorites: false,
-    skipRatedLower: 0,
-    openGoogleMusicPinned: false,
-    openGmBackground: false,
-    simulateActivity: false,
-    startupAction: "",
-    playlistEndAction: "",
-    pauseOnLock: false,
-    pauseOnIdleSec: -60,//negative value means disabled
-    connectedIndicator: true,
-    preventCommandRatingReset: true,
-    autoActivateGm: true,
-    autoRestoreGm: true,
-    confirmClose: false,
-    updateNotifier: true,
-    gaEnabled: true,
-    //}
-    //{ filter
-    optionsMode: "beg",
-    filterTimer: true,
-    filterLastfm: true,
-    filterToast: true,
-    filterMiniplayer: true,
-    filterLyrics: true,
-    filterLookfeel: true
-    //}
+    optionsMode: "beg"
   }, true);
 
   settings.setSyncStorage(localSettings.syncSettings);
@@ -1639,6 +1630,16 @@ function fixForUri(string) {
 
     //--- 3.9 ---
     if (previousVersion <= 3.8) migrateQuicklink("myPlaylists", "wmp");
+
+    //--- 4.0 ---
+    if (settings.pauseOnIdleSec < 0) settings.pauseOnIdleSec = -settings.pauseOnIdleSec;
+    else settings.pauseOnIdle = true;
+    localStorage.removeItem("filterTimer");
+    localStorage.removeItem("filterLastfm");
+    localStorage.removeItem("filterToast");
+    localStorage.removeItem("filterMiniplayer");
+    localStorage.removeItem("filterLyrics");
+    localStorage.removeItem("filterLookfeel");
   }
 
   /** handler for onInstalled event (show the orange icon on update / notification on install) */
@@ -1972,13 +1973,13 @@ function fixForUri(string) {
     if (!player.connected && !connecting) refreshContextMenu();
   });
   settings.al("hideFavorites", refreshContextMenu);
-  settings.al("scrobble", function(val) { chromeContextMenus.update("toggleScrobble", { checked: val }); });
+  settings.al("scrobble", function(val) { chromeContextMenus.update("toggleScrobble", { checked: val }, ignoreLastError); });
   //} context menu
 
   //{ idle/locked handling
   function onIdleStateChangedHandler(state) {
     console.debug("onIdleStateChangedHandler", state, player.playing);
-    if (player.playing && (state == "locked" && settings.pauseOnLock || state == "idle" && settings.pauseOnIdleSec > 0)) {
+    if (player.playing && (state == "locked" && settings.pauseOnLock || state == "idle" && settings.pauseOnIdle)) {
       executePlayPause(false);
       chromeLocalStorage.set({ resumeOnActive: true });
     } else if (state == "active") {
@@ -1993,14 +1994,13 @@ function fixForUri(string) {
 
   function pauseOnIdleStateHandler() {
     chromeIdle.onStateChanged.removeListener(onIdleStateChangedHandler);
-    var pauseOnIdle = settings.pauseOnIdleSec > 0;
-    if (settings.pauseOnLock || pauseOnIdle) {
-      if (pauseOnIdle) chromeIdle.setDetectionInterval(settings.pauseOnIdleSec);
+    if (settings.pauseOnLock || settings.pauseOnIdle) {
+      if (settings.pauseOnIdle) chromeIdle.setDetectionInterval(settings.pauseOnIdleSec);
       chromeIdle.onStateChanged.addListener(onIdleStateChangedHandler);
     }
   }
 
-  settings.w("pauseOnLock pauseOnIdleSec", pauseOnIdleStateHandler);
+  settings.w("pauseOnLock pauseOnIdle pauseOnIdleSec", pauseOnIdleStateHandler);
   //} idle/locked handling
 
   //{ register general listeners
@@ -2103,12 +2103,17 @@ function fixForUri(string) {
       lastSongInfoChanged();
     }); else lastSongInfoChanged();
   });
+  settings.w("skipRatedLower", function(val) { settings.skipRatedThumbsDown = val > 0; });
+  settings.al("skipRatedThumbsDown", function(val) { settings.skipRatedLower = val ? 2 : 0; });
 
   localSettings.al("lastfmSessionName", calcScrobbleTime);
   localSettings.al("lyrics lyricsFontSize lyricsWidth lyricsOpacity", postLyricsState);
   localSettings.w("notificationsEnabled", function(val, old) {
     if (val) initNotifications();
-    else if (old) GA.event(GA_CAT_OPTIONS, "notifications-disabled");
+    else {
+      if (old) GA.event(GA_CAT_OPTIONS, "notifications-disabled");
+      if (settings.toast && !settings.toastUseMpStyle) settings.toastUseMpStyle = true;
+    }
   });
 
   player.al("connected", function(val) {
@@ -2660,7 +2665,7 @@ function fixForUri(string) {
     }
     sendStatusChangedMessage(false);
     if (lastfmAuthTabId) {
-      chromeTabs.remove(lastfmAuthTabId);
+      chromeTabs.remove(lastfmAuthTabId, ignoreLastError);
       lastfmAuthTabId = null;
     }
     lastfm.auth.getSession({ token: token }, {

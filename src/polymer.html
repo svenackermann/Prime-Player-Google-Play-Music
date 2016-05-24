@@ -1,0 +1,522 @@
+<!--
+  Web components for options page
+  @author Sven Ackermann (svenrecknagel@gmail.com)
+  @license BSD license
+-->
+<link rel="import" href="../node_modules/npm-polymer-elements/polymer/polymer.html"/>
+<link rel="import" href="../node_modules/npm-polymer-elements/paper-input/paper-input.html"/>
+<link rel="import" href="../node_modules/npm-polymer-elements/paper-dropdown-menu/paper-dropdown-menu.html"/>
+<link rel="import" href="../node_modules/npm-polymer-elements/paper-listbox/paper-listbox.html"/>
+<link rel="import" href="../node_modules/npm-polymer-elements/paper-item/paper-item.html"/>
+<link rel="import" href="../node_modules/npm-polymer-elements/paper-toggle-button/paper-toggle-button.html"/>
+<link rel="import" href="../node_modules/npm-polymer-elements/paper-slider/paper-slider.html"/>
+<link rel="import" href="../node_modules/npm-polymer-elements/paper-icon-button/paper-icon-button.html"/>
+<link rel="import" href="../node_modules/npm-polymer-elements/paper-dialog/paper-dialog.html"/>
+<link rel="import" href="../node_modules/npm-polymer-elements/paper-button/paper-button.html"/>
+<link rel="import" href="../node_modules/npm-polymer-elements/paper-tabs/paper-tabs.html"/>
+<link rel="import" href="../node_modules/npm-polymer-elements/paper-badge/paper-badge.html"/>
+<link rel="import" href="../node_modules/npm-polymer-elements/iron-pages/iron-pages.html"/>
+<link rel="import" href="../node_modules/npm-polymer-elements/paper-tooltip/paper-tooltip.html"/>
+
+<dom-module id="pp-input">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      #input {  
+        min-height: initial;
+      }
+    </style>
+    <paper-input
+      id="input"
+      type="[[type]]"
+      min="[[min]]"
+      max="[[max]]"
+      step="[[step]]"
+      label="[[i18nlabel(id)]]"
+      value="{{value}}"
+      disabled="[[disabled]]"
+    ></paper-input>
+  </template>
+</dom-module>
+
+<dom-module id="pp-select">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      paper-dropdown-menu {
+        width: 100%;
+      }
+      paper-listbox {
+        overflow-x: auto;
+      }
+      paper-item {
+        min-width: 200px;
+      }
+    </style>
+    <paper-dropdown-menu
+      id="dropdown"
+      label="[[i18nlabel(id)]]"
+      disabled="[[disabled]]"
+      vertical-align="center"
+      no-animations
+    >
+      <paper-listbox id="input" class="dropdown-content" attr-for-selected="value">
+        <template is="dom-repeat" items="[[items]]">
+          <paper-item class$="[[item.clazz]]" value="_[[item.value]]" disabled=[[item.disabled]]>[[item.text]]</paper-item>
+        </template>
+      </paper-listbox>
+    </paper-dropdown-menu>
+  </template>
+</dom-module>
+
+<dom-module id="pp-toggle-light">
+  <template>
+    <style>
+      :host {
+        --paper-toggle-button-checked-bar-color:  var(--paper-green-500);
+        --paper-toggle-button-checked-button-color:  var(--paper-green-500);
+        --paper-toggle-button-checked-ink-color: var(--paper-green-500);
+      }
+    </style>
+    <paper-toggle-button id="input" disabled="[[disabled]]" checked={{checked}}><content></content></paper-toggle-button>
+  </template>
+</dom-module>
+
+<dom-module id="pp-toggle">
+  <template>
+    <style>
+      :host {
+        display: block;
+        --paper-toggle-button-label-color: var(--secondary-text-color);
+      }
+      pp-toggle-light {
+        display: inline-flex;
+      }
+      label {
+        color: var(--secondary-text-color);
+      }
+    </style>
+    <pp-toggle-light id="input" disabled="[[disabled]]">[[i18nlabel(id)]]</pp-toggle-light>
+    <label></label>
+  </template>
+</dom-module>
+
+<dom-module id="pp-slider">
+  <template>
+    <style>
+      :host {
+        display: block;
+        --paper-input-container-underline: {
+          display: none;
+        };
+        --paper-input-container-underline-focus: {
+          display: none;
+        };
+        paper-input-container {
+          padding-bottom: 0;
+        }
+      }
+    </style>
+    <paper-input-container>
+      <label>[[i18nlabel(id)]]</label>
+      <paper-slider
+        class="paper-input-input"
+        id="input"
+        min$="[[min]]"
+        max$="[[max]]"
+        step$="[[step]]"
+        value="{{value}}"
+        disabled="[[disabled]]"
+        pin
+        editable
+      ></paper-slider>
+    </paper-input-container>
+  </template>
+</dom-module>
+
+<dom-module id="pp-iconchoice">
+  <template>
+    <style>
+      :host {
+        display: block;
+        --paper-input-container-underline: {
+          display: none;
+        };
+        --paper-input-container-underline-focus: {
+          display: none;
+        };
+      }
+      paper-icon-button[active] {
+        outline: 1px auto black;
+      }
+    </style>
+    <paper-input-container always-float-label>
+      <label>[[i18nlabel(id)]]</label>
+      <div class="paper-input-input" id="input">
+        <template is="dom-repeat" items="[[items]]" as="item">
+          <paper-icon-button value$="[[item]]" src="img/icon/[[item]]/connected.png" toggles mini on-tap="_tapped"></paper-icon-button>
+        </template>
+      </div>
+    </paper-input-container>
+  </template>
+</dom-module>
+
+<dom-module id="pp-tab">
+  <style>
+    :host {
+      display: block;
+    }
+  </style>
+  <template>
+    <div class="tab-hint">[[hint(id)]]</div>
+    <content></content>
+  </template>
+</dom-module>
+
+<dom-module id="pp-tabs">
+  <style>
+    :host {
+      --paper-tabs-selection-bar-color: #198A09;
+      --paper-badge-background: #FF8F00;
+      --paper-tabs: {
+        background-color: #80ECAA;
+      }
+    }
+  </style>
+  <template>
+    <paper-tabs selected="{{selectedTab}}" attr-for-selected="name">
+      <template is="dom-repeat" items="[[tabNames]]">
+        <paper-tab name$="[[item]]">
+          <div>
+            [[tabTitle(item)]]
+            <paper-badge class$="[[_badgeClass(badges, item)]]" label="[[_badge(badges, item)]]"></paper-badge>
+          </div>
+        </paper-tab>
+      </template>
+    </paper-tabs>
+    
+    <iron-pages selected="{{selectedTab}}" attr-for-selected="id">
+      <content id="content" select="*"></content>
+    </iron-pages>
+  </template>
+</dom-module>
+
+<dom-module id="pp-cltoggle">
+  <style>
+    :host {
+      display: inline-flex;
+      margin-left: 10px;
+    }
+  </style>
+  <template>
+    <pp-toggle-light checked on-checked-changed="_fireChange" id="toggle">[[type]]</pp-toggle-light>
+    <paper-tooltip for="toggle">Show/hide <content></content></paper-tooltip>
+  </template>
+</dom-module>
+
+<dom-module id="pp-lyricsproviders">
+  <style>
+    :host {
+      display: block;
+      --paper-icon-button: {
+        height: 24px;
+        width: 24px;
+        padding: 0;
+      }
+    }
+    .provider {
+      min-height: 26px;
+    }
+    pp-toggle-light {
+      display: block;
+      overflow: hidden;
+    }
+    paper-icon-button {
+      float: right;
+      margin-left: 4px;
+    }
+  </style>
+  <template>
+    <template id="repeater" is="dom-repeat" items="[[providers]]" sort="{{_sortProviders(activeProviders)}}">
+      <div class="provider" provider$=[[item.name]]>
+        <paper-icon-button icon="arrow-drop-down" disabled="[[_downDisabled(activeProviders, item.name)]]" on-tap="_down"></paper-icon-button>
+        <paper-icon-button icon="arrow-drop-up" disabled="[[_upDisabled(activeProviders, item.name)]]" on-tap="_up"></paper-icon-button>
+        <pp-toggle-light checked="[[_isActive(activeProviders, item.name)]]" on-tap="_tapped"><a target="_blank" href$="[[item.homepage]]">[[item.url]]</a></pp-toggle-light>
+      </div>
+    </template>
+  </template>
+</dom-module>
+
+<script>
+  /* global chrome, Polymer */
+  /* jshint jquery: true */
+  var i18n = chrome.i18n.getMessage;
+  var PpInputBehavior = {
+    properties: {
+      local: Boolean,
+      hint: Boolean,
+      id: String,
+      disabled: {
+        type: Boolean,
+        reflectToAttribute: true
+      },
+      value: {
+        notify: true
+      },
+      listened: Boolean,
+      watched: Boolean,
+      listener: String
+    },
+    i18nlabel: function(id) {
+      return i18n("setting_" + id);
+    },
+    ready: function() {
+      this.toggleClass("pp-option", true);
+      var listening = this.listened || this.watched;
+      if (this.listener && !listening) this.listened = true;
+      else if (!this.listener && listening) this.listener = this.id;
+      if (this.hint) {
+        var dialog = $("<paper-dialog>");
+        $("<h2>").text(this.i18nlabel(this.id)).appendTo(dialog);
+        $("<p class='hint-content'>").html(i18n("setting_" + this.id + "Hint")).appendTo(dialog);
+        var buttons = $("<div class='buttons'>");
+        $("<paper-button dialog-confirm>").text("OK").appendTo(buttons);
+        dialog.append(buttons);
+        $(this).append(dialog);
+        dialog = dialog[0];
+        $("<paper-icon-button icon='help-outline' class='hint-trigger' noink mini>")
+          .on("tap", function() {
+            dialog.open();
+            return false;
+          })
+          .appendTo($("label", this));
+      }
+    }
+  };
+
+  Polymer({
+    is: "pp-input",
+    behaviors: [PpInputBehavior],
+    properties: {
+      type: {
+        type: String,
+        value: "number"
+      },
+    }
+  });
+  
+  Polymer({
+    is: "pp-select",
+    behaviors: [PpInputBehavior],
+    properties: {
+      options: {
+        type: String,
+        value: ""
+      },
+      type: {
+        type: String,
+        value: "text"
+      },
+      getoptionstext: {
+        type: String,
+        value: "bundle"
+      },
+      from: String,
+      items: {
+        type: Array,
+        value: [],
+        readOnly: true
+      }
+    },
+    ready: function() {
+      var that = this;
+      var input = this.$.input;
+      $(input).on("iron-select", function() { that.value = input.selected.substr(1); });
+      //prefix value with "_", because listbox's attrForSelected does not work correctly with empty string or 0
+      this.addEventListener("value-changed", function(e) { input.select("_" + e.detail.value); });
+    },
+    _updateLabel: function() {
+      // didn't find a better solution to update also the label in the input
+      this.$.dropdown._selectedItemChanged(this.$.input.selectedItem);
+    },
+    _indexOf: function(value) {
+      return this.items.findIndex(function(item) { return item.value == value; });
+    },
+    setText: function(value, text) {
+      this.set("items." + this._indexOf(value) + ".text", text);
+      this._updateLabel();
+    },
+    setDisabled: function(value, disabled) {
+      var index = this._indexOf(value);
+      this.set("items." + index + ".disabled", disabled);
+    },
+    setItems: function(items) {
+      this._setItems(items);
+      this._updateLabel();
+    }
+  });
+
+  Polymer({
+    is: "pp-toggle-light",
+    properties: {
+      disabled: {
+        type: Boolean,
+        reflectToAttribute: true
+      },
+      checked: {
+        type: Boolean,
+        reflectToAttribute: true,
+        notify: true
+      }
+    }
+  });
+
+  Polymer({
+    is: "pp-toggle",
+    behaviors: [PpInputBehavior],
+    ready: function() {
+      var that = this;
+      var input = this.$.input;
+      $(input).on("change", function() { that.value = input.checked; });
+      this.addEventListener("value-changed", function(e) { input.checked = e.detail.value; });
+    }
+  });
+
+  Polymer({
+    is: "pp-slider",
+    behaviors: [PpInputBehavior, Polymer.PaperInputBehavior]
+  });
+
+  Polymer({
+    is: "pp-iconchoice",
+    behaviors: [PpInputBehavior, Polymer.PaperInputBehavior],
+    properties: {
+      items: {
+        type: Array,
+        value: []
+      }
+    },
+    _applyValue: function(val) {
+      $("paper-icon-button[value!='" + val + "']", this).removeAttr("active");
+      $("paper-icon-button[value='" + val + "']", this)[0].active = true;
+    },
+    ready: function() {
+      var that = this;
+      this.addEventListener("value-changed", function(e) { that._applyValue(e.detail.value); });
+    },
+    _tapped: function(e) {
+      var val = $(e.target).closest("paper-icon-button")[0].value;
+      this._applyValue(val);
+      this.value = val;
+    }
+  });
+
+  Polymer({
+    is: "pp-tab",
+    properties: {
+      id: String
+    },
+    hint: function(id) {
+      return i18n(id + "Hint");
+    }
+  });
+
+  Polymer({
+    is: "pp-tabs",
+    properties: {
+      selectedTab: {
+        type: String,
+        reflectToAttribute: true
+      },
+      tabNames: {
+        type: Array,
+        value: [],
+        readOnly: true
+      },
+      badges: {
+        type: Object,
+        value: {}
+      }
+    },
+    tabTitle: function(tabName) {
+      return i18n(tabName);
+    },
+    ready: function() {
+      this._setTabNames(this.getContentChildren("#content").map(function(el) { return el.id; }));
+      if (!this.selectedTab) this.selectedTab = this.tabNames[0];
+    },
+    _badge: function(badges, tabName) {
+      return badges[tabName];
+    },
+    _badgeClass: function(badges, tabName) {
+      return badges[tabName] ? "" : "hidden";
+    }
+  });
+
+  Polymer({
+    is: "pp-cltoggle",
+    properties: {
+      type: String
+    },
+    _fireChange: function(e) {
+      this.fire("toggled", { active: e.detail.value });
+    }
+  });
+
+  Polymer({
+    is: "pp-lyricsproviders",
+    properties: {
+      providers: {
+        type: Array,
+        value: [],
+        notify: true
+      },
+      activeProviders: {
+        type: Array,
+        value: []
+      }
+    },
+    ready: function() {
+      var that = this;
+      this.$.repeater.addEventListener("dom-change", function() {
+        //prevent click events on link to bubble up (otherwise "checked" property is toggled when clicked on link)
+        $(".toggle-label", that).unbind().click(function(e) { e.stopPropagation(); });
+      });
+    },
+    _isActive: function(activeProviders, provider) {
+      return activeProviders.includes(provider);
+    },
+    _upDisabled: function(activeProviders, provider) {
+      return activeProviders[0] == provider || !activeProviders.includes(provider);
+    },
+    _downDisabled: function(activeProviders, provider) {
+      return activeProviders[activeProviders.length - 1] == provider || !activeProviders.includes(provider);
+    },
+    _sortProviders: function(activeProviders) {
+      return function(left, right) {
+        var leftIndex = activeProviders.indexOf(left.name);
+        if (leftIndex < 0) leftIndex = activeProviders.length;
+        var rightIndex = activeProviders.indexOf(right.name);
+        if (rightIndex < 0) rightIndex = activeProviders.length;
+        return leftIndex - rightIndex;
+      };
+    },
+    _tapped: function(e) {
+      this.fire("toggled", { provider: e.model.item.name });
+    },
+    _up: function(e) {
+      this.fire("moved", { provider: e.model.item.name, up: true });
+    },
+    _down: function(e) {
+      this.fire("moved", { provider: e.model.item.name, up: false });
+    },
+    resetView: function() {
+      //hack to force update on the repeater (this.$.repeater.render() does not work without model change)
+      this.activeProviders = this.activeProviders.slice();
+    }
+  });
+</script>

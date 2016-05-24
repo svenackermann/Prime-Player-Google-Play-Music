@@ -5,6 +5,9 @@
   "extTitle": {
     "message": "Prime Player"
   },
+  "dialogCancel": {
+    "message": "Abbrechen"
+  },
   "options": {
     "message": "Optionen"
   },
@@ -230,34 +233,34 @@
   "connected": {
     "message": "Dieser Tab ist mit Prime Player verbunden. Zum Trennen klicken."
   },
-  "legendTimer": {
-    "message": "Timer Einstellungen"
+  "tabTimer": {
+    "message": "Timer"
   },
-  "legendTimerHint": {
+  "tabTimerHint": {
     "message": "Mit dem Timer kannst du nach einer festgelegten Zeit automatisch die Musik stoppen oder den Google Music Tab schließen. Die Einstellungen werden verfügbar, sobald Prime Player mit Google Music verbunden ist."
   },
-  "legendLastfm": {
-    "message": "last.fm Einstellungen"
+  "tabLastfm": {
+    "message": "last.fm"
   },
-  "legendLastfmHint": {
+  "tabLastfmHint": {
     "message": "Hier kannst du die Verbindung mit last.fm kontrollieren und deine Scrobbling-Einstellungen anpassen."
   },
-  "legendToast": {
-    "message": "Toast Einstellungen"
+  "tabToast": {
+    "message": "Toast"
   },
-  "legendToastHint": {
+  "tabToastHint": {
     "message": "Toasts sind Desktop-Benachrichtigungen, die den aktuellen Titel anzeigen und ein paar Aktionen erlauben. Immer wenn ein neuer Titel startet, erscheint ein Toast auf dem Bildschirm. Toast-Benachrichtigungen werden nicht angezeigt, solange der Miniplayer aktiv ist."
   },
-  "legendMiniplayer": {
-    "message": "Miniplayer Einstellungen"
+  "tabMiniplayer": {
+    "message": "Miniplayer"
   },
-  "legendMiniplayerHint": {
+  "tabMiniplayerHint": {
     "message": "Der Miniplayer ist ein mächtiges, anpassbares Tool, also nimm dir die Zeit, die verschiedenen Einstellungen auszuprobieren. Du kannst den Miniplayer z.B. mit dem Kopfhörer-Symbol im Popup, das beim Klick auf das Prime-Player-Symbol in Chromes Toolbar erscheint, öffnen."
   },
-  "legendLookfeel": {
+  "tabLookfeel": {
     "message": "Aussehen & Verhalten"
   },
-  "legendLookfeelHint": {
+  "tabLookfeelHint": {
     "message": "Diese Einstellungen kontrollieren das Prime-Player-Symbol und anderes allgemeines Verhalten."
   },
   "legendIc": {
@@ -266,11 +269,11 @@
   "legendIcHint": {
     "message": "Hiermit kannst du die Aktion(en) anpassen, die beim Klick auf das Prime-Player-Symbol in Chromes Toolbar ausgeführt wird/werden."
   },
-  "legendLyrics": {
-    "message": "Songtexte Einstellungen"
+  "tabLyrics": {
+    "message": "Songtexte"
   },
-  "legendLyricsHint": {
-    "message": "Du kannst Prime Player erlauben, Songtexte von externen Webseiten zu laden, um diese im Miniplayer und/oder dem Google Music Tab anzuzeigen. Dazu musst du zunächst mind. eine Seite unten aktivieren. Die aktivierten Seiten können per Drag & Drop sortiert werden, die erste Seite wird immer zuerst durchsucht."
+  "tabLyricsHint": {
+    "message": "Du kannst Prime Player erlauben, Songtexte von externen Webseiten zu laden, um diese im Miniplayer und/oder dem Google Music Tab anzuzeigen. Dazu musst du zunächst mind. eine Seite unten aktivieren. Die aktivierten Seiten können sortiert werden, die erste Seite wird immer zuerst durchsucht."
   },
   "setting_confirmClose": {
     "message": "Warnung bei Schliessen des Google Music Tabs während Wiedergabe"
@@ -418,7 +421,7 @@
     "message": "Verberge Favoriten im Miniplayer und Kontext-Menü"
   },
   "setting_skipRatedLower": {
-    "message": "(oder schlechter) bewertete Titel überspringen"
+    "message": "Überspringe Titel bewertet mit (oder schlechter)"
   },
   "setting_skipRatedLower_0": {
     "message": "deaktiviert"
@@ -469,7 +472,7 @@
     "message": "Prime Player wurde installiert"
   },
   "installNotifierText": {
-    "message": "Prime Player bietet viele Optionen, die du an deine Bedürfnisse anpassen kannst. Beachte auch die FAQ auf der Homepage der Erweiterung im Chrome Store und das Wiki auf Github. Und nun viel Spaß mit Prime Player!"
+    "message": "Prime Player bietet viele Optionen, die du an deine Bedürfnisse anpassen kannst. Beachte auch die FAQ im Wiki auf Github. Und nun viel Spaß mit Prime Player!"
   },
   "updateNotifierTitle": {
     "message": "Prime Player wurde aktualisiert"
@@ -775,6 +778,9 @@
   "stopTimer": {
     "message": "Stop"
   },
+  "timerActive": {
+    "message": "Timer ist aktiv:"
+  },
   "timerNotificationTitle": {
     "message": "Timer abgelaufen"
   },
@@ -821,11 +827,11 @@
     "message": "$HOU$ Stunden",
     "placeholders": { "HOU": { "content": "$1" } }
   },
-  "filterHint": {
-    "message": "Hier kannst du die sichtbaren Optionen einschränken."
-  },
   "setting_optionsMode": {
     "message": "Modus"
+  },
+  "setting_optionsModeHint": {
+    "message": "Hier kannst du die sichtbaren Optionen einschränken."
   },
   "setting_optionsMode_beg": {
     "message": "Anfänger"
@@ -835,24 +841,6 @@
   },
   "setting_optionsMode_exp": {
     "message": "Experte"
-  },
-  "setting_filterTimer": {
-    "message": "Timer"
-  },
-  "setting_filterLastfm": {
-    "message": "Last.fm"
-  },
-  "setting_filterToast": {
-    "message": "Toasts"
-  },
-  "setting_filterMiniplayer": {
-    "message": "Miniplayer"
-  },
-  "setting_filterLyrics": {
-    "message": "Songtexte"
-  },
-  "setting_filterLookfeel": {
-    "message": "Verhalten"
   },
   "notificationsDisabled": {
     "message": "Benachrichtigungen sind für Prime Player deaktiviert. Daher sind nur Toasts im Miniplayer-Stil möglich."

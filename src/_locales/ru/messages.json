@@ -227,34 +227,34 @@
   "connected": {
     "message": "Вкладка подключена к Prime Player. Кликните для отключения."
   },
-  "legendTimer": {
-    "message": "Настрокйки таймера"
+  "tabTimer": {
+    "message": "таймера"
   },
-  "legendTimerHint": {
+  "tabTimerHint": {
     "message": "Таймер позволяет автоматически остановить воспроизведение или закрыть вкладку Google Music после определенного периода времени. Настройки будут работать пока Prime Player подключён к Google Music."
   },
-  "legendLastfm": {
-    "message": "Настройки Last.FM"
+  "tabLastfm": {
+    "message": "Last.FM"
   },
-  "legendLastfmHint": {
+  "tabLastfmHint": {
     "message": "Здесь вы можете управлять соединением между Google Music и Last.FM. Также управлять настройками скробблинга."
   },
-  "legendToast": {
-    "message": "Настройки всплывающего окна"
+  "tabToast": {
+    "message": "всплывающего окна"
   },
-  "legendToastHint": {
+  "tabToastHint": {
     "message": "Всплывающее уведомление это уведомление на экране десктопа, показывающее название трека и позволяющее управлять некоторыми функциями. Уведомления появляются при начале воспроизведения каждого нового трека. Всплывающие уведомления не будут показываться пока активен миниплеер."
   },
-  "legendMiniplayer": {
-    "message": "Настройки миниплеера"
+  "tabMiniplayer": {
+    "message": "миниплеера"
   },
-  "legendMiniplayerHint": {
+  "tabMiniplayerHint": {
     "message": "Миниплеер это мощный, кастомизируемый инструмент. Поэтому, пожалуйста, потратьте немного времени для подбора настроек, которые будут лучше всего вам подходить. Вы можете открыть миниплеер, например кликнув на значок Наушники во всплывающем окне после клика на иконку Prime Player."
   },
-  "legendLookfeel": {
+  "tabLookfeel": {
     "message": "Внешний вид"
   },
-  "legendLookfeelHint": {
+  "tabLookfeelHint": {
     "message": "Эти настройки позволяют изменить иконку Prime player и поменять иные визуальные характеристики"
   },
   "legendIc": {
@@ -263,10 +263,10 @@
   "legendIcHint": {
     "message": "Эти настройки позволяют назначить действие(-я) при клике на иконку Prime Player"
   },
-  "legendLyrics": {
-    "message": "Настройки текста песен"
+  "tabLyrics": {
+    "message": "текста песен"
   },
-  "legendLyricsHint": {
+  "tabLyricsHint": {
     "message": "Prime Player может показывать текст проигрываемой композиции в окне миниплеера или на вкладке Google Music. Для этого сначала выберете хотя бы один сайт, который будет использован в качестве источника текстов. Активированные сайты можно сортировать перетаскиванием. Первый в списке используется в качестве приоритетного при поиске."
   },
   "setting_gaEnabled": {
@@ -782,11 +782,11 @@
     "message": "$HOU$ ч",
     "placeholders": {"HOU":{"content":"$1"}}
   },
-  "filterHint": {
-    "message": "Здесь вы можете ограничить видимые параметры."
-  },
   "setting_optionsMode": {
     "message": "Режим"
+  },
+  "setting_optionsModeHint": {
+    "message": "Здесь вы можете ограничить видимые параметры."
   },
   "setting_optionsMode_beg": {
     "message": "Новичок"
@@ -796,24 +796,6 @@
   },
   "setting_optionsMode_exp": {
     "message": "Эксперт"
-  },
-  "setting_filterTimer": {
-    "message": "Таймер"
-  },
-  "setting_filterLastfm": {
-    "message": "Last.FM"
-  },
-  "setting_filterToast": {
-    "message": "Всплывающие уведомления"
-  },
-  "setting_filterMiniplayer": {
-    "message": "Миниплеер"
-  },
-  "setting_filterLyrics": {
-    "message": "Текст треков"
-  },
-  "setting_filterLookfeel": {
-    "message": "Внешний вид"
   },
   "notificationsDisabled": {
     "message": "Уведомления отключены для Prime Player, поэтому доступны только стили миниплеера"

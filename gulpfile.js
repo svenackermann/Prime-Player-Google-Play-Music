@@ -17,6 +17,7 @@ var jsonedit = require("gulp-json-transform");
 var n2a = require("gulp-native2ascii");
 var runSequence = require("run-sequence");
 var gulpif = require("gulp-if");
+var polybuild = require("polybuild");
 var argv = require("yargs").argv;
 var develop = !argv.dist;
 var full = argv.full;
@@ -26,7 +27,8 @@ var PATHS = {
   JS_SINGLE: ["src/js/cs.js", "src/js/cs-*.js", "src/js/ga.js", "src/js/injected.js", "src/js/lastfmCallback.js", "src/js/options.js", "src/js/player.js", "src/js/updateNotifier.js"],
   SCSS: ["src/css/*.scss", "!src/css/layouts.scss"],
   SCSS_ALL: "src/css/*.*",
-  OTHER: ["src/img/**/*.*", "src/**/*.json", "src/**/*.html"],
+  POLYMER: "src/polymer.html",
+  OTHER: ["src/img/**/*.*", "src/**/*.json", "src/**/*.html", "!src/polymer.html"],
   JQUERY: "node_modules/jquery/dist/jquery.min.js",
   JQUERY_MAP: "node_modules/jquery/dist/jquery.min.map",
   DEST: "build/",
@@ -42,9 +44,11 @@ function myUglify() {
 }
 
 gulp.task("style", function() {
-  return gulp.src(["gulpfile.js", "src/js/*.js", "!src/js/*.min.js"])
+  // gulp-jscs does not support "extract" yet, so html can't be checked, see https://github.com/jscs-dev/gulp-jscs/issues/95
+  var polymer = gulp.src(PATHS.POLYMER).pipe(jshint.extract("always"));
+  var js = gulp.src(["gulpfile.js", "src/js/*.js", "!src/js/*.min.js"]).pipe(jscs());
+  return merge(polymer, js)
     .pipe(jshint())
-    .pipe(jscs())
     .on("error", function() {})
     .pipe(jscsstylish.combineWithHintResults())
     .pipe(jshint.reporter("jshint-stylish"))
@@ -82,6 +86,12 @@ gulp.task("compile-css", function() {
     .pipe(gulp.dest(PATHS.DEST_CSS));
 });
 
+gulp.task("compile-polymer", function() {
+  return gulp.src(PATHS.POLYMER)
+    .pipe(polybuild({ maximumCrush: !full }))
+    .pipe(gulp.dest(PATHS.DEST));
+});
+
 gulp.task("copy-jquery", function() {
   var src = PATHS.JQUERY;
   if (develop) src = [src, PATHS.JQUERY_MAP];
@@ -97,12 +107,13 @@ gulp.task("copy-other", function() {
     .pipe(gulp.dest(PATHS.DEST));
 });
 
-gulp.task("build", ["compile-js-bp", "compile-js-single", "compile-css", "copy-other", "copy-jquery"], function(cb) { cb(); });
+gulp.task("build", ["compile-js-bp", "compile-js-single", "compile-css", "compile-polymer", "copy-other", "copy-jquery"], function(cb) { cb(); });
 
 gulp.task("watch", function() {
   gulp.watch(PATHS.JS_BP, ["compile-js-bp"]);
   gulp.watch(PATHS.JS_SINGLE, ["compile-js-single"]);
   gulp.watch(PATHS.SCSS_ALL, ["compile-css"]);
+  gulp.watch(PATHS.POLYMER, ["compile-polymer"]);
   gulp.watch(PATHS.OTHER, ["copy-other"]);
 });
 
