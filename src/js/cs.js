@@ -335,6 +335,7 @@ $(function() {
       window.postMessage({ type: "FROM_PRIMEPLAYER", msg: "cleanupCs" }, location.href);
       return;//wait for callback
     }
+    restoreActiveTab(init);
 
     /** Send current song info to bp. */
     function sendSong() {
@@ -1003,6 +1004,7 @@ $(function() {
       selectAndExecute("now", sendCommand.bind(window, "feelingLucky"));
       break;
     case "connected":
+      needActiveTab(init);
       init();
       break;
     case "connectedIndicator":
