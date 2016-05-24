@@ -1632,10 +1632,8 @@ function fixForUri(string) {
     if (previousVersion <= 3.8) migrateQuicklink("myPlaylists", "wmp");
 
     //--- 4.0 ---
-    if (settings.pauseOnIdleSec < 0) {
-      settings.pauseOnIdle = false;
-      settings.pauseOnIdleSec = -settings.pauseOnIdleSec;
-    }
+    if (settings.pauseOnIdleSec < 0) settings.pauseOnIdleSec = -settings.pauseOnIdleSec;
+    else settings.pauseOnIdle = true;
     localStorage.removeItem("filterTimer");
     localStorage.removeItem("filterLastfm");
     localStorage.removeItem("filterToast");
