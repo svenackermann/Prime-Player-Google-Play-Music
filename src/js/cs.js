@@ -316,9 +316,16 @@ $(function() {
     }
   }
 
+  var activeTabForInitRequested = false;
   function init() {
     if ($("#playerSongInfo").length) doInit();
-    else setTimeout(init, 250);
+    else {
+      if (!activeTabForInitRequested) {
+        activeTabForInitRequested = true;
+        needActiveTab(init);
+      }
+      setTimeout(init, 250);
+    }
   }
 
   /** add listeners/observers and extend DOM */
@@ -335,6 +342,7 @@ $(function() {
       window.postMessage({ type: "FROM_PRIMEPLAYER", msg: "cleanupCs" }, location.href);
       return;//wait for callback
     }
+    if (activeTabForInitRequested) restoreActiveTab(init);
 
     /** Send current song info to bp. */
     function sendSong() {

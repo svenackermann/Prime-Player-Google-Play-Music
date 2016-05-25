@@ -4,34 +4,30 @@
  * @license BSD license
  */
 body {
-  background: #F9F9F9;
-  font-size: 12px;
-  font-family: arial;
+  min-width: 800px;
 }
 
-.sortable > *[draggable='true'] {
-  cursor: move;
-  background: url(../img/sort.png) right no-repeat;
-  background-size: 16px;
+h1 {
+  font-weight: bold;
 }
 
-.dragging {
-  box-shadow: 0 -2px 0 #1D6D6D;
-}
-
-.syncenabled .synced label:after {
+.syncenabled .pp-option:not([local]) label:after {
   content: "*";
   padding-left: 1ex;
+  float: right;
 }
 
-#settings {
+iron-pages {
   float: left;
+  width: 70%;
+  margin-bottom: 10px;
   &.f-beg .adv, &.f-beg .exp, &.f-adv .exp {
     display: none;
     &.newFeature {
       label:after {
         font-style: italic;
         font-weight: normal;
+        float: right;
       }
     }
   }
@@ -43,9 +39,6 @@ body {
       content: " (__MSG_setting_optionsMode_exp__)";
     }
   }
-  &.filterTimer .timer, &.filterLastfm .lastfm, &.filterToast .toast, &.filterMiniplayer .miniplayer, &.filterLyrics .lyrics, &.filterLookfeel .lookfeel {
-    display: none;
-  }
   
   &.thumbs .stars, &.star .thumbs, .thumbsOnly, .starsOnly {
     display: none;
@@ -53,135 +46,87 @@ body {
   &.thumbs .thumbsOnly, &.star .starsOnly {
     display: block;
   }
-  
-  select {
-    margin-right: 3px;
-    min-width: 200px;
-    &#_skipRatedLower {
-      min-width: 150px;
-    }
-  }
-  fieldset {
-    > div.sub {
-      padding-left: 10px;
-      select {
-        min-width: 190px;
-      }
-    }
-    > div.sub2 {
-      padding-left: 20px;
-      select {
-        min-width: 180px;
-      }
-    }
-  }
-  
-  h3 {
-    font-weight: normal;
-    font-size: 12px;
-    margin: 8px 0;
-  }
+}
 
-  img.hint {
-    cursor: pointer;
+pp-tab {
+  height: 450px;
+  overflow-y: auto;
+  padding-right: 10px;
+  .sub {
+    padding-left: 20px;
   }
-  .synced label:after {
-    float: right;
+  .sub2 {
+    padding-left: 40px;
   }
 }
 
-.hint-text {
-  display: none;
-  max-width: 400px;
-  color: #009933;
+.toggle-container {
+  cursor: pointer;
+}
+
+pp-toggle {
+  margin-bottom: 4px;
+}
+
+#tools {
+  overflow: hidden;
+  padding: 5px 10px 5px 20px;
+}
+
+.tab-hint {
+  margin: 2ex;
+}
+
+.hint-trigger {
+  cursor: pointer;
+  padding: 0;
+  margin-left: 1ex;
+  color: green;
+  width: 26px;
+  height: 26px;
+}
+
+.pp-option[disabled] .hint-trigger {
+  color: grey;
+}
+
+pp-toggle .hint-trigger {
+  height: 18px;
+  display: inline-flex;
+  margin-left: 0;
+}
+
+#credits > div {
+  float: left;
   font-weight: bold;
-}
-
-.info {
-  padding-left: 15px;
-  overflow-x: hidden;
-  min-width: 350px;
-  max-width: 450px;
-  font-size: 11px;
-  h3 {
-    font-size: 11px;
+  margin-right: 10px;
+  margin-bottom: 8px;
+  > a, > form {
+    float: left;
+    margin-right: 2ex;
     margin-bottom: 0;
   }
-  ul {
-    margin: 0.3em 0;
-    padding-left: 25px;
+  &.sociallinks a > img {
+    height: 20px;
   }
-}
-
-#credits {
-  > div {
-    float: left;
-    clear: left;
-    font-weight: bold;
-    margin-right: 10px;
-    margin-bottom: 8px;
-    > a, > form {
-      float: left;
-      margin-right: 2ex;
-      margin-bottom: 0;
-    }
+  &#bugfeatureinfo > a {
+    margin: initial;
+    float: none;
   }
-  > div.sociallinks {
-    clear: none;
-    img {
-      height: 20px;
-    }
-  }
-  > div#bugfeatureinfo {
-    clear: both;
-    > a {
-      margin: initial;
-      float: none;
-    }
-  }
-}
-
-fieldset {
-  margin: 1ex 0;
-}
-
-input[type='number'] {
-  width: 7ex;
-  margin: 2px 3px;
-  text-align: right;
-  padding-right: 0.5ex;
-}
-
-input[type='color'] {
-  margin-right: 3px;
-}
-
-img.hint {
-  margin-left: 0.5ex;
-  vertical-align: text-bottom;
-  height: 18px;
 }
 
 #changelog {
   clear: both;
   display: none;
-  h2 {
+  h1 {
     display: inline-block;
     margin-right: 1ex;
-    margin-bottom: 0;
   }
   > a {
-    margin-right: 1ex;
     font-weight: bold;
   }
-  label {
-    margin-right: 1ex;
-  }
-  img.hint {
-    height: 12px;
-  }
   li {
-    font-size: 11px;
+    font-size: 12px;
     &.B:before {
       content: "B: ";
     }
@@ -210,19 +155,22 @@ img.hint {
   &.V {
     h3 {
       display: block;
-      margin-bottom: 1ex;
     }
     > div {
-      font-size: 11px;
+      font-size: 12px;
     }
   }
-  h3 > a {
-    text-decoration: none;
+  h3 {
+    margin-bottom: 1ex;
+    font-weight: bold;
+    > a {
+      text-decoration: none;
+    }
   }
 }
 
 #lastfmStatus {
-  height: 16px;
+  height: 36px;
   a {
     margin-left: 1ex;
     &.disconnected {
@@ -231,64 +179,44 @@ img.hint {
       cursor: text;
     }
   }
-  img {
+  > .status {
     display: none;
     margin-left: 0.5ex;
     vertical-align: top;
-    height: 16px;
+    height: 20px;
+    margin-top: 6px;
+  }
+  > #lastfmSuccess {
+    color: green;
+  }
+  > #lastfmFailure {
+    color: red;
   }
 }
 
-#lastfmStatus a, a#shortcutsLink, .hint-text a {
-  text-decoration: underline;
-  color: -webkit-link;
+a {
   cursor: pointer;
 }
 
-div {
-  margin-bottom: 0.5ex;
-  &.newFeature {
-    display: block !important;
-    color: #FF8F00;
-    font-weight: bold;
-    a {
-      color: #FF8F00;
-    }
-  }
+#lastfmStatus a, #shortcutsLink {
+  text-decoration: underline;
+  color: -webkit-link;
 }
 
-#timerMinutes {
-  float: left;
+fieldset {
+  padding: 2ex;
+  margin: 2ex 0;
 }
 
-#timerStatus {
-  float: right;
-  font-weight: bold;
-  ~ div {
-    clear: left;
-  }
-}
-
-#iconStyle img {
-  width: 19px;
-}
-
-#filter {
+#iconClickActionTitle {
+  color: #737373;
   font-size: 12px;
-  #optionsMode label {
-    margin-right: 1ex;
-    float: left;
-    margin-top: 2px;
-  }
-  > div > div {
-    display: inline-block;
-    > div {
-      float: left;
-    }
-    label {
-      display: inline-block;
-      min-width: 100px;
-    }
+}
+
+.newFeature {
+  display: block !important;
+  h3, ul, &.pp-option .toggle-label, &.pp-option label, a {
+    color: #FF8F00 !important;
   }
 }
 
@@ -298,15 +226,38 @@ div {
 
 #notificationDisabledWarning {
   display: none;
+  max-width: 400px;
+  color: red;
+  margin-bottom: 2ex;
+  iron-icon {
+    float: left;
+    margin: 1ex 2ex 0 0;
+  }
 }
   
 .notifDisabled {
   #notificationDisabledWarning {
     display: block;
-    max-width: 400px;
-    color: red;
   }
   .notif {
     display: none;
   }
+}
+
+#timerStatus {
+  margin-top: 20px;
+  .stopTimer {
+    float: right;
+  }
+  > div {
+    margin-top: 16px;
+  }
+}
+
+paper-badge.hidden {
+  visibility: hidden;
+}
+
+pp-lyricsproviders .paper-toggle-button.toggle-label {
+  pointer-events: initial;
 }

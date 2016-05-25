@@ -3,10 +3,10 @@
   "name": "Prime Player for Google Play Music\u2122",
   "short_name": "__MSG_extTitle__",
   "description": "__MSG_extDesc__",
-  "version": "3.11",
+  "version": "4.0",
   "author": "Sven Ackermann",
   "homepage_url": "https://chrome.google.com/webstore/detail/prime-player-for-google-p/npngaakpdgeaajbnidkkginekmnaejbi",
-  "minimum_chrome_version": "43",
+  "minimum_chrome_version": "50",
   "default_locale": "en",
   "icons": {
     "128": "img/icon-128x128.png",
@@ -32,8 +32,11 @@
     "scripts": ["js/jquery.min.js", "js/ga.js", "js/bp.js"],
     "persistent": false
   },
-  "options_page": "options.html",
-  "content_scripts": [
+  "options_ui": {
+    "page": "options.html",
+    "chrome_style": true
+  },
+  "content_scripts": [ 
     {
       "js": ["js/jquery.min.js", "js/cs.js"],
       "css": ["css/gpm.css"],
@@ -48,7 +51,7 @@
     "img/icon-48x48.png",
     "img/ajax-loader.gif",
     "img/reload.png",
-    "options.html",
+    "lastfmCallback.html",
     "js/injected.js.map",
     "js/cs.js.map",
     "js/cs-songlyrics.js.map",
