@@ -74,4 +74,3 @@ If you want to add a new provider, you basically need the following steps. For d
 1. In ```manifest.json``` add an optional permission for the providers URL.
 2. In ```lyrics.js``` implement a new ```LyricsProvider``` object to search/load/parse the lyrics from the page via AJAX.
 3. Add a file ```cs-myProvider.js``` to be used as content script on the provider page if the user decides to open the lyrics on the page directly.
-4. Add a new ```div``` below the other providers in ```options.html``` to make it available to the user.
