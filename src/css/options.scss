@@ -40,10 +40,15 @@ iron-pages {
     }
   }
   
-  &.thumbs .stars, &.star .thumbs, .thumbsOnly, .starsOnly {
+  &.star .thumbs, .starsOnly {
     display: none;
   }
-  &.thumbs .thumbsOnly, &.star .starsOnly {
+  &.thumbs {
+    .rate-2, .rate-3, .rate-4 {
+      display: none;
+    }
+  }
+  &.star .starsOnly {
     display: block;
   }
 }

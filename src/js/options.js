@@ -132,7 +132,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function quicklinksChanged() {
     var items = [];
     [""].concat(bp.getQuicklinks()).forEach(function(ql) {
-      items.push({ text: bp.getTextForQuicklink(ql), value: ql, clazz: "" });
+      items.push({ text: bp.getTextForQuicklink(ql), value: ql });
     });
     $("#coverClickLink,#titleClickLink").each(function() { this.setItems(items); });
   }
@@ -301,14 +301,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       var items = [];
       var prop = this.id;
       options.forEach(function(option) {
-        var optionClass = "";
-        if (option.indexOf(":") >= 0) {
-          var split = option.split(":");
-          option = split[0];
-          optionClass = split[1];
-        }
-        var item = { clazz: optionClass, text: getOptionText(option, prop), value: option };
-        items.push(item);
+        items.push({ text: getOptionText(option, prop), value: option });
       });
       this.setItems(items);
     });

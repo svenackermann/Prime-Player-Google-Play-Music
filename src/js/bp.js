@@ -106,7 +106,7 @@ function fixForUri(string) {
     timerEnd: null,
     skipSongSeconds: 0,
     notificationsEnabled: true,
-    ratingMode: null,
+    ratingMode: "thumbs",
     quicklinks: {},
     favorites: []
   }, true);
