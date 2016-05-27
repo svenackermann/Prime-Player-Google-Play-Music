@@ -207,7 +207,9 @@ function fixForUri(string) {
     optionsMode: "beg"
   }, true);
 
-  settings.setSyncStorage(localSettings.syncSettings);
+  localSettings.w("syncSettings", function(syncSettings) {
+    settings.setSyncStorage(syncSettings);
+  });
 
   /** the song currently loaded */
   var song = new Bean({
