@@ -1635,6 +1635,9 @@ function fixForUri(string) {
     //--- 4.0.1 ---
     //reset pauseOnIdle option if pauseOnIdleSec seems to be unchanged from default
     if (!storedPauseOnIdleSec) settings.pauseOnIdle = false;
+
+    //--- 4.1 ---
+    localStorage.removeItem("ratingMode");
   }
 
   /** handler for onInstalled event (show the orange icon on update / notification on install) */
