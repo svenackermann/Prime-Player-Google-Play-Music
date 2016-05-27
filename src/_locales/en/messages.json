@@ -112,19 +112,19 @@
     "description": "label for option to change the toast duration"
   },
   "setting_toastDurationHint": {
-    "message": "For standard toasts this sets the time after which to remove the notification (from Desktop or Chromes notification area), Chrome might move it to the notification area earlier. For miniplayer style toasts (expert mode) this means when to close the miniplayer.",
+    "message": "For standard toasts this sets the time after which to remove the notification, Chrome might hide it earlier. For miniplayer style toasts (expert mode) this means when to close the miniplayer.",
     "description": "hint for option to change the toast duration"
   },
   "setting_toastPriority": {
-    "message": "move to notification area",
+    "message": "hide toast after",
     "description": "label for option to change the toast priority"
   },
   "setting_toastPriority_2": {
-    "message": "after 7 seconds",
+    "message": "7 seconds",
     "description": "text for option 2 for toast priority"
   },
   "setting_toastPriority_3": {
-    "message": "after 25 seconds",
+    "message": "25 seconds",
     "description": "text for option 3 for toast priority"
   },
   "setting_toastProgress": {
