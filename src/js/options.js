@@ -91,18 +91,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     $("#lastfmlogin").text(actionText).unbind().on("tap", action);
   }
 
-  function ratingModeChanged() {
-    var ratingMode = bp.getRatingMode();
-    settingsView.removeClass("star thumbs");
-    if (ratingMode) settingsView.addClass(ratingMode);
-    $("#skipRatedLower")[0].setText(2, i18n("setting_skipRatedLower_2" + (ratingMode == "star" ? "_stars" : "")));
-    $("#toastClick,pp-select[from='#toastClick']").each(function() {
-      var input = this;
-      input.setText("rate-1", bp.getCommandOptionText("rate-1"));
-      input.setText("rate-5", bp.getCommandOptionText("rate-5"));
-    });
-  }
-
   function notificationsEnabledChanged(val) {
     settingsView.toggleClass("notifDisabled", !val);
     toastChanged();
@@ -130,9 +118,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function quicklinksChanged() {
-    var items = [];
-    [""].concat(bp.getQuicklinks()).forEach(function(ql) {
-      items.push({ text: bp.getTextForQuicklink(ql), value: ql });
+    var items = [""].concat(bp.getQuicklinks()).map(function(ql) {
+      return { text: bp.getTextForQuicklink(ql), value: ql };
     });
     $("#coverClickLink,#titleClickLink").each(function() { this.setItems(items); });
   }
@@ -152,7 +139,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var providersContainer = $(containerSelector)[0];
     var providerToggleAction = {};
     var activeProviders;
-    var providers = [];
     var lyricsProviders = bp.lyricsProviders;
 
     localSettings.w("lyricsProviders", function(val) {
@@ -165,9 +151,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
       if (!activeProviders.length && localSettings.lyrics) localSettings.lyrics = false;
     }, CONTEXT);
 
-    lyricsProviders.available.forEach(function(providerName) {
+    var providers = lyricsProviders.available.map(function(providerName) {
       var provider = lyricsProviders[providerName];
-      providers.push({ name: providerName, homepage: provider.getHomepage(), url: provider.getUrl() });
 
       function toggleProviderEnabled() {
         var index = activeProviders.indexOf(providerName);
@@ -199,6 +184,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
           };
         }
       });
+
+      return { name: providerName, homepage: provider.getHomepage(), url: provider.getUrl() };
     });
     providersContainer.providers = providers;
 
@@ -263,7 +250,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
       subsEnabled: function(val, old, prop) {
         setSubsEnabled(prop, val);
       },
-      starRatingMode: ratingModeChanged,
+      starRatingMode: function(val) {
+        settingsView.toggleClass("star", val);
+        settingsView.toggleClass("thumbs", !val);
+        $("#toastClick,pp-select[from='#toastClick']").each(function() {
+          this.setText("rate-1", bp.getCommandOptionText("rate-1"));
+          this.setText("rate-5", bp.getCommandOptionText("rate-5"));
+        });
+      },
       layoutHint: function() {
         var panel = settings.miniplayerType == "panel" || settings.miniplayerType == "detached_panel";
         $("#miniplayerType .hint-trigger").toggle(panel);
@@ -298,11 +292,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
       var config = this.from ? $(this.from)[0] : this;
       var options = config.options.split(",");
       var getOptionText = optionsTextGetter[config.getoptionstext];
-      var items = [];
-      var prop = this.id;
-      options.forEach(function(option) {
-        items.push({ text: getOptionText(option, prop), value: option });
-      });
+      var items = options.map(function(option) {
+        return { text: getOptionText(option, this.id), value: option };
+      }, this);
       this.setItems(items);
     });
     $(".pp-option").each(function() {
@@ -458,12 +450,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initTimer();
 
     localSettings.w("lastfmSessionName", lastfmSessionNameChanged, CONTEXT);
-    //show/hide notification based options
     localSettings.w("notificationsEnabled", notificationsEnabledChanged, CONTEXT);
-    //update timer
     localSettings.w("timerEnd", timerEndChanged, CONTEXT);
-    //Google account dependent options
-    localSettings.al("ratingMode", ratingModeChanged, CONTEXT);
     localSettings.w("quicklinks", quicklinksChanged, CONTEXT);
     localSettings.w("syncSettings", function(val) { $("body").toggleClass("syncenabled", val); }, CONTEXT);
 

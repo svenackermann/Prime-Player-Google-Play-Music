@@ -106,7 +106,6 @@ function fixForUri(string) {
     timerEnd: null,
     skipSongSeconds: 0,
     notificationsEnabled: true,
-    ratingMode: "thumbs",
     quicklinks: {},
     favorites: []
   }, true);
@@ -315,7 +314,7 @@ function fixForUri(string) {
 
   /** @return true, if a change from old to new rating would result in a rating reset in Google Music */
   function isRatingReset(oldRating, newRating) {
-    return oldRating == newRating || isThumbsRatingMode() && (oldRating == 2 && newRating == 1 || oldRating == 4 && newRating == 5);
+    return oldRating == newRating || !settings.starRatingMode && (oldRating == 2 && newRating == 1 || oldRating == 4 && newRating == 5);
   }
 
   /** Get the last saved song from local storage. The callback will only be called if one exists. */
@@ -354,14 +353,6 @@ function fixForUri(string) {
 
   function getSearchLink(search) {
     return "sr/" + fixForUri(search);
-  }
-
-  function isStarRatingMode() {
-    return settings.starRatingMode || localSettings.ratingMode == "star";
-  }
-
-  function isThumbsRatingMode() {
-    return !settings.starRatingMode && localSettings.ratingMode == "thumbs";
   }
   //} utility functions
 
@@ -499,7 +490,7 @@ function fixForUri(string) {
       song.loved = loved;
       if (settings.linkRatings && settings.linkRatingsAuto) {
         if (loved === true && song.rating === 0) executeInGoogleMusic("rate", { rating: 5 });
-        else if (loved === false && (song.rating >= settings.linkRatingsMin || isThumbsRatingMode() && song.rating >= 4)) loveTrack();
+        else if (loved === false && (song.rating >= settings.linkRatingsMin || !settings.starRatingMode && song.rating >= 4)) loveTrack();
       }
     });
   }
@@ -971,13 +962,13 @@ function fixForUri(string) {
         if (song.loved === true && settings.showLovedIndicator) {
           iconPaths.push(iconPath + "loved");
         }
-        if (song.rating && settings.showRatingIndicator) {
-          if (isStarRatingMode() && song.rating > 0) {
+        if (song.rating && song.rating > 0 && settings.showRatingIndicator) {
+          if (settings.starRatingMode) {
             chromeBrowserAction.setBadgeText({ text: "" + song.rating });
-          } else if (isThumbsRatingMode()) {
-            if (song.rating >= 4) {
+          } else {
+            if (song.rating > 3) {
               iconPaths.push(iconPath + "thumbsUp");
-            } else if (song.rating == 1 || song.rating == 2) {
+            } else if (song.rating < 3) {
               iconPaths.push(iconPath + "thumbsDown");
             }
           }
@@ -1135,7 +1126,6 @@ function fixForUri(string) {
       player.connected = true;
       updateBrowserActionInfo();
       iconClickSettingsChanged();
-      localSettings.ratingMode = val.ratingMode;
       localSettings.quicklinks = val.quicklinks;
       refreshContextMenu();
     } else if (type == "loadLyrics") {
@@ -1191,7 +1181,7 @@ function fixForUri(string) {
     case "rate-2":
     case "rate-3":
     case "rate-4":
-      if (isThumbsRatingMode()) return null;
+      if (!settings.starRatingMode) return null;
       break;
     }
     return { title: getCommandText(cmd), iconUrl: getCommandIconUrl(cmd) + ".png" };
@@ -1210,13 +1200,13 @@ function fixForUri(string) {
       ctx.drawImage(cover, 0, 0, 100, 100);
       if (cover.src.indexOf("blob") === 0) URL.revokeObjectURL(cover.src);
       if (settings.toastRating) {
-        if (isThumbsRatingMode()) {
-          if (song.rating == 1 || song.rating == 2) ctx.drawImage(rating, 32, 0, 32, 32, 0, 84, 16, 16);
-          else if (song.rating >= 4) ctx.drawImage(rating, 0, 0, 32, 32, 0, 84, 16, 16);
-        } else if (isStarRatingMode()) {
+        if (settings.starRatingMode) {
           for (var i = 0; i < song.rating; i++) {
             ctx.drawImage(rating, 64, 0, 32, 32, i * 16, 84, 16, 16);
           }
+        } else {
+          if (song.rating == 1 || song.rating == 2) ctx.drawImage(rating, 32, 0, 32, 32, 0, 84, 16, 16);
+          else if (song.rating >= 4) ctx.drawImage(rating, 0, 0, 32, 32, 0, 84, 16, 16);
         }
         if (song.loved === true) {
           ctx.drawImage(rating, 96, 0, 32, 32, 84, 84, 16, 16);
@@ -1585,12 +1575,7 @@ function fixForUri(string) {
       localStorage.removeItem("searchresultSizing");
     }
     //moved ratingMode from player to localSettings
-    chromeLocalStorage.get("ratingMode", function(items) {
-      if (items.ratingMode) {
-        localSettings.ratingMode = items.ratingMode;
-        chromeLocalStorage.remove("ratingMode");
-      }
-    });
+    chromeLocalStorage.remove("ratingMode", ignoreLastError);
 
     //--- 2.28 ---
     //set gotoGmusic as connect action if it was enabled by flag or copy iconClickAction0 if applicable
@@ -1882,7 +1867,7 @@ function fixForUri(string) {
           var commands = ["playPause", "prevSong", "nextSong", "ff", "rew", "openMiniplayer", "volumeUp", "volumeDown", "volumeMute", "toggleRepeat", "toggleShuffle"];
           if (localSettings.lastfmSessionKey) commands.push("loveUnloveSong");
           commands.push("rate-1");
-          if (isStarRatingMode()) commands.push("rate-2", "rate-3", "rate-4");
+          if (settings.starRatingMode) commands.push("rate-2", "rate-3", "rate-4");
           commands.push("rate-5", "feelingLucky");
           if (localSettings.lyrics) commands.push("openLyrics");
           commands.forEach(function(cmd) {
@@ -1982,7 +1967,7 @@ function fixForUri(string) {
   settings.al("saveLastPosition", function() {
     if (!player.connected && !connecting) refreshContextMenu();
   });
-  settings.al("hideFavorites", refreshContextMenu);
+  settings.al("hideFavorites starRatingMode", refreshContextMenu);
   settings.al("scrobble", function(val) { chromeContextMenus.update("toggleScrobble", { checked: val }, ignoreLastError); });
   //} context menu
 
@@ -2242,7 +2227,7 @@ function fixForUri(string) {
     if (!old != !info) {//jshint ignore:line
       // (only update if exactly one of them is null)
       var commands = ["prevSong", "nextSong", "ff", "rew", "openLyrics", "rate-1", "rate-5"];
-      if (isStarRatingMode()) commands.push("rate-2", "rate-3", "rate-4");
+      if (settings.starRatingMode) commands.push("rate-2", "rate-3", "rate-4");
       updateContextMenuConnectedItem(commands);
     }
 
@@ -2269,14 +2254,12 @@ function fixForUri(string) {
       key = cmd;
       break;
     case "rate-1":
-      if (isStarRatingMode()) key = "command_star1";
-      else if (isThumbsRatingMode()) key = "command_thumbsDown";
-      else key = "command_rate1";
+      if (settings.starRatingMode) key = "command_star1";
+      else key = "command_thumbsDown";
       break;
     case "rate-5":
-      if (isStarRatingMode()) key = "command_star5";
-      else if (isThumbsRatingMode()) key = "command_thumbsUp";
-      else key = "command_rate5";
+      if (settings.starRatingMode) key = "command_star5";
+      else key = "command_thumbsUp";
       break;
     case "loveUnloveSong":
       key = song.loved ? "lastfmUnlove" : "lastfmLove";
@@ -2295,10 +2278,10 @@ function fixForUri(string) {
       icon = player.playing ? "pause" : "play";
       break;
     case "rate-1":
-      if (isThumbsRatingMode()) icon = "thumbsDown";
+      if (!settings.starRatingMode) icon = "thumbsDown";
       break;
     case "rate-5":
-      if (isThumbsRatingMode()) icon = "thumbsUp";
+      if (!settings.starRatingMode) icon = "thumbsUp";
       break;
     case "loveUnloveSong":
       icon = song.loved ? "unloveSong" : "loveSong";
@@ -2392,7 +2375,7 @@ function fixForUri(string) {
     default:
       if (cmd.indexOf("rate-") === 0) {
         var rating = parseInt(cmd.substr(5, 1));
-        return !!song.info && (isStarRatingMode() || rating == 1 || rating == 5);
+        return !!song.info && (settings.starRatingMode || rating == 1 || rating == 5);
       }
     }
     return true;
@@ -2651,10 +2634,6 @@ function fixForUri(string) {
     default:
       return getCommandText(cmd);
     }
-  };
-
-  exports.getRatingMode = function() {
-    return isThumbsRatingMode() ? "thumbs" : isStarRatingMode() ? "star" : null;
   };
   //} utility functions
 

@@ -546,7 +546,6 @@ $(function() {
         ql.searchPlaceholder = $.trim($("#material-one-middle input.material-search").attr("placeholder"));
         ql.wmp = $.trim($("#playlists").prev(".nav-section-header").text());
         post("connected", {
-          ratingMode: "thumbs",
           quicklinks: ql
         });
       }

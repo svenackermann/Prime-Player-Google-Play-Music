@@ -258,16 +258,15 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
 
-  function ratingModeWatcher() {
-    var ratingMode = bp.getRatingMode();
+  function starRatingModeWatcher(val) {
     var body = $("body");
-    body.removeClass("star-rating thumbs-rating");
-    if (ratingMode) body.addClass(ratingMode + "-rating");
+    body.toggleClass("star-rating", val);
+    body.toggleClass("thumbs-rating", !val);
     ratingHtml = "";
-    if (ratingMode == "star") {
+    if (val) {
       ratingHtml = "<div></div>";
       for (var i = 1; i <= 5; i++) ratingHtml += "<a tabindex='0' data-rating='" + i + "'></a>";
-    } else if (ratingMode == "thumbs") {
+    } else {
       ratingHtml = "<a tabindex='0' data-rating='5'></a><a tabindex='0' data-rating='1'></a>";
     }
   }
@@ -1056,7 +1055,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
     localSettings.w("lyrics", lyricsWatcher, typeClass);
     localSettings.w("lyricsFontSize", lyricsFontSizeWatcher, typeClass);
     localSettings.w("quicklinks", renderQuicklinks, typeClass);
-    localSettings.w("ratingMode", ratingModeWatcher, typeClass);
     localSettings.w("favorites", renderFavorites, typeClass);
 
     settings.w("scrobble", scrobbleWatcher, typeClass);
@@ -1071,7 +1069,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     settings.w("hideLucky", hideLuckyWatcher, typeClass);
     settings.al("saveLastPosition", saveLastPositionUpdated, typeClass);
     settings.w("hideFavorites", hideFavoritesWatcher, typeClass);
-    settings.al("starRatingMode", ratingModeWatcher, typeClass);
+    settings.w("starRatingMode", starRatingModeWatcher, typeClass);
 
     player.w("repeat", repeatWatcher, typeClass);
     player.w("shuffle", shuffleWatcher, typeClass);

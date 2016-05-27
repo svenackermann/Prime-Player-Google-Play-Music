@@ -585,12 +585,8 @@
     "description": "text for low rated option '1'"
   },
   "setting_skipRatedLower_2": {
-    "message": "2 stars/thumbs down",
-    "description": "text for low rated option '2'"
-  },
-  "setting_skipRatedLower_2_stars": {
     "message": "2 stars",
-    "description": "text for low rated option '2' if in star rating mode"
+    "description": "text for low rated option '2'"
   },
   "setting_skipRatedLower_3": {
     "message": "3 stars",
