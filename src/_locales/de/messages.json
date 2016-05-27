@@ -2,9 +2,6 @@
   "extDesc": {
     "message": "Erweitert Google Music mit last.fm Integration, Toast Benachrichtigungen, einem Miniplayer, Tasten-Kürzeln und mehr."
   },
-  "extTitle": {
-    "message": "Prime Player"
-  },
   "dialogCancel": {
     "message": "Abbrechen"
   },

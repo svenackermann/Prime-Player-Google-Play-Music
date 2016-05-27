@@ -284,7 +284,7 @@
         $("<h2>").text(this.i18nlabel(this.id)).appendTo(dialog);
         $("<p class='hint-content'>").html(i18n("setting_" + this.id + "Hint")).appendTo(dialog);
         var buttons = $("<div class='buttons'>");
-        $("<paper-button dialog-confirm>").text("OK").appendTo(buttons);
+        $("<paper-button dialog-confirm>").text(i18n("dialogOk")).appendTo(buttons);
         dialog.append(buttons);
         $(this).append(dialog);
         dialog = dialog[0];

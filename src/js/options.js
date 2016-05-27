@@ -437,6 +437,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   $(function() {
+    $("#confirmDialog [dialog-confirm]").text(i18n("dialogOk"));
     $("#confirmDialog [dialog-dismiss]").text(i18n("dialogCancel"));
 
     $("head > title").text(i18n("options") + " - " + i18n("extTitle"));

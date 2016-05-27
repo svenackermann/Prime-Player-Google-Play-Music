@@ -7,6 +7,10 @@
     "message": "Prime Player",
     "description": "short name of the extension"
   },
+  "dialogOk": {
+    "message": "OK",
+    "description": "OK button text for confirm dialog"
+  },
   "dialogCancel": {
     "message": "Cancel",
     "description": "Cancel button text for confirm dialog"
