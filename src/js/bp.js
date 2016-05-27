@@ -1632,14 +1632,24 @@ function fixForUri(string) {
     if (previousVersion <= 3.8) migrateQuicklink("myPlaylists", "wmp");
 
     //--- 4.0 ---
-    if (settings.pauseOnIdleSec < 0) settings.pauseOnIdleSec = -settings.pauseOnIdleSec;
-    else settings.pauseOnIdle = true;
-    localStorage.removeItem("filterTimer");
-    localStorage.removeItem("filterLastfm");
-    localStorage.removeItem("filterToast");
-    localStorage.removeItem("filterMiniplayer");
-    localStorage.removeItem("filterLyrics");
-    localStorage.removeItem("filterLookfeel");
+    var storedPauseOnIdleSec = localStorage.pauseOnIdleSec;
+    if (storedPauseOnIdleSec) {
+      storedPauseOnIdleSec = parseInt(storedPauseOnIdleSec.substr(1));
+      if (storedPauseOnIdleSec < 0) settings.pauseOnIdleSec = -storedPauseOnIdleSec;
+      else if (previousVersion < 4) settings.pauseOnIdle = true;
+    }
+    if (previousVersion < 4) {
+      localStorage.removeItem("filterTimer");
+      localStorage.removeItem("filterLastfm");
+      localStorage.removeItem("filterToast");
+      localStorage.removeItem("filterMiniplayer");
+      localStorage.removeItem("filterLyrics");
+      localStorage.removeItem("filterLookfeel");
+    }
+
+    //--- 4.0.1 ---
+    //reset pauseOnIdle option if pauseOnIdleSec seems to be unchanged from default
+    if (!storedPauseOnIdleSec) settings.pauseOnIdle = false;
   }
 
   /** handler for onInstalled event (show the orange icon on update / notification on install) */
