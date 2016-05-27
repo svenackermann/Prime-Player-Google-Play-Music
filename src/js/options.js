@@ -153,6 +153,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var providerToggleAction = {};
     var activeProviders;
     var providers = [];
+    var lyricsProviders = bp.lyricsProviders;
 
     localSettings.w("lyricsProviders", function(val) {
       activeProviders = val;
@@ -164,8 +165,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
       if (!activeProviders.length && localSettings.lyrics) localSettings.lyrics = false;
     }, CONTEXT);
 
-    ["musixmatch", "lyricswikia", "songlyrics"].forEach(function(providerName) {
-      var provider = bp.lyricsProviders[providerName];
+    lyricsProviders.available.forEach(function(providerName) {
+      var provider = lyricsProviders[providerName];
       providers.push({ name: providerName, homepage: provider.getHomepage(), url: provider.getUrl() });
 
       function toggleProviderEnabled() {
