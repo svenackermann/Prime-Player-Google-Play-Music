@@ -48,9 +48,5 @@
     "Google Play Music",
     "Extension"
   ],
-  "private": true,
-  "engines": {
-    "node": ">=4.2",
-    "npm" : ">=3.5.1"
-  }
+  "private": true
 }
