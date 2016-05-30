@@ -2026,14 +2026,14 @@ function fixForUri(string) {
     if (val && song.lastfmInfo === null) loadCurrentLastfmInfo();
   });
   settings.al("toastUseMpStyle", closeToast);
-  settings.al("toastClick toastProgress", updateToast);
+  settings.al("toastClick toastProgress starRatingMode", updateToast);
   settings.w("toastButton1", commandOptionListener.bind(window, updateToast));
   //we need a copy of the updateToast function here to avoid that changes on toastButton1 remove needed listeners for toastButton2
   settings.w("toastButton2", commandOptionListener.bind(window, function() { updateToast(); }));
   settings.al("scrobble scrobbleMaxDuration scrobblePercent scrobbleTime disableScrobbleOnFf", calcScrobbleTime);
   //we need a copy of the updateBrowserActionInfo function here to avoid conflicts with showPlayingIndicator/showProgress listener
   settings.w("iconClickAction0", commandOptionListener.bind(window, function() { updateBrowserActionInfo(); }));
-  settings.al("iconStyle iconClickConnectAction showProgressColor showProgressColorPaused", updateBrowserActionInfo);
+  settings.al("iconStyle iconClickConnectAction showProgressColor showProgressColorPaused starRatingMode", updateBrowserActionInfo);
   settings.al("connectedIndicator", function(val) {
     postToGooglemusic({ type: "connectedIndicator", show: val });
   });
