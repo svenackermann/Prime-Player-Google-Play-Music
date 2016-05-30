@@ -255,6 +255,9 @@
   /* global chrome, Polymer */
   /* jshint jquery: true */
   var i18n = chrome.i18n.getMessage;
+  /**
+    * @polymerBehavior PpInputBehavior
+    */
   var PpInputBehavior = {
     properties: {
       local: Boolean,
@@ -306,6 +309,9 @@
         type: String,
         value: "number"
       },
+      min: String,
+      max: String,
+      step: String
     }
   });
   

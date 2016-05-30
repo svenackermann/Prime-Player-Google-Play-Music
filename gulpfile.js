@@ -18,6 +18,7 @@ var n2a = require("gulp-native2ascii");
 var runSequence = require("run-sequence");
 var gulpif = require("gulp-if");
 var polybuild = require("polybuild");
+var polylint = require("gulp-polylint");
 var argv = require("yargs").argv;
 var develop = !argv.dist;
 var full = argv.full;
@@ -45,7 +46,10 @@ function myUglify() {
 
 gulp.task("style", function() {
   // gulp-jscs does not support "extract" yet, so html can't be checked, see https://github.com/jscs-dev/gulp-jscs/issues/95
-  var polymer = gulp.src(PATHS.POLYMER).pipe(jshint.extract("always"));
+  var polymer = gulp.src(PATHS.POLYMER)
+    .pipe(polylint())
+    .pipe(polylint.reporter(polylint.reporter.stylishlike))
+    .pipe(jshint.extract("always"));
   var js = gulp.src(["gulpfile.js", "src/js/*.js", "!src/js/*.min.js"]).pipe(jscs());
   return merge(polymer, js)
     .pipe(jshint())
