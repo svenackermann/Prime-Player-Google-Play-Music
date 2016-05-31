@@ -48,13 +48,13 @@ gulp.task("style", function() {
   // gulp-jscs does not support "extract" yet, so html can't be checked, see https://github.com/jscs-dev/gulp-jscs/issues/95
   var polymer = gulp.src(PATHS.POLYMER)
     .pipe(polylint())
-    .pipe(polylint.reporter(polylint.reporter.stylishlike))
     .pipe(jshint.extract("always"));
   var js = gulp.src(["gulpfile.js", "src/js/*.js", "!src/js/*.min.js"]).pipe(jscs());
   return merge(polymer, js)
     .pipe(jshint())
     .on("error", function() {})
     .pipe(jscsstylish.combineWithHintResults())
+    .pipe(polylint.combineWithJshintResults())
     .pipe(jshint.reporter("jshint-stylish"))
     .pipe(jshint.reporter("fail"));
 });
