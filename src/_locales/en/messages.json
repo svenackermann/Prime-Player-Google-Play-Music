@@ -834,12 +834,33 @@
     "description": "label for option to hide search field"
   },
   "resetSettings": {
-    "message": "Reset settings to default",
+    "message": "Reset settings",
     "description": "text for reset settings button"
   },
   "resetSettingsConfirm": {
     "message": "Do really want to reset all your settings? This will also remove your favorites and last.fm connection and remove all your Prime Player related data from Chrome sync.",
     "description": "text for reset settings confirm dialogue"
+  },
+  "exportSettings": {
+    "message": "Export settings",
+    "description": "text for export settings button"
+  },
+  "importSettings": {
+    "message": "Import settings",
+    "description": "text for import settings button"
+  },
+  "importSettingsVersionMismatch": {
+    "message": "You are trying to import settings from a different version of Prime Player. This can have unexpected effects but should work in most cases. To be sure, update Prime Player on both the importing and exporting system to the latest version and try again.",
+    "description": "text for import settings warning dialog if versions do not match"
+  },
+  "importSettingsUnimported": {
+    "message": "The following settings could not be imported, you might want to check the imported file: $SETTINGS$",
+    "description": "text for import settings warning dialog if some settings were not imported",
+    "placeholders": { "SETTINGS": { "content": "$1", "example": "mysetting1, mysetting2" } }
+  },
+  "importSettingsError": {
+    "message": "The file could not be imported. Please make sure you did not modify it after export.",
+    "description": "text for import settings error dialog"
   },
   "setting_connectedIndicator": {
     "message": "Show 'P'-icon on connected Google Music tab",

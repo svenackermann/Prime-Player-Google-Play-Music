@@ -615,10 +615,26 @@
     "message": "Verstecke Suchfeld im Miniplayer"
   },
   "resetSettings": {
-    "message": "Einstellungen auf Standard zurücksetzen"
+    "message": "Einstellungen zurücksetzen"
   },
   "resetSettingsConfirm": {
     "message": "Willst du wirklich alle deine Einstellungen zurücksetzen? Dadurch werden auch deine Favoriten, deine last.fm-Verbindung und alle deine Prime-Player-bezogenen Daten in Chrome sync entfernt."
+  },
+  "exportSettings": {
+    "message": "Einstellungen exportieren"
+  },
+  "importSettings": {
+    "message": "Einstellungen importieren"
+  },
+  "importSettingsVersionMismatch": {
+    "message": "Du versuchst, Einstellungen aus einer anderen Version von Prime Player zu importieren. Das kann unerwartete Effekte verursachen, sollte aber in den meisten Fällen funktionieren. Um sicher zu sein, aktualisiere Prime Player auf dem exportierenden und importierenden System auf die letzte Version und versuche es erneut."
+  },
+  "importSettingsUnimported": {
+    "message": "Folgende Einstellungen konnten nicht importiert werden, prüfe ggf. die importierte Datei: $SETTINGS$",
+    "placeholders": { "SETTINGS": { "content": "$1" } }
+  },
+  "importSettingsError": {
+    "message": "Die Datei konnte nicht importiert werden. Stelle bitte sicher, dass du sie nach dem Export nicht modifiziert hast."
   },
   "setting_connectedIndicator": {
     "message": "Zeige 'P'-Symbol in dem verbundenen Google Music Tab an"

@@ -76,6 +76,13 @@ pp-toggle {
 #tools {
   overflow: hidden;
   padding: 5px 10px 5px 20px;
+  paper-button {
+    margin-bottom: 10px;
+  }
+}
+
+#downloadLink, #importInput {
+  display: none;
 }
 
 .tab-hint {
@@ -257,6 +264,11 @@ fieldset {
   > div {
     margin-top: 16px;
   }
+}
+
+#confirmDialog p {
+  white-space: pre-line;
+  word-wrap: break-word
 }
 
 paper-badge.hidden {

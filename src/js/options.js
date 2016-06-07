@@ -16,6 +16,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   var i18n = chrome.i18n.getMessage;
   var settings = bp.settings;
   var localSettings = bp.localSettings;
+  var currentVersion = chrome.runtime.getManifest().version;
 
   /** Google analytics */
   var GA = initGA(settings, CONTEXT);
@@ -127,9 +128,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function confirmDialog(content, onConfirm, onCancel) {
     var dialog = $("#confirmDialog");
     $("p", dialog).text(content);
+    $("[dialog-dismiss]", dialog).toggle(onConfirm !== false);
     dialog.unbind().on("iron-overlay-closed", function(e) {
-      if (e.detail.confirmed) onConfirm();
-      else if ($.isFunction(onCancel)) onCancel();
+      if (e.detail.confirmed) {
+        if ($.isFunction(onConfirm)) onConfirm();
+      } else if ($.isFunction(onCancel)) onCancel();
     });
     dialog[0].open();
   }
@@ -413,10 +416,66 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
 
+  function initTools() {
+    var GA_CAT = "Options";
+    $("#exportSettings").on("tap", function() {
+      var exported = JSON.stringify({ version: currentVersion, settings: settings.getAll() }, null, 2);
+      var downloadLink = $("#downloadLink");
+      downloadLink.attr("href", "data:application/json;charset=utf-8," + encodeURIComponent(exported));
+      downloadLink[0].click();
+      GA.event(GA_CAT, "export");
+    }).text(i18n("exportSettings"));
+
+    var reader = new FileReader();
+    var importInput = $("#importInput");
+    importInput.change(function() {
+      if (this.files && this.files[0]) {
+        reader.onload = function(e) {
+          var content;
+          function doImport() {
+            var unimported = settings.importProperties(content.settings);
+            if (unimported.length) {
+              GA.event(GA_CAT, "import-unimported");
+              confirmDialog(i18n("importSettingsUnimported", "\n\n" + unimported.join("\n")), false);
+            }
+            console.debug("settings imported");
+            GA.event(GA_CAT, "import-finish");
+          }
+          importInput.val("");//clear, so we get notified on next import even if filename is the same
+          try {
+            content = JSON.parse(e.target.result);
+            if (!content || !content.version || !content.settings) throw "mandatory field missing";
+            if (content.version != currentVersion) {
+              GA.event(GA_CAT, "import-mismatch");
+              confirmDialog(i18n("importSettingsVersionMismatch"), doImport, function() { GA.event(GA_CAT, "import-cancel"); });
+            } else doImport();
+          } catch (ex) {
+            console.error(ex);
+            confirmDialog(i18n("importSettingsError"), false);
+            GA.event(GA_CAT, "import-error");
+          }
+        };
+        reader.readAsText(this.files[0]);
+      }
+    });
+    $("#importSettings").on("tap", function() {
+      GA.event(GA_CAT, "import-start");
+      importInput[0].click();
+    }).text(i18n("importSettings"));
+
+    $("#resetSettings").on("tap", function() {
+      confirmDialog(i18n("resetSettingsConfirm"), function() {
+        settings.reset();
+        localSettings.reset();
+        GA.event(CONTEXT, "reset");
+      });
+    }).text(i18n("resetSettings"));
+  }
+
   function initChangelog() {
     chrome.storage.local.get(CHANGELOG_STORAGE_KEY, function(items) {
       var releases = items[CHANGELOG_STORAGE_KEY];
-      if (!releases || !releases.length || bp.compareVersions(releases[0].v, chrome.runtime.getManifest().version) < 0) {
+      if (!releases || !releases.length || bp.compareVersions(releases[0].v, currentVersion) < 0) {
         loadReleases(renderChangelog, releases || []);
       } else renderChangelog(releases);
     });
@@ -455,13 +514,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     localSettings.w("quicklinks", quicklinksChanged, CONTEXT);
     localSettings.w("syncSettings", function(val) { $("body").toggleClass("syncenabled", val); }, CONTEXT);
 
-    $("#resetSettings").on("tap", function() {
-      confirmDialog(i18n("resetSettingsConfirm"), function() {
-        settings.reset();
-        localSettings.reset();
-        GA.event("Options", "reset");
-      });
-    }).text(i18n("resetSettings"));
+    initTools();
 
     initChangelog();
 
