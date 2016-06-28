@@ -190,10 +190,10 @@ function Bean(defaults, useLocalStorage) {
     var type = value.substr(0, 1);
     value = value.substr(1);
     switch (type) {
-    case "o": return value == "null" ? null : value[0] == "[" ? JSON.parse(value) : $.extend(clonedDefault, JSON.parse(value));
-    case "b": return value == "true";
-    case "n": return parseFloat(value);
-    default: return value;
+      case "o": return value == "null" ? null : value[0] == "[" ? JSON.parse(value) : $.extend(clonedDefault, JSON.parse(value));
+      case "b": return value == "true";
+      case "n": return parseFloat(value);
+      default: return value;
     }
   }
 

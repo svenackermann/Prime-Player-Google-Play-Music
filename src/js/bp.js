@@ -1171,20 +1171,20 @@ function fixForUri(string) {
   function getToastBtn(cmd) {
     if (!cmd) return null;
     switch (cmd) {
-    case "loveUnloveSong":
-      if (!localSettings.lastfmSessionKey) return null;
-      break;
-    case "toggleRepeat":
-      if (!player.repeat) return null;
-      break;
-    case "toggleShuffle":
-      if (!player.shuffle) return null;
-      break;
-    case "rate-2":
-    case "rate-3":
-    case "rate-4":
-      if (!settings.starRatingMode) return null;
-      break;
+      case "loveUnloveSong":
+        if (!localSettings.lastfmSessionKey) return null;
+        break;
+      case "toggleRepeat":
+        if (!player.repeat) return null;
+        break;
+      case "toggleShuffle":
+        if (!player.shuffle) return null;
+        break;
+      case "rate-2":
+      case "rate-3":
+      case "rate-4":
+        if (!settings.starRatingMode) return null;
+        break;
     }
     return { title: getCommandText(cmd), iconUrl: getCommandIconUrl(cmd) + ".png" };
   }
@@ -1764,22 +1764,22 @@ function fixForUri(string) {
 
       var msg, btnTitle, undoAction;
       switch (localSettings.timerAction) {
-      case "pause":
-        if (player.playing) {
-          msg = i18n("timerNotificationMsgPause");
-          btnTitle = i18n("timerNotificationBtnPause");
-          undoAction = executePlayPause.bind(window, true);
-          executePlayPause(false);
-        }
-        break;
-      case "closeGm":
-        if (googlemusictabId) {
-          msg = i18n("timerNotificationMsgCloseGm");
-          btnTitle = i18n("timerNotificationBtnCloseGm");
-          undoAction = openGoogleMusicTab;
-        }
-        closeGm();
-        break;
+        case "pause":
+          if (player.playing) {
+            msg = i18n("timerNotificationMsgPause");
+            btnTitle = i18n("timerNotificationBtnPause");
+            undoAction = executePlayPause.bind(window, true);
+            executePlayPause(false);
+          }
+          break;
+        case "closeGm":
+          if (googlemusictabId) {
+            msg = i18n("timerNotificationMsgCloseGm");
+            btnTitle = i18n("timerNotificationBtnCloseGm");
+            undoAction = openGoogleMusicTab;
+          }
+          closeGm();
+          break;
       }
       if (localSettings.timerNotify && msg) {
         createNotification(TIMEREND, {
@@ -2245,32 +2245,32 @@ function fixForUri(string) {
   function getCommandText(cmd) {
     var key;
     switch (cmd) {
-    case "playPause":
-      key = player.playing ? "pauseSong" : "resumeSong";
-      break;
-    case "resumeLastSong":
-      if (lastSongInfo && settings.saveLastPosition) return i18n("resumeLastSongWithTitle", lastSongInfo.artist + " - " + lastSongInfo.title);
-      /* falls through */
-    case "prevSong":
-    case "nextSong":
-    case "openMiniplayer":
-    case "feelingLucky":
-    case "gotoGmusic":
-      key = cmd;
-      break;
-    case "rate-1":
-      if (settings.starRatingMode) key = "command_star1";
-      else key = "command_thumbsDown";
-      break;
-    case "rate-5":
-      if (settings.starRatingMode) key = "command_star5";
-      else key = "command_thumbsUp";
-      break;
-    case "loveUnloveSong":
-      key = song.loved ? "lastfmUnlove" : "lastfmLove";
-      break;
-    default:
-      key = "command_" + cmd.replace(/-/g, "");
+      case "playPause":
+        key = player.playing ? "pauseSong" : "resumeSong";
+        break;
+      case "resumeLastSong":
+        if (lastSongInfo && settings.saveLastPosition) return i18n("resumeLastSongWithTitle", lastSongInfo.artist + " - " + lastSongInfo.title);
+        /* falls through */
+      case "prevSong":
+      case "nextSong":
+      case "openMiniplayer":
+      case "feelingLucky":
+      case "gotoGmusic":
+        key = cmd;
+        break;
+      case "rate-1":
+        if (settings.starRatingMode) key = "command_star1";
+        else key = "command_thumbsDown";
+        break;
+      case "rate-5":
+        if (settings.starRatingMode) key = "command_star5";
+        else key = "command_thumbsUp";
+        break;
+      case "loveUnloveSong":
+        key = song.loved ? "lastfmUnlove" : "lastfmLove";
+        break;
+      default:
+        key = "command_" + cmd.replace(/-/g, "");
     }
     return i18n(key);
   }
@@ -2279,18 +2279,18 @@ function fixForUri(string) {
   function getCommandIconUrl(cmd) {
     var icon = cmd;
     switch (cmd) {
-    case "playPause":
-      icon = player.playing ? "pause" : "play";
-      break;
-    case "rate-1":
-      if (!settings.starRatingMode) icon = "thumbsDown";
-      break;
-    case "rate-5":
-      if (!settings.starRatingMode) icon = "thumbsUp";
-      break;
-    case "loveUnloveSong":
-      icon = song.loved ? "unloveSong" : "loveSong";
-      break;
+      case "playPause":
+        icon = player.playing ? "pause" : "play";
+        break;
+      case "rate-1":
+        if (!settings.starRatingMode) icon = "thumbsDown";
+        break;
+      case "rate-5":
+        if (!settings.starRatingMode) icon = "thumbsUp";
+        break;
+      case "loveUnloveSong":
+        icon = song.loved ? "unloveSong" : "loveSong";
+        break;
     }
     return "img/cmd/" + icon;
   }
@@ -2315,14 +2315,14 @@ function fixForUri(string) {
 
   function executeConnectAction(action) {
     switch (action) {
-    case "resumeLastSong":
-      getLastSong(resumeLastSong);
-      break;
-    case "gotoGmusic":
-      openGoogleMusicTab();
-      break;
-    default:
-      executeCommand(action, "connect");
+      case "resumeLastSong":
+        getLastSong(resumeLastSong);
+        break;
+      case "gotoGmusic":
+        openGoogleMusicTab();
+        break;
+      default:
+        executeCommand(action, "connect");
     }
   }
   chromeRuntime.onStartup.addListener(executeConnectAction.bind(window, settings.startupAction));
@@ -2334,54 +2334,54 @@ function fixForUri(string) {
   function executePlaylistEndAction(action) {
     if (!action) return;
     switch (action) {
-    case "closeMp":
-      if (miniplayer) chromeWindows.remove(miniplayer.id);
-      break;
-    case "closeGm":
-      closeGm();
-      break;
-    case "feelingLucky":
-      executeFeelingLucky();
-      break;
-    default:
-      startPlaylist(action);
+      case "closeMp":
+        if (miniplayer) chromeWindows.remove(miniplayer.id);
+        break;
+      case "closeGm":
+        closeGm();
+        break;
+      case "feelingLucky":
+        executeFeelingLucky();
+        break;
+      default:
+        startPlaylist(action);
     }
   }
 
   function isCommandAvailable(cmd) {
     if (!cmd) return false;
     switch (cmd) {
-    case "playPause":
-      return player.playing !== null;
-    case "resumeLastSong":
-      return settings.saveLastPosition && !!lastSongInfo;
-    case "prevSong":
-      return player.rewind;
-    case "nextSong":
-      return player.forward;
-    case "ff":
-      return !!song.info;
-    case "rew":
-      return !!song.info;
-    case "volumeUp":
-      return !!player.volume && player.volume != "100";
-    case "volumeDown":
-      return !!player.volume && player.volume != "0";
-    case "volumeMute":
-      return !!player.volume;
-    case "toggleRepeat":
-      return !!player.repeat;
-    case "toggleShuffle":
-      return !!player.shuffle;
-    case "loveUnloveSong":
-      return !!song.info && !!localSettings.lastfmSessionKey;
-    case "openLyrics":
-      return localSettings.lyrics && !!song.info;
-    default:
-      if (cmd.indexOf("rate-") === 0) {
-        var rating = parseInt(cmd.substr(5, 1));
-        return !!song.info && (settings.starRatingMode || rating == 1 || rating == 5);
-      }
+      case "playPause":
+        return player.playing !== null;
+      case "resumeLastSong":
+        return settings.saveLastPosition && !!lastSongInfo;
+      case "prevSong":
+        return player.rewind;
+      case "nextSong":
+        return player.forward;
+      case "ff":
+        return !!song.info;
+      case "rew":
+        return !!song.info;
+      case "volumeUp":
+        return !!player.volume && player.volume != "100";
+      case "volumeDown":
+        return !!player.volume && player.volume != "0";
+      case "volumeMute":
+        return !!player.volume;
+      case "toggleRepeat":
+        return !!player.repeat;
+      case "toggleShuffle":
+        return !!player.shuffle;
+      case "loveUnloveSong":
+        return !!song.info && !!localSettings.lastfmSessionKey;
+      case "openLyrics":
+        return localSettings.lyrics && !!song.info;
+      default:
+        if (cmd.indexOf("rate-") === 0) {
+          var rating = parseInt(cmd.substr(5, 1));
+          return !!song.info && (settings.starRatingMode || rating == 1 || rating == 5);
+        }
     }
     return true;
   }
@@ -2420,60 +2420,60 @@ function fixForUri(string) {
   /** Execute a command (might come from commands API, toast or browser icon action) */
   function executeCommand(command, src) {
     switch (command) {
-    case "playPause":
-      //open toast when keyboard shortcut is pressed
-      if (!src && settings.toastOnPlayPause && song.info) openToastIfNeeded();
-      /* falls through */
-    case "nextSong":
-    case "prevSong":
-    case "toggleRepeat":
-    case "toggleShuffle":
-      executeInGoogleMusic(command);
-      break;
-    case "openMiniplayer":
-      openMiniplayer();
-      break;
-    case "feelingLucky":
-      executeFeelingLucky();
-      break;
-    case "showToast":
-      if (song.info) openToast();
-      break;
-    case "loveUnloveSong":
-      if (song.loved === true) unloveTrack();
-      else loveTrack(true);
-      break;
-    case "volumeUp":
-      if (player.volume !== null && player.volume != "100") setVolume(Math.min(100, parseInt(player.volume) + 10) / 100);
-      break;
-    case "volumeDown":
-      if (player.volume !== null && player.volume != "0") setVolume(Math.max(0, parseInt(player.volume) - 10) / 100);
-      break;
-    case "volumeMute":
-      if (player.volume !== null) {
-        if (volumeBeforeMute && player.volume == "0") {
-          setVolume(parseInt(volumeBeforeMute) / 100);
-          volumeBeforeMute = null;
-        } else if (player.volume != "0") {
-          volumeBeforeMute = player.volume;
-          setVolume(0);
+      case "playPause":
+        //open toast when keyboard shortcut is pressed
+        if (!src && settings.toastOnPlayPause && song.info) openToastIfNeeded();
+        /* falls through */
+      case "nextSong":
+      case "prevSong":
+      case "toggleRepeat":
+      case "toggleShuffle":
+        executeInGoogleMusic(command);
+        break;
+      case "openMiniplayer":
+        openMiniplayer();
+        break;
+      case "feelingLucky":
+        executeFeelingLucky();
+        break;
+      case "showToast":
+        if (song.info) openToast();
+        break;
+      case "loveUnloveSong":
+        if (song.loved === true) unloveTrack();
+        else loveTrack(true);
+        break;
+      case "volumeUp":
+        if (player.volume !== null && player.volume != "100") setVolume(Math.min(100, parseInt(player.volume) + 10) / 100);
+        break;
+      case "volumeDown":
+        if (player.volume !== null && player.volume != "0") setVolume(Math.max(0, parseInt(player.volume) - 10) / 100);
+        break;
+      case "volumeMute":
+        if (player.volume !== null) {
+          if (volumeBeforeMute && player.volume == "0") {
+            setVolume(parseInt(volumeBeforeMute) / 100);
+            volumeBeforeMute = null;
+          } else if (player.volume != "0") {
+            volumeBeforeMute = player.volume;
+            setVolume(0);
+          }
         }
-      }
-      break;
-    case "ff":
-      if (song.info && song.info.durationSec > 0) setSongPosition(Math.min(1, (song.positionSec + 15) / song.info.durationSec));
-      break;
-    case "rew":
-      if (song.info && song.info.durationSec > 0) setSongPosition(Math.max(0, (song.positionSec - 15) / song.info.durationSec));
-      break;
-    case "openLyrics":
-      if (localSettings.lyrics) openLyrics();
-      break;
-    default:
-      if (command.indexOf("rate-") === 0 && song.info) {
-        var rating = parseInt(command.substr(5, 1));
-        if (!settings.preventCommandRatingReset || !isRatingReset(song.rating, rating) || src == "icon" && settings.showRatingIndicator || src == "toast" && settings.toastRating) rate(rating);
-      }
+        break;
+      case "ff":
+        if (song.info && song.info.durationSec > 0) setSongPosition(Math.min(1, (song.positionSec + 15) / song.info.durationSec));
+        break;
+      case "rew":
+        if (song.info && song.info.durationSec > 0) setSongPosition(Math.max(0, (song.positionSec - 15) / song.info.durationSec));
+        break;
+      case "openLyrics":
+        if (localSettings.lyrics) openLyrics();
+        break;
+      default:
+        if (command.indexOf("rate-") === 0 && song.info) {
+          var rating = parseInt(command.substr(5, 1));
+          if (!settings.preventCommandRatingReset || !isRatingReset(song.rating, rating) || src == "icon" && settings.showRatingIndicator || src == "toast" && settings.toastRating) rate(rating);
+        }
     }
   }
 
@@ -2631,13 +2631,13 @@ function fixForUri(string) {
 
   exports.getCommandOptionText = function(cmd) {
     switch (cmd) {
-    case "playPause":
-    case "resumeLastSong":
-      return i18n(cmd);
-    case "loveUnloveSong":
-      return i18n("command_loveUnloveSong");
-    default:
-      return getCommandText(cmd);
+      case "playPause":
+      case "resumeLastSong":
+        return i18n(cmd);
+      case "loveUnloveSong":
+        return i18n("command_loveUnloveSong");
+      default:
+        return getCommandText(cmd);
     }
   };
   //} utility functions
