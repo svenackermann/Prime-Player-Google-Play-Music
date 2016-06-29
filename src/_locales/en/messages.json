@@ -227,6 +227,14 @@
     "message": "Show last.fm info in miniplayer (resize to see them)",
     "description": "label for option to show last.fm info in miniplayer"
   },
+  "setting_lastFmArtistFilter": {
+    "message": "Artists to ignore",
+    "description": "label for option to ignore artists for scrobbling and now playing"
+  },
+  "setting_lastFmArtistFilterHint": {
+    "message": "Here you can provide a comma-separated list of artists for which no scrobbling and now-playing information should be sent to last.fm. This is useful for adverts.",
+    "description": "hint for option to ignore artists for scrobbling and now playing"
+  },
   "setting_miniplayerType": {
     "message": "Type for the miniplayer",
     "description": "label for option to change the miniplayer type"
@@ -1232,5 +1240,9 @@
   "musicIsPlaying": {
     "message": "Music is currently playing.",
     "description": "Warning message if music is playing when closing the GM tab"
+  },
+  "songIgnored": {
+    "message": "The artist for that song is marked to be ignored in the settings.",
+    "description": "Message in miniplayer when the current song is ignored by setting 'lastFmArtistFilter'"
   }
 }

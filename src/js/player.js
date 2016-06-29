@@ -937,7 +937,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       lastfmRating.addClass("loading");
     } else if (typeof loved == "string") {
       lastfmRating.addClass("error");
-      a.data("msg", i18n("lastfmError") + loved).click(actions.getLastfmInfo);
+      a.data("msg", loved).click(actions.getLastfmInfo);
       a.data("lastfmInfo", "");
     } else if (loved === true) {
       lastfmRating.addClass("loved");

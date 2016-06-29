@@ -164,6 +164,12 @@
   "setting_showLastfmInfo": {
     "message": "Zeige last.fm Daten im Miniplayer (vergrößern zum Einblenden)"
   },
+  "setting_lastFmArtistFilter": {
+    "message": "Ignoriere Interpreten"
+  },
+  "setting_lastFmArtistFilterHint": {
+    "message": "Hier kannst du eine komma-separierte Liste von Interpreten angeben, für die keine scrobble- und spielt-gerade-Informationen an last.fm gesendet werden sollen. Das ist z.B. hilfreich bei Werbung."
+  },
   "setting_miniplayerType": {
     "message": "Typ für den Miniplayer"
   },
@@ -918,5 +924,8 @@
   },
   "musicIsPlaying": {
     "message": "Die Wiedergabe läuft noch."
+  },
+  "songIgnored": {
+    "message": "Der Interpret dieses Titels ist in den Einstellungen als zu ignorieren markiert."
   }
 }

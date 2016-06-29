@@ -197,6 +197,7 @@ function fixForUri(string) {
     linkRatingsAuto: false,
     linkRatingsReset: false,
     showLastfmInfo: false,
+    lastFmArtistFilter: "Subscribe to go ad-free",
     //}
     //{ lyrics
     lyricsAutoNext: false,
@@ -385,6 +386,14 @@ function fixForUri(string) {
     return settings.scrobble && !!localSettings.lastfmSessionKey;
   }
 
+  function isIgnoreLastFm(songInfo) {
+    if (!settings.lastFmArtistFilter || !songInfo.artist) {
+      return false;
+    }
+    var songArtist = songInfo.artist.trim().toLowerCase();
+    return settings.lastFmArtistFilter.split(",").some(function(artist) { return songArtist == artist.trim().toLowerCase(); });
+  }
+
   /** open the last.fm authentication page */
   function lastfmLogin() {
     var url = lastfm.getLoginUrl(getExtensionUrl("lastfmCallback.html"));
@@ -408,6 +417,10 @@ function fixForUri(string) {
    */
   function getLastfmInfo(songInfo, cb) {
     if (songInfo) {
+      if (isIgnoreLastFm(songInfo)) {
+        cb(i18n("songIgnored"), null);
+        return;
+      }
       var params = { artist: songInfo.artist, track: songInfo.title };
       if (localSettings.lastfmSessionName) params.username = localSettings.lastfmSessionName;
       lastfm.track.getInfo(params, {
@@ -428,7 +441,7 @@ function fixForUri(string) {
           cb(loved, lastfmInfo);
         },
         error: function(code, msg) {
-          cb(msg, null);
+          cb(i18n("lastfmError") + msg, null);
           GA.event(GA_CAT_LASTFM, "getInfoError-" + code);
         }
       });
@@ -503,6 +516,7 @@ function fixForUri(string) {
     if (song.info &&
       song.info.durationSec > 0 &&
       isScrobblingEnabled() &&
+      !isIgnoreLastFm(song.info) &&
       !(song.ff && settings.disableScrobbleOnFf) &&
       !(settings.scrobbleMaxDuration > 0 && song.info.durationSec > settings.scrobbleMaxDuration * 60)) {
       var scrobbleTime = song.info.durationSec * settings.scrobblePercent / 100;
@@ -546,8 +560,12 @@ function fixForUri(string) {
         return;
       }
       var params = {};
-      scrobbleCache.songs.forEach(function(curSong, i) {
-        for (var prop in curSong) params[prop + "[" + i + "]"] = curSong[prop];
+      var i = 0;
+      scrobbleCache.songs.forEach(function(curSong) {
+        if (!isIgnoreLastFm(curSong)) {
+          for (var prop in curSong) params[prop + "[" + i + "]"] = curSong[prop];
+          i++;
+        }
       });
       lastfm.track.scrobble(params, {
         success: function() {
@@ -597,6 +615,7 @@ function fixForUri(string) {
 
   /** Send updateNowPlaying for the current song. */
   function sendNowPlaying() {
+    if (isIgnoreLastFm(song.info)) return;
     lastfm.track.updateNowPlaying(getSongLastFmParams(), {
       success: function() { GA.event(GA_CAT_LASTFM, "NowPlayingOK"); },
       error: function(code) {
@@ -2024,6 +2043,10 @@ function fixForUri(string) {
   });
   settings.al("showLastfmInfo", function(val) {
     if (val && song.lastfmInfo === null) loadCurrentLastfmInfo();
+  });
+  settings.al("lastFmArtistFilter", function() {
+    calcScrobbleTime();
+    loadCurrentLastfmInfo();
   });
   settings.al("toastUseMpStyle", closeToast);
   settings.al("toastClick toastProgress starRatingMode", updateToast);
