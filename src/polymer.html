@@ -36,8 +36,9 @@
       step="[[step]]"
       maxlength="[[maxlength]]"
       label="[[i18nlabel(id)]]"
-      value="{{value}}"
+      value="[[value]]"
       disabled="[[disabled]]"
+      prevent-invalid-input
     ></paper-input>
   </template>
 </dom-module>
@@ -314,6 +315,11 @@
       max: String,
       step: String,
       maxlength: String
+    },
+    ready: function() {
+      var that = this;
+      var input = this.$.input;
+      $(input).on("blur", function() { that.value = input.value; });
     }
   });
   
@@ -492,7 +498,7 @@
       var that = this;
       this.$.repeater.addEventListener("dom-change", function() {
         //prevent click events on link to bubble up (otherwise "checked" property is toggled when clicked on link)
-        $(".toggle-label", that).unbind().click(function(e) { e.stopPropagation(); });
+        $(".toggle-label", that).off().click(function(e) { e.stopPropagation(); });
       });
     },
     _isActive: function(activeProviders, provider) {

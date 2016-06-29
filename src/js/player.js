@@ -145,7 +145,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       renderRating(song.rating);
       getLastSongInfo = null;
       lastSongInfo = false;
-      $("#resume").removeClass("lastSongEnabled").unbind().click(googleMusicExecutor("playPause", { resume: true }));
+      $("#resume").removeClass("lastSongEnabled").off().click(googleMusicExecutor("playPause", { resume: true }));
     }
     $("body").toggleClass("hasSong", !!val);
     if (val) {
@@ -254,7 +254,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     if (settings.showLastfmInfo || !settings.hideRatings && localSettings.lastfmSessionName) getLastSongInfo();
 
     if (lastSong.info.albumLink) {
-      $("#resume").addClass("lastSongEnabled").unbind().click(bp.resumeLastSong.bind(window, lastSong));
+      $("#resume").addClass("lastSongEnabled").off().click(bp.resumeLastSong.bind(window, lastSong));
     }
   }
 
@@ -932,7 +932,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
   function renderSongLoved(loved, actions) {
     var lastfmRating = $("#lastfmRating").removeClass("loved notloved error loading");
-    var a = lastfmRating.find("a").unbind();
+    var a = lastfmRating.find("a").off();
     if (loved === null) {
       lastfmRating.addClass("loading");
     } else if (typeof loved == "string") {
@@ -1093,7 +1093,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     if (typeClass == "miniplayer" || typeClass == "toast") setupResizeMoveListeners();
     if (typeClass == "toast" && settings.toastDuration > 0) setToastAutocloseTimer();
 
-    $(window).unload(function() {
+    $(window).on("unload", function() {
       localSettings.ral(typeClass);
       settings.ral(typeClass);
       player.ral(typeClass);

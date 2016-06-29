@@ -181,11 +181,13 @@ function initLyricsProviders(GA) {
               report.noLyrics(cb, href, searchUrl);
             } else {
               lyrics = $("<div>").html(trimmedLyrics.replace(/\n/g, "<br>"));
-              var credits = $("<div>").html($.trim(page.find(".mxm-lyrics__copyright").text()));
+              var credits = $.trim(page.find(".mxm-lyrics__copyright").text());
+              if (credits) credits = $("<div>").html(credits);
+              else credits = null;
               var title = $.trim(page.find(".mxm-track-title__track").first().text());
               var artist = $.trim(page.find(".mxm-track-title__artist").first().text());
               if (artist) title = artist + " - " + title;
-              report.foundLyrics(cb, $("<h1>").text(title), lyrics, credits || null, href, searchUrl);
+              report.foundLyrics(cb, $("<h1>").text(title), lyrics, credits, href, searchUrl);
             }
           })
           .fail(function() {

@@ -702,10 +702,10 @@ $(function() {
     if (!basic) {
       item.index = song.data("index");
       item.cover = parseCover(song.find("td[data-col='title'],td[data-col='song-details']").find(".column-content img"));
-      var artistId = artist.data("matched-id") || "";
+      var artistId = artist.data("matchedId") || "";
       if (item.artist || artistId) item.artistLink = "artist/" + forHash(artistId) + "/" + forHash(item.artist);
-      var albumId = album.data("matched-id") || "";
-      if (albumId || item.album) item.albumLink = "album/" + forHash(albumId) + "/" + forHash(album.data("album-artist") || "") + "/" + forHash(item.album);
+      var albumId = album.data("matchedId") || "";
+      if (albumId || item.album) item.albumLink = "album/" + forHash(albumId) + "/" + forHash(album.data("albumArtist") || "") + "/" + forHash(item.album);
     }
     return item;
   }

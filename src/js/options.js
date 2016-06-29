@@ -89,7 +89,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       actionText = i18n("connect");
       userLink.text(i18n("disconnected")).removeAttr("href").addClass("disconnected");
     }
-    $("#lastfmlogin").text(actionText).unbind().on("tap", action);
+    $("#lastfmlogin").text(actionText).off().on("tap", action);
   }
 
   function notificationsEnabledChanged(val) {
@@ -129,7 +129,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var dialog = $("#confirmDialog");
     $("p", dialog).text(content);
     $("[dialog-dismiss]", dialog).toggle(onConfirm !== false);
-    dialog.unbind().on("iron-overlay-closed", function(e) {
+    dialog.off().on("iron-overlay-closed", function(e) {
       if (e.detail.confirmed) {
         if ($.isFunction(onConfirm)) onConfirm();
       } else if ($.isFunction(onCancel)) onCancel();
@@ -214,14 +214,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
   /** Setup UI and logic for the timer. */
   function initTimer() {
     $("#timerStatus h2").text(i18n("timerActive"));
-    var timerMinutes = $("#timerMinutes").unbind().on("value-changed", updatePreNotifyMax);
-    var timerNotify = $("#timerNotify").unbind();
-    var timerPreNotify = $("#timerPreNotify").unbind().on("value-changed", function(e) {
+    var timerMinutes = $("#timerMinutes").off().on("value-changed", updatePreNotifyMax);
+    var timerNotify = $("#timerNotify").off();
+    var timerPreNotify = $("#timerPreNotify").off().on("value-changed", function(e) {
       var value = parseFloat(e.detail.value);
       if (!$.isNumeric(value) || value < this.min) this.value = this.min;
       else if (value > this.max) this.value = this.max;
     });
-    var timerAction = $("#timerAction").unbind();
+    var timerAction = $("#timerAction").off();
     $("#startTimer").text(i18n("startTimer")).click(function() {
       var min = parseFloat(timerMinutes.val());
       if (min) {
@@ -305,11 +305,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
       var that = this;
       theSettings.w(this.id, function(val) { that.value = val; }, CONTEXT);
       $(this).on("value-changed", function(e) {
+        var value = e.detail.value;
         if (that.type == "number") {
-          var value = parseFloat(e.detail.value);
+          value = parseFloat(value);
           if ($.isNumeric(that.min) && value < that.min || $.isNumeric(that.max) && value > that.max) that.value = theSettings[that.id];
           else theSettings[that.id] = value;
-        } else theSettings[that.id] = e.detail.value;
+        } else theSettings[that.id] = value;
       });
       if (this.listened) theSettings.al(this.id, changedListeners[this.listener], CONTEXT);
       else if (this.watched) theSettings.w(this.id, changedListeners[this.listener], CONTEXT);
@@ -524,7 +525,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
   });
 
-  $(window).unload(function() {
+  $(window).on("unload", function() {
     settings.ral(CONTEXT);
     localSettings.ral(CONTEXT);
   });
