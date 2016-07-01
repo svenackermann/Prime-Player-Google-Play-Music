@@ -16,6 +16,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
   var i18n = chrome.i18n.getMessage;
   var settings = bp.settings;
   var localSettings = bp.localSettings;
+  var currentVersion = chrome.runtime.getManifest().version;
 
   /** Google analytics */
   var GA = initGA(settings, CONTEXT);
@@ -88,19 +89,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
       actionText = i18n("connect");
       userLink.text(i18n("disconnected")).removeAttr("href").addClass("disconnected");
     }
-    $("#lastfmlogin").text(actionText).unbind().on("tap", action);
-  }
-
-  function ratingModeChanged() {
-    var ratingMode = bp.getRatingMode();
-    settingsView.removeClass("star thumbs");
-    if (ratingMode) settingsView.addClass(ratingMode);
-    $("#skipRatedLower")[0].setText(2, i18n("setting_skipRatedLower_2" + (ratingMode == "star" ? "_stars" : "")));
-    $("#toastClick,pp-select[from='#toastClick']").each(function() {
-      var input = this;
-      input.setText("rate-1", bp.getCommandOptionText("rate-1"));
-      input.setText("rate-5", bp.getCommandOptionText("rate-5"));
-    });
+    $("#lastfmlogin").text(actionText).off().on("tap", action);
   }
 
   function notificationsEnabledChanged(val) {
@@ -130,9 +119,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
   }
 
   function quicklinksChanged() {
-    var items = [];
-    [""].concat(bp.getQuicklinks()).forEach(function(ql) {
-      items.push({ text: bp.getTextForQuicklink(ql), value: ql, clazz: "" });
+    var items = [""].concat(bp.getQuicklinks()).map(function(ql) {
+      return { text: bp.getTextForQuicklink(ql), value: ql };
     });
     $("#coverClickLink,#titleClickLink").each(function() { this.setItems(items); });
   }
@@ -140,9 +128,11 @@ chrome.runtime.getBackgroundPage(function(bp) {
   function confirmDialog(content, onConfirm, onCancel) {
     var dialog = $("#confirmDialog");
     $("p", dialog).text(content);
-    dialog.unbind().on("iron-overlay-closed", function(e) {
-      if (e.detail.confirmed) onConfirm();
-      else if ($.isFunction(onCancel)) onCancel();
+    $("[dialog-dismiss]", dialog).toggle(onConfirm !== false);
+    dialog.off().on("iron-overlay-closed", function(e) {
+      if (e.detail.confirmed) {
+        if ($.isFunction(onConfirm)) onConfirm();
+      } else if ($.isFunction(onCancel)) onCancel();
     });
     dialog[0].open();
   }
@@ -152,7 +142,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     var providersContainer = $(containerSelector)[0];
     var providerToggleAction = {};
     var activeProviders;
-    var providers = [];
+    var lyricsProviders = bp.lyricsProviders;
 
     localSettings.w("lyricsProviders", function(val) {
       activeProviders = val;
@@ -164,9 +154,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
       if (!activeProviders.length && localSettings.lyrics) localSettings.lyrics = false;
     }, CONTEXT);
 
-    ["musixmatch", "lyricswikia", "songlyrics"].forEach(function(providerName) {
-      var provider = bp.lyricsProviders[providerName];
-      providers.push({ name: providerName, homepage: provider.getHomepage(), url: provider.getUrl() });
+    var providers = lyricsProviders.available.map(function(providerName) {
+      var provider = lyricsProviders[providerName];
 
       function toggleProviderEnabled() {
         var index = activeProviders.indexOf(providerName);
@@ -198,6 +187,8 @@ chrome.runtime.getBackgroundPage(function(bp) {
           };
         }
       });
+
+      return { name: providerName, homepage: provider.getHomepage(), url: provider.getUrl() };
     });
     providersContainer.providers = providers;
 
@@ -223,14 +214,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
   /** Setup UI and logic for the timer. */
   function initTimer() {
     $("#timerStatus h2").text(i18n("timerActive"));
-    var timerMinutes = $("#timerMinutes").unbind().on("value-changed", updatePreNotifyMax);
-    var timerNotify = $("#timerNotify").unbind();
-    var timerPreNotify = $("#timerPreNotify").unbind().on("value-changed", function(e) {
+    var timerMinutes = $("#timerMinutes").off().on("value-changed", updatePreNotifyMax);
+    var timerNotify = $("#timerNotify").off();
+    var timerPreNotify = $("#timerPreNotify").off().on("value-changed", function(e) {
       var value = parseFloat(e.detail.value);
       if (!$.isNumeric(value) || value < this.min) this.value = this.min;
       else if (value > this.max) this.value = this.max;
     });
-    var timerAction = $("#timerAction").unbind();
+    var timerAction = $("#timerAction").off();
     $("#startTimer").text(i18n("startTimer")).click(function() {
       var min = parseFloat(timerMinutes.val());
       if (min) {
@@ -262,7 +253,14 @@ chrome.runtime.getBackgroundPage(function(bp) {
       subsEnabled: function(val, old, prop) {
         setSubsEnabled(prop, val);
       },
-      starRatingMode: ratingModeChanged,
+      starRatingMode: function(val) {
+        settingsView.toggleClass("star", val);
+        settingsView.toggleClass("thumbs", !val);
+        $("#toastClick,pp-select[from='#toastClick']").each(function() {
+          this.setText("rate-1", bp.getCommandOptionText("rate-1"));
+          this.setText("rate-5", bp.getCommandOptionText("rate-5"));
+        });
+      },
       layoutHint: function() {
         var panel = settings.miniplayerType == "panel" || settings.miniplayerType == "detached_panel";
         $("#miniplayerType .hint-trigger").toggle(panel);
@@ -297,18 +295,9 @@ chrome.runtime.getBackgroundPage(function(bp) {
       var config = this.from ? $(this.from)[0] : this;
       var options = config.options.split(",");
       var getOptionText = optionsTextGetter[config.getoptionstext];
-      var items = [];
-      var prop = this.id;
-      options.forEach(function(option) {
-        var optionClass = "";
-        if (option.indexOf(":") >= 0) {
-          var split = option.split(":");
-          option = split[0];
-          optionClass = split[1];
-        }
-        var item = { clazz: optionClass, text: getOptionText(option, prop), value: option };
-        items.push(item);
-      });
+      var items = options.map(function(option) {
+        return { text: getOptionText(option, this.id), value: option };
+      }, this);
       this.setItems(items);
     });
     $(".pp-option").each(function() {
@@ -316,11 +305,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
       var that = this;
       theSettings.w(this.id, function(val) { that.value = val; }, CONTEXT);
       $(this).on("value-changed", function(e) {
+        var value = e.detail.value;
         if (that.type == "number") {
-          var value = parseFloat(e.detail.value);
+          value = parseFloat(value);
           if ($.isNumeric(that.min) && value < that.min || $.isNumeric(that.max) && value > that.max) that.value = theSettings[that.id];
           else theSettings[that.id] = value;
-        } else theSettings[that.id] = e.detail.value;
+        } else theSettings[that.id] = value;
       });
       if (this.listened) theSettings.al(this.id, changedListeners[this.listener], CONTEXT);
       else if (this.watched) theSettings.w(this.id, changedListeners[this.listener], CONTEXT);
@@ -427,16 +417,73 @@ chrome.runtime.getBackgroundPage(function(bp) {
     }
   }
 
+  function initTools() {
+    var GA_CAT = "Options";
+    $("#exportSettings").on("tap", function() {
+      var exported = JSON.stringify({ version: currentVersion, settings: settings.getAll() }, null, 2);
+      var downloadLink = $("#downloadLink");
+      downloadLink.attr("href", "data:application/json;charset=utf-8," + encodeURIComponent(exported));
+      downloadLink[0].click();
+      GA.event(GA_CAT, "export");
+    }).text(i18n("exportSettings"));
+
+    var reader = new FileReader();
+    var importInput = $("#importInput");
+    importInput.change(function() {
+      if (this.files && this.files[0]) {
+        reader.onload = function(e) {
+          var content;
+          function doImport() {
+            var unimported = settings.importProperties(content.settings);
+            if (unimported.length) {
+              GA.event(GA_CAT, "import-unimported");
+              confirmDialog(i18n("importSettingsUnimported", "\n\n" + unimported.join("\n")), false);
+            }
+            console.debug("settings imported");
+            GA.event(GA_CAT, "import-finish");
+          }
+          importInput.val("");//clear, so we get notified on next import even if filename is the same
+          try {
+            content = JSON.parse(e.target.result);
+            if (!content || !content.version || !content.settings) throw "mandatory field missing";
+            if (content.version != currentVersion) {
+              GA.event(GA_CAT, "import-mismatch");
+              confirmDialog(i18n("importSettingsVersionMismatch"), doImport, function() { GA.event(GA_CAT, "import-cancel"); });
+            } else doImport();
+          } catch (ex) {
+            console.error(ex);
+            confirmDialog(i18n("importSettingsError"), false);
+            GA.event(GA_CAT, "import-error");
+          }
+        };
+        reader.readAsText(this.files[0]);
+      }
+    });
+    $("#importSettings").on("tap", function() {
+      GA.event(GA_CAT, "import-start");
+      importInput[0].click();
+    }).text(i18n("importSettings"));
+
+    $("#resetSettings").on("tap", function() {
+      confirmDialog(i18n("resetSettingsConfirm"), function() {
+        settings.reset();
+        localSettings.reset();
+        GA.event(CONTEXT, "reset");
+      });
+    }).text(i18n("resetSettings"));
+  }
+
   function initChangelog() {
     chrome.storage.local.get(CHANGELOG_STORAGE_KEY, function(items) {
       var releases = items[CHANGELOG_STORAGE_KEY];
-      if (!releases || !releases.length || bp.compareVersions(releases[0].v, chrome.runtime.getManifest().version) < 0) {
+      if (!releases || !releases.length || bp.compareVersions(releases[0].v, currentVersion) < 0) {
         loadReleases(renderChangelog, releases || []);
       } else renderChangelog(releases);
     });
   }
 
   $(function() {
+    $("#confirmDialog [dialog-confirm]").text(i18n("dialogOk"));
     $("#confirmDialog [dialog-dismiss]").text(i18n("dialogCancel"));
 
     $("head > title").text(i18n("options") + " - " + i18n("extTitle"));
@@ -463,22 +510,12 @@ chrome.runtime.getBackgroundPage(function(bp) {
     initTimer();
 
     localSettings.w("lastfmSessionName", lastfmSessionNameChanged, CONTEXT);
-    //show/hide notification based options
     localSettings.w("notificationsEnabled", notificationsEnabledChanged, CONTEXT);
-    //update timer
     localSettings.w("timerEnd", timerEndChanged, CONTEXT);
-    //Google account dependent options
-    localSettings.al("ratingMode", ratingModeChanged, CONTEXT);
     localSettings.w("quicklinks", quicklinksChanged, CONTEXT);
     localSettings.w("syncSettings", function(val) { $("body").toggleClass("syncenabled", val); }, CONTEXT);
 
-    $("#resetSettings").on("tap", function() {
-      confirmDialog(i18n("resetSettingsConfirm"), function() {
-        settings.reset();
-        localSettings.reset();
-        GA.event("Options", "reset");
-      });
-    }).text(i18n("resetSettings"));
+    initTools();
 
     initChangelog();
 
@@ -488,7 +525,7 @@ chrome.runtime.getBackgroundPage(function(bp) {
     });
   });
 
-  $(window).unload(function() {
+  $(window).on("unload", function() {
     settings.ral(CONTEXT);
     localSettings.ral(CONTEXT);
   });

@@ -7,6 +7,10 @@
     "message": "Prime Player",
     "description": "short name of the extension"
   },
+  "dialogOk": {
+    "message": "OK",
+    "description": "OK button text for confirm dialog"
+  },
   "dialogCancel": {
     "message": "Cancel",
     "description": "Cancel button text for confirm dialog"
@@ -108,19 +112,19 @@
     "description": "label for option to change the toast duration"
   },
   "setting_toastDurationHint": {
-    "message": "For standard toasts this sets the time after which to remove the notification (from Desktop or Chromes notification area), Chrome might move it to the notification area earlier. For miniplayer style toasts (expert mode) this means when to close the miniplayer.",
+    "message": "For standard toasts this sets the time after which to remove the notification, Chrome might hide it earlier. For miniplayer style toasts (expert mode) this means when to close the miniplayer.",
     "description": "hint for option to change the toast duration"
   },
   "setting_toastPriority": {
-    "message": "move to notification area",
+    "message": "hide toast after",
     "description": "label for option to change the toast priority"
   },
   "setting_toastPriority_2": {
-    "message": "after 7 seconds",
+    "message": "7 seconds",
     "description": "text for option 2 for toast priority"
   },
   "setting_toastPriority_3": {
-    "message": "after 25 seconds",
+    "message": "25 seconds",
     "description": "text for option 3 for toast priority"
   },
   "setting_toastProgress": {
@@ -222,6 +226,14 @@
   "setting_showLastfmInfo": {
     "message": "Show last.fm info in miniplayer (resize to see them)",
     "description": "label for option to show last.fm info in miniplayer"
+  },
+  "setting_lastFmArtistFilter": {
+    "message": "Artists to ignore",
+    "description": "label for option to ignore artists for scrobbling and now playing"
+  },
+  "setting_lastFmArtistFilterHint": {
+    "message": "Here you can provide a comma-separated list of artists for which no scrobbling and now-playing information should be sent to last.fm. This is useful for adverts.",
+    "description": "hint for option to ignore artists for scrobbling and now playing"
   },
   "setting_miniplayerType": {
     "message": "Type for the miniplayer",
@@ -581,12 +593,8 @@
     "description": "text for low rated option '1'"
   },
   "setting_skipRatedLower_2": {
-    "message": "2 stars/thumbs down",
-    "description": "text for low rated option '2'"
-  },
-  "setting_skipRatedLower_2_stars": {
     "message": "2 stars",
-    "description": "text for low rated option '2' if in star rating mode"
+    "description": "text for low rated option '2'"
   },
   "setting_skipRatedLower_3": {
     "message": "3 stars",
@@ -834,12 +842,33 @@
     "description": "label for option to hide search field"
   },
   "resetSettings": {
-    "message": "Reset settings to default",
+    "message": "Reset settings",
     "description": "text for reset settings button"
   },
   "resetSettingsConfirm": {
     "message": "Do really want to reset all your settings? This will also remove your favorites and last.fm connection and remove all your Prime Player related data from Chrome sync.",
     "description": "text for reset settings confirm dialogue"
+  },
+  "exportSettings": {
+    "message": "Export settings",
+    "description": "text for export settings button"
+  },
+  "importSettings": {
+    "message": "Import settings",
+    "description": "text for import settings button"
+  },
+  "importSettingsVersionMismatch": {
+    "message": "You are trying to import settings from a different version of Prime Player. This can have unexpected effects but should work in most cases. To be sure, update Prime Player on both the importing and exporting system to the latest version and try again.",
+    "description": "text for import settings warning dialog if versions do not match"
+  },
+  "importSettingsUnimported": {
+    "message": "The following settings could not be imported, you might want to check the imported file: $SETTINGS$",
+    "description": "text for import settings warning dialog if some settings were not imported",
+    "placeholders": { "SETTINGS": { "content": "$1", "example": "mysetting1, mysetting2" } }
+  },
+  "importSettingsError": {
+    "message": "The file could not be imported. Please make sure you did not modify it after export.",
+    "description": "text for import settings error dialog"
   },
   "setting_connectedIndicator": {
     "message": "Show 'P'-icon on connected Google Music tab",
@@ -1211,5 +1240,9 @@
   "musicIsPlaying": {
     "message": "Music is currently playing.",
     "description": "Warning message if music is playing when closing the GM tab"
+  },
+  "songIgnored": {
+    "message": "The artist for that song is marked to be ignored in the settings.",
+    "description": "Message in miniplayer when the current song is ignored by setting 'lastFmArtistFilter'"
   }
 }

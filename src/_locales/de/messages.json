@@ -2,9 +2,6 @@
   "extDesc": {
     "message": "Erweitert Google Music mit last.fm Integration, Toast Benachrichtigungen, einem Miniplayer, Tasten-Kürzeln und mehr."
   },
-  "extTitle": {
-    "message": "Prime Player"
-  },
   "dialogCancel": {
     "message": "Abbrechen"
   },
@@ -81,16 +78,16 @@
     "message": "Toast Dauer in Sekunden (0=nicht schließen)"
   },
   "setting_toastDurationHint": {
-    "message": "Bei normalen Toasts ist das die Zeit, nach der die Benachrichtigung entfernt wird (vom Desktop oder Chromes Benachrichtigungs-Leiste), Chrome verschiebt die Nachricht evtl. vorher schon in die Benachrichtigungs-Leiste. Bei Toasts im Miniplayer-Stil (Experten-Modus) ist das die Zeit, nach der der Miniplayer geschlossen wird."
+    "message": "Bei normalen Toasts ist das die Zeit, nach der die Benachrichtigung entfernt wird, Chrome blendet die Nachricht evtl. vorher schon aus. Bei Toasts im Miniplayer-Stil (Experten-Modus) ist das die Zeit, nach der der Miniplayer geschlossen wird."
   },
   "setting_toastPriority": {
-    "message": "in Benachrichtigungs-Leiste verschieben"
+    "message": "Toast ausblenden nach"
   },
   "setting_toastPriority_2": {
-    "message": "nach 7 Sekunden"
+    "message": "7 Sekunden"
   },
   "setting_toastPriority_3": {
-    "message": "nach 25 Sekunden"
+    "message": "25 Sekunden"
   },
   "setting_toastProgress": {
     "message": "Zeige Titel-Fortschritt in Toast"
@@ -166,6 +163,12 @@
   },
   "setting_showLastfmInfo": {
     "message": "Zeige last.fm Daten im Miniplayer (vergrößern zum Einblenden)"
+  },
+  "setting_lastFmArtistFilter": {
+    "message": "Ignoriere Interpreten"
+  },
+  "setting_lastFmArtistFilterHint": {
+    "message": "Hier kannst du eine komma-separierte Liste von Interpreten angeben, für die keine scrobble- und spielt-gerade-Informationen an last.fm gesendet werden sollen. Das ist z.B. hilfreich bei Werbung."
   },
   "setting_miniplayerType": {
     "message": "Typ für den Miniplayer"
@@ -430,9 +433,6 @@
     "message": "1 Stern"
   },
   "setting_skipRatedLower_2": {
-    "message": "2 Sterne/Daumen runter"
-  },
-  "setting_skipRatedLower_2_stars": {
     "message": "2 Sterne"
   },
   "setting_skipRatedLower_3": {
@@ -621,10 +621,26 @@
     "message": "Verstecke Suchfeld im Miniplayer"
   },
   "resetSettings": {
-    "message": "Einstellungen auf Standard zurücksetzen"
+    "message": "Einstellungen zurücksetzen"
   },
   "resetSettingsConfirm": {
     "message": "Willst du wirklich alle deine Einstellungen zurücksetzen? Dadurch werden auch deine Favoriten, deine last.fm-Verbindung und alle deine Prime-Player-bezogenen Daten in Chrome sync entfernt."
+  },
+  "exportSettings": {
+    "message": "Einstellungen exportieren"
+  },
+  "importSettings": {
+    "message": "Einstellungen importieren"
+  },
+  "importSettingsVersionMismatch": {
+    "message": "Du versuchst, Einstellungen aus einer anderen Version von Prime Player zu importieren. Das kann unerwartete Effekte verursachen, sollte aber in den meisten Fällen funktionieren. Um sicher zu sein, aktualisiere Prime Player auf dem exportierenden und importierenden System auf die letzte Version und versuche es erneut."
+  },
+  "importSettingsUnimported": {
+    "message": "Folgende Einstellungen konnten nicht importiert werden, prüfe ggf. die importierte Datei: $SETTINGS$",
+    "placeholders": { "SETTINGS": { "content": "$1" } }
+  },
+  "importSettingsError": {
+    "message": "Die Datei konnte nicht importiert werden. Stelle bitte sicher, dass du sie nach dem Export nicht modifiziert hast."
   },
   "setting_connectedIndicator": {
     "message": "Zeige 'P'-Symbol in dem verbundenen Google Music Tab an"
@@ -908,5 +924,8 @@
   },
   "musicIsPlaying": {
     "message": "Die Wiedergabe läuft noch."
+  },
+  "songIgnored": {
+    "message": "Der Interpret dieses Titels ist in den Einstellungen als zu ignorieren markiert."
   }
 }

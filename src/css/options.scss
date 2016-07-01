@@ -40,10 +40,15 @@ iron-pages {
     }
   }
   
-  &.thumbs .stars, &.star .thumbs, .thumbsOnly, .starsOnly {
+  &.star .thumbs, .starsOnly {
     display: none;
   }
-  &.thumbs .thumbsOnly, &.star .starsOnly {
+  &.thumbs {
+    .rate-2, .rate-3, .rate-4 {
+      display: none;
+    }
+  }
+  &.star .starsOnly {
     display: block;
   }
 }
@@ -71,6 +76,13 @@ pp-toggle {
 #tools {
   overflow: hidden;
   padding: 5px 10px 5px 20px;
+  paper-button {
+    margin-bottom: 10px;
+  }
+}
+
+#downloadLink, #importInput {
+  display: none;
 }
 
 .tab-hint {
@@ -82,8 +94,15 @@ pp-toggle {
   padding: 0;
   margin-left: 1ex;
   color: green;
-  width: 26px;
-  height: 26px;
+  z-index: 1;
+  width: 18px;
+  height: 18px;
+  bottom: 1px;
+}
+
+.label-is-floating .hint-trigger {
+  width: 24px;
+  height: 24px;
 }
 
 .pp-option[disabled] .hint-trigger {
@@ -94,6 +113,7 @@ pp-toggle .hint-trigger {
   height: 18px;
   display: inline-flex;
   margin-left: 0;
+  bottom: -1px;
 }
 
 #credits > div {
@@ -252,6 +272,11 @@ fieldset {
   > div {
     margin-top: 16px;
   }
+}
+
+#confirmDialog p {
+  white-space: pre-line;
+  word-wrap: break-word
 }
 
 paper-badge.hidden {

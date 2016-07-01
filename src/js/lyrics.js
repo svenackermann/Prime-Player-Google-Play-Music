@@ -28,7 +28,7 @@ function initLyricsProviders(GA) {
     return fixForUri(title);
   }
 
-  var lyricsProviders = {};
+  var lyricsProviders = { available: [] };
 
   function LyricsProvider(name, homepage, searchLyrics, buildSearchUrl) {
     var permissions = { origins: [homepage + "/*"] };
@@ -163,7 +163,81 @@ function initLyricsProviders(GA) {
     };
 
     lyricsProviders[name] = this;
+    lyricsProviders.available.push(name);
   }
+
+  new LyricsProvider("musixmatch", "https://www.musixmatch.com", function(cb, searchUrl, report) {
+    $.get(searchUrl).done(function(resultPage) {
+      var body = cleanAndParse(resultPage).find(".media-card-body").filter(function() { return !$(".add-lyrics-button", this).length; });
+      var href = body.find("a.title").attr("href");
+      if (href) {
+        href = report.getHomepage() + href;
+        $.get(href)
+          .done(function(lyricsPage) {
+            var page = cleanAndParse(lyricsPage);
+            var lyrics = page.find(".mxm-lyrics__content");
+            var trimmedLyrics = lyrics.text().trim();
+            if (!trimmedLyrics.length) {
+              report.noLyrics(cb, href, searchUrl);
+            } else {
+              lyrics = $("<div>").html(trimmedLyrics.replace(/\n/g, "<br>"));
+              var credits = $.trim(page.find(".mxm-lyrics__copyright").text());
+              if (credits) credits = $("<div>").html(credits);
+              else credits = null;
+              var title = $.trim(page.find(".mxm-track-title__track").first().text());
+              var artist = $.trim(page.find(".mxm-track-title__artist").first().text());
+              if (artist) title = artist + " - " + title;
+              report.foundLyrics(cb, $("<h1>").text(title), lyrics, credits, href, searchUrl);
+            }
+          })
+          .fail(function() {
+            report.errorGetResult(cb, href, searchUrl);
+          });
+      } else report.noResult(cb, searchUrl);
+    }).fail(function() {
+      report.errorGetSearch(cb, searchUrl);
+    });
+  }, function(song) {
+    if (!song.artist || !song.title) return null;
+    return this.getHomepage() + "/search/" + fixForUri(song.artist) + "+" + fixTitle(song.title) + "/tracks";
+  });
+
+  new LyricsProvider("lyricswikia", "http://lyrics.wikia.com", function(cb, searchUrl, report) {
+    $.getJSON(searchUrl, "fmt=realjson").done(function(result) {
+      if (result.url && result.lyrics && $.trim(result.lyrics) != "Not found") {
+        $.get(result.url)
+          .done(function(lyricsPage) {
+            var page = cleanAndParse(lyricsPage);
+            var lyrics = page.find(".lyricbox");
+            var trimmedLyrics = lyrics.text().trim();
+            if (!trimmedLyrics.length) {
+              report.noLyrics(cb, result.url, searchUrl);
+            } else {
+              var credits = page.find(".song-credit-box");
+              if (credits.length) {
+                var parsed = $("<p>");
+                credits.find("tr").each(function() {
+                  parsed.append($(this).text(), "<br>");
+                });
+                if (parsed.children().length) {
+                  parsed.find("br").last().remove();
+                  credits = parsed;
+                }
+              }
+              report.foundLyrics(cb, page.find("#WikiaPageHeader h1"), lyrics, credits, result.url, searchUrl);
+            }
+          })
+          .fail(function() {
+            report.errorGetResult(cb, result.url, searchUrl);
+          });
+      } else report.noResult(cb, searchUrl);
+    }).fail(function() {
+      report.errorGetSearch(cb, searchUrl);
+    });
+  }, function(song) {
+    if (!song.artist || !song.title) return null;
+    return this.getHomepage() + "/api.php?func=getSong&artist=" + fixForUri(song.artist) + "&song=" + fixTitle(song.title);
+  });
 
   new LyricsProvider("songlyrics", "http://www.songlyrics.com", function(cb, searchUrl, report) {
     $.get(searchUrl).done(function(resultPage) {
@@ -206,77 +280,6 @@ function initLyricsProviders(GA) {
       if (title) searchUrl += "&searchIn3=song";
     }
     return searchUrl;
-  });
-
-  new LyricsProvider("lyricswikia", "http://lyrics.wikia.com", function(cb, searchUrl, report) {
-    $.getJSON(searchUrl, "fmt=realjson").done(function(result) {
-      if (result.url && result.lyrics && $.trim(result.lyrics) != "Not found") {
-        $.get(result.url)
-          .done(function(lyricsPage) {
-            var page = cleanAndParse(lyricsPage);
-            var lyrics = page.find(".lyricbox");
-            var trimmedLyrics = lyrics.text().trim();
-            if (!trimmedLyrics.length) {
-              report.noLyrics(cb, result.url, searchUrl);
-            } else {
-              var credits = page.find(".song-credit-box");
-              if (credits.length) {
-                var parsed = $("<p>");
-                credits.find("tr").each(function() {
-                  parsed.append($(this).text(), "<br>");
-                });
-                if (parsed.children().length) {
-                  parsed.find("br").last().remove();
-                  credits = parsed;
-                }
-              }
-              report.foundLyrics(cb, page.find("#WikiaPageHeader h1"), lyrics, credits, result.url, searchUrl);
-            }
-          })
-          .fail(function() {
-            report.errorGetResult(cb, result.url, searchUrl);
-          });
-      } else report.noResult(cb, searchUrl);
-    }).fail(function() {
-      report.errorGetSearch(cb, searchUrl);
-    });
-  }, function(song) {
-    if (!song.artist || !song.title) return null;
-    return this.getHomepage() + "/api.php?func=getSong&artist=" + fixForUri(song.artist) + "&song=" + fixTitle(song.title);
-  });
-
-  new LyricsProvider("musixmatch", "https://www.musixmatch.com", function(cb, searchUrl, report) {
-    $.get(searchUrl).done(function(resultPage) {
-      var body = cleanAndParse(resultPage).find(".media-card-body").filter(function() { return !$(".add-lyrics-button", this).length; });
-      var href = body.find("a.title").attr("href");
-      if (href) {
-        href = report.getHomepage() + href;
-        $.get(href)
-          .done(function(lyricsPage) {
-            var page = cleanAndParse(lyricsPage);
-            var lyrics = page.find(".mxm-lyrics__content");
-            var trimmedLyrics = lyrics.text().trim();
-            if (!trimmedLyrics.length) {
-              report.noLyrics(cb, href, searchUrl);
-            } else {
-              lyrics = $("<div>").html(trimmedLyrics.replace(/\n/g, "<br>"));
-              var credits = $("<div>").html($.trim(page.find(".mxm-lyrics__copyright").text()));
-              var title = $.trim(page.find(".mxm-track-title__track").first().text());
-              var artist = $.trim(page.find(".mxm-track-title__artist").first().text());
-              if (artist) title = artist + " - " + title;
-              report.foundLyrics(cb, $("<h1>").text(title), lyrics, credits || null, href, searchUrl);
-            }
-          })
-          .fail(function() {
-            report.errorGetResult(cb, href, searchUrl);
-          });
-      } else report.noResult(cb, searchUrl);
-    }).fail(function() {
-      report.errorGetSearch(cb, searchUrl);
-    });
-  }, function(song) {
-    if (!song.artist || !song.title) return null;
-    return this.getHomepage() + "/search/" + fixForUri(song.artist) + "+" + fixTitle(song.title) + "/tracks";
   });
 
   return lyricsProviders;

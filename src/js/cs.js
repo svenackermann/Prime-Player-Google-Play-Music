@@ -546,7 +546,6 @@ $(function() {
         ql.searchPlaceholder = $.trim($("#material-one-middle input.material-search").attr("placeholder"));
         ql.wmp = $.trim($("#playlists").prev(".nav-section-header").text());
         post("connected", {
-          ratingMode: "thumbs",
           quicklinks: ql
         });
       }
@@ -560,20 +559,20 @@ $(function() {
     if (event.source != window || event.data.type != "FROM_PRIMEPLAYER" || !event.data.msg) return;
     console.debug("inj->cs: ", event.data);
     switch (event.data.msg) {
-    case "plSongRated":
-      $("#music-content,#queueContainer").find(".song-row[data-index='" + event.data.index + "']").find("td[data-col='rating']").trigger("DOMSubtreeModified");
-      /* falls through */
-    case "plSongStarted":
-    case "plSongError":
-      pausePlaylistParsing = false;
-      if ($.isFunction(resumePlaylistParsingFn)) resumePlaylistParsingFn();
-      resumePlaylistParsingFn = null;
-      break;
-    case "cleanupCs":
-      port.disconnect();
-      cleanup();
-      window.postMessage({ type: "FROM_PRIMEPLAYER", msg: "cleanupCsDone" }, location.href);
-      break;
+      case "plSongRated":
+        $("#music-content,#queueContainer").find(".song-row[data-index='" + event.data.index + "']").find("td[data-col='rating']").trigger("DOMSubtreeModified");
+        /* falls through */
+      case "plSongStarted":
+      case "plSongError":
+        pausePlaylistParsing = false;
+        if ($.isFunction(resumePlaylistParsingFn)) resumePlaylistParsingFn();
+        resumePlaylistParsingFn = null;
+        break;
+      case "cleanupCs":
+        port.disconnect();
+        cleanup();
+        window.postMessage({ type: "FROM_PRIMEPLAYER", msg: "cleanupCsDone" }, location.href);
+        break;
     }
   }
 
@@ -703,10 +702,10 @@ $(function() {
     if (!basic) {
       item.index = song.data("index");
       item.cover = parseCover(song.find("td[data-col='title'],td[data-col='song-details']").find(".column-content img"));
-      var artistId = artist.data("matched-id") || "";
+      var artistId = artist.data("matchedId") || "";
       if (item.artist || artistId) item.artistLink = "artist/" + forHash(artistId) + "/" + forHash(item.artist);
-      var albumId = album.data("matched-id") || "";
-      if (albumId || item.album) item.albumLink = "album/" + forHash(albumId) + "/" + forHash(album.data("album-artist") || "") + "/" + forHash(item.album);
+      var albumId = album.data("matchedId") || "";
+      if (albumId || item.album) item.albumLink = "album/" + forHash(albumId) + "/" + forHash(album.data("albumArtist") || "") + "/" + forHash(item.album);
     }
     return item;
   }
@@ -844,25 +843,25 @@ $(function() {
     var i = hash.indexOf("/");
     if (i > 0) hash = hash.substring(0, i);
     switch (hash) {
-    case "artists":
-    case "genres":
-    case "srar":
-    case "sarrar":
-      return "albumContainers";
-    case "now":
-    case "albums":
-    case "artist":
-    case "wta":
-    case "wnr":
-    case "sar":
-    case "tg":
-    case "sral":
-    case "srp":
-    case "saral":
-    case "ar":
-      return "playlistsList";
-    default:
-      return "playlist";
+      case "artists":
+      case "genres":
+      case "srar":
+      case "sarrar":
+        return "albumContainers";
+      case "now":
+      case "albums":
+      case "artist":
+      case "wta":
+      case "wnr":
+      case "sar":
+      case "tg":
+      case "sral":
+      case "srp":
+      case "saral":
+      case "ar":
+        return "playlistsList";
+      default:
+        return "playlist";
     }
   }
 
@@ -982,56 +981,56 @@ $(function() {
   port.onMessage.addListener(function(msg) {
     console.debug("bp->cs: ", msg);
     switch (msg.type) {
-    case "execute":
-      if (msg.command == "startPlaylistSong" || msg.command == "ratePlaylistSong") sendPlaylistRowCommand(msg.command, msg.options);
-      else sendCommand(msg.command, msg.options);
-      break;
-    case "getNavigationList":
-      clearTimeout(asyncListTimer);
-      listRatings = null;
-      if (msg.link == "wmp") sendMyPlaylists();
-      else sendNavigationList(msg.link, msg.omitUnknownAlbums);
-      break;
-    case "selectLink":
-      selectAndExecute(msg.link);
-      break;
-    case "startPlaylist":
-      selectAndExecute(msg.link, function(error) {
-        //types im, st, sm and situations start automatically
-        if (!error && !isAutoQueueList(msg.link)) sendCommand("startPlaylist");
-      });
-      break;
-    case "resumeLastSong":
-      selectAndExecute(msg.albumLink, resumeSong.bind(window, msg));
-      break;
-    case "lyrics":
-      renderLyrics(msg.result, msg.providers, msg.srcUrl);
-      break;
-    case "feelingLucky":
-      selectAndExecute("now", sendCommand.bind(window, "feelingLucky"));
-      break;
-    case "connected":
-      init();
-      break;
-    case "connectedIndicator":
-      if (msg.show) showConnectedIndicator();
-      else hideConnectedIndicator();
-      break;
-    case "lyricsState":
-      if (msg.enabled) enableLyrics(msg.fontSize, msg.width, msg.opacity);
-      else disableLyrics();
-      lyricsAutoReload = msg.autoReload;
-      break;
-    case "starRatingMode":
-      toggleStarRatingMode(msg.value);
-      break;
-    case "setConfirmClose":
-      setConfirmClose(msg.confirmClose);
-      break;
-    case "alreadyConnected":
-      port.disconnect();
-      port = null;
-      break;
+      case "execute":
+        if (msg.command == "startPlaylistSong" || msg.command == "ratePlaylistSong") sendPlaylistRowCommand(msg.command, msg.options);
+        else sendCommand(msg.command, msg.options);
+        break;
+      case "getNavigationList":
+        clearTimeout(asyncListTimer);
+        listRatings = null;
+        if (msg.link == "wmp") sendMyPlaylists();
+        else sendNavigationList(msg.link, msg.omitUnknownAlbums);
+        break;
+      case "selectLink":
+        selectAndExecute(msg.link);
+        break;
+      case "startPlaylist":
+        selectAndExecute(msg.link, function(error) {
+          //types im, st, sm and situations start automatically
+          if (!error && !isAutoQueueList(msg.link)) sendCommand("startPlaylist");
+        });
+        break;
+      case "resumeLastSong":
+        selectAndExecute(msg.albumLink, resumeSong.bind(window, msg));
+        break;
+      case "lyrics":
+        renderLyrics(msg.result, msg.providers, msg.srcUrl);
+        break;
+      case "feelingLucky":
+        selectAndExecute("now", sendCommand.bind(window, "feelingLucky"));
+        break;
+      case "connected":
+        init();
+        break;
+      case "connectedIndicator":
+        if (msg.show) showConnectedIndicator();
+        else hideConnectedIndicator();
+        break;
+      case "lyricsState":
+        if (msg.enabled) enableLyrics(msg.fontSize, msg.width, msg.opacity);
+        else disableLyrics();
+        lyricsAutoReload = msg.autoReload;
+        break;
+      case "starRatingMode":
+        toggleStarRatingMode(msg.value);
+        break;
+      case "setConfirmClose":
+        setConfirmClose(msg.confirmClose);
+        break;
+      case "alreadyConnected":
+        port.disconnect();
+        port = null;
+        break;
     }
   });
 });

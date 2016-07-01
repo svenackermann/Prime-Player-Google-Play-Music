@@ -162,6 +162,26 @@ function Bean(defaults, useLocalStorage) {
     }
   };
 
+  /**
+   * @return all properties as object, must not be modified
+   */
+  this.getAll = function() {
+    return cache;
+  };
+
+  /**
+   * Imports all given properties known by this bean.
+   * @return the names of all properties that have not been imported
+   */
+  this.importProperties = function(properties) {
+    var unimported = [];
+    for (var prop in properties) {
+      if (callbacks[prop] !== undefined) that[prop] = properties[prop];
+      else unimported.push(prop);
+    }
+    return unimported;
+  };
+
   /** @return value from localStorage converted to correct type */
   function parse(name, defaultValue) {
     var clonedDefault = cloneValue(defaultValue);
@@ -170,10 +190,10 @@ function Bean(defaults, useLocalStorage) {
     var type = value.substr(0, 1);
     value = value.substr(1);
     switch (type) {
-    case "o": return value == "null" ? null : value[0] == "[" ? JSON.parse(value) : $.extend(clonedDefault, JSON.parse(value));
-    case "b": return value == "true";
-    case "n": return parseFloat(value);
-    default: return value;
+      case "o": return value == "null" ? null : value[0] == "[" ? JSON.parse(value) : $.extend(clonedDefault, JSON.parse(value));
+      case "b": return value == "true";
+      case "n": return parseFloat(value);
+      default: return value;
     }
   }
 

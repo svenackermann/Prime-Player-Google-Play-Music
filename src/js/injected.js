@@ -216,58 +216,58 @@
     console.debug("cs->inj: ", event.data);
     var options = event.data.options;
     switch (event.data.command) {
-    case "playPause":
-      var resume = options.resume;
-      clickPlayerButton("play-pause", resume === false ? "playing" : null, resume ? "playing" : null);
-      break;
-    case "nextSong":
-      clickPlayerButton("forward");
-      break;
-    case "prevSong":
-      clickPlayerButton("rewind");
-      break;
-    case "toggleRepeat":
-      clickPlayerButton("repeat");
-      break;
-    case "toggleShuffle":
-      clickPlayerButton("shuffle");
-      break;
-    case "openQueue":
-      simulateClick(document.querySelector("#queue"));
-      break;
-    case "rate":
-      rateSong(options.rating);
-      break;
-    case "startPlaylist":
-      startPlaylist();
-      break;
-    case "setPosition":
-      setPositionPercent("#material-player-progress", options.percent);
-      break;
-    case "setVolume":
-      setPositionPercent("#material-vslider", options.percent);
-      break;
-    case "clickCard":
-      clickCard(options.id);
-      break;
-    case "feelingLucky":
-      clickFeelingLucky();
-      break;
-    case "startPlaylistSong":
-      startPlaylistSong(options);
-      break;
-    case "resumePlaylistSong":
-      resumePlaylistSong(options);
-      break;
-    case "ratePlaylistSong":
-      ratePlaylistSong(options);
-      break;
-    case "simulateActivity":
-      simulateActivity();
-      break;
-    case "cleanup":
-      cleanup();
-      break;
+      case "playPause":
+        var resume = options.resume;
+        clickPlayerButton("play-pause", resume === false ? "playing" : null, resume ? "playing" : null);
+        break;
+      case "nextSong":
+        clickPlayerButton("forward");
+        break;
+      case "prevSong":
+        clickPlayerButton("rewind");
+        break;
+      case "toggleRepeat":
+        clickPlayerButton("repeat");
+        break;
+      case "toggleShuffle":
+        clickPlayerButton("shuffle");
+        break;
+      case "openQueue":
+        simulateClick(document.querySelector("#queue"));
+        break;
+      case "rate":
+        rateSong(options.rating);
+        break;
+      case "startPlaylist":
+        startPlaylist();
+        break;
+      case "setPosition":
+        setPositionPercent("#material-player-progress", options.percent);
+        break;
+      case "setVolume":
+        setPositionPercent("#material-vslider", options.percent);
+        break;
+      case "clickCard":
+        clickCard(options.id);
+        break;
+      case "feelingLucky":
+        clickFeelingLucky();
+        break;
+      case "startPlaylistSong":
+        startPlaylistSong(options);
+        break;
+      case "resumePlaylistSong":
+        resumePlaylistSong(options);
+        break;
+      case "ratePlaylistSong":
+        ratePlaylistSong(options);
+        break;
+      case "simulateActivity":
+        simulateActivity();
+        break;
+      case "cleanup":
+        cleanup();
+        break;
     }
   }
 

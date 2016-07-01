@@ -48,7 +48,7 @@
       <pp-toggle class="v-2.26 exp" id="openGmBackground"></pp-toggle>
       <pp-toggle class="v-3.8 adv" id="simulateActivity" hint></pp-toggle>
       <pp-select class="v-2.26 adv" id="startupAction" from="#iconClickConnectAction"></pp-select>
-      <pp-select class="v-3.6 adv" id="playlistEndAction" options=",closeMp:miniplayer,closeGm,feelingLucky,ap/auto-playlist-thumbs-up,ap/auto-playlist-recent,ap/auto-playlist-promo" getoptionstext="playlistEndActionText"></pp-select>
+      <pp-select class="v-3.6 adv" id="playlistEndAction" options=",closeMp,closeGm,feelingLucky,ap/auto-playlist-thumbs-up,ap/auto-playlist-recent,ap/auto-playlist-promo" getoptionstext="playlistEndActionText"></pp-select>
       <pp-toggle class="v-3.0 adv" id="pauseOnLock"></pp-toggle>
       <pp-toggle class="v-4.0.1 adv" id="pauseOnIdle" watched listener="subsEnabled"></pp-toggle>
       <pp-input class="v-3.0 sub adv" id="pauseOnIdleSec" min="15"></pp-input>
@@ -96,7 +96,7 @@
       <pp-select class="v-2.24 sub2 exp notif" id="toastPriority" options="2,3" type="number"></pp-select>
       <pp-toggle class="v-2.24 sub2 adv notif" id="toastProgress"></pp-toggle>
       <pp-toggle class="v-2.25 sub2 adv notif" id="toastRating"></pp-toggle>
-      <pp-select class="v-2.8 sub2 adv notif" id="toastClick" options=",playPause,prevSong,nextSong,ff,rew,openMiniplayer:miniplayer,volumeUp,volumeDown,volumeMute,toggleRepeat,toggleShuffle,loveUnloveSong,rate-1,rate-2:stars,rate-3:stars,rate-4:stars,rate-5,feelingLucky,openLyrics" getoptionstext="commandOptionText"></pp-select>
+      <pp-select class="v-2.8 sub2 adv notif" id="toastClick" options=",playPause,prevSong,nextSong,ff,rew,openMiniplayer,volumeUp,volumeDown,volumeMute,toggleRepeat,toggleShuffle,loveUnloveSong,rate-1,rate-2,rate-3,rate-4,rate-5,feelingLucky,openLyrics" getoptionstext="commandOptionText"></pp-select>
       <pp-select class="v-2.8 sub2 adv notif" id="toastButton1" from="#toastClick"></pp-select>
       <pp-select class="v-2.8 sub2 adv notif" id="toastButton2" from="#toastClick"></pp-select>
     </pp-tab>
@@ -123,6 +123,7 @@
       <pp-toggle class="v-2.24 sub adv" id="linkRatingsAuto" hint></pp-toggle>
       <pp-toggle class="v-3.2 sub exp" id="linkRatingsReset" hint></pp-toggle>
       <pp-toggle class="v-2.17 miniplayer" id="showLastfmInfo"></pp-toggle>
+      <pp-input class="v-4.1 adv" id="lastFmArtistFilter" type="text" maxlength="200" hint></pp-input>
     </pp-tab>
     <pp-tab id="tabLyrics">
       <pp-lyricsproviders class="v-3.0"></pp-lyricsproviders>
@@ -174,6 +175,10 @@
   </pp-tabs>
   <div id="tools">
     <pp-select id="optionsMode" options="beg,adv,exp" hint watched></pp-select>
+    <paper-button id="exportSettings" raised></paper-button>
+    <a id="downloadLink" download="export.json"></a>
+    <paper-button id="importSettings" raised></paper-button>
+    <input id="importInput" type="file" accept=".json"/>
     <paper-button id="resetSettings" raised></paper-button>
     <div id="timerStatus">
       <h2></h2>
@@ -185,7 +190,7 @@
     <p></p>
     <div class="buttons">
       <paper-button dialog-dismiss></paper-button>
-      <paper-button dialog-confirm>OK</paper-button>
+      <paper-button dialog-confirm></paper-button>
     </div>
   </paper-dialog>
 </body>

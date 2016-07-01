@@ -34,9 +34,11 @@
       min="[[min]]"
       max="[[max]]"
       step="[[step]]"
+      maxlength="[[maxlength]]"
       label="[[i18nlabel(id)]]"
-      value="{{value}}"
+      value="[[value]]"
       disabled="[[disabled]]"
+      prevent-invalid-input
     ></paper-input>
   </template>
 </dom-module>
@@ -66,7 +68,7 @@
     >
       <paper-listbox id="input" class="dropdown-content" attr-for-selected="value">
         <template is="dom-repeat" items="[[items]]">
-          <paper-item class$="[[item.clazz]]" value="_[[item.value]]" disabled=[[item.disabled]]>[[item.text]]</paper-item>
+          <paper-item class$="[[item.value]]" value="_[[item.value]]" disabled=[[item.disabled]]>[[item.text]]</paper-item>
         </template>
       </paper-listbox>
     </paper-dropdown-menu>
@@ -255,6 +257,9 @@
   /* global chrome, Polymer */
   /* jshint jquery: true */
   var i18n = chrome.i18n.getMessage;
+  /**
+    * @polymerBehavior PpInputBehavior
+    */
   var PpInputBehavior = {
     properties: {
       local: Boolean,
@@ -284,7 +289,7 @@
         $("<h2>").text(this.i18nlabel(this.id)).appendTo(dialog);
         $("<p class='hint-content'>").html(i18n("setting_" + this.id + "Hint")).appendTo(dialog);
         var buttons = $("<div class='buttons'>");
-        $("<paper-button dialog-confirm>").text("OK").appendTo(buttons);
+        $("<paper-button dialog-confirm>").text(i18n("dialogOk")).appendTo(buttons);
         dialog.append(buttons);
         $(this).append(dialog);
         dialog = dialog[0];
@@ -306,6 +311,15 @@
         type: String,
         value: "number"
       },
+      min: String,
+      max: String,
+      step: String,
+      maxlength: String
+    },
+    ready: function() {
+      var that = this;
+      var input = this.$.input;
+      $(input).on("blur", function() { that.value = input.value; });
     }
   });
   
@@ -484,7 +498,7 @@
       var that = this;
       this.$.repeater.addEventListener("dom-change", function() {
         //prevent click events on link to bubble up (otherwise "checked" property is toggled when clicked on link)
-        $(".toggle-label", that).unbind().click(function(e) { e.stopPropagation(); });
+        $(".toggle-label", that).off().click(function(e) { e.stopPropagation(); });
       });
     },
     _isActive: function(activeProviders, provider) {
