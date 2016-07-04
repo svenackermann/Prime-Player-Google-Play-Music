@@ -372,6 +372,21 @@
   "setting_pauseOnIdleSec": {
     "message": "Sekunden im Leerlauf, bevor die Musik pausiert wird"
   },
+  "setting_keepAwakeLevel": {
+    "message": "System aktiv halten"
+  },
+  "setting_keepAwakeLevelHint": {
+    "message": "Hiermit kannst du verhindern, dass während Musik läuft der Computer oder Bildschirm wegen Inaktivität abgeschaltet oder in den Ruhemodus/Standby versetzt wird."
+  },
+  "setting_keepAwakeLevel_": {
+    "message": "nicht aktiv halten"
+  },
+  "setting_keepAwakeLevel_system": {
+    "message": "Computer aktiv halten"
+  },
+  "setting_keepAwakeLevel_display": {
+    "message": "Computer und Bildschirm aktiv halten"
+  },
   "setting_preventCommandRatingReset": {
     "message": "Setze Bewertungen niemals zurück, die nicht sichtbar sind"
   },

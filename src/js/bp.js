@@ -143,6 +143,7 @@ function fixForUri(string) {
     pauseOnLock: false,
     pauseOnIdle: false,
     pauseOnIdleSec: 60,
+    keepAwakeLevel: "",
     connectedIndicator: true,
     preventCommandRatingReset: true,
     autoActivateGm: true,
@@ -2083,6 +2084,15 @@ function fixForUri(string) {
   settings.w("showRatingIndicator", function(val) {
     song.arl("rating", updateBrowserActionInfo, val);
     updateBrowserActionInfo();
+  });
+
+  function keepAwake(playing) {
+    if (playing) chrome.power.requestKeepAwake(settings.keepAwakeLevel);
+    else chrome.power.releaseKeepAwake();
+  }
+  settings.w("keepAwakeLevel", function(val) {
+    player.wrl("playing", keepAwake, !!val);
+    if (!val) keepAwake(false);//release keep awake
   });
 
   function saveLastSongInfo(info) {

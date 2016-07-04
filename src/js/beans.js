@@ -33,11 +33,13 @@ function Bean(defaults, useLocalStorage) {
    */
   this.al = function(props, listener, src) {
     props.split(" ").forEach(function(prop) {
-      if (src) {
-        if (!srcListeners[src]) srcListeners[src] = [];
-        srcListeners[src].push({ l: listener, p: prop });
+      if (callbacks[prop].every(function(cb) { return cb != listener; })) {
+        if (src) {
+          if (!srcListeners[src]) srcListeners[src] = [];
+          srcListeners[src].push({ l: listener, p: prop });
+        }
+        callbacks[prop].push(listener);
       }
-      if (callbacks[prop].every(function(cb) { return cb != listener; })) callbacks[prop].push(listener);
     });
   };
 

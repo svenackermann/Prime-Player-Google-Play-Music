@@ -18,7 +18,8 @@
     "notifications",
     "storage",
     "contextMenus",
-    "idle"
+    "idle",
+    "power"
   ],
   "optional_permissions": [ "http://www.songlyrics.com/*", "http://lyrics.wikia.com/*", "https://www.musixmatch.com/*" ],
   "browser_action": {
