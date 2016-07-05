@@ -1,5 +1,4 @@
 {
-  "disallowDanglingUnderscores": true,
   "disallowEmptyBlocks": true,
   "disallowMixedSpacesAndTabs": true,
   "disallowMultipleLineBreaks": true,
