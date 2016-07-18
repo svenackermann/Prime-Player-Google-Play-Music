@@ -2,7 +2,7 @@
   "name": "primeplayer",
   "version": "4.1.0",
   "dependencies": {
-    "jquery": "3.0.0",
+    "jquery": "3.1.0",
     "npm-polymer-elements": "^0.0.1"
   },
   "devDependencies": {
@@ -15,7 +15,7 @@
     "gulp-jscs": "^4.0.0",
     "gulp-jscs-stylish": "^1.4.0",
     "gulp-jshint": "^2.0.1",
-    "gulp-json-transform": "^0.4.1",
+    "gulp-json-transform": "^0.4.2",
     "gulp-native2ascii": "^0.0.3",
     "gulp-replace": "^0.5.4",
     "gulp-sass": "^2.3.2",
@@ -28,7 +28,7 @@
     "jshint-stylish": "^2.2.0",
     "merge-stream": "^1.0.0",
     "run-sequence": "^1.2.2",
-    "yargs": "^4.7.1"
+    "yargs": "^4.8.1"
   },
   "scripts": {
     "preinstall": "npm i -g gulp-cli"
