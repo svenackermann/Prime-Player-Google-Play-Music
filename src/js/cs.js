@@ -376,9 +376,26 @@ $(function() {
       return playing;
     }
 
+    function repeatGetter(el) {
+      el = $(el);
+      if (el.css("display") != "none" && enabledGetter(el)) {
+        if (el.hasClass("active")) {
+          var svgPath = el.find("path").attr("d");
+          // path for SINGLE_REPEAT is longer because of the "1" that is additionally drawn
+          if (svgPath) return svgPath.length > 64 ? "SINGLE_REPEAT" : "LIST_REPEAT";
+        }
+        return "NO_REPEAT";
+      }
+      return "";
+    }
+
     /** @return shuffle state (NO_SHUFFLE/ALL_SHUFFLE) or null if shuffle is not available */
     function shuffleGetter(el) {
-      return enabledGetter(el) ? el.getAttribute("value") : null;
+      el = $(el);
+      if (el.css("display") != "none" && enabledGetter(el)) {
+        return el.hasClass("active") ? "ALL_SHUFFLE" : "NO_SHUFFLE";
+      }
+      return "";
     }
 
     /** Execute 'executeOnContentLoad' (if set) when #queueContainer is changed. */
@@ -407,6 +424,7 @@ $(function() {
      * @param fn function to execute, gets the jQuery object for the selector as parameter
      * @param selector element(s) to be watched for DOM manipulation
      * @param timeout time to wait after DOM manipulation before executing the function
+     * @param attributes if given, execute callback only if one of the (space-separated) attributes changes
      */
     function watchContent(fn, selector, timeout, attributes) {
       var content = $(selector);
@@ -483,8 +501,8 @@ $(function() {
     watchAttr("class disabled", playerButtonPrefix + "play-pause']", "player-playing", playingGetter, 500);
     watchAttr("class disabled", playerButtonPrefix + "rewind']", "player-rewind", enabledGetter);
     watchAttr("class disabled", playerButtonPrefix + "forward']", "player-forward", enabledGetter);
-    watchAttr("value", playerButtonPrefix + "repeat']", "player-repeat");
-    watchAttr("value", playerButtonPrefix + "shuffle']", "player-shuffle", shuffleGetter);
+    watchAttr("title style disabled", playerButtonPrefix + "repeat']", "player-repeat", repeatGetter, 250);
+    watchAttr("class style disabled", playerButtonPrefix + "shuffle']", "player-shuffle", shuffleGetter);
     watchAttr("aria-valuenow", "#material-vslider", "player-volume");
 
     $("#music-content,#queueContainer").on("DOMSubtreeModified", ".song-row td[data-col='rating']", function() {

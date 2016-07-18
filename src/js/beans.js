@@ -32,25 +32,36 @@ function Bean(defaults, useLocalStorage) {
    * If the value has been set but did not actually change, the callbacks won't be notified.
    */
   this.al = function(props, listener, src) {
-    props.split(" ").forEach(function(prop) {
-      if (src) {
-        if (!srcListeners[src]) srcListeners[src] = [];
-        srcListeners[src].push({ l: listener, p: prop });
+    var wrappedCallback = listener._wrappedCallback;
+    if (!wrappedCallback) {
+      wrappedCallback = function() {
+        try {
+          return listener.apply(this, arguments);
+        } catch (e) {
+          console.error("error in listener for " + props, e);
+        }
+      };
+      listener._wrappedCallback = wrappedCallback;
+    }
+    props.split(/\s+/).forEach(function(prop) {
+      if (!callbacks[prop].has(wrappedCallback)) {
+        if (src) {
+          if (!srcListeners[src]) srcListeners[src] = [];
+          srcListeners[src].push({ l: listener, p: prop });
+        }
+        callbacks[prop].add(wrappedCallback);
       }
-      if (callbacks[prop].every(function(cb) { return cb != listener; })) callbacks[prop].push(listener);
     });
   };
 
   /** Removes a listener function for the given (space separated) properties. */
   this.rl = function(props, listener) {
-    props.split(" ").forEach(function(prop) {
-      callbacks[prop].some(function(cb, i, cbs) {
-        if (listener == cb) {
-          cbs.splice(i, 1);
-          return true;
-        }
+    var wrappedCallback = listener._wrappedCallback;
+    if (wrappedCallback) {
+      props.split(/\s+/).forEach(function(prop) {
+        callbacks[prop].remove(wrappedCallback);
       });
-    });
+    }
   };
 
   /** Either adds or removes (specified by 'add' argument) a listener function for the given (space separated) properties. */
@@ -203,20 +214,10 @@ function Bean(defaults, useLocalStorage) {
     return val === old && (typeof val != "object" || val === null);
   }
 
-  function notify(name, val, old) {
-    callbacks[name].forEach(function(listener) {
-      try {
-        listener(val, old, name);
-      } catch (e) {
-        console.error("error in listener for " + name, e);
-      }
-    });
-  }
-
   /** Setup an object property with the given name */
   function setting(name, defaultValue) {
     cache[name] = parse(name, defaultValue);
-    callbacks[name] = [];
+    callbacks[name] = $.Callbacks();
 
     Object.defineProperty(that, name, {
       get: function() { return cache[name]; },
@@ -234,7 +235,7 @@ function Bean(defaults, useLocalStorage) {
         }
         cache[name] = val;
         if (useSyncStorage) saveSyncStorage();
-        notify(name, val, old);
+        callbacks[name].fire(val, old, name);
       },
       enumerable: true
     });

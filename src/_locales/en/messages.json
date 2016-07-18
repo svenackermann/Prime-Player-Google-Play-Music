@@ -512,6 +512,26 @@
     "message": "Seconds to be idle before music is paused",
     "description": "label for option to set the seconds for pause on idle"
   },
+  "setting_keepAwakeLevel": {
+    "message": "Keep system awake",
+    "description": "label for option to set the keep awake level"
+  },
+  "setting_keepAwakeLevelHint": {
+    "message": "Here you can prevent your system or screen from going to sleep due to inactivity while music is playing.",
+    "description": "hint for option to set the keep awake level"
+  },
+  "setting_keepAwakeLevel_": {
+    "message": "don't keep awake",
+    "description": "label for no keep awake level"
+  },
+  "setting_keepAwakeLevel_system": {
+    "message": "keep only system awake",
+    "description": "label for system keep awake level"
+  },
+  "setting_keepAwakeLevel_display": {
+    "message": "keep system and screen awake",
+    "description": "label for display keep awake level"
+  },
   "setting_preventCommandRatingReset": {
     "message": "Prevent rating resets without feedback",
     "description": "label for option to prevent rating resets"
