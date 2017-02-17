@@ -16,7 +16,7 @@ Features include:
 * last.fm integration (now playing, scrobbling, like/unlike)
 * a powerful miniplayer with different layouts and color schemes
 * toast notifications
-* lyrics (from [musixmatch](www.musixmatch.com), [LyricWikia](http://lyrics.wikia.com) or [songlyrics](www.songlyrics.com))
+* lyrics (from [musixmatch](https://www.musixmatch.com), [LyricWikia](http://lyrics.wikia.com) or [songlyrics](https://www.songlyrics.com))
 * keyboard shortcuts
 * and more
 
