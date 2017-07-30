@@ -121,17 +121,10 @@ pp-toggle .hint-trigger {
   font-weight: bold;
   margin-right: 10px;
   margin-bottom: 8px;
-  > a, > form {
+  > a {
     float: left;
     margin-right: 2ex;
     margin-bottom: 0;
-  }
-  &.sociallinks a > img {
-    height: 20px;
-  }
-  &#bugfeatureinfo > a {
-    margin: initial;
-    float: none;
   }
 }
 

@@ -488,8 +488,6 @@ chrome.runtime.getBackgroundPage(function(bp) {
 
     $("head > title").text(i18n("options") + " - " + i18n("extTitle"));
 
-    $("#bugfeatureinfo").html(i18n("bugfeatureinfo", "<a target='_blank' href='https://github.com/svenackermann/Prime-Player-Google-Play-Music/issues' data-network='github' data-action='issue'>GitHub</a>"));
-
     $("#legendIc").text(i18n("legendIc")).after(i18n("legendIcHint"));
 
     initInputs();
