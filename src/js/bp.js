@@ -150,7 +150,6 @@ function fixForUri(string) {
     autoRestoreGm: true,
     confirmClose: false,
     updateNotifier: true,
-    gaEnabled: true,
     //}
     //{ miniplayer
     miniplayerType: "popup",
