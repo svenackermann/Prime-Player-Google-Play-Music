@@ -6,9 +6,8 @@
  * @license BSD license
  */
 
-/* global ga, chrome */
 /* exported initGA */
-
+/*jshint unused:false */
 function initGA(settings, context, initDimensions, initMetrics) {
   /** send an event to Google Analytics, if enabled */
   function event(category, eventName) {
